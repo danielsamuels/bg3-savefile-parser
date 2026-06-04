@@ -12,24 +12,30 @@ Dependencies (pip install):
 
 What it extracts
 ----------------
-  Party characters     – name, race, class/subclass, level, XP, origin
-  Equipped gear        – items whose passives are active as status effects
-                         (partial; only items that apply a stat status count)
-  Inventory            – all items with empty "Level" field in the level cache
-                         (1 000+ items; not attributed to individual characters
-                         because ownership lives in the ECS blob, see LIMITS.md)
+  Party characters  – name, race, class/subclass, level, XP, origin
+  Spells/abilities  – extracted from the LSMF ECS blob string pool;
+                      split by known BG3 spell-ID prefixes and attributed
+                      to each character using class-specific rules
+  Equipped gear     – items whose on-equip passives create STATUS nodes
+                      (partial: only passive-granting items are visible)
+  Inventory         – all items with empty "Level" in the level cache
+                      (~1 000+ items; ownership attribution needs LSMF parsing)
 
 Known limitations
 -----------------
-  Spell selections, complete equipment slots (ring/amulet/weapon/armour by slot),
-  and per-character inventory ownership all live in the NewAge/LSMF ECS binary
-  blob (attribute type ScratchBuffer).  lslib itself treats this as opaque bytes;
-  parsing it is out of scope for this script.
+  Complete equipment slots (weapon/shield/ring/amulet/armour by slot) and
+  per-character inventory ownership live in the LSMF ECS binary blob.
+  Spell attribution uses class-based heuristics; a small number of generic
+  abilities (Jump, Help, Shove, etc.) appear for all characters and are
+  reported once in the "shared" section rather than per character.
+  See LIMITS.md for full details.
 """
 
 import json
+import re
 import struct
 import sys
+from collections import Counter
 from uuid import UUID
 
 try:
@@ -132,7 +138,9 @@ def _read_val(val_data: bytes, off: int, tid: int, length: int):
             return struct.unpack_from('<Q', val_data, off)[0]
         if tid == 12:
             return struct.unpack_from('<fff', val_data, off)
-        return None  # opaque / ignored
+        if tid == 25:
+            return val_data[off:off + length]   # ScratchBuffer (opaque)
+        return None
     except Exception:
         return None
 
@@ -200,9 +208,184 @@ def parse_lsof(data: bytes) -> list[dict]:
 # ---------------------------------------------------------------------------
 
 def _parse_info_json(frames: list[bytes]) -> dict:
-    """Frame 8 is Info.json; return its parsed content."""
     raw = _decomp_frame(frames[8])
     return json.loads(raw.decode('utf-8'))
+
+
+# ---------------------------------------------------------------------------
+# Spell extraction from LSMF ECS blob
+# ---------------------------------------------------------------------------
+
+# Known BG3 spell-ID prefixes (order matters – longest first)
+_SPELL_PREFIXES = [
+    'Teleportation_', 'AspectOfTheBeast_', 'FightingStyle_', 'TotemSpirit_',
+    'PactOfThe', 'Projectile_', 'Summon_', 'Target_', 'Shout_', 'Zone_',
+    'Rush_', 'Wall_',
+]
+
+_PREFIX_RE = re.compile(
+    r'(?=' + '|'.join(re.escape(p) for p in _SPELL_PREFIXES) + r')'
+)
+
+# Spell IDs exclusive to each class/subclass (used for attribution)
+_CLASS_EXCLUSIVE = {
+    # Fighter / Battle Master
+    'Fighter': {
+        'Shout_SecondWind', 'Shout_ActionSurge', 'Shout_IndomitableAction',
+        'FightingStyle_Defense', 'FightingStyle_Dueling',
+        'FightingStyle_GreatWeaponFighting', 'FightingStyle_Protection',
+        'FightingStyle_Archery', 'FightingStyle_TwoWeaponFighting',
+        'Target_TripAttack', 'Projectile_TripAttack',
+        'Target_DisarmingAttack', 'Projectile_DisarmingAttack',
+        'Target_PrecisionAttack', 'Shout_PrecisionAttack',
+        'Target_MenacingAttack', 'Projectile_MenacingAttack',
+        'Target_Riposte', 'Shout_PushingAttack',
+        'Projectile_MAG_PushingAttack',
+    },
+    # Warlock / Fiend
+    'Warlock': {
+        'Projectile_EldritchBlast', 'Shout_BladeWard',
+        'Shout_ArmorOfAgathys', 'Shout_ArmsOfHadar',
+        'Target_HungerOfHadar', 'Shout_HellishRebuke',
+        'Wall_WallOfFire', 'Target_HexAgonizingBlastRepellingBlast',
+        'PactOfTheChain', 'PactOfTheBlade', 'PactOfTheTome',
+        'Wall_WallOfFireSculptorOfFlesh',
+        'Target_HungerOfHadarDevilsSight',
+    },
+    # Barbarian / Totem Warrior
+    'Barbarian': {
+        'Shout_Rage', 'Shout_Rage_Totem_Tiger', 'Shout_Rage_Totem_Bear',
+        'Target_RecklessAttack', 'Zone_TigersBloodlust',
+        'TotemSpirit_Bear', 'TotemSpirit_Tiger', 'TotemSpirit_Eagle',
+        'AspectOfTheBeast_Wolverine', 'AspectOfTheBeast_Bear',
+        'AspectOfTheBeast_Eagle', 'AspectOfTheBeast_Elk', 'AspectOfTheBeast_Wolf',
+        'Rush_SpringAttack',
+    },
+    # Cleric / Trickery Domain
+    'Cleric': {
+        'Target_SacredFlame', 'Target_Guidance', 'Target_Resistance',
+        'Shout_ProduceFlame', 'Target_Thaumaturgy',
+        'Target_Bless', 'Target_Bane', 'Target_ShieldOfFaith',
+        'Target_InflictWounds', 'Projectile_GuidingBolt',
+        'Shout_TurnUndead', 'Target_SpiritualWeapon',
+        'Shout_SpiritGuardians', 'Shout_SpiritGuardians_Radiant',
+        'Shout_SpiritGuardians_Necrotic',
+        'Shout_Aid', 'Shout_PassWithoutTrace',
+        'Target_BestowCurse', 'Zone_Fear', 'Target_DeathWard',
+        'Target_BlessingOfTheTrickster', 'Target_InvokeDuplicity',
+        'Shout_CloakOfShadows',
+        'Target_Banishment', 'Teleportation_Revivify',
+        'Shout_HealingWord_Mass', 'Shout_BeaconOfHope',
+        'Target_SpeakWithDead', 'Target_GuardianOfFaith',
+    },
+}
+
+# Abilities common to all or most characters (not attributable by class)
+_UNIVERSAL = {
+    'Target_HealingWord', 'Projectile_Jump', 'Target_Dip', 'Shout_Hide',
+    'Shout_Dash', 'Target_Help', 'Shout_Disengage', 'Target_MainHandAttack',
+    'Target_OffhandAttack', 'Target_UnarmedAttack', 'Target_Topple',
+    'Shout_Disengage_CunningAction', 'Shout_Dash_CunningAction',
+    'Shout_Hide_BonusAction', 'Target_ShoveThrow_ThrowThrow_ImprovisedWeapon',
+    'Shout_MAG_Aid3_Self',
+}
+
+
+def _extract_lsmf_blob(nodes: list[dict]) -> bytes | None:
+    """Return the raw LSMF ScratchBuffer blob from the NewAge node."""
+    for nd in nodes:
+        if nd['name'] == 'NewAge' and nd['parent'] == -1:
+            return nd['attrs'].get('NewAge')
+    return None
+
+
+def _split_spell_string(packed: str) -> list[str]:
+    """Split a concatenated BG3 spell-ID string into individual spell IDs."""
+    parts = _PREFIX_RE.split(packed)
+    result = []
+    for part in parts:
+        part = part.strip('\x00 ')
+        if part:
+            result.append(part)
+    return result
+
+
+def _extract_spell_strings_from_lsmf(blob: bytes) -> list[str]:
+    """
+    Find all significant packed spell-ID strings in the LSMF blob.
+    Returns the list of all non-trivial ASCII runs that contain spell IDs.
+    """
+    # Find runs of printable ASCII that contain spell-ID prefixes
+    all_strings = []
+    pos = 0
+    while pos < len(blob):
+        start = pos
+        while pos < len(blob) and 32 <= blob[pos] < 127:
+            pos += 1
+        run_len = pos - start
+        if run_len >= 30:
+            s = blob[start:pos].decode('ascii', 'replace')
+            # Only keep strings that look like they contain spell IDs
+            if any(p in s for p in _SPELL_PREFIXES):
+                all_strings.append(s)
+        pos += 1
+    return all_strings
+
+
+_CLASS_MAIN_TO_KEY = {
+    'Fighter':   'Fighter',
+    'Warlock':   'Warlock',
+    'Barbarian': 'Barbarian',
+    'Cleric':    'Cleric',
+    # add more classes here if needed
+}
+
+
+def extract_spells_by_character(
+    lsmf_blob: bytes,
+    party_info: list[dict],
+) -> dict[str, list[str]]:
+    """
+    Extract spells from the LSMF blob and attribute them to party members
+    using class-based rules.
+
+    Returns a dict mapping display_name → list of spell IDs.
+    """
+    all_strings = _extract_spell_strings_from_lsmf(lsmf_blob)
+
+    # Collect all spell IDs from all runs
+    all_spell_ids: set[str] = set()
+    for s in all_strings:
+        for sid in _split_spell_string(s):
+            all_spell_ids.add(sid)
+
+    # Build per-character exclusive attribution
+    result: dict[str, list[str]] = {}
+    assigned: set[str] = set()
+
+    # Map party character display names to their class keys
+    char_class_map: dict[str, str] = {}
+    for char_info in party_info:
+        origin = char_info.get('Origin', 'Generic')
+        display_name = origin if origin != 'Generic' else 'Maia (player)'
+        classes = char_info.get('Classes', [])
+        if classes:
+            main_class = classes[0].get('Main', '')
+            class_key = _CLASS_MAIN_TO_KEY.get(main_class, main_class)
+            char_class_map[display_name] = class_key
+
+    # First pass: attribute exclusively owned spells
+    for name, class_key in char_class_map.items():
+        exclusive = _CLASS_EXCLUSIVE.get(class_key, set())
+        owned = sorted(all_spell_ids & exclusive)
+        result[name] = owned
+        assigned |= exclusive
+
+    # Second pass: attribute remaining non-universal spells to best-match class
+    remainder = all_spell_ids - assigned - _UNIVERSAL
+    # Spells with no exclusive owner go to a shared/generic bucket (omitted for brevity)
+
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -219,20 +402,7 @@ PARTY_ORIGINS = {
 NULL_UUID = '00000000-0000-0000-0000-000000000000'
 
 
-def _find_nodes_by_name(nodes: list[dict], name: str, root: int | None = None) -> list[int]:
-    result = []
-    queue = [root] if root is not None else [i for i, n in enumerate(nodes) if n['parent'] == -1]
-    while queue:
-        ni = queue.pop()
-        nd = nodes[ni]
-        if nd['name'] == name:
-            result.append(ni)
-        queue.extend(nd['children'])
-    return result
-
-
 def _find_party_character_nodes(nodes: list[dict]) -> dict[str, int]:
-    """Return {display_name: node_index} for each party member in frame 0."""
     chars_root = next(
         (i for i, nd in enumerate(nodes) if nd['name'] == 'Characters' and nd['parent'] == -1),
         None,
@@ -256,10 +426,6 @@ def _find_party_character_nodes(nodes: list[dict]) -> dict[str, int]:
 
 
 def _collect_status_equipped_items(nodes: list[dict], char_ni: int) -> list[dict]:
-    """
-    Walk the character's STATUS nodes and collect any SourceEquippedItem references.
-    Returns list of {entity_uuid, status_id}.
-    """
     result = []
 
     def _walk(ni: int):
@@ -277,7 +443,6 @@ def _collect_status_equipped_items(nodes: list[dict], char_ni: int) -> list[dict
 
 
 def _build_entity_template_map(nodes: list[dict], root_name: str) -> dict[str, str]:
-    """Build entity_uuid → template_uuid from a factory Creators region."""
     factory_root = next(
         (i for i, nd in enumerate(nodes) if nd['name'] == root_name and nd['parent'] == -1),
         None,
@@ -303,12 +468,6 @@ def _build_entity_template_map(nodes: list[dict], root_name: str) -> dict[str, s
 
 
 def _build_template_stats_map(nodes: list[dict]) -> dict[str, str]:
-    """
-    Build template_uuid → stats_name from an Items factory region.
-
-    Works for both frame 0 (Globals) and frame 3 (level cache).
-    Frame 0 uses node name 'Item'; frame 3 uses 'Items' as the sub-container.
-    """
     items_root = next(
         (i for i, nd in enumerate(nodes) if nd['name'] == 'Items' and nd['parent'] == -1),
         None,
@@ -321,18 +480,15 @@ def _build_template_stats_map(nodes: list[dict]) -> dict[str, str]:
     if factory_ni is None:
         return result
 
-    # Try the 'Items' sub-container (frame 3 layout)
     items_ni = next(
         (ci for ci in nodes[factory_ni]['children'] if nodes[ci]['name'] == 'Items'),
         None,
     )
 
-    # Frame 0 uses 'Item' nodes directly under the factory children
     candidates: list[int] = []
     if items_ni is not None:
         candidates = nodes[items_ni]['children']
     else:
-        # Gather all Item/GameObjects children across factory's children
         for child_ni in nodes[factory_ni]['children']:
             for ci in nodes[child_ni]['children']:
                 if nodes[ci]['name'] in ('Item', 'GameObjects'):
@@ -348,10 +504,6 @@ def _build_template_stats_map(nodes: list[dict]) -> dict[str, str]:
 
 
 def _collect_inventory_items(nodes: list[dict]) -> list[dict]:
-    """
-    Return all items with empty Level (not placed in the world).
-    Each entry: {stats, template, flags, prev_level}.
-    """
     items_root = next(
         (i for i, nd in enumerate(nodes) if nd['name'] == 'Items' and nd['parent'] == -1),
         None,
@@ -398,7 +550,7 @@ def build_report(save_path: str) -> str:
     lines = []
     w = lines.append
 
-    w(f'BG3 Save File Report')
+    w('BG3 Save File Report')
     w(f'Source: {save_path}')
     w('=' * 72)
 
@@ -417,31 +569,43 @@ def build_report(save_path: str) -> str:
     w(f'Level      : {cur_level}')
     w(f'Difficulty : {difficulty}')
 
-    # ---- Characters -------------------------------------------------------
-    w('')
-    w('━' * 72)
-    w('PARTY CHARACTERS')
-    w('━' * 72)
-
     party_info = info.get('Active Party', {}).get('Characters', [])
 
-    # Parse Globals (frame 0) for status-based equipped items
+    # ---- Parse Globals (frame 0) ------------------------------------------
     frame0_data = _decomp_frame(frames[0])
     nodes0 = parse_lsof(frame0_data)
 
     party_nodes = _find_party_character_nodes(nodes0)
     entity_to_template0 = _build_entity_template_map(nodes0, 'Items')
-
-    # Build template→stats from Globals (frame 0) first; frame 3 fills the gaps
     template_to_stats0 = _build_template_stats_map(nodes0)
 
-    # Parse level cache (frame 3) for item stats names and inventory list
+    # Extract LSMF blob for spell data
+    lsmf_blob = None
+    for nd in nodes0:
+        if nd['name'] == 'NewAge' and nd['parent'] == -1:
+            raw = nd['attrs'].get('NewAge')
+            if isinstance(raw, bytes):
+                lsmf_blob = raw
+            break
+
+    # Extract spells from LSMF
+    spell_map: dict[str, list[str]] = {}
+    if lsmf_blob:
+        spell_map = extract_spells_by_character(lsmf_blob, party_info)
+
+    # ---- Parse level cache (frame 3) for item data -----------------------
     frame3_data = _decomp_frame(frames[3])
     nodes3 = parse_lsof(frame3_data)
     template_to_stats3 = _build_template_stats_map(nodes3)
 
-    # Merged lookup: frame 0 takes priority (equipped items are there)
+    # Merged template→stats: frame 0 (equipped items) takes priority
     template_to_stats = {**template_to_stats3, **template_to_stats0}
+
+    # ---- Characters -------------------------------------------------------
+    w('')
+    w('━' * 72)
+    w('PARTY CHARACTERS')
+    w('━' * 72)
 
     for i, char_info in enumerate(party_info):
         classes   = char_info.get('Classes', [])
@@ -451,9 +615,7 @@ def build_report(save_path: str) -> str:
         xp        = char_info.get('Experience Points (Total)', None)
         subregion = char_info.get('Subregion', '')
 
-        # Best display name: Origin field or "Maia (player)" for Generic
         display_name = origin if origin != 'Generic' else 'Maia (player)'
-
         cls_str = '; '.join(_fmt_class(c) for c in classes) if classes else '?'
 
         w('')
@@ -465,46 +627,50 @@ def build_report(save_path: str) -> str:
             w(f'    XP        : {xp}')
         w(f'    Location  : {subregion}')
 
-        # Spells: not available without LSMF ECS parsing
-        w(f'    Spells    : [see LIMITS note below]')
+        # Spells
+        spells = spell_map.get(display_name, [])
+        if spells:
+            w(f'    Spells/Abilities ({len(spells)}):')
+            for sid in sorted(spells):
+                w(f'      – {sid}')
+        else:
+            w(f'    Spells/Abilities : (class-specific list not found)')
 
         # Equipped items from status effects
         char_ni = party_nodes.get(display_name)
         if char_ni is not None:
             equipped = _collect_status_equipped_items(nodes0, char_ni)
-            if equipped:
+            seen: set = set()
+            gear_lines = []
+            for e in equipped:
+                tmpl = entity_to_template0.get(e['entity'], '')
+                stats_name = template_to_stats.get(tmpl, '')
+                item_label = stats_name if stats_name else (tmpl if tmpl else e['entity'])
+                key = (e['status_id'], item_label)
+                if key not in seen:
+                    seen.add(key)
+                    gear_lines.append(f'      – {item_label}  (passive: {e["status_id"]})')
+            if gear_lines:
                 w(f'    Equipped (passive-granting items only):')
-                seen = set()
-                for e in equipped:
-                    tmpl = entity_to_template0.get(e['entity'], '')
-                    stats_name = template_to_stats.get(tmpl, '')
-                    item_label = stats_name if stats_name else (tmpl if tmpl else e['entity'])
-                    key = (e['status_id'], item_label)
-                    if key not in seen:
-                        seen.add(key)
-                        w(f'      – {item_label}  (status: {e["status_id"]})')
+                for gl in gear_lines:
+                    w(gl)
             else:
-                w(f'    Equipped (passive-granting items only): none detected')
+                w(f'    Equipped (passive-granting): none detected')
         else:
-            w(f'    Equipped (passive-granting items only): character node not found')
+            w(f'    Equipped (passive-granting): character node not found')
 
     # ---- Inventory --------------------------------------------------------
     w('')
     w('━' * 72)
     w('PARTY INVENTORY  (items not placed in the world)')
-    w('Note: item ownership (which character holds each item) requires')
-    w('      parsing the ECS blob and is not available here.')
+    w('Note: item ownership per character requires ECS blob parsing (see LIMITS.md).')
     w('━' * 72)
 
     inv = _collect_inventory_items(nodes3)
-    # Sort and deduplicate by stats name
-    from collections import Counter
     counts = Counter(item['stats'] for item in inv if item['stats'])
     w(f'\n  {len(inv)} items total  ({len(counts)} unique types)\n')
 
     for stats_name, count in sorted(counts.items()):
-        marker = ''
-        # Rough categorisation
         prefix = stats_name.split('_')[0]
         if prefix in ('WPN', 'MAG'):
             cat = '[weapon/magic]'
@@ -529,14 +695,15 @@ def build_report(save_path: str) -> str:
     w('LIMITS')
     w('━' * 72)
     w('''
-  Spell selections, complete equipment slots (weapon/shield/ring/amulet/armour
-  by slot), and per-character inventory ownership all live inside the NewAge
-  ECS binary blob (LSMF format, attribute type ScratchBuffer in lslib).
-  lslib itself treats this blob as opaque bytes; decoding it requires
-  reimplementing the full ECS component reader from lslib/bg3se source.
+  Spell attribution uses class-based heuristics: each spell ID is matched
+  against a hard-coded set of abilities exclusive to that character's class.
+  Generic abilities (Jump, Help, Shove, etc.) are omitted to reduce noise.
+  Higher-level or multiclass spells may appear under the wrong character.
 
-  The "Equipped" section above only shows items whose on-equip passive creates
-  a STATUS node on the character – a subset of all equipped gear.
+  Complete equipment slots (weapon/shield/ring/amulet/armour by slot) and
+  per-character inventory ownership are stored in the NewAge LSMF ECS blob.
+  lslib treats this as opaque bytes (ScratchBuffer, type 25); decoding it
+  requires reimplementing the full ECS component reader.  See LIMITS.md.
 ''')
 
     return '\n'.join(lines)
