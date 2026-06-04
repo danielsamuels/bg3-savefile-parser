@@ -537,6 +537,111 @@ def _collect_inventory_items(nodes: list[dict]) -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
+# Per-character item attribution (position-based ownership)
+# ---------------------------------------------------------------------------
+#
+# A carried/equipped item's `Translate` (world transform) is copied from the
+# character carrying it, so every item on a party member shares that member's
+# exact float coordinates.  Matching item Translate against character Translate
+# attributes each item to its owner — without decoding the ECS blob.
+#
+# Whether an attributed item is *worn* vs merely *carried* is then decided by a
+# union of two signals (neither complete on its own):
+#   1. STATUS.SourceEquippedItem  — catches items that grant a passive/effect
+#                                    (spell slots, auras) but is silent for
+#                                    plain gear and for chars with few statuses.
+#   2. Flags bit 0x04000000       — set on most worn equipment, but missing on
+#                                    some worn items and present on a few held
+#                                    consumables (filtered out by item type).
+# Residual: a carried *spare* weapon/armour the character isn't wearing can
+# still be flagged equipped; the worn-vs-spare distinction lives in the ECS
+# equipment component (see LIMITS.md).
+
+EQUIPPED_FLAG_BIT = 0x04000000
+
+# Item stats-name prefixes / substrings that are never worn equipment.
+_NON_EQUIP_PREFIXES = (
+    'OBJ_', 'CONS_', 'ALCH_', 'FOOD_', 'SCR_', 'SCROLL_', 'BOOK_',
+    'LOOT_', 'KEY_', 'PUZ_', 'PLT_', 'TItem_', 'GOLD_',
+)
+_NON_EQUIP_SUBSTR = (
+    '_Camp_', 'Underwear', 'Keychain', 'GoldPile',
+    'Backpack', 'AlchemyPouch', 'CampSupplies',
+)
+
+
+def _is_equipment_type(stats: str) -> bool:
+    """True if a stats name could plausibly be worn equipment."""
+    if not stats:
+        return False
+    if stats.startswith(_NON_EQUIP_PREFIXES):
+        return False
+    if any(sub in stats for sub in _NON_EQUIP_SUBSTR):
+        return False
+    return True
+
+
+def _collect_character_positions(nodes0: list[dict], party_nodes: dict[str, int]) -> dict[str, tuple]:
+    """display_name -> exact Translate tuple of that character."""
+    out = {}
+    for name, ni in party_nodes.items():
+        t = nodes0[ni]['attrs'].get('Translate')
+        if isinstance(t, tuple):
+            out[name] = t
+    return out
+
+
+def _collect_items_by_position(node_lists: list[list[dict]],
+                               positions: dict[str, tuple]) -> dict[str, list[tuple]]:
+    """Group Item records by which character's exact Translate they share.
+
+    Returns {display_name: [(stats, flags), ...]} deduped per character.
+    node_lists may contain several parsed frames (frame 0 + frame 3); records
+    are merged so an item present in either frame is attributed.
+    """
+    pos2name = {t: n for n, t in positions.items()}
+    # name -> {stats: flags}; if an item appears more than once, keep the record
+    # whose Flags carry the equipped bit so a clear-flagged duplicate can't hide it.
+    acc: dict[str, dict[str, int]] = {n: {} for n in positions}
+    for nodes in node_lists:
+        for nd in nodes:
+            if nd['name'] != 'Item':
+                continue
+            t = nd['attrs'].get('Translate')
+            name = pos2name.get(t)
+            if name is None:
+                continue
+            stats = nd['attrs'].get('Stats', '')
+            if not stats:
+                continue
+            flags = nd['attrs'].get('Flags', 0)
+            prev = acc[name].get(stats)
+            if prev is None:
+                acc[name][stats] = flags
+            elif isinstance(flags, int) and (flags & EQUIPPED_FLAG_BIT) \
+                    and not (isinstance(prev, int) and (prev & EQUIPPED_FLAG_BIT)):
+                acc[name][stats] = flags
+    return {n: list(d.items()) for n, d in acc.items()}
+
+
+def _split_equipped_carried(items: list[tuple],
+                            status_equipped: set[str]) -> tuple[list[str], list[str]]:
+    """Split a character's attributed items into (equipped, carried).
+
+    equipped = STATUS-equipped  ∪  (Flags bit set AND equipment-type).
+    """
+    equipped, carried = [], []
+    for stats, flags in items:
+        is_eq = stats in status_equipped or (
+            isinstance(flags, int)
+            and (flags & EQUIPPED_FLAG_BIT)
+            and _is_equipment_type(stats)
+        )
+        (equipped if is_eq else carried).append(stats)
+    return sorted(set(equipped)), sorted(set(carried))
+
+
+# ---------------------------------------------------------------------------
 # Report formatting
 # ---------------------------------------------------------------------------
 
@@ -578,6 +683,7 @@ def build_report(save_path: str) -> str:
     party_nodes = _find_party_character_nodes(nodes0)
     entity_to_template0 = _build_entity_template_map(nodes0, 'Items')
     template_to_stats0 = _build_template_stats_map(nodes0)
+    char_positions = _collect_character_positions(nodes0, party_nodes)
 
     # Extract LSMF blob for spell data
     lsmf_blob = None
@@ -600,6 +706,9 @@ def build_report(save_path: str) -> str:
 
     # Merged template→stats: frame 0 (equipped items) takes priority
     template_to_stats = {**template_to_stats3, **template_to_stats0}
+
+    # Per-character item attribution by shared world position (frame 0 + frame 3)
+    items_by_char = _collect_items_by_position([nodes0, nodes3], char_positions)
 
     # ---- Characters -------------------------------------------------------
     w('')
@@ -636,34 +745,38 @@ def build_report(save_path: str) -> str:
         else:
             w(f'    Spells/Abilities : (class-specific list not found)')
 
-        # Equipped items from status effects
+        # Equipped + carried items, attributed by shared world position
         char_ni = party_nodes.get(display_name)
+        status_equipped: set[str] = set()
         if char_ni is not None:
-            equipped = _collect_status_equipped_items(nodes0, char_ni)
-            seen: set = set()
-            gear_lines = []
-            for e in equipped:
+            for e in _collect_status_equipped_items(nodes0, char_ni):
                 tmpl = entity_to_template0.get(e['entity'], '')
                 stats_name = template_to_stats.get(tmpl, '')
-                item_label = stats_name if stats_name else (tmpl if tmpl else e['entity'])
-                key = (e['status_id'], item_label)
-                if key not in seen:
-                    seen.add(key)
-                    gear_lines.append(f'      – {item_label}  (passive: {e["status_id"]})')
-            if gear_lines:
-                w(f'    Equipped (passive-granting items only):')
-                for gl in gear_lines:
-                    w(gl)
-            else:
-                w(f'    Equipped (passive-granting): none detected')
+                if stats_name:
+                    status_equipped.add(stats_name)
+
+        attributed = items_by_char.get(display_name, [])
+        if attributed:
+            equipped, carried = _split_equipped_carried(attributed, status_equipped)
+            w(f'    Equipped ({len(equipped)}):')
+            for s in equipped:
+                tag = '  (passive confirmed)' if s in status_equipped else ''
+                w(f'      – {s}{tag}')
+            w(f'    Carried / personal inventory ({len(carried)}):')
+            for s in carried:
+                w(f'      – {s}')
+        elif char_ni is None:
+            w(f'    Equipment : character node not found')
         else:
-            w(f'    Equipped (passive-granting): character node not found')
+            w(f'    Equipment : no items attributed (character off current level?)')
 
     # ---- Inventory --------------------------------------------------------
     w('')
     w('━' * 72)
-    w('PARTY INVENTORY  (items not placed in the world)')
-    w('Note: item ownership per character requires ECS blob parsing (see LIMITS.md).')
+    w('ALL ITEMS ON CURRENT LEVEL  (per-character gear listed above)')
+    w('Note: items carried by party members are attributed to each character')
+    w('above, by shared world position. The list below is the full level pool')
+    w('(world loot, containers, vendor stock) for reference.')
     w('━' * 72)
 
     inv = _collect_inventory_items(nodes3)
@@ -700,10 +813,13 @@ def build_report(save_path: str) -> str:
   Generic abilities (Jump, Help, Shove, etc.) are omitted to reduce noise.
   Higher-level or multiclass spells may appear under the wrong character.
 
-  Complete equipment slots (weapon/shield/ring/amulet/armour by slot) and
-  per-character inventory ownership are stored in the NewAge LSMF ECS blob.
-  lslib treats this as opaque bytes (ScratchBuffer, type 25); decoding it
-  requires reimplementing the full ECS component reader.  See LIMITS.md.
+  Per-character item ownership is recovered from shared world position
+  (each carried/worn item copies its holder's Translate).  Equipped vs
+  carried is a union of STATUS effects + the equipped Flags bit; a carried
+  *spare* weapon/armour may be mis-marked as equipped, and the exact slot
+  (MainHand/Ring1/…) plus a handful of unique items that have no Item record
+  in the LSF frames (they live only in the NewAge LSMF ECS blob) are not
+  recoverable without a full ECS component reader.  See LIMITS.md.
 ''')
 
     return '\n'.join(lines)
