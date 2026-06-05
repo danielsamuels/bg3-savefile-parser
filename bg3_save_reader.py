@@ -645,22 +645,40 @@ def _collect_items_by_position(node_lists: list[list[dict]],
     return {n: [(s, f, g) for s, (f, g) in d.items()] for n, d in acc.items()}
 
 
-def _split_equipped_carried(items: list[tuple],
-                            status_equipped: set[str]) -> tuple[list[tuple], list[tuple]]:
-    """Split a character's attributed items into (equipped, carried).
+def _split_equipped_carried(
+    items: list[tuple],
+    status_equipped: set[str],
+) -> tuple[list[tuple], list[tuple], list[tuple]]:
+    """Classify a character's attributed items into (equipped, carried, undetermined).
 
-    equipped = STATUS-equipped  ∪  (Flags bit set AND equipment-type).
-    Each returned entry is a (stats, guid) pair.
+    The save's LSF data carries no reliable worn-vs-carried flag (a worn item
+    with no on-equip passive is byte-identical to a carried one), so we only
+    assert what the signals support:
+
+      equipped     – has a positive worn signal: a STATUS on-equip effect, or
+                     the 0x04000000 Flags bit on an equipment-type item.
+      carried      – not equipment at all (consumables, keys, gold, camp/
+                     cosmetic clothing): confidently *not* worn gear.
+      undetermined – equipment-type items with no worn signal: could be worn
+                     (e.g. boots/amulets that grant no passive) or a spare.
+
+    Each returned entry is a (stats, guid) pair.  The true worn set + slot lives
+    in the ECS blob's MemberComponent.EquipmentSlot (see LIMITS.md).
     """
-    equipped, carried = [], []
+    equipped, carried, undetermined = [], [], []
     for stats, flags, guid in items:
-        is_eq = stats in status_equipped or (
+        signalled = stats in status_equipped or (
             isinstance(flags, int)
             and (flags & EQUIPPED_FLAG_BIT)
             and _is_equipment_type(stats)
         )
-        (equipped if is_eq else carried).append((stats, guid))
-    return sorted(set(equipped)), sorted(set(carried))
+        if signalled:
+            equipped.append((stats, guid))
+        elif _is_equipment_type(stats):
+            undetermined.append((stats, guid))
+        else:
+            carried.append((stats, guid))
+    return sorted(set(equipped)), sorted(set(carried)), sorted(set(undetermined))
 
 
 # ---------------------------------------------------------------------------
@@ -1031,11 +1049,17 @@ def build_report(save_path: str) -> str:
 
         attributed = items_by_char.get(display_name, [])
         if attributed:
-            equipped, carried = _split_equipped_carried(attributed, status_equipped)
+            equipped, carried, undetermined = _split_equipped_carried(attributed, status_equipped)
             w(f'    Equipped ({len(equipped)}):')
             for s, guid in equipped:
                 tag = '  (passive confirmed)' if s in status_equipped else ''
                 w(f'      – {dn.fmt(s, guid)}{tag}')
+            if undetermined:
+                w(f'    Worn or carried — undetermined ({len(undetermined)}):')
+                w(f'      (equipment with no worn signal in the save; the true')
+                w(f'       worn set + slot is only in the ECS blob — see LIMITS.md)')
+                for s, guid in undetermined:
+                    w(f'      – {dn.fmt(s, guid)}')
             w(f'    Carried / personal inventory ({len(carried)}):')
             for s, guid in carried:
                 w(f'      – {dn.fmt(s, guid)}')
@@ -1093,12 +1117,16 @@ def build_report(save_path: str) -> str:
   Higher-level or multiclass spells may appear under the wrong character.
 
   Per-character item ownership is recovered from shared world position
-  (each carried/worn item copies its holder's Translate).  Equipped vs
-  carried is a union of STATUS effects + the equipped Flags bit; a carried
-  *spare* weapon/armour may be mis-marked as equipped, and the exact slot
-  (MainHand/Ring1/…) plus a handful of unique items that have no Item record
-  in the LSF frames (they live only in the NewAge LSMF ECS blob) are not
-  recoverable without a full ECS component reader.  See LIMITS.md.
+  (each carried/worn item copies its holder's Translate).  Whether an
+  attributed item is *worn* is only asserted when a signal supports it (a
+  STATUS on-equip effect, or the 0x04000000 Flags bit); equipment-type items
+  with no such signal are listed as "worn or carried — undetermined" rather
+  than guessed, because the save's LSF data has no reliable worn flag (a worn
+  item granting no passive is byte-identical to a carried one).  The
+  authoritative worn set and exact slot live in the NewAge LSMF ECS blob
+  (MemberComponent.EquipmentSlot), which this parser does not decode; a few
+  unique items have no LSF Item record at all and live only in that blob.
+  See LIMITS.md.
 
   Display names are resolved from the installed game data (root templates +
   english.loca).  Carried items use a per-save local template GUID, so they

@@ -67,20 +67,32 @@ approximate rather than a verified count.
 
 ## What is partial or missing
 
-### Equipped vs carried is heuristic
-"Equipped" = items that grant a `STATUS` effect **or** carry the `0x04000000`
-`Flags` bit (filtered to equipment-type stats names). Neither signal is complete:
+### Equipped vs carried is heuristic — and the save has no reliable worn flag
+Items attributed to a character are split three ways:
 
-- **False negatives:** a worn item that grants no passive *and* lacks the flag
-  bit is listed as carried (observed: Wyll's Evasive Shoes and Pearl of Power).
-- **False positives:** a *spare* weapon/armour the character carries but isn't
-  wearing can be marked equipped (observed: Hellrider's Pride on Shadowheart).
-  Worn-vs-spare is only distinguishable via the ECS equipment component.
+- **Equipped** — a positive worn signal: the item grants a `STATUS` on-equip
+  effect, **or** carries the `0x04000000` `Flags` bit (on an equipment-type
+  stats name).
+- **Carried** — not equipment at all (consumables, keys, gold, camp/cosmetic
+  clothing): confidently *not* worn.
+- **Worn or carried — undetermined** — equipment-type items with no worn
+  signal. These are *not* guessed either way.
+
+Neither signal is reliable, and the LSF `Item` data has no field that
+distinguishes worn from carried. Measured on the test save (Wyll), the
+`Flags` value of his worn Evasive Shoes (`0x0000000c`) is **byte-identical**
+to a carried Torch / Gold Pile / spare Leather Boots; three worn items
+(Evasive Shoes, Pearl of Power, Hellgloom Armour) lack the `0x04000000` bit
+entirely, while a *spare* (Drow Commander armour) carries it as a false
+positive. So worn-vs-carried cannot be recovered from the data this parser
+reads — only the heuristic "undetermined" bucket is honest about it.
 
 ### Exact equipment slot
-Which slot an item occupies (MainHand / OffHand / Ring1 / Ring2 / Amulet /
-Helmet / Boots / Gloves / Cloak / Armour / Ranged) lives in the ECS blob and
-is not recovered.
+Which slot an item occupies (Helmet / Breast / Cloak / MeleeMainHand /
+Boots / Gloves / Amulet / Ring / …) lives in the ECS blob, in
+`eoc::inventory::MemberComponent.EquipmentSlot` (`int16`), and is not
+recovered. The slot indices follow bg3se's `ItemSlot` enum
+(Helmet=0, Breast=1, Cloak=2, …, Boots=9, Gloves=10, Amulet=11, …).
 
 ### A few unique items have no `Item` record
 Some uniques (e.g. Shifting Corpus Ring, Spidersilk Armour) have no `Item` node
@@ -99,7 +111,29 @@ The `NewAge` node in each level frame contains a single ScratchBuffer attribute
 holding a multi-megabyte binary blob starting with the magic bytes `LSMF`.
 It is a columnar ECS component store: component sections are arrays ordered by
 entity handle, with entity cross-references stored as handles (not the 16-byte
-GUIDs), resolved through separate handle↔GUID tables. Recovering exact equipment
-slots and the worn-vs-spare distinction requires reimplementing the full ECS
-component reader (bg3se-scale). Decoding it in Python is the remaining frontier;
-contributions welcome.
+GUIDs), resolved through separate handle↔GUID tables.
+
+The worn set, exact slot, and the blob-only unique items all live here, in
+`eoc::inventory::MemberComponent` (`{ EntityHandle Inventory; int16 EquipmentSlot }`).
+Decoding it would resolve every remaining limitation above.
+
+**Why it's hard, and what the reference tools do and don't give us.** Two
+upstream projects were consulted:
+
+- **LSLib** (Norbyte) reads LSPK/LSF/LSV but treats this `ScratchBuffer` as an
+  opaque `byte[]` — it has no LSMF/ECS decoder.
+- **bg3se** (Norbyte's Script Extender) defines the component *layouts*
+  (`MemberComponent`, `EquipableComponent`, the `ItemSlot` enum, etc.) but reads
+  them from **live game memory**, not the on-disk save; the save's LSMF
+  serialization is a separate, undocumented format.
+
+So the component layouts are known, but the on-disk framing is not, and the
+blob stores **no component-name or slot-name strings** to anchor a decode (the
+type registry is hashed/indexed). Worse, component rows key on **EntityHandles**
+with no handle→item/character table exposed, which is what earlier
+co-occurrence / run-segmentation attempts foundered on.
+
+One usable foothold exists: each party character's exact `Translate`
+float-triple (the ownership key) **does** appear in the blob (5–8 hits each),
+presumably via `MemberTransformComponent`, giving a known-value entry point to
+walk entity framing from. A full Python decoder remains the open frontier.
