@@ -1,5 +1,8 @@
 # What this parser can and cannot read
 
+> For the binary file formats themselves (LSPK, LSF, the `LSMF` ECS blob,
+> `.loca`), see **[FORMAT.md](FORMAT.md)**.
+
 ## What works
 
 | Data | Source in save |
