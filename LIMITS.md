@@ -52,7 +52,11 @@ Promise", `ARM_Ring_I_Silver_A` → "Onyx Ring", `GOB_DrowCommander_Amulet` →
 "Amulet of Misty Step"). Two items resolve to names that differ from older
 wiki/colloquial labels but match the current game data
 (`MAG_Duergar_Sword_KingsKnife` → "King's Knife",
-`MAG_Lesser_Infernal_Plate_Armor` → "Hellgloom Armour").
+`MAG_Lesser_Infernal_Plate_Armor` → "Hellgloom Armour" — the ground truth for
+this save uses the older label "Flawed Helldusk Armour"). One item in the party
+loadout (`GOB_DrowCommander_Leather_Armor`, Wyll's chest) has no matching entry
+in the root templates and shows as an unresolved internal name; see "One item
+with an unresolved display name" below.
 
 ### How per-character ownership works
 
@@ -61,12 +65,11 @@ character holding it, so every item on a party member shares that member's
 exact floating-point coordinates. Matching item `Translate` against character
 `Translate` attributes each item to its owner **without decoding the ECS blob**.
 The position-attribution itself is exact (an item is on a character or it
-isn't). The *equipped-recall* against a known ground-truth loadout is high
-(~31 of 35 worn items across a 4-member party) but several of those matches
-rely on inferring a display name from an internal stats name (e.g.
-`UND_SwordInStone` = Phalar Aluve, `MAG_StrongString_Longbow` = Titanstring);
-a few of those inferences are uncertain, so treat the recall fraction as
-approximate rather than a verified count.
+isn't). Validated against the QuickSave_242 ground truth (4 characters, 34 worn
+items): all 34 worn items are attributed to the correct character; the
+equipped/undetermined split catches 32/34 via the equip bit or STATUS signal,
+with 2 worn items (Evasive Shoes and Pearl of Power Amulet) landing in the
+"undetermined" bucket instead of "equipped".
 
 ## What is partial or missing
 
@@ -81,14 +84,27 @@ Items attributed to a character are split three ways:
 - **Worn or carried — undetermined** — equipment-type items with no worn
   signal. These are *not* guessed either way.
 
-Neither signal is reliable, and the LSF `Item` data has no field that
-distinguishes worn from carried. Measured on the test save (Wyll), the
-`Flags` value of his worn Evasive Shoes (`0x0000000c`) is **byte-identical**
-to a carried Torch / Gold Pile / spare Leather Boots; three worn items
-(Evasive Shoes, Pearl of Power, Hellgloom Armour) lack the `0x04000000` bit
-entirely, while a *spare* (Drow Commander armour) carries it as a false
-positive. So worn-vs-carried cannot be recovered from the data this parser
-reads — only the heuristic "undetermined" bucket is honest about it.
+Validated against the QuickSave_242 ground truth (34 worn items across 4
+characters):
+
+- **Equip-bit recall: 32/34.** Two worn items lack the `0x04000000` bit:
+  Evasive Shoes (`0x0000000c`) and Pearl of Power Amulet (`0x0000000c`),
+  both on Wyll. Their `Flags` values are byte-identical to a carried Torch or
+  Leather Boots.
+- **One confirmed false positive.** `DEN_HellridersPride` (Hellrider's Pride)
+  carries the equip bit but sits in Shadowheart's inventory, not in an
+  equipment slot.
+- **Negative signal.** Worn items **never** have the high flags bits
+  (`Flags ≥ 0x80000000…`) set. Items with those bits are consumables, quest
+  items, or unequipped spares. This is a useful filter but not sufficient on
+  its own (some carried equipment-type items have only the baseline `0x0000000c`).
+- The `STATUS.SourceEquippedItem` signal catches items that grant on-equip
+  effects (passives, auras) and is complementary to the Flags bit — together
+  they cover most of the worn set, but the 2 misses above (Evasive Shoes and
+  Pearl of Power) are invisible to both.
+
+So worn-vs-carried cannot be fully recovered from LSF data. The "undetermined"
+bucket is honest about what remains ambiguous.
 
 ### Exact equipment slot
 Which slot an item occupies (Helmet / Breast / Cloak / MeleeMainHand /
@@ -97,10 +113,17 @@ Boots / Gloves / Amulet / Ring / …) lives in the ECS blob, in
 recovered. The slot indices follow bg3se's `ItemSlot` enum
 (Helmet=0, Breast=1, Cloak=2, …, Boots=9, Gloves=10, Amulet=11, …).
 
-### A few unique items have no `Item` record
-Some uniques (e.g. Shifting Corpus Ring, Spidersilk Armour) have no `Item` node
-in frame 0 or frame 3 at all — they exist only as entities inside the ECS blob,
-so they cannot be named or attributed by this parser.
+### One item with an unresolved display name
+`GOB_DrowCommander_Leather_Armor` (Wyll's chest piece, confirmed worn) has a
+full frame-0 Item node and the equip bit, but its stats name is not present in
+the root-template files scanned, so it shows without a display name. Context
+suggests it is Spidersilk Armour: the GOB_DrowCommander item family maps to
+Minthara's gear set, and the related template `GOB_DrowCommander_Armor_Leather`
+uses stats `ARM_StuddedLeather_Body_Drow` → "Spidersilk Armour". A previous note
+claimed Shifting Corpus Ring and Spidersilk Armour had no LSF Item records — this
+was incorrect. Both `MAG_FlamingFist_ScoutRing` (Shifting Corpus Ring) and
+`GOB_DrowCommander_Leather_Armor` have frame-0 Item nodes and are attributed
+correctly.
 
 ### Spell selections
 Spell book data lives in the `NewAge` attribute (LSF attribute type 25 =
@@ -116,7 +139,7 @@ It is a columnar ECS component store: component sections are arrays ordered by
 entity handle, with entity cross-references stored as handles (not the 16-byte
 GUIDs), resolved through separate handle↔GUID tables.
 
-The worn set, exact slot, and the blob-only unique items all live here, in
+The worn set and exact slot live here, in
 `eoc::inventory::MemberComponent` (`{ EntityHandle Inventory; int16 EquipmentSlot }`).
 Decoding it would resolve every remaining limitation above.
 

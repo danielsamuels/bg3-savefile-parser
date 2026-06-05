@@ -245,27 +245,41 @@ member's *exact* float coordinates. Matching item `Translate` against character
 `Translate` attributes each item to its owner without touching the ECS blob.
 This is exact for "which character is this on".
 
-**Worn vs carried is *not* recoverable from LSF data.** The `Flags` field has no
-reliable equipped bit: a worn item that grants no on-equip passive is
-byte-identical to a carried one (e.g. worn Evasive Shoes `Flags=0x0000000c`
-equals a carried Torch), three other worn items lack the `0x04000000` bit, and a
-*spare* item can carry it as a false positive. The authoritative worn set + slot
-live only in the ECS blob ([§6](#6-the-lsmf-ecs-blob-newage)). This parser
-therefore reports three buckets: positively-signalled **Equipped**, definitely
-non-equipment **Carried**, and **"worn or carried — undetermined"**.
+**Worn vs carried is *not* fully recoverable from LSF data.** Measured against a
+known-correct loadout (QuickSave_242, 4 characters, 34 worn items), the
+`0x04000000` Flags bit is present on **32 of 34 worn items** and absent on 2
+(Evasive Shoes and Pearl of Power Amulet, both Wyll). One confirmed false
+positive: `DEN_HellridersPride` carries the bit but sits in Shadowheart's
+inventory. So the bit is a strong positive signal but neither necessary nor
+sufficient. A *negative* signal also emerged: worn items **never** carry the high
+flags bits (`Flags ≥ 0x80000000…`); those appear only on consumables, quest
+items, and some unequipped spares. The authoritative worn set + slot live only in
+the ECS blob ([§6](#6-the-lsmf-ecs-blob-newage)). This parser therefore reports
+three buckets: positively-signalled **Equipped**, definitely non-equipment
+**Carried**, and **"worn or carried — undetermined"**.
+
+**Multiple Item nodes for the same stats name.** A single stats name can appear
+in multiple `Item` nodes in frame 0 — once per actual instance (equipped copy,
+spare, world spawn). For example, `ARM_Instrument_Lute` has three frame-0 nodes
+in the test save: one with the equip bit (the equipped MusicalInstrument-slot
+instance), one without (a spare), and one marked `UnsoldGenerated` (a vendor
+copy). The dedup logic in this parser retains the node with the equip bit when
+duplicates exist, so the equipped instance wins.
 
 ---
 
 ## 4. Item flags (`Item.Flags`, observed bits)
 
-Not authoritative for equipped state (see above), but observed:
+Not authoritative for equipped state (see §3 above), but measured against the
+QuickSave_242 ground truth (34 worn items across 4 characters):
 
-| Bits (mask) | Meaning (inferred) |
+| Bits (mask) | Meaning (observed) |
 |------------:|--------------------|
 | `0x0000000c` | baseline, present on essentially every item |
-| `0x04000000` | set on *most* worn equipment — but incomplete and with false positives |
+| `0x04000000` | worn-equipment signal — present on 32/34 worn items; **absent** on 2 worn items (Evasive Shoes, Pearl of Power Amulet) and **present** on at least 1 inventory item (`DEN_HellridersPride`) as a false positive |
 | `0x00000100` / `0x00200000` | seen on bags/containers (AlchemyPouch, Keychain) |
-| high bits (`0x80000000_0000…`) | seen on consumables / quest items |
+| `0x00040000` | seen on some items with `PreviousLevel` set (items moved between areas) |
+| high bits (`0x80000000_0000…`) | consumables, quest items, some unequipped spares — **never** seen on any of the 34 verified worn items; useful as a negative signal |
 
 ---
 
@@ -378,9 +392,16 @@ rotation/scale fields. These give a known-value entry point into entity framing.
   `Projectile_EldritchBlast`, `Shout_SecondWind`). This parser extracts these by
   known spell-ID prefixes and attributes them to characters by class heuristics
   (imperfect for multiclass/shared abilities).
-- A few unique items (e.g. Shifting Corpus Ring, Spidersilk Armour) exist
-  **only** as ECS entities here, with no LSF `Item` node, so they can't currently
-  be named or attributed.
+- Earlier analysis suggested some unique items (Shifting Corpus Ring, Spidersilk
+  Armour) had no LSF `Item` node — this was incorrect. Ground-truth verification
+  shows both `MAG_FlamingFist_ScoutRing` (Shifting Corpus Ring) and
+  `GOB_DrowCommander_Leather_Armor` (Wyll's chest piece, confirmed worn, probable
+  Spidersilk Armour by context) have full frame-0 Item nodes with the equip bit
+  set and are attributed correctly by the position-matching approach. The display
+  name for `GOB_DrowCommander_Leather_Armor` is not in the root templates scanned,
+  so it remains unresolved — the related template `GOB_DrowCommander_Armor_Leather`
+  (Stats `ARM_StuddedLeather_Body_Drow`) resolves as "Spidersilk Armour" and
+  likely shares an inheritance chain.
 
 ---
 
@@ -419,7 +440,7 @@ handle indexes straight into this table.
 | Per-character item ownership | ✅ (Translate matching) |
 | Display names | ✅ (root templates + `.loca`) |
 | Spell lists | ⚠️ heuristic (string pool + class rules) |
-| **Worn-vs-carried, exact slot** | ❌ needs `MemberComponent.EquipmentSlot` from the LSMF blob |
+| **Worn-vs-carried (heuristic)** | ⚠️ `Flags` bit 0x04000000 hits 32/34 worn items; 1 confirmed FP; 2 misses; exact slot still ❌ (needs `MemberComponent.EquipmentSlot`) |
 | LSMF component-type directory | ✅ located; framing ❌ |
 | LSMF entity/handle tables, component columns | ❌ open frontier |
 | Osiris story (frame 9) | ❌ not parsed |
