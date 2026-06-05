@@ -3,8 +3,10 @@
 bg3_save_reader.py  –  Extract character and item info from a BG3 .lsv save file.
 
 Usage:
-    python3 bg3_save_reader.py <save.lsv> [output.txt]
+    python3 bg3_save_reader.py [save.lsv] [output.txt]
 
+If save.lsv is omitted, the most recently modified save is auto-detected
+(override the search root with the BG3_SAVE_DIR environment variable).
 If output.txt is omitted the report is printed to stdout.
 
 Dependencies (pip install):
@@ -1110,15 +1112,70 @@ def build_report(save_path: str) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Save-file auto-detection
+# ---------------------------------------------------------------------------
+#
+# Saves live at  <profiles>/<Profile>/Savegames/Story/<Char>-<id>__<Name>/<Name>.lsv
+# under a platform-specific BG3 profiles directory.  With no save given on the
+# command line, the most recently modified .lsv across the known locations is
+# used (override the search root with BG3_SAVE_DIR).
+
+def _candidate_profile_dirs() -> list[str]:
+    home = os.path.expanduser('~')
+    bg3 = "Larian Studios/Baldur's Gate 3/PlayerProfiles"
+    dirs = [
+        os.path.join(home, '.local/share', bg3),                       # native Linux
+        os.path.join(home, '.local/share/Steam/steamapps/compatdata/1086940/pfx/'
+                           'drive_c/users/steamuser/AppData/Local', bg3),  # Proton
+        os.path.join(home, 'Documents', bg3),                          # macOS
+    ]
+    local = os.environ.get('LOCALAPPDATA')
+    if local:
+        dirs.append(os.path.join(local, bg3))                          # Windows
+    return dirs
+
+
+def _find_latest_save() -> str | None:
+    """Return the path of the most recently modified .lsv, or None if none found."""
+    import glob
+    # An explicit BG3_SAVE_DIR restricts the search; otherwise scan the known
+    # platform locations.
+    env = os.environ.get('BG3_SAVE_DIR')
+    roots = [env] if env else _candidate_profile_dirs()
+
+    # A root may be a PlayerProfiles dir, a Savegames/Story dir, or a single
+    # save folder; these patterns match a .lsv at each of those depths.
+    patterns = (
+        '*/Savegames/Story/*/*.lsv', 'Savegames/Story/*/*.lsv',
+        'Story/*/*.lsv', '*/*.lsv', '*.lsv',
+    )
+    found = set()
+    for root in roots:
+        if not os.path.isdir(root):
+            continue
+        for pat in patterns:
+            found.update(glob.glob(os.path.join(root, pat)))
+    if not found:
+        return None
+    return max(found, key=os.path.getmtime)
+
+
+# ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
 
 def main():
-    if len(sys.argv) < 2:
-        sys.exit('usage: bg3_save_reader.py <save.lsv> [output.txt]')
+    args = sys.argv[1:]
+    save_path = args[0] if args else None
+    out_path  = args[1] if len(args) > 1 else None
 
-    save_path = sys.argv[1]
-    out_path  = sys.argv[2] if len(sys.argv) > 2 else None
+    if not save_path:
+        save_path = _find_latest_save()
+        if not save_path:
+            sys.exit('usage: bg3_save_reader.py [save.lsv] [output.txt]\n'
+                     'No save given and none auto-detected; pass a .lsv path '
+                     'or set BG3_SAVE_DIR to your Savegames directory.')
+        print(f'No save specified; using most recent: {save_path}', file=sys.stderr)
 
     print(f'Parsing {save_path} …', file=sys.stderr)
     report = build_report(save_path)
