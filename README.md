@@ -15,21 +15,22 @@ It reads the binary formats directly (LSPK packages, LSF resources, the `.loca`
 localisation table) — no [LSLib](https://github.com/Norbyte/lslib)/`divine`
 required.
 
-## Install
-
-```sh
-pip install zstandard lz4
-```
-
 ## Usage
+
+This is a [PEP 723](https://peps.python.org/pep-0723/) single-file script: its
+dependencies (`zstandard`, `lz4`) are declared inline, so
+[`uv`](https://docs.astral.sh/uv/) installs them automatically — no manual setup:
 
 ```sh
 # Parse a specific save (writes to stdout, or to a file if given):
-python3 bg3_save_reader.py /path/to/QuickSave_NNN.lsv [report.txt]
+uv run bg3_save_reader.py /path/to/QuickSave_NNN.lsv [report.txt]
 
 # Or omit the path to auto-detect and use the most recent save:
-python3 bg3_save_reader.py
+uv run bg3_save_reader.py
 ```
+
+Without `uv`, install the two dependencies yourself (`pip install zstandard lz4`)
+and run it with `python3 bg3_save_reader.py …` instead.
 
 **Environment overrides**
 

@@ -1,16 +1,25 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.10"
+# dependencies = [
+#     "zstandard",
+#     "lz4",
+# ]
+# ///
 """
 bg3_save_reader.py  –  Extract character and item info from a BG3 .lsv save file.
 
 Usage:
+    uv run bg3_save_reader.py [save.lsv] [output.txt]
+    # or, if dependencies are already installed:
     python3 bg3_save_reader.py [save.lsv] [output.txt]
 
 If save.lsv is omitted, the most recently modified save is auto-detected
 (override the search root with the BG3_SAVE_DIR environment variable).
 If output.txt is omitted the report is printed to stdout.
 
-Dependencies (pip install):
-    zstandard  lz4
+Dependencies (zstandard, lz4) are declared in the inline script metadata above
+(PEP 723), so `uv run` installs them automatically in an ephemeral environment.
 
 What it extracts
 ----------------
