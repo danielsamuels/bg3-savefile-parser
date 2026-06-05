@@ -20,6 +20,10 @@ What it extracts
                       (partial: only passive-granting items are visible)
   Inventory         – all items with empty "Level" in the level cache
                       (~1 000+ items; ownership attribution needs LSMF parsing)
+  Display names     – internal names resolved to "Display Name (INTERNAL_NAME)"
+                      from the installed game data (root templates + loca),
+                      where the game is found; otherwise internal names only.
+                      Set BG3_DATA_DIR to point at the game's Data directory.
 
 Known limitations
 -----------------
@@ -158,13 +162,25 @@ def parse_lsof(data: bytes) -> list[dict]:
 
     cflags, _, _, mfmt = struct.unpack_from('<BB2sI', data, 56)
     chunked = ver >= 0x02
-    has_keys = mfmt != 0
+    # Wide (16-byte) node entries go with a populated keys section, signalled by
+    # the keys section sizes (_ku/_kd) — NOT by the metadata-format word (mfmt).
+    # The game's root-template _merged.lsf set mfmt=2 yet still use 12-byte node
+    # entries with no keys section, so keying off mfmt mis-sized the node table.
+    has_keys = (_ku != 0 or _kd != 0)
+
+    # A section with sizeOnDisk == 0 is stored uncompressed; its on-disk byte
+    # count is then the uncompressed size.  (Save frames are compressed, so
+    # disk > 0; the game's root-template _merged.lsf files are uncompressed.)
+    str_n = str_disk or str_unc
+    nod_n = nod_disk or nod_unc
+    att_n = att_disk or att_unc
+    val_n = val_disk or val_unc
 
     pos = 64
-    str_raw = data[pos:pos + str_disk]; pos += str_disk
-    nod_raw = data[pos:pos + nod_disk]; pos += nod_disk
-    att_raw = data[pos:pos + att_disk]; pos += att_disk
-    val_raw = data[pos:pos + val_disk]
+    str_raw = data[pos:pos + str_n]; pos += str_n
+    nod_raw = data[pos:pos + nod_n]; pos += nod_n
+    att_raw = data[pos:pos + att_n]; pos += att_n
+    val_raw = data[pos:pos + val_n]
 
     str_data = _decomp_section(str_raw, str_disk, str_unc, cflags, False)
     nod_data = _decomp_section(nod_raw, nod_disk, nod_unc, cflags, chunked)
@@ -600,9 +616,11 @@ def _collect_items_by_position(node_lists: list[list[dict]],
     are merged so an item present in either frame is attributed.
     """
     pos2name = {t: n for n, t in positions.items()}
-    # name -> {stats: flags}; if an item appears more than once, keep the record
-    # whose Flags carry the equipped bit so a clear-flagged duplicate can't hide it.
-    acc: dict[str, dict[str, int]] = {n: {} for n in positions}
+    # name -> {stats: (flags, guid)}; if an item appears more than once, keep the
+    # record whose Flags carry the equipped bit so a clear-flagged duplicate
+    # can't hide it.  The CurrentTemplate GUID is retained for display-name
+    # resolution.
+    acc: dict[str, dict[str, tuple]] = {n: {} for n in positions}
     for nodes in node_lists:
         for nd in nodes:
             if nd['name'] != 'Item':
@@ -615,30 +633,280 @@ def _collect_items_by_position(node_lists: list[list[dict]],
             if not stats:
                 continue
             flags = nd['attrs'].get('Flags', 0)
+            guid = nd['attrs'].get('CurrentTemplate', '')
             prev = acc[name].get(stats)
             if prev is None:
-                acc[name][stats] = flags
+                acc[name][stats] = (flags, guid)
             elif isinstance(flags, int) and (flags & EQUIPPED_FLAG_BIT) \
-                    and not (isinstance(prev, int) and (prev & EQUIPPED_FLAG_BIT)):
-                acc[name][stats] = flags
-    return {n: list(d.items()) for n, d in acc.items()}
+                    and not (isinstance(prev[0], int) and (prev[0] & EQUIPPED_FLAG_BIT)):
+                acc[name][stats] = (flags, guid)
+    return {n: [(s, f, g) for s, (f, g) in d.items()] for n, d in acc.items()}
 
 
 def _split_equipped_carried(items: list[tuple],
-                            status_equipped: set[str]) -> tuple[list[str], list[str]]:
+                            status_equipped: set[str]) -> tuple[list[tuple], list[tuple]]:
     """Split a character's attributed items into (equipped, carried).
 
     equipped = STATUS-equipped  ∪  (Flags bit set AND equipment-type).
+    Each returned entry is a (stats, guid) pair.
     """
     equipped, carried = [], []
-    for stats, flags in items:
+    for stats, flags, guid in items:
         is_eq = stats in status_equipped or (
             isinstance(flags, int)
             and (flags & EQUIPPED_FLAG_BIT)
             and _is_equipment_type(stats)
         )
-        (equipped if is_eq else carried).append(stats)
+        (equipped if is_eq else carried).append((stats, guid))
     return sorted(set(equipped)), sorted(set(carried))
+
+
+# ---------------------------------------------------------------------------
+# Display-name resolution from installed game data  (optional)
+# ---------------------------------------------------------------------------
+#
+# The save stores only internal names: each item carries a `Stats` name
+# (e.g. "UND_SwordInStone") and a runtime `CurrentTemplate` GUID.  The
+# human-facing name ("Phalar Aluve") lives in the game's data files, reached by
+#
+#     CurrentTemplate GUID ─► root-template DisplayName handle ─► loca text
+#                  or  Stats name ─► root-template DisplayName handle ─► loca text
+#
+# Root templates live in the `_merged.lsf` files inside Shared.pak / Gustav.pak
+# (LSPK v18 packages); the handle→text table is `english.loca` inside
+# English.pak.  In practice every item in a live save — worn, carried, and the
+# whole level loot pool — uses a per-save *local* template GUID that is absent
+# from the static root templates, so the Stats-name path is what resolves names
+# (the GUID path resolved nothing across the test saves; it is kept only as a
+# more-precise match should a static template GUID ever appear).  Because a
+# stats name can be shared by several items (~9% of names map to >1 display
+# name), an ambiguous stats name resolves to the first/base variant.  All of
+# this is best-effort: with no game install (or a parse miss) the report falls
+# back to the bare internal name.
+
+import os
+
+_LSPK_FILE_ENTRY = 272  # bytes per file-list entry in LSPK v18
+
+# Root-template _merged.lsf files, in load order (later overrides earlier).
+_ROOT_TEMPLATE_FILES = [
+    ('Shared.pak',  'Public/Shared/RootTemplates/_merged.lsf'),
+    ('Shared.pak',  'Public/SharedDev/RootTemplates/_merged.lsf'),
+    ('Gustav.pak',  'Public/GustavDev/RootTemplates/_merged.lsf'),
+    ('Gustav.pak',  'Public/Gustav/RootTemplates/_merged.lsf'),
+    ('Gustav.pak',  'Public/Honour/RootTemplates/_merged.lsf'),
+    ('GustavX.pak', 'Public/GustavX/RootTemplates/_merged.lsf'),
+]
+_LOCA_PAK = 'Localization/English.pak'
+_LOCA_FILE = 'Localization/English/english.loca'
+
+# Bump when the resolver logic changes so a stale cache is not silently reused.
+_DISPLAYNAME_SCHEMA_VERSION = 2
+
+
+def _find_game_data_dir() -> str | None:
+    """Locate the BG3 Data directory, or None if not found."""
+    env = os.environ.get('BG3_DATA_DIR')
+    if env and os.path.isdir(env):
+        return env
+    candidates = [
+        '~/.local/share/Steam/steamapps/common/Baldurs Gate 3/Data',
+        '~/.steam/steam/steamapps/common/Baldurs Gate 3/Data',
+        '~/Library/Application Support/Steam/steamapps/common/Baldurs Gate 3/Data',
+        'C:/Program Files (x86)/Steam/steamapps/common/Baldurs Gate 3/Data',
+    ]
+    for c in candidates:
+        p = os.path.expanduser(c)
+        if os.path.isdir(p):
+            return p
+    return None
+
+
+def _lspk_filelist(fh) -> dict[str, tuple]:
+    """Return {name: (offset, part, flags, size_on_disk, uncompressed)} for an LSPK v18."""
+    fh.seek(0)
+    head = fh.read(64)
+    magic, _ver = struct.unpack_from('<4sI', head, 0)
+    if magic != b'LSPK':
+        raise ValueError(f'not an LSPK package ({magic!r})')
+    flist_off = struct.unpack_from('<Q', head, 8)[0]
+    fh.seek(flist_off)
+    num_files, comp_size = struct.unpack_from('<II', fh.read(8))
+    comp = fh.read(comp_size)
+    raw = lz4.block.decompress(comp, uncompressed_size=num_files * _LSPK_FILE_ENTRY)
+    out = {}
+    for i in range(num_files):
+        b = i * _LSPK_FILE_ENTRY
+        name = raw[b:b + 256].split(b'\x00')[0].decode('latin1')
+        off_lo, off_hi, part, flags, sod, unc = struct.unpack_from('<IHBBII', raw, b + 256)
+        out[name] = ((off_lo | (off_hi << 32)), part, flags, sod, unc)
+    return out
+
+
+def _lspk_extract(pak_path: str, name: str) -> bytes:
+    """Extract and decompress a single file from an LSPK v18 package."""
+    with open(pak_path, 'rb') as fh:
+        flist = _lspk_filelist(fh)
+        if name not in flist:
+            raise KeyError(name)
+        offset, part, flags, sod, unc = flist[name]
+        src = pak_path
+        if part != 0:  # spilled into a sibling part file (Foo.pak -> Foo_N.pak)
+            src = pak_path[:-4] + f'_{part}.pak'
+        with open(src, 'rb') as pf:
+            pf.seek(offset)
+            blob = pf.read(sod if sod else unc)
+    method = flags & 0x0F
+    if method == 0:
+        return blob[:unc]
+    if method == 2:
+        return lz4.block.decompress(blob, uncompressed_size=unc)
+    if method == 3:
+        return zstd.ZstdDecompressor().decompress(blob)
+    raise ValueError(f'unknown LSPK compression method {method}')
+
+
+def _parse_loca(blob: bytes) -> dict[str, str]:
+    """Parse an english.loca blob into {handle: text}."""
+    sig, num, texts_off = struct.unpack_from('<4sII', blob, 0)
+    if sig != b'LOCA':
+        raise ValueError(f'not a LOCA file ({sig!r})')
+    pos = 12
+    entries = []
+    for _ in range(num):
+        key = blob[pos:pos + 64].split(b'\x00')[0].decode('latin1'); pos += 64
+        pos += 2  # version (uint16)
+        length = struct.unpack_from('<I', blob, pos)[0]; pos += 4
+        entries.append((key, length))
+    out = {}
+    tp = texts_off
+    for key, length in entries:
+        out[key] = blob[tp:tp + length - 1].decode('utf-8', 'replace').strip()
+        tp += length
+    return out
+
+
+def _cache_path(data_dir: str) -> str:
+    sig_parts = []
+    for pak in {p for p, _ in _ROOT_TEMPLATE_FILES} | {_LOCA_PAK}:
+        fp = os.path.join(data_dir, pak)
+        try:
+            st = os.stat(fp)
+            sig_parts.append(f'{pak}:{st.st_mtime_ns}:{st.st_size}')
+        except OSError:
+            pass
+    import hashlib
+    sig_parts.append(f'schema:{_DISPLAYNAME_SCHEMA_VERSION}')
+    sig = hashlib.md5('|'.join(sorted(sig_parts)).encode()).hexdigest()[:16]
+    cdir = os.path.join(
+        os.environ.get('XDG_CACHE_HOME', os.path.expanduser('~/.cache')),
+        'bg3-savefile-parser',
+    )
+    os.makedirs(cdir, exist_ok=True)
+    return os.path.join(cdir, f'displaynames-{sig}.json')
+
+
+def build_displayname_maps(data_dir: str) -> tuple[dict[str, str], dict[str, str]]:
+    """Build (guid->display_name, stats_name->display_name) from game data.
+
+    Results are cached under XDG_CACHE_HOME keyed on the source paks' mtime/size,
+    so the ~1 s parse only happens after a game update.
+    """
+    cache = _cache_path(data_dir)
+    try:
+        with open(cache, encoding='utf-8') as fh:
+            data = json.load(fh)
+        return data['guid'], data['stats']
+    except (OSError, ValueError, KeyError):
+        pass
+
+    handle_to_text = _parse_loca(_lspk_extract(os.path.join(data_dir, _LOCA_PAK), _LOCA_FILE))
+
+    guid_handle: dict[str, str] = {}   # template GUID -> own DisplayName handle ('' if none)
+    guid_parent: dict[str, str] = {}   # template GUID -> ParentTemplateId
+    stats_handle: dict[str, str] = {}  # stats name -> DisplayName handle
+    for pak, name in _ROOT_TEMPLATE_FILES:
+        try:
+            nodes = parse_lsof(_lspk_extract(os.path.join(data_dir, pak), name))
+        except (OSError, KeyError, ValueError):
+            continue
+        for nd in nodes:
+            if nd['name'] != 'GameObjects':
+                continue
+            key = nd['attrs'].get('MapKey')
+            if not key:
+                continue
+            handle = nd['attrs'].get('DisplayName', '')
+            guid_handle[key] = handle
+            guid_parent[key] = nd['attrs'].get('ParentTemplateId', '')
+            stats = nd['attrs'].get('Stats', '')
+            if stats and handle:
+                stats_handle.setdefault(stats, handle)
+
+    def resolve_guid_handle(guid: str) -> str:
+        cur = guid
+        for _ in range(32):  # follow ParentTemplateId until a DisplayName is set
+            h = guid_handle.get(cur)
+            if h:
+                return h
+            par = guid_parent.get(cur)
+            if not par or par == cur:
+                return ''
+            cur = par
+        return ''
+
+    guid_name: dict[str, str] = {}
+    for guid in guid_handle:
+        h = resolve_guid_handle(guid)
+        txt = handle_to_text.get(h) if h else None
+        if txt:
+            guid_name[guid] = txt
+
+    stats_name: dict[str, str] = {}
+    for stats, h in stats_handle.items():
+        txt = handle_to_text.get(h)
+        if txt:
+            stats_name[stats] = txt
+
+    try:
+        with open(cache, 'w', encoding='utf-8') as fh:
+            json.dump({'guid': guid_name, 'stats': stats_name}, fh)
+    except OSError:
+        pass
+    return guid_name, stats_name
+
+
+class DisplayNames:
+    """Resolves internal item identifiers to 'Display Name (INTERNAL_NAME)'."""
+
+    def __init__(self, guid_name: dict[str, str], stats_name: dict[str, str]):
+        self._guid = guid_name
+        self._stats = stats_name
+
+    @classmethod
+    def load(cls) -> 'DisplayNames':
+        data_dir = _find_game_data_dir()
+        if not data_dir:
+            return cls({}, {})
+        try:
+            return cls(*build_displayname_maps(data_dir))
+        except Exception:  # never let display-name resolution break the report
+            return cls({}, {})
+
+    @property
+    def available(self) -> bool:
+        return bool(self._guid or self._stats)
+
+    def name_for(self, stats: str, guid: str = '') -> str | None:
+        """Return the display name for an item, preferring the precise GUID."""
+        if guid and guid in self._guid:
+            return self._guid[guid]
+        return self._stats.get(stats)
+
+    def fmt(self, stats: str, guid: str = '') -> str:
+        """Format as 'Display Name (INTERNAL_NAME)', or just the internal name."""
+        dn = self.name_for(stats, guid)
+        return f'{dn} ({stats})' if dn else stats
 
 
 # ---------------------------------------------------------------------------
@@ -661,6 +929,9 @@ def build_report(save_path: str) -> str:
 
     frames = _extract_frames(save_path)
 
+    # Display-name resolver (best-effort; empty if game data not found)
+    dn = DisplayNames.load()
+
     # ---- Info.json --------------------------------------------------------
     info = _parse_info_json(frames)
     save_name = info.get('Save Name', '?')
@@ -673,6 +944,7 @@ def build_report(save_path: str) -> str:
     w(f'Game Ver   : {game_ver}')
     w(f'Level      : {cur_level}')
     w(f'Difficulty : {difficulty}')
+    w(f'Item names : {"resolved from game data" if dn.available else "internal only (game data not found; set BG3_DATA_DIR)"}')
 
     party_info = info.get('Active Party', {}).get('Characters', [])
 
@@ -759,12 +1031,12 @@ def build_report(save_path: str) -> str:
         if attributed:
             equipped, carried = _split_equipped_carried(attributed, status_equipped)
             w(f'    Equipped ({len(equipped)}):')
-            for s in equipped:
+            for s, guid in equipped:
                 tag = '  (passive confirmed)' if s in status_equipped else ''
-                w(f'      – {s}{tag}')
+                w(f'      – {dn.fmt(s, guid)}{tag}')
             w(f'    Carried / personal inventory ({len(carried)}):')
-            for s in carried:
-                w(f'      – {s}')
+            for s, guid in carried:
+                w(f'      – {dn.fmt(s, guid)}')
         elif char_ni is None:
             w(f'    Equipment : character node not found')
         else:
@@ -781,6 +1053,10 @@ def build_report(save_path: str) -> str:
 
     inv = _collect_inventory_items(nodes3)
     counts = Counter(item['stats'] for item in inv if item['stats'])
+    inv_guid: dict[str, str] = {}  # stats -> a representative CurrentTemplate GUID
+    for item in inv:
+        if item['stats'] and item['template']:
+            inv_guid.setdefault(item['stats'], item['template'])
     w(f'\n  {len(inv)} items total  ({len(counts)} unique types)\n')
 
     for stats_name, count in sorted(counts.items()):
@@ -800,7 +1076,8 @@ def build_report(save_path: str) -> str:
         else:
             cat = ''
         qty = f'x{count}' if count > 1 else '   '
-        w(f'  {qty:4s} {stats_name:55s} {cat}')
+        label = dn.fmt(stats_name, inv_guid.get(stats_name, ''))
+        w(f'  {qty:4s} {label:60s} {cat}')
 
     # ---- Limits note ------------------------------------------------------
     w('')
@@ -820,6 +1097,13 @@ def build_report(save_path: str) -> str:
   (MainHand/Ring1/…) plus a handful of unique items that have no Item record
   in the LSF frames (they live only in the NewAge LSMF ECS blob) are not
   recoverable without a full ECS component reader.  See LIMITS.md.
+
+  Display names are resolved from the installed game data (root templates +
+  english.loca).  Carried items use a per-save local template GUID, so they
+  resolve by Stats name rather than GUID; a few camp/cosmetic/container items
+  whose templates live in other paks stay as internal names.  Without a game
+  install (or with BG3_DATA_DIR unset and auto-detect failing) every item is
+  shown by its internal name only.
 ''')
 
     return '\n'.join(lines)

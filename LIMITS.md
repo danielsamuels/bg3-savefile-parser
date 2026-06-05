@@ -8,6 +8,48 @@
 | **Per-character item ownership (equipped + carried)** | **`Item.Translate` matched to the character's `Translate`** (frames 0 + 3) |
 | Equipped vs carried split (best-effort) | union of `STATUS.SourceEquippedItem` + the equipped `Flags` bit `0x04000000` |
 | Full level item pool (internal names) | `Item` nodes in frame 0 + level-cache frame |
+| **Human-readable item names** | **resolved from the installed game data** (root-template `_merged.lsf` → `DisplayName` handle → `english.loca`) |
+
+### How display names work
+
+Each item in the save carries only an internal `Stats` name
+(`UND_SwordInStone`) and a runtime `CurrentTemplate` GUID. The display name
+("Phalar Aluve") lives in the game's data files, reached by:
+
+```
+CurrentTemplate GUID ─► root-template DisplayName handle ─► english.loca text
+        or  Stats name ─► root-template DisplayName handle ─► english.loca text
+```
+
+Root templates are the `_merged.lsf` files inside `Shared.pak` / `Gustav.pak`
+(LSPK v18 packages); the handle→text table is `english.loca` inside
+`English.pak`. The parser reads these directly (no `divine`/lslib needed) and
+caches the resulting `{GUID,Stats} → name` maps under `XDG_CACHE_HOME`, keyed on
+the source paks' mtime/size, so the ~1 s parse only re-runs after a game update.
+
+The game install is auto-detected in the usual Steam locations, or pointed to
+explicitly with the `BG3_DATA_DIR` environment variable. With no install found,
+items fall back to their internal names.
+
+**Resolution is by Stats name, not GUID.** Every item in a live save — worn,
+carried, and the whole level loot pool — uses a per-save *local* `CurrentTemplate`
+GUID absent from the static root templates (the GUID path resolved 0 of ~11 600
+item GUIDs across the test saves), so names come from the Stats name. The GUID
+path is kept only as a more-precise match should a static template GUID appear.
+
+**Shared stats names.** ~9% of stats names (267 / 2901) map to more than one
+display name; for those an item resolves to the first/base variant rather than
+its exact variant. A handful of camp/cosmetic/container items whose templates
+live in other paks remain internal-only.
+
+Resolution was validated against a known four-character party loadout: every
+piece of gear present resolved to the installed game's current name, including
+mappings that were previously only guessed (`UNI_MassHealRing` → "The Whispering
+Promise", `ARM_Ring_I_Silver_A` → "Onyx Ring", `GOB_DrowCommander_Amulet` →
+"Amulet of Misty Step"). Two items resolve to names that differ from older
+wiki/colloquial labels but match the current game data
+(`MAG_Duergar_Sword_KingsKnife` → "King's Knife",
+`MAG_Lesser_Infernal_Plate_Armor` → "Hellgloom Armour").
 
 ### How per-character ownership works
 
