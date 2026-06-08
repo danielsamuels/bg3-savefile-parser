@@ -90,12 +90,20 @@ nibble): `0` = none, `1` = zlib, `2` = LZ4 (block, `uncompressed_size` known),
 
 ### Frame map of a `.lsv` save
 
-| Frame | Contents |
-|------:|----------|
-| 0 | **Globals** — `Characters`, `Items`, item `Creators` (Entity→TemplateID), and the `NewAge` LSMF blob |
-| 3 | **`SCL_Main_A` level cache** — ~11.8 k live `Item` nodes with `Stats` names and world transforms |
-| 8 | **`Info.json`** — plain JSON: save name, game version, active party (class/level/XP/location) |
-| 9 | **Osiris** story state — binary, not parsed here |
+10 frames (0–9) in `QuickSave_242`. ✅ = parsed by this tool; ❌ = not parsed.
+
+| Frame | Magic | Decomp | Status | Contents |
+|------:|-------|-------:|:------:|----------|
+| 0 | LSOF | 3.1 MB | ✅ | **Globals** — `Characters`, `Items`, item `Creators` (Entity→TemplateID), and the `NewAge` LSMF blob; ~30 root regions including `Story`, `Journal`, `Waypoints`, `GameControl` |
+| 1 | LSOF | 153 KB | ❌ | Secondary level LSF — probably a background/camp area's level state |
+| 2 | LSOF | 2.1 MB | ❌ | Navigation mesh — `GridDefinition` root + 2,109 hashed navmesh tile roots; no item/character data |
+| 3 | LSOF | 10.8 MB | ✅ | **Level cache** (`SCL_Main_A`) — `Characters`, `Items`, `Surfaces`, AI state, `CrimeHandler`; ~11.8 k live `Item` nodes with `Stats` and world transforms |
+| 4 | LSOF | 24 KB | ❌ | Compact snapshot — `Characters`, `Items`, `Projectiles`, `Level`; likely a respawn-point or load-screen preview state |
+| 5 | LSOF | 14.7 MB | ❌ | Fog-of-war / shroud — `GridDefinition` + 14,898 hashed tile visibility bitmap roots; no item/character data |
+| 6 | LSOF | 2 KB | ❌ | Single `MetaData` root — supplemental save metadata |
+| 7 | RIFF | ~1.7 MB | ❌ | **Load-screen thumbnail** — a RIFF-format image; not an LSF |
+| 8 | JSON | 2.5 KB | ✅ | **`Info.json`** — save name, game version, difficulty, current level, active party (class/level/XP) |
+| 9 | Osiris | 47.7 MB | ❌ | **Osiris database** — scripting engine state (`Osiris save file, Version 1.8`): quest flags, story counters, dialogue state |
 
 ---
 
