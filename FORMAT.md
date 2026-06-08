@@ -85,8 +85,8 @@ nibble): `0` = none, `1` = zlib, `2` = LZ4 (block, `uncompressed_size` known),
 > **`.lsv` shortcut.** A save is an LSPK package whose contained files are each
 > a stand-alone zstd frame. This parser locates them pragmatically by scanning
 > for the zstd magic `28 b5 2f fd` rather than walking the file list
-> (`_extract_frames`). The full LSPK reader above (`_lspk_filelist` /
-> `_lspk_extract`) is used for the game `.pak`s.
+> (`extract_frames`). The full LSPK reader above (`lspk_filelist` /
+> `lspk_extract`) is used for the game `.pak`s.
 
 ### Frame map of a `.lsv` save
 
@@ -94,6 +94,7 @@ nibble): `0` = none, `1` = zlib, `2` = LZ4 (block, `uncompressed_size` known),
 |------:|----------|
 | 0 | **Globals** — `Characters`, `Items`, item `Creators` (Entity→TemplateID), and the `NewAge` LSMF blob |
 | 3 | **`SCL_Main_A` level cache** — ~11.8 k live `Item` nodes with `Stats` names and world transforms |
+| 7 | **Load-screen thumbnail** — RIFF/WebP (lossy VP8), 1280×720 px; extracted by `extract_thumbnail` |
 | 8 | **`Info.json`** — plain JSON: save name, game version, active party (class/level/XP/location) |
 | 9 | **Osiris** story state — binary, not parsed here |
 

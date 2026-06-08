@@ -11,12 +11,17 @@ bg3_save_reader.py  –  Extract character and item info from a BG3 .lsv save fi
 
 Usage:
     uv run bg3_save_reader.py [save.lsv] [output.txt]
+    uv run bg3_save_reader.py [save.lsv] --thumbnail thumb.webp [output.txt]
     # or, if dependencies are already installed:
     python3 bg3_save_reader.py [save.lsv] [output.txt]
 
 If save.lsv is omitted, the most recently modified save is auto-detected
 (override the search root with the BG3_SAVE_DIR environment variable).
 If output.txt is omitted the report is printed to stdout.
+
+--thumbnail PATH (or -t PATH) extracts the load-screen thumbnail (frame 7,
+a 1280x720 RIFF/WebP image) to the given path.  The flag may appear anywhere
+on the command line and does not affect positional argument handling.
 
 Dependencies (zstandard, lz4) are declared in the inline script metadata above
 (PEP 723), so `uv run` installs them automatically in an ephemeral environment.
@@ -239,6 +244,58 @@ def parse_lsof(data: bytes) -> list[dict]:
 def parse_info_json(frames: list[bytes]) -> dict:
     raw = decomp_frame(frames[8])
     return json.loads(raw.decode('utf-8'))
+
+
+# ---------------------------------------------------------------------------
+# Thumbnail extractor  (frame 7 in the LSPK)
+# ---------------------------------------------------------------------------
+
+def extract_thumbnail(frames: list[bytes], output_path: str) -> tuple[int, int] | None:
+    """Decompress frame 7 (the load-screen thumbnail) and write it to output_path.
+
+    The frame is a RIFF/WebP image.  Dimensions are parsed from the RIFF chunk
+    structure without requiring Pillow or any image library.
+
+    Supported sub-formats (covers all observed saves):
+      VP8X (extended WebP) — canvas size at bytes 24-29 of the RIFF file.
+      VP8L (lossless WebP) — packed width/height at bytes 21-24.
+      VP8  (lossy WebP)    — width/height from the VP8 bitstream header.
+
+    Returns (width, height) as a tuple, or None if the format is unrecognised.
+    """
+    data = decomp_frame(frames[7])
+    with open(output_path, 'wb') as fh:
+        fh.write(data)
+
+    # Verify it's a RIFF/WEBP container
+    if len(data) < 20 or data[:4] != b'RIFF' or data[8:12] != b'WEBP':
+        return None
+
+    # Walk RIFF chunks to find the first VP8x / VP8L / VP8 chunk
+    pos = 12
+    while pos + 8 <= len(data):
+        chunk_id = data[pos:pos + 4]
+        chunk_sz = struct.unpack_from('<I', data, pos + 4)[0]
+        if chunk_id == b'VP8X':
+            # Extended WebP: 24-bit LE (width-1) at +12, (height-1) at +15
+            if pos + 18 <= len(data):
+                w = struct.unpack_from('<I', data[pos + 12:pos + 15] + b'\x00')[0] + 1
+                h = struct.unpack_from('<I', data[pos + 15:pos + 18] + b'\x00')[0] + 1
+                return (w, h)
+        elif chunk_id == b'VP8L':
+            # Lossless WebP: signature byte 0x2F, then packed 14+14-bit dims
+            if pos + 13 <= len(data) and data[pos + 8] == 0x2F:
+                v = struct.unpack_from('<I', data, pos + 9)[0]
+                return ((v & 0x3FFF) + 1, ((v >> 14) & 0x3FFF) + 1)
+        elif chunk_id == b'VP8 ':
+            # Lossy WebP: start code 9d 01 2a at byte 11 of chunk data
+            if pos + 17 <= len(data) and data[pos + 11:pos + 14] == b'\x9d\x01\x2a':
+                w = struct.unpack_from('<H', data, pos + 14)[0] & 0x3FFF
+                h = struct.unpack_from('<H', data, pos + 16)[0] & 0x3FFF
+                return (w, h)
+        pos += 8 + chunk_sz + (chunk_sz % 2)
+
+    return None
 
 
 # ---------------------------------------------------------------------------
@@ -1117,7 +1174,7 @@ def fmt_class(cls: dict) -> str:
     return f'{main} / {sub}' if sub else main
 
 
-def build_report(save_path: str) -> str:
+def build_report(save_path: str, frames: list[bytes] | None = None) -> str:
     lines = []
     w = lines.append
 
@@ -1125,7 +1182,8 @@ def build_report(save_path: str) -> str:
     w(f'Source: {save_path}')
     w('=' * 72)
 
-    frames = extract_frames(save_path)
+    if frames is None:
+        frames = extract_frames(save_path)
 
     # Display-name resolver (best-effort; empty if game data not found)
     dn = DisplayNames.load()
@@ -1375,7 +1433,19 @@ def find_latest_save() -> str | None:
 # ---------------------------------------------------------------------------
 
 def main():
-    args = sys.argv[1:]
+    args = list(sys.argv[1:])
+
+    # Strip --thumbnail PATH out of the argument list before positional parsing.
+    thumb_path = None
+    for flag in ('--thumbnail', '-t'):
+        if flag in args:
+            idx = args.index(flag)
+            if idx + 1 < len(args):
+                thumb_path = args[idx + 1]
+                del args[idx:idx + 2]
+            else:
+                sys.exit(f'usage: {flag} requires a PATH argument')
+
     save_path = args[0] if args else None
     out_path  = args[1] if len(args) > 1 else None
 
@@ -1387,8 +1457,17 @@ def main():
                      'or set BG3_SAVE_DIR to your Savegames directory.')
         print(f'No save specified; using most recent: {save_path}', file=sys.stderr)
 
+    frames = extract_frames(save_path)
+
+    if thumb_path:
+        dims = extract_thumbnail(frames, thumb_path)
+        if dims:
+            print(f'Thumbnail written to {thumb_path} ({dims[0]}x{dims[1]})', file=sys.stderr)
+        else:
+            print(f'Thumbnail written to {thumb_path} (dimensions unknown)', file=sys.stderr)
+
     print(f'Parsing {save_path} …', file=sys.stderr)
-    report = build_report(save_path)
+    report = build_report(save_path, frames)
 
     if out_path:
         with open(out_path, 'w', encoding='utf-8') as fh:
