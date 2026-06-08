@@ -161,6 +161,89 @@ one child `MetaData` node that carries all attributes, plus several child nodes
 - `ClientDatas/ClientData` — UI state: `Slot`, `HotbarLocked`,
   `GameCameraDistance`, `GameCameraRotation`.
 
+### §1a. Frame 2 — `CRE_Main_A` level state
+
+47,201 nodes, 27 root regions (V2 12-byte layout; `keys_unc`/`keys_disk` != 0
+but `MetadataFormat = 0`). Structure is identical to frame 3: the same 27
+top-level root names (`Characters`, `Items`, `Surfaces`, `GridDefinition`,
+`ShroudManager`, `NewAge`, `AIGridHelper`, `CrimeHandler`, etc.).
+
+**Node counts:** 123 `Character` nodes, 2,024 `Item` nodes.
+
+**`GridDefinition` → `AiGridDefinition` (navmesh):**
+
+```
+GridDefinition
+  └─ AiGridDefinition
+       ├─ Buffer   ScratchBuffer   577,366 bytes on disk
+       │                           LZ4-block compressed; Size attr = 5,112,224
+       │                           (decompress with lz4.block.decompress(buf, uncompressed_size=Size))
+       │                           Decompressed content: proprietary navmesh format (not decoded)
+       ├─ Size     UInt            5,112,224   (uncompressed byte count for Buffer)
+       └─ SubgridDefinition  ×362  (Object tiles — one per navmesh sub-region)
+            ├─ MapKey     UInt     (tile identity, u32)
+            ├─ Width      Int      (grid cells, varies; e.g. 2–128)
+            ├─ Height     Int      (grid cells)
+            ├─ Position   Vec3     (world-space origin of this tile)
+            └─ LoadedExternally  Bool
+```
+
+Grid bounds (from `ShroudData` header): X ∈ [−867, 3759], Z ∈ [−2088, 852].
+
+**`ShroudManager` → `Shroud` (fog-of-war):**
+
+```
+ShroudData   ScratchBuffer   213,088 bytes
+```
+
+`ShroudData` layout (verified by byte inspection):
+
+| Offset | Type | Field |
+|-------:|------|-------|
+| 0 | i32 | min_x = −867 |
+| 4 | i32 | min_z = −2088 |
+| 8 | i32 | max_x = 3759 |
+| 12 | i32 | max_z = 852 |
+| 16–31 | — | 16 zero bytes |
+| 32… | — | opaque runtime-serialised visibility data (not structurally decoded) |
+
+**`NewAge` LSMF blob:** 3,581,032 bytes (same ECS format as frame 0; see §6).
+
+### §1b. Frame 5 — `WLD_Main_A` level state
+
+330,830 nodes, 27 root regions (V2 12-byte layout; same caveat as §1a).
+Structure is identical to frames 2/3.
+
+**Node counts:** 669 `Character` nodes, 14,833 `Item` nodes.
+
+**`GridDefinition` → `AiGridDefinition` (navmesh):**
+
+```
+GridDefinition
+  └─ AiGridDefinition
+       ├─ Buffer   ScratchBuffer   3,231,503 bytes on disk
+       │                           LZ4-block compressed; Size attr = 14,302,818
+       ├─ Size     UInt            14,302,818
+       └─ SubgridDefinition  ×1,273  (Object tiles)
+            ├─ MapKey / Width / Height / Position / LoadedExternally  (same as §1a)
+```
+
+Grid bounds: X ∈ [−3150, 1081], Z ∈ [−1117, 1319].
+
+**`ShroudManager` → `Shroud`:**
+
+`ShroudData` is 161,361 bytes. Header (same layout as §1a):
+
+| Field | Value |
+|-------|-------|
+| min_x | −3150 |
+| min_z | −1117 |
+| max_x | 1081 |
+| max_z | 1319 |
+
+**`NewAge` LSMF blob:** 24,720,344 bytes (same ECS format as frame 0 but
+larger — `WLD_Main_A` is the main open-world level).
+
 ---
 
 ## 2. LSF (LSOF) resource format
