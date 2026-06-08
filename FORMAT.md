@@ -85,8 +85,8 @@ nibble): `0` = none, `1` = zlib, `2` = LZ4 (block, `uncompressed_size` known),
 > **`.lsv` shortcut.** A save is an LSPK package whose contained files are each
 > a stand-alone zstd frame. This parser locates them pragmatically by scanning
 > for the zstd magic `28 b5 2f fd` rather than walking the file list
-> (`_extract_frames`). The full LSPK reader above (`_lspk_filelist` /
-> `_lspk_extract`) is used for the game `.pak`s.
+> (`extract_frames`). The full LSPK reader above (`lspk_filelist` /
+> `lspk_extract`) is used for the game `.pak`s.
 
 ### Frame map of a `.lsv` save
 
@@ -313,30 +313,40 @@ type **ScratchBuffer (25)** on the root `NewAge` node of frame 0 — an opaque
 ~4 MB byte buffer that LSLib does **not** decode. It is a **columnar
 Entity-Component-System dump**.
 
+> **Extraction gotcha.** The LSMF blob lives inside the LSF **values section**,
+> which is itself LZ4-compressed (§2). A raw scan of the decompressed `.lsv` frame
+> for `4C 53 4D 46` (`LSMF`) magic bytes will find a **false positive** in the
+> LSF strings section at approximately offset 1 730 992 (the ASCII text `LSMF`
+> appears there as part of a node name). The actual blob is only reachable by
+> fully parsing the LSF — decompressing the values section and reading the
+> `NewAge → ScratchBuffer` attribute value — as `parse_lsof` does.
+
 ### Header
 
 | Offset | Type | Field |
 |-------:|------|-------|
 | 0 | char[4] + 4 | magic `4C 53 4D 46 01 01 00 08` (`LSMF` + version-ish) |
 | 8 | u64 | (unidentified; looks like a hash/build id) |
-| 16 | **u64** | **offset to the component-type directory** (≈30 KB before EOF) |
-| 24 | u64 | (size/count, unidentified) |
-| … | | component column data, then the directory |
+| 16 | **u64** | **dir_off** — raw directory pointer; `names_off` (actual directory start) = `dir_off + 48` |
+| 24 | **u64** | **names_size** — byte length of the component-names blob |
+| 32 | **u32** | **desc_table_rel** — descriptor-table offset, relative to `names_off` |
+| 36 | **u16** | **entry_count** — number of component descriptors (355 in QuickSave_242) |
+| 48… | | component column data, then the directory region |
 
 ### Component-type directory (✅ decoded)
 
-`blob[16]` points to a directory (`dir_off`) listing **every component type
-present** — 355 entries in `QuickSave_242`. Names are stored **without** the
-`eoc::` / `ls::` prefix (so a search for the full bg3se name like
-`eoc::inventory::MemberComponent` fails; the substring `MemberComponent` is
-present). Layout, offsets relative to `dir_off`:
+`blob[16:24]` stores `dir_off`; the directory starts at `names_off = dir_off + 48`.
+It lists **every component type present** — 355 entries in `QuickSave_242`. Names
+are stored **without** the `eoc::` / `ls::` prefix (so a search for the full bg3se
+name like `eoc::inventory::MemberComponent` fails; the substring `MemberComponent`
+is present). The directory fields `desc_table_rel` (u32) and `entry_count` (u16)
+live in the **blob header** at absolute offsets 32 and 36 (see §6 Header table),
+not in the directory itself. Layout, offsets relative to `names_off`:
 
 | Offset | Field |
 |-------:|-------|
-| `+0..+23` | 24-byte header (hashes/build-id-looking; not decoded) |
-| `+32` | `u32 desc_table_rel` — descriptor-table offset, relative to `names_off` |
-| `+36` | `u16 entry_count` (355) |
-| `+48` | `names_off`: start of the names blob, size = `u64 @ blob[24]` (29,544 B); component names concatenated **with no separators**, e.g. `"core.v0.Levelcore.v0.EntityIdgame.action_resources.v1.Component…"` |
+| `+0` | names blob: `names_size` bytes (from `blob[24:32]`) of component names concatenated **with no separators**, e.g. `"core.v0.Levelcore.v0.EntityIdgame.action_resources.v1.Component…"` |
+| `+desc_table_rel` | ComponentDesc table: `entry_count` × 48-byte entries |
 
 The descriptor table sits at `desc_base = names_off + desc_table_rel`, one
 48-byte entry per component type:
@@ -361,6 +371,38 @@ rows=1314, data_off=0x16b230). The inventory cluster is contiguous in the
 names blob: `CanBeWieldedComponent · ContainerSlotData · MemberData ·
 MemberComponent · OwnerComponent · StackMemberComponent · WieldedComponent · …`
 
+### Ownerlist region (✅ decoded)
+
+Between the component column data and the directory (`[48, names_off)`) there
+is a contiguous table of **32-byte ownerlist records**, one per component that
+has one:
+
+```c
+struct OwnerlistRecord {
+    u64 start;         // absolute byte offset into blob: start of entity-row-index array
+    u64 end;           // absolute byte offset: end of entity-row-index array
+    u64 comp;          // index into the ComponentDesc table (0-based)
+    u64 entity_count;  // (end - start) / 4
+};
+```
+
+`start`..`end` is a packed array of `uint32` entity-row indices listing every
+entity that owns this component (i.e., has a column-data row for it).
+
+**Critical indexing rule.** An entity's **position `P`** in the ownerlist array
+(0-based) is its column index into the component's data — *not* its
+`core.v0.EntityId` row number. To read the component data for entity at
+`EntityId` row `er`: scan the ownerlist for the position `P` where
+`ownerlist[P] == er`, then read
+`blob[data_offset + P * elem_size : data_offset + (P+1) * elem_size]`.
+
+The ownerlist table is located by scanning the blob for the densest chain of
+valid 32-byte-aligned records (valid = `comp < entry_count`,
+`entity_count == rows_by_comp[comp]`, `end - start == entity_count * 4`). The
+parser's `parse_lsmf_membership` scans all ownerlist records to build a
+per-entity membership count; the count is the equipped/carried signal (see
+LIMITS.md).
+
 ### Cross-component references: absolute byte-pointers (✅ decoded)
 
 Where one component's row references another entity, the on-disk value is a
@@ -380,7 +422,7 @@ structurally unrecoverable. **That conclusion compared the wrong GUID
 namespace.** `CurrentTemplate` on an `Item`/`Character` LSF node is a
 *template/content* GUID; `core.v0.EntityId` rows hold *entity-instance* GUIDs —
 two disjoint spaces. The bridge between them is the existing
-`_build_entity_template_map(nodes, root_name)` helper (`entity_guid →
+`build_entity_template_map(nodes, root_name)` helper (`entity_guid →
 template_guid`); inverted and chained:
 
 ```
@@ -393,38 +435,57 @@ seemingly once per save "epoch"/frame). **So entity identity for a known item
 *is* recoverable from the blob.** What is *not* recoverable (next section) is
 which inventory/slot that entity sits in.
 
-### `MemberData` / `MemberComponent` traced and ruled out as the item↔slot link (❌)
+### `MemberData` / `MemberComponent`: diff experiment and EntityHandle wall
 
-`game.inventory.v0.MemberData` (#125, rows=1314): `{ u64 ptr_a, u64 handle_b }`.
-`ptr_a` always resolves (via the byte-pointer scheme above) to an `EntityId`
-row-start; collapsed across duplicates this is only **262 distinct GUIDs**.
-**None of the 1419 known item-entity GUIDs (found via the bridge above) is among
-those 262**, and only 1/1419 items has *any* `EntityId` row instance inside the
-byte-range `ptr_a` targets — indistinguishable from chance overlap. Those 262
-GUIDs also don't resolve through `_build_entity_template_map` for
-`Characters`/`Items`/`Containers`/`GameObjects`/`Triggers`, and don't appear
-anywhere else in the LSF tree (including `Creator.Entity`) — they look like
-**inventory-container pseudo-entities** (one per character/container/shop; 262
-is a plausible count for a full save), each a distinct ECS entity from the
-character or container that "owns" it.
+**Controlled equip/unequip diff (saves 242 vs 243).** Comparing saves where
+Wyll's Evasive Shoes were equipped (save 242, entity row 1597) vs in his bag
+(save 243, entity row 1679) identified **35 components whose ownerlist included
+entity 1597 but not entity 1679** — components present only when the item is
+equipped. `game.inventory.v0.MemberComponent` is one of them. The parser uses
+**aggregate membership count** across all ownerlist records (equipped items have
+~35–41 memberships; backpack items ~3–6; threshold 15) as its
+equipped/carried signal — `MemberComponent` is a cross-check, not the sole
+indicator. `MemberComponent` has 1314 rows in save 242 because it covers all
+equipped entities in the scene (party, NPCs, world), not just party items.
 
-`handle_b`, read as four little-endian `u16`s `[low, mid, hi, top]`: `top` is
-always `0`; `hi` is ≈constant (`0x0354`/`0x0355`, a world/type tag); `mid` has
-only **30 distinct values** across all 1314 rows (a per-batch/spawn salt, not a
-per-item value); `low` spans the full `u16` range (407/1314 rows have a nonzero
-high byte, ruling out a clean `int16 EquipmentSlot` reading on its own).
-Exhaustively testing `mid` against the 7 known items' entity GUIDs and
-`EntityId` row indices (raw byte-pairs LE/BE, crc32, adler32, sum-mod-65536)
-produced **zero matches**.
+**`game.inventory.v0.MemberComponent`** (#126, elem=**8**, rows=1314). The bg3se
+in-memory struct is:
+```cpp
+struct MemberComponent { EntityHandle Inventory; int16_t EquipmentSlot; };
+```
+but the on-disk element is only 8 bytes — an **absolute byte-pointer into
+`MemberData`'s data region**. The `EquipmentSlot` field is absent from the
+on-disk representation.
 
-**Net result: the one component whose name and `{Inventory, EquipmentSlot}`
-shape most plausibly matches the equip-slot data turns out to enumerate
-(container-pseudo-entity, packed-handle) pairs that never reference the item
-entities themselves.** Either the real item↔slot link lives in a still-unidentified
-component, or `handle_b` packs an `EntityHandle` whose translation table doesn't
-exist anywhere in the accessible LSF tree (confirmed by exhaustive search) —
-which is the same "no handle→item table exposed" wall described below, now
-narrowed to a specific, ruled-out candidate.
+**`game.inventory.v0.MemberData`** (#125, elem=16, rows=1314):
+`{ u64 ptr_a, u64 handle_b }`.
+
+Prior analysis found that `ptr_a` resolves (via the byte-pointer scheme above)
+to a `core.v0.EntityId` row-start; collapsed across duplicates, only **262
+distinct GUIDs** appear. **None of the 1419 known item-entity GUIDs is among
+those 262** — they are **inventory-container pseudo-entities** (one per
+character/container/shop; 262 is a plausible count for a full save), consistent
+with `MemberComponent` recording "item entity X belongs to inventory entity Y".
+The `ptr_a` values (~78 K–98 K) were separately confirmed to **not** fall in
+`game.inventory.v0.ContainerSlotData`'s data range [1 409 808, 1 430 288),
+verified against all 17 tested equipped items.
+
+`handle_b` is a packed `EntityHandle`. From bg3se source
+(`CoreLib/Base/BaseTypes.h:126–189`, `TypedHandle<EntityHandleTag>`):
+```
+uint64  =  Index(32 bits)  |  Salt(22 bits) << 32  |  Type(10 bits) << 54
+```
+Read as four LE `u16`s `[low, mid, hi, top]`: `hi ≈ 0x0354`/`0x0355` is the
+lower 16 bits of Salt (852/853); `top = 0` because Salt < 2¹⁶; `mid` (30
+distinct values) is the upper 16 bits of the Index field; `low` spans the full
+`u16` range. In the test save, bytes 12–15 of every `handle_b` read as
+`54 03 00 00` (LE) → Salt = 852 = 0x354, Type = 0. `Index` values are in the
+billions — positions in the **live game's global entity pool**, not the save's
+local `core.v0.EntityId` table (~17 K rows). **No handle → GUID translation
+table exists anywhere in the on-disk LSF tree** (confirmed by exhaustive
+whole-tree search). `handle_b` is therefore unresolvable without live game state,
+and with it the `EquipmentSlot` baked into the C++ form of `MemberComponent` is
+also blocked.
 
 ### What the equipment data looks like (from bg3se, in live memory)
 
@@ -438,6 +499,11 @@ struct MemberComponent { EntityHandle Inventory; int16_t EquipmentSlot; };
 struct EquipableComponent { Guid EquipmentTypeID; ItemSlot Slot; };
 // "eoc::inventory::WieldedComponent" { Guid }
 ```
+
+> **On-disk vs in-memory.** The LSMF serialisation of `MemberComponent` is
+> **8 bytes** (a byte-pointer into `MemberData`), not the 10-byte C++ struct.
+> `EquipmentSlot` is absent from the on-disk form; it exists only in live
+> game memory.
 
 `EquipmentSlot` / `ItemSlot` enum (`Enumerations/Stats.inl`, `uint8`):
 
@@ -462,19 +528,21 @@ data_offset}` is a lookup away — see above), and entity identity for a *known*
 item is recoverable via the `CurrentTemplate → entity_guid → EntityId` bridge.
 What remains genuinely blocked:
 
-1. **`handle_b`/`EntityHandle` decoding.** `MemberData.handle_b` (and presumably
-   `EntityHandle` fields elsewhere) is a packed 64-bit value whose four `u16`
-   sub-fields don't correspond to anything we can independently derive — no
-   tested hash/transform of a known item's GUID or row index lands on any of
-   `handle_b`'s 30 distinct "mid" values. There is **no handle → GUID / handle →
-   item table anywhere in the LSF tree** (confirmed by an exhaustive whole-tree
-   search for the candidate owner GUIDs and `Creator.Entity` cross-references).
-2. **The component that actually links an item entity to its inventory/slot is
-   still unidentified.** `MemberData`/`MemberComponent` — the obvious candidate
-   by name and by its `{Inventory: EntityHandle, EquipmentSlot: int16}` C++
-   shape — was traced end-to-end and demonstrably never references any of the
-   1419 known item entities (see above); whatever component does hold that link
-   has not been found among the 355 directory entries.
+1. **`EntityHandle` decoding.** `MemberData.handle_b` is a well-formed
+   `EntityHandle` (`uint64 = Index(32) | Salt(22)<<32 | Type(10)<<54`; Salt≈852,
+   Type=0 — confirmed from bg3se source and byte inspection). Its `Index` field
+   is in the billions — a position in the live game's global entity pool, not the
+   save's local table. There is **no handle → GUID / handle → row table anywhere
+   in the on-disk LSF tree** (confirmed by exhaustive whole-tree search). Any
+   information gated behind a live `EntityHandle` is unresolvable from the save
+   file alone.
+2. **Exact equipment slot** (Helmet / Boots / Amulet / …). The equipped/carried
+   split is recoverable via membership count (see ownerlist region and LIMITS.md).
+   What is not recovered is *which* slot an item occupies. The `EquipmentSlot`
+   field from the C++ `MemberComponent` struct is absent from the 8-byte on-disk
+   element, and the `EntityHandle` wall above blocks any handle-based
+   reconstruction. For most equipment types there is a 1:1 relationship between
+   item type and slot, so the practical impact is limited.
 3. The blob contains no slot-name or full-component-name strings to anchor on
    beyond the directory.
 
@@ -482,14 +550,17 @@ What remains genuinely blocked:
 > per-component GUID arrays as ownership lists (they're ordered by entity handle
 > = creation order); co-occurrence / run-segmentation / run-header scans of the
 > column data; comparing `CurrentTemplate` GUIDs directly against `EntityId`
-> rows (wrong namespace — use the inverted `_build_entity_template_map` bridge
-> instead); and — newly ruled out this pass — decoding `MemberData`/
-> `MemberComponent` as the item↔slot table (it enumerates
-> container-pseudo-entity ↔ packed-handle pairs, not item ↔ slot pairs).
-> The viable path, if anyone picks this back up: find which of the other ~353
-> components actually carries a reference to item `EntityId` rows (that's the
-> real `MemberComponent` analog), then crack its handle field — the directory
-> and byte-pointer scheme above make that search mechanical, if still tedious.
+> rows (wrong namespace — use the inverted `build_entity_template_map` bridge
+> instead); interpreting `MemberData.ptr_a` as a pointer into `ContainerSlotData`
+> (confirmed not: ptr_a values ~78 K–98 K fall outside CSD's range
+> [1 409 808, 1 430 288), verified against 17 equipped items); attempting to
+> derive slot or item identity from the four-`u16` decomposition of `handle_b`
+> (it is a live `EntityHandle` with no on-disk translation table; the 30 distinct
+> `mid` values are the high-16-bits of the Index field, not slot numbers).
+> The viable path for recovering exact slot numbers: observe a controlled
+> equip-to-different-slot experiment and diff which byte in `MemberData` (or
+> a related component) changes per slot — or use Script Extender
+> (`Ext.Entity.Get(...)` in Lua) to read the live `EquipmentSlot` value directly.
 
 ### Also in the blob
 
@@ -545,9 +616,12 @@ handle indexes straight into this table.
 | Per-character item ownership | ✅ (Translate matching) |
 | Display names | ✅ (root templates + `.loca`) |
 | Spell lists | ⚠️ heuristic (string pool + class rules) |
-| **Worn-vs-carried (heuristic)** | ⚠️ `Flags` bit 0x04000000 hits 32/34 worn items; 1 confirmed FP; 2 misses; exact slot still ❌ (needs `MemberComponent.EquipmentSlot`) |
-| LSMF component-type directory | ✅ located; framing ❌ |
-| LSMF entity/handle tables, component columns | ❌ open frontier |
+| **Worn-vs-carried** | ✅ 34/34 correct: union of `Flags` bit, STATUS signal, and ECS membership count ≥ 15 (`MemberComponent` ownerlist is one of the 35 equipped-only signals; controlled diff, saves 242/243) |
+| Exact equipment slot (Boots / Amulet / Cloak / …) | ❌ `EntityHandle`-gated; absent from on-disk serialisation |
+| LSMF component-type directory | ✅ decoded (355 entries: name → elem\_size / row\_count / data\_offset) |
+| LSMF ownerlist region (equipped/carried signal) | ✅ decoded (membership count per entity; threshold 15) |
+| LSMF `MemberComponent` / `MemberData` structure | ✅ traced (8-byte pointer + 16-byte {ptr\_a, EntityHandle}) |
+| LSMF `EntityHandle` → GUID translation | ❌ no on-disk table; requires live game state |
 | Osiris story (frame 9) | ❌ not parsed |
 
 ---

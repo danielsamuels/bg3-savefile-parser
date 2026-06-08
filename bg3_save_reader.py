@@ -701,12 +701,13 @@ def parse_lsmf_membership(
     Items moved to a backpack dematerialise (~3–6 memberships).
     Returns None on any parse failure.
     """
-    # LSMF header layout (offsets are absolute into blob):
-    #   blob[8:16]   = dir_off   (absolute offset of the component directory)
-    #   blob[16:24]  = names_size (byte length of the component-names section)
-    #   blob[32:36]  = desc_table_rel (desc table offset, relative to names_off)
+    # LSMF blob header (absolute offsets):
+    #   blob[8:16]   = unknown (ignored)
+    #   blob[16:24]  = dir_off    (raw directory pointer; actual names-blob start = dir_off + 48)
+    #   blob[24:32]  = names_size (byte length of the component-names section)
+    #   blob[32:36]  = desc_table_rel (descriptor-table offset, relative to names_off)
     #   blob[36:38]  = entry_count (number of component descriptors)
-    #   names_off    = dir_off + 48  (names section starts 48 bytes into the directory)
+    #   names_off    = dir_off + 48  (start of the names blob / component-type directory)
     # Each 48-byte ComponentDesc at desc_base + i*48:
     #   [0:8]   name_offset (into names section)
     #   [8:16]  name_length
