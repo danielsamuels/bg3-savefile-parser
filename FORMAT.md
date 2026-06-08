@@ -98,12 +98,12 @@ nibble): `0` = none, `1` = zlib, `2` = LZ4 (block, `uncompressed_size` known),
 |------:|-------|-------:|:------:|----------|
 | 0 | LSOF | 3.1 MB | ✅ | **Globals** — `Characters`, `Items`, item `Creators` (Entity→TemplateID), and the `NewAge` LSMF blob; ~30 root regions including `Story`, `Journal`, `Waypoints`, `GameControl` |
 | 1 | LSOF | 153 KB | ❌ | **Secondary level LSF** — 14 root regions (`Characters`, `Items`, `ItemMover`, `Triggers`, `Projectiles`, `Constellations`, `ConstellationHelpers`, `VariableManagers`, `AnubisFramework`, `SavedStates`, `Splines`, `CacheTemplates`, `NewAge`, `ModuleSettings`); 32 Character nodes (NPC-only, no party origin GUIDs), 79 Item nodes (world loot, no Translate or Stats matching any party position). A background/secondary area level cache. Contains no party character data and no party-owned items — not useful for the report. |
-| 2 | LSOF | 2.1 MB | ❌ | Navigation mesh — `GridDefinition` root + 2,109 hashed navmesh tile roots; no item/character data |
+| 2 | LSOF | 2.1 MB | ❌ | **`CRE_Main_A` level cache** — 123 Character nodes, 2,024 Item nodes (world entities for a secondary area); no party-owned items |
 | 3 | LSOF | 10.8 MB | ✅ | **Level cache** (`SCL_Main_A`) — `Characters`, `Items`, `Surfaces`, AI state, `CrimeHandler`; ~11.8 k live `Item` nodes with `Stats` and world transforms |
 | 4 | LSOF | 24 KB | ❌ | **Compact snapshot** — 37 root regions (most unresolved names `?XXXXXXXX`; resolved: `Characters`, `Items`, `Projectiles`, `Constellations`, `AtmosphereOverrides`, `AITurnData`, `CrimeHandler`, `Level`, `ModuleSettings`); 1 Character node (empty attrs, no template GUID), 0 Item nodes. Likely a minimal respawn-point or transition-screen state. No party data, no items. |
-| 5 | LSOF | 14.7 MB | ❌ | Fog-of-war / shroud — `GridDefinition` + 14,898 hashed tile visibility bitmap roots; no item/character data |
+| 5 | LSOF | 14.7 MB | ❌ | **`WLD_Main_A` level cache** — 669 Character nodes, 14,833 Item nodes (world entities for the main open area); no party-owned items |
 | 6 | LSOF | 2 KB | ✅ | **`MetaData`** — save metadata: wall-clock save time (Unix epoch), save number, campaign/session UUIDs, party leader name, RNG seed, mod list (`ModuleShortDesc` nodes), difficulty code, active ruleset UUIDs, game version, camera state |
-| 7 | RIFF | ~1.7 MB | ❌ | **Load-screen thumbnail** — a RIFF-format image; not an LSF |
+| 7 | RIFF | ~1.7 MB | ✅ | **Load-screen thumbnail** — RIFF/WebP (lossy VP8), 1280×720 px; extracted by `extract_thumbnail` with `--thumbnail PATH` |
 | 8 | JSON | 2.5 KB | ✅ | **`Info.json`** — save name, game version, difficulty, current level, active party (class/level/XP) |
 | 9 | Osiris | 47.7 MB | ❌ | **Osiris database** — scripting engine state (`Osiris save file, Version 1.8`): quest flags, story counters, dialogue state |
 
@@ -160,7 +160,6 @@ one child `MetaData` node that carries all attributes, plus several child nodes
   handle refs (loca/runtime handles; not resolved by this parser).
 - `ClientDatas/ClientData` — UI state: `Slot`, `HotbarLocked`,
   `GameCameraDistance`, `GameCameraRotation`.
->>>>>>> worktree-agent-adb312631004e73aa
 
 ---
 
