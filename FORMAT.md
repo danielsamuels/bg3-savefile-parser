@@ -771,7 +771,140 @@ handle indexes straight into this table.
 | LSMF ownerlist region (equipped/carried signal) | ✅ decoded (membership count per entity; threshold 15) |
 | LSMF `MemberComponent` / `MemberData` structure | ✅ traced (8-byte pointer + 16-byte {ptr\_a, EntityHandle}) |
 | LSMF `EntityHandle` → GUID translation | ❌ no on-disk table; requires live game state |
-| Osiris story (frame 9) | ❌ not parsed |
+| Osiris story (frame 9) | ✅ (`parse_osiris`): quest state, goal flags, story flags |
+
+---
+
+## 9. Osiris story state (frame 9)
+
+Frame 9 is the Osiris scripting-engine save: ~47 MB flat binary (no offset
+table). All sections must be read sequentially in fixed order. Verified against
+`QuickSave_242` — parser consumed all 47,731,506 bytes with 0 remaining.
+
+### File header (unscrambled, 193 bytes total)
+
+| Field | Type | Notes |
+|-------|------|-------|
+| null byte | u8 | always `0x00` |
+| version string | NUL-terminated | e.g. `"Story save game v1.15.0"` |
+| major | u8 | `1` for Patch 8 |
+| minor | u8 | `15` for Patch 8 (version word = `0x010f`) |
+| bigendian | u8 | unused (`0`) |
+| unused | u8 | |
+| version buffer | 0x80 bytes | additional version data (ver ≥ 0x0102) |
+| debug flags | u32 | (ver ≥ 0x0103) |
+
+After the header, all strings are XOR-scrambled byte-by-byte with `0xAD`
+(null-terminated). This applies to every `string()` read in the sections below.
+
+Version-feature gates (version word thresholds):
+
+| Constant | Value | Effect |
+|----------|-------|--------|
+| `OSI_VER_SCRAMBLE` | `0x0104` | enables 0xAD XOR string scrambling |
+| `OSI_VER_ADD_QUERY` | `0x0106` | adds `is_query` bool at end of RuleNode |
+| `OSI_VER_TYPE_ALIASES` | `0x0109` | adds type-alias byte per type entry |
+| `OSI_VER_ENUMS` | `0x010d` | enables Enums section; type IDs are u16 (not u32) |
+| `OSI_VER_VALUE_FLAGS` | `0x010e` | changes Value layout (index + flags byte first) |
+
+### Section order and observed sizes (QuickSave_242)
+
+| Section | Start offset | Notes |
+|---------|-------------|-------|
+| Types | 193 | `u32` count + `(name, idx_u8, alias_u8)` per entry |
+| Enums | 780 | (ver ≥ `OSI_VER_ENUMS`) `u32` count + `(u16 id, u32 enum_count, (string, u64)…)` |
+| DivObjects | 2799 | `u32` count + `(name, u8, u32, u32, u32, u32)` per entry |
+| Functions | 2803 | `u32` count + complex signature per entry |
+| Nodes | 1,562,961 | `u32` count + variable-length node records |
+| Adapters | 20,335,037 | `u32` count + `(u32, Tuple, logical_map, physical_map)` |
+| Databases | 27,143,800 | `u32` count + `(u32 idx, ParameterList, u32 fact_count, facts)` |
+| Goals | 42,457,920 | `u32` count + goal records |
+| GlobalActions | 47,731,502 | `u32` count + Call records |
+| EOF | 47,731,506 | 0 bytes remaining |
+
+### Value encoding (ver ≥ `OSI_VER_VALUE_FLAGS`)
+
+Each Value starts with:
+```
+i8   index   (not semantically needed for database reading)
+u8   flags   (bit 0x08 = IsValid; if not set, value is empty, no payload follows)
+```
+Then a discriminator byte:
+
+| Byte | Meaning | Payload |
+|------|---------|---------|
+| `0x30` (`'0'`) | typed value | `type_id` + value per builtin type (see below) |
+| `0x31` (`'1'`) | reference int | `type_id` (ignored) + `i32` |
+| `0x65` (`'e'`) | enum label | `u16` enum type id + string |
+
+Builtin type dispatch for `'0'` (type alias applied first):
+
+| Alias | Builtin | Read |
+|-------|---------|------|
+| 0 | None | nothing |
+| 1 | Integer | `i32` |
+| 2 | Integer64 | `i64` |
+| 3 | Real | `f32` |
+| 4, 5 | String, GuidString | `u8` has_value + string if non-zero |
+| other | (string-like) | same as 4/5 |
+
+### Node types and parse layout
+
+Nodes are consumed sequentially. Each starts with `u8 node_type, u32 node_id,
+u32 db_ref, string name`. If `name` is non-empty, a `u8` param-count follows.
+A `(db_ref, name)` pair with both non-zero is the database-name record.
+
+| Type | ID | Extra payload |
+|------|-----|---------------|
+| DatabaseNode | 1 | `u32` referenced-by count + count × NodeEntryItem |
+| ProcNode | 2 | same as DatabaseNode |
+| DivQueryNode | 3 | nothing |
+| AndNode | 4 | 1×NEI + 4×ref_u32 + ref_u32 + NEI + u8 + ref_u32 + NEI + u8 |
+| NotAndNode | 5 | same as AndNode |
+| RelOpNode | 6 | NEI + 2×ref_u32 + ref_u32 + NEI + u8 + i8 + i8 + Value + Value + i32 |
+| RuleNode | 7 | NEI + 2×ref_u32 + ref_u32 + NEI + u8 + calls-list + vars-list + u32 + (bool if ver≥ADD_QUERY) |
+| InternalQueryNode | 8 | nothing |
+| UserQueryNode | 9 | nothing |
+
+`NEI` = NodeEntryItem = `(ref_u32, u32, ref_u32)`.
+
+### Key quest-state databases
+
+| Database | Schema | Contents |
+|----------|--------|---------|
+| `DB_QuestIsAccepted` | `(quest_id: string)` | All quests ever accepted — superset of in-progress **and** closed quests |
+| `DB_QuestIsClosed` | `(quest_id: string)` | All resolved quests (completed or failed; no separate failed-quest DB exists) |
+| `DB_QuestIsOpened` | `(quest_id: string)` | Quests that appeared in the journal (a smaller tracking set) |
+| `DB_GlobalFlag` | `(flag_guid: string)` | Story-state flags with GUID suffixes; 1034 facts in test save |
+
+**Quest-state derivation:**
+```
+in_progress = DB_QuestIsAccepted − DB_QuestIsClosed
+closed      = DB_QuestIsClosed
+```
+`DB_QuestIsAccepted` is **not** pruned when a quest closes, so the raw
+accepted list contains both in-progress and resolved quests.
+
+### Goal flags
+
+The `Flags` byte in each Goal record:
+
+| Value | Meaning |
+|-------|---------|
+| `0x00` | active / default (652 goals in test save) |
+| `0x02` | child goal (232 goals; per LSLib Goal.cs) |
+| `0x07` | finalized (60 goals in test save) |
+
+> **`0x07` does not mean "player finished this content."** In Osiris,
+> orchestration goals (e.g. `Act2`, `Act2_CMB_StatusOnInit`,
+> `BG3_CleanUpDBs_SavegamePatch`) call `GoalCompleted()` in their **init**
+> block — they finalize immediately after spawning sub-goals. So `flags=0x07`
+> means "this goal's lifetime has ended," which for act/system goals fires
+> when the act is *entered*, not when the player finishes it. In `QuickSave_242`
+> (mid-Act-2), `Act2` appears in the finalized set while Act-2 quests are still
+> in `DB_QuestIsAccepted − DB_QuestIsClosed`. Treat this as "act/phase
+> initiated" rather than "player completed."
+
 
 ---
 
@@ -779,5 +912,9 @@ handle indexes straight into this table.
 
 - LSLib — `LSLib/LS/Resources/LSF/LSFCommon.cs` (structs), `LSFReader.cs`
   (V2/V3 selection), `NodeAttribute.cs` (type enum), `LSPKReader` (package).
+- LSLib Osiris — `LSLib/LS/Story/Story.cs` (section order), `Common.cs`
+  (`OsiReader`, header, version constants), `Value.cs` (value encoding),
+  `DataNode.cs`, `Rule.cs`, `RelOp.cs`, `Join.cs`, `Rel.cs`, `Adapter.cs`,
+  `Database.cs`, `Goal.cs`, `Call.cs`, `Function.cs` (node/section layouts).
 - bg3se — `BG3Extender/GameDefinitions/Components/Inventory.h`, `Stats.h`
   (component layouts), `Enumerations/Stats.inl` (`ItemSlot`).
