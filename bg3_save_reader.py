@@ -10,46 +10,41 @@
 bg3_save_reader.py  –  Extract character and item info from a BG3 .lsv save file.
 
 Usage:
-    uv run bg3_save_reader.py [save.lsv] [output.txt]
-    uv run bg3_save_reader.py [save.lsv] --thumbnail thumb.webp [output.txt]
+    uv run bg3_save_reader.py [save.lsv] [output.txt] [flags]
     # or, if dependencies are already installed:
-    python3 bg3_save_reader.py [save.lsv] [output.txt]
+    python3 bg3_save_reader.py [save.lsv] [output.txt] [flags]
+
+Default output: party characters with race, class, level, spells/abilities,
+and equipped gear.  Additional sections are opt-in:
+
+    --save-info     save metadata (name, date, mods, …)
+    --quests        quest and story state from the Osiris DB (adds ~1-2 s)
+    --carried       each character's carried inventory
+    --all-items     full item list for the current level
+    --limits        known limitations note
+    --thumbnail PATH / -t PATH
+                    extract the load-screen thumbnail (1280×720 WebP) to PATH
 
 If save.lsv is omitted, the most recently modified save is auto-detected
-(override the search root with the BG3_SAVE_DIR environment variable).
-If output.txt is omitted the report is printed to stdout.
-
---thumbnail PATH (or -t PATH) extracts the load-screen thumbnail (frame 7,
-a 1280x720 RIFF/WebP image) to the given path.  The flag may appear anywhere
-on the command line and does not affect positional argument handling.
+(override the search root with BG3_SAVE_DIR).  If output.txt is omitted the
+report is printed to stdout.
 
 Dependencies (zstandard, lz4) are declared in the inline script metadata above
 (PEP 723), so `uv run` installs them automatically in an ephemeral environment.
 
-What it extracts
-----------------
-  Party characters  – name, race, class/subclass, level, XP, origin
-  Spells/abilities  – extracted from the LSMF ECS blob string pool;
-                      split by known BG3 spell-ID prefixes and attributed
-                      to each character using class-specific rules
-  Equipped gear     – items with a STATUS on-equip passive, the 0x04000000
-                      Flags bit, or high ECS component membership (≥15);
-                      unequipped equipment-type items go to carried
-  Inventory         – all items with empty "Level" in the level cache
-                      (~1 000+ items; ownership attribution needs LSMF parsing)
-  Display names     – internal names resolved to "Display Name (INTERNAL_NAME)"
-                      from the installed game data (root templates + loca),
-                      where the game is found; otherwise internal names only.
-                      Set BG3_DATA_DIR to point at the game's Data directory.
+Display names
+-------------
+  Internal item and spell names are resolved to "Display Name (INTERNAL_NAME)"
+  using the installed game data (root templates + english.loca + spell stat
+  files).  Set BG3_DATA_DIR to point at the game's Data directory; otherwise
+  the game install is auto-detected at the usual Steam paths.  Without a game
+  install every name is shown in its raw internal form.
 
 Known limitations
 -----------------
-  Exact equipment slot (Helmet/Boots/Amulet/Ring/…) is not recovered — it
-  lives in the ECS blob's MemberComponent.EquipmentSlot behind packed
-  EntityHandle cross-references with no on-disk handle→GUID table.
-  Spell attribution uses class-based heuristics; a small number of generic
-  abilities (Jump, Help, Shove, etc.) appear for all characters and are
-  reported once in the "shared" section rather than per character.
+  Exact equipment slot (Helmet/Boots/Amulet/Ring/…) is not recovered.
+  Spell attribution uses class-based heuristics; spells with no DisplayName
+  in the stat files (passive features, etc.) are shown as internal IDs.
   See LIMITS.md for full details.
 """
 
@@ -1483,7 +1478,7 @@ LOCA_PAK = 'Localization/English.pak'
 LOCA_FILE = 'Localization/English/english.loca'
 
 # Bump when the resolver logic changes so a stale cache is not silently reused.
-DISPLAYNAME_SCHEMA_VERSION = 2
+DISPLAYNAME_SCHEMA_VERSION = 3
 
 
 def find_game_data_dir() -> str | None:
@@ -1588,8 +1583,8 @@ def cache_path(data_dir: str) -> str:
     return os.path.join(cdir, f'displaynames-{sig}.json')
 
 
-def build_displayname_maps(data_dir: str) -> tuple[dict[str, str], dict[str, str]]:
-    """Build (guid->display_name, stats_name->display_name) from game data.
+def build_displayname_maps(data_dir: str) -> tuple[dict[str, str], dict[str, str], dict[str, str]]:
+    """Build (guid->name, stats->name, spell_id->name) from game data.
 
     Results are cached under XDG_CACHE_HOME keyed on the source paks' mtime/size,
     so the ~1 s parse only happens after a game update.
@@ -1598,7 +1593,7 @@ def build_displayname_maps(data_dir: str) -> tuple[dict[str, str], dict[str, str
     try:
         with open(cache, encoding='utf-8') as fh:
             data = json.load(fh)
-        return data['guid'], data['stats']
+        return data['guid'], data['stats'], data.get('spells', {})
     except (OSError, ValueError, KeyError):
         pass
 
@@ -1650,30 +1645,54 @@ def build_displayname_maps(data_dir: str) -> tuple[dict[str, str], dict[str, str
         if txt:
             stats_name[stats] = txt
 
+    # Spell stat files: Spell_*.txt inside Shared.pak
+    spell_name: dict[str, str] = {}
+    shared_pak = os.path.join(data_dir, 'Shared.pak')
+    try:
+        with open(shared_pak, 'rb') as fh:
+            flist = lspk_filelist(fh)
+        spell_files = sorted(k for k in flist if re.search(r'/Stats/Generated/Data/Spell_.*\.txt$', k))
+        for sf in spell_files:
+            text = lspk_extract(shared_pak, sf).decode('utf-8', errors='replace')
+            for block_match in re.finditer(r'^new entry "([^"]+)"', text, re.MULTILINE):
+                entry_name = block_match.group(1)
+                start = block_match.end()
+                next_block = re.search(r'^new entry', text[start:], re.MULTILINE)
+                block_text = text[start : start + (next_block.start() if next_block else len(text))]
+                dn_m = re.search(r'data "DisplayName" "([^";]+)', block_text)
+                if dn_m:
+                    txt = handle_to_text.get(dn_m.group(1))
+                    if txt:
+                        spell_name.setdefault(entry_name, txt)
+    except (OSError, KeyError, ValueError):
+        pass
+
     try:
         with open(cache, 'w', encoding='utf-8') as fh:
-            json.dump({'guid': guid_name, 'stats': stats_name}, fh)
+            json.dump({'guid': guid_name, 'stats': stats_name, 'spells': spell_name}, fh)
     except OSError:
         pass
-    return guid_name, stats_name
+    return guid_name, stats_name, spell_name
 
 
 class DisplayNames:
-    """Resolves internal item identifiers to 'Display Name (INTERNAL_NAME)'."""
+    """Resolves internal item/spell identifiers to 'Display Name (INTERNAL_NAME)'."""
 
-    def __init__(self, guid_name: dict[str, str], stats_name: dict[str, str]):
+    def __init__(self, guid_name: dict[str, str], stats_name: dict[str, str],
+                 spell_name: dict[str, str] | None = None):
         self._guid = guid_name
         self._stats = stats_name
+        self._spells = spell_name or {}
 
     @classmethod
     def load(cls) -> 'DisplayNames':
         data_dir = find_game_data_dir()
         if not data_dir:
-            return cls({}, {})
+            return cls({}, {}, {})
         try:
             return cls(*build_displayname_maps(data_dir))
         except Exception:  # never let display-name resolution break the report
-            return cls({}, {})
+            return cls({}, {}, {})
 
     @property
     def available(self) -> bool:
@@ -1690,6 +1709,11 @@ class DisplayNames:
         dn = self.name_for(stats, guid)
         return f'{dn} ({stats})' if dn else stats
 
+    def fmt_spell(self, spell_id: str) -> str:
+        """Format as 'Display Name (SPELL_ID)', or just the spell ID."""
+        dn = self._spells.get(spell_id)
+        return f'{dn} ({spell_id})' if dn else spell_id
+
 
 # ---------------------------------------------------------------------------
 # Report formatting
@@ -1701,9 +1725,12 @@ def fmt_class(cls: dict) -> str:
     return f'{main} / {sub}' if sub else main
 
 
-def build_report(save_path: str, frames: list[bytes] | None = None) -> str:
+def build_report(save_path: str, frames: list[bytes] | None = None, opts=None) -> str:
     lines = []
     w = lines.append
+
+    def opt(name: str) -> bool:
+        return bool(getattr(opts, name.replace('-', '_'), False)) if opts is not None else False
 
     w('BG3 Save File Report')
     w(f'Source: {save_path}')
@@ -1717,45 +1744,45 @@ def build_report(save_path: str, frames: list[bytes] | None = None) -> str:
 
     # ---- Info.json --------------------------------------------------------
     info = parse_info_json(frames)
-    save_name = info.get('Save Name', '?')
-    game_ver  = info.get('Game Version', '?')
-    cur_level = info.get('Current Level', '?')
-    difficulty = ', '.join(info.get('Difficulty', []))
-
-    # ---- MetaData (frame 6) -----------------------------------------------
-    meta = parse_metadata(frames)
-    save_time_str = '?'
-    if meta.get('save_time') is not None:
-        try:
-            dt = datetime.datetime.fromtimestamp(meta['save_time'], tz=datetime.timezone.utc)
-            save_time_str = dt.strftime('%Y-%m-%d %H:%M:%S UTC')
-        except (OSError, OverflowError, ValueError):
-            save_time_str = str(meta['save_time'])
-
-    w('')
-    w(f'Save Name  : {save_name}')
-    w(f'Save #     : {meta.get("save_game_id", "?")}')
-    w(f'Saved At   : {save_time_str}')
-    w(f'Game Ver   : {game_ver}')
-    w(f'Level      : {cur_level}')
-    w(f'Difficulty : {difficulty}')
-    w(f'Leader     : {meta.get("leader_name", "?")}')
-    user_mods = meta.get('user_mods', [])
-    has_unofficial = meta.get('has_unofficial_mods', False)
-    if user_mods:
-        flag = '  (flagged unofficial by game)' if has_unofficial else ''
-        w(f'Mods       : {len(user_mods)} user mod(s){flag}')
-        for mod_entry in user_mods:
-            w(f'             {mod_entry.get("name", "?")}')
-    else:
-        w(f'Mods       : none')
-    w(f'Item names : {"resolved from game data" if dn.available else "internal only (game data not found; set BG3_DATA_DIR)"}')
-
-
     party_info = info.get('Active Party', {}).get('Characters', [])
 
-    # ---- Parse Osiris story state (frame 9) ---------------------------------
-    osiris = parse_osiris(frames)
+    # ---- MetaData (frame 6) — only when --save-info requested -------------
+    if opt('save-info'):
+        save_name = info.get('Save Name', '?')
+        game_ver  = info.get('Game Version', '?')
+        cur_level = info.get('Current Level', '?')
+        difficulty = ', '.join(info.get('Difficulty', []))
+
+        meta = parse_metadata(frames)
+        save_time_str = '?'
+        if meta.get('save_time') is not None:
+            try:
+                dt = datetime.datetime.fromtimestamp(meta['save_time'], tz=datetime.timezone.utc)
+                save_time_str = dt.strftime('%Y-%m-%d %H:%M:%S UTC')
+            except (OSError, OverflowError, ValueError):
+                save_time_str = str(meta['save_time'])
+
+        w('')
+        w(f'Save Name  : {save_name}')
+        w(f'Save #     : {meta.get("save_game_id", "?")}')
+        w(f'Saved At   : {save_time_str}')
+        w(f'Game Ver   : {game_ver}')
+        w(f'Level      : {cur_level}')
+        w(f'Difficulty : {difficulty}')
+        w(f'Leader     : {meta.get("leader_name", "?")}')
+        user_mods = meta.get('user_mods', [])
+        has_unofficial = meta.get('has_unofficial_mods', False)
+        if user_mods:
+            flag = '  (flagged unofficial by game)' if has_unofficial else ''
+            w(f'Mods       : {len(user_mods)} user mod(s){flag}')
+            for mod_entry in user_mods:
+                w(f'             {mod_entry.get("name", "?")}')
+        else:
+            w(f'Mods       : none')
+        w(f'Item names : {"resolved from game data" if dn.available else "internal only (game data not found; set BG3_DATA_DIR)"}')
+
+    # ---- Parse Osiris story state (frame 9) — only when --quests requested -
+    osiris = parse_osiris(frames) if opt('quests') else None
 
     # ---- Parse Globals (frame 0) ------------------------------------------
     frame0_data = decomp_frame(frames[0])
@@ -1795,42 +1822,43 @@ def build_report(save_path: str, frames: list[bytes] | None = None) -> str:
     # Per-character item attribution by shared world position (frame 0 + frame 3)
     items_by_char = collect_items_by_position([nodes0, nodes3], char_positions)
 
-    # ---- Quest & story state (Osiris) ------------------------------------
-    w('')
-    w('━' * 72)
-    w('QUEST & STORY STATE  (Osiris frame 9)')
-    w('━' * 72)
-    if osiris is None:
-        w('\n  (Osiris parse failed or frame not present)\n')
-    else:
-        osi_ver = osiris['version']
-        w(f'\n  Osiris version: {osi_ver >> 8}.{osi_ver & 0xFF}')
-
-        active = osiris['quests_active']
-        closed = osiris['quests_closed']
-        goals_fin = osiris['goals_finalized']
-        gflags = osiris['global_flags']
-        gflags_total = osiris['global_flags_total']
-
-        w(f'\n  Quests in progress ({len(active)}):')
-        for q in active:
-            w(f'    {q}')
-
-        w(f'\n  Quests closed / resolved ({len(closed)}):')
-        w('  (closed covers completed and failed; no separate failed-quest DB)')
-        for q in closed:
-            w(f'    {q}')
-
-        w(f'\n  Finalized goals — flags=0x07 ({len(goals_fin)}):')
-        w('  (orchestration goals finalize when the act/phase is *entered*, not finished;')
-        w('   the presence of "Act2" here means Act 2 was started, not completed)')
-        for g in goals_fin:
-            w(f'    {g}')
-
-        w(f'\n  Story flags — DB_GlobalFlag (first {len(gflags)} of {gflags_total} shown):')
-        for f in gflags:
-            w(f'    {f}')
+    # ---- Quest & story state (Osiris) — only when --quests requested --------
+    if opt('quests'):
         w('')
+        w('━' * 72)
+        w('QUEST & STORY STATE  (Osiris frame 9)')
+        w('━' * 72)
+        if osiris is None:
+            w('\n  (Osiris parse failed or frame not present)\n')
+        else:
+            osi_ver = osiris['version']
+            w(f'\n  Osiris version: {osi_ver >> 8}.{osi_ver & 0xFF}')
+
+            active = osiris['quests_active']
+            closed = osiris['quests_closed']
+            goals_fin = osiris['goals_finalized']
+            gflags = osiris['global_flags']
+            gflags_total = osiris['global_flags_total']
+
+            w(f'\n  Quests in progress ({len(active)}):')
+            for q in active:
+                w(f'    {q}')
+
+            w(f'\n  Quests closed / resolved ({len(closed)}):')
+            w('  (closed covers completed and failed; no separate failed-quest DB)')
+            for q in closed:
+                w(f'    {q}')
+
+            w(f'\n  Finalized goals — flags=0x07 ({len(goals_fin)}):')
+            w('  (orchestration goals finalize when the act/phase is *entered*, not finished;')
+            w('   the presence of "Act2" here means Act 2 was started, not completed)')
+            for g in goals_fin:
+                w(f'    {g}')
+
+            w(f'\n  Story flags — DB_GlobalFlag (first {len(gflags)} of {gflags_total} shown):')
+            for f in gflags:
+                w(f'    {f}')
+            w('')
 
     # ---- Characters -------------------------------------------------------
     w('')
@@ -1856,14 +1884,15 @@ def build_report(save_path: str, frames: list[bytes] | None = None) -> str:
         w(f'    Level     : {level}')
         if xp is not None:
             w(f'    XP        : {xp}')
-        w(f'    Location  : {subregion}')
+        if subregion:
+            w(f'    Location  : {subregion}')
 
         # Spells
         spells = spell_map.get(display_name, [])
         if spells:
             w(f'    Spells/Abilities ({len(spells)}):')
             for sid in sorted(spells):
-                w(f'      – {sid}')
+                w(f'      – {dn.fmt_spell(sid)}')
         else:
             w('    Spells/Abilities : (class-specific list not found)')
 
@@ -1894,57 +1923,60 @@ def build_report(save_path: str, frames: list[bytes] | None = None) -> str:
                 w(f'    Worn or carried — undetermined ({len(undetermined)}):')
                 for s, guid in undetermined:
                     w(f'      – {dn.fmt(s, guid)}')
-            w(f'    Carried / personal inventory ({len(carried)}):')
-            for s, guid in carried:
-                w(f'      – {dn.fmt(s, guid)}')
+            if opt('carried'):
+                w(f'    Carried / personal inventory ({len(carried)}):')
+                for s, guid in carried:
+                    w(f'      – {dn.fmt(s, guid)}')
         elif char_ni is None:
             w('    Equipment : character node not found')
         else:
             w('    Equipment : no items attributed (character off current level?)')
 
-    # ---- Inventory --------------------------------------------------------
-    w('')
-    w('━' * 72)
-    w('ALL ITEMS ON CURRENT LEVEL  (per-character gear listed above)')
-    w('Note: items carried by party members are attributed to each character')
-    w('above, by shared world position. The list below is the full level pool')
-    w('(world loot, containers, vendor stock) for reference.')
-    w('━' * 72)
+    # ---- Inventory — only when --all-items requested ----------------------
+    if opt('all-items'):
+        w('')
+        w('━' * 72)
+        w('ALL ITEMS ON CURRENT LEVEL  (per-character gear listed above)')
+        w('Note: items carried by party members are attributed to each character')
+        w('above, by shared world position. The list below is the full level pool')
+        w('(world loot, containers, vendor stock) for reference.')
+        w('━' * 72)
 
-    inv = collect_inventory_items(nodes3)
-    counts = Counter(item['stats'] for item in inv if item['stats'])
-    inv_guid: dict[str, str] = {}  # stats -> a representative CurrentTemplate GUID
-    for item in inv:
-        if item['stats'] and item['template']:
-            inv_guid.setdefault(item['stats'], item['template'])
-    w(f'\n  {len(inv)} items total  ({len(counts)} unique types)\n')
+        inv = collect_inventory_items(nodes3)
+        counts = Counter(item['stats'] for item in inv if item['stats'])
+        inv_guid: dict[str, str] = {}  # stats -> a representative CurrentTemplate GUID
+        for item in inv:
+            if item['stats'] and item['template']:
+                inv_guid.setdefault(item['stats'], item['template'])
+        w(f'\n  {len(inv)} items total  ({len(counts)} unique types)\n')
 
-    for stats_name, count in sorted(counts.items()):
-        prefix = stats_name.split('_')[0]
-        if prefix in ('WPN', 'MAG'):
-            cat = '[weapon/magic]'
-        elif prefix == 'ARM':
-            cat = '[armour/accessory]'
-        elif prefix == 'ALCH':
-            cat = '[alchemy]'
-        elif prefix in ('BOOK', 'SCR'):
-            cat = '[book/scroll]'
-        elif prefix in ('FOOD', 'CONS'):
-            cat = '[consumable]'
-        elif prefix in ('LOOT', 'MISC', 'OBJ', 'KEY'):
-            cat = '[misc/loot]'
-        else:
-            cat = ''
-        qty = f'x{count}' if count > 1 else '   '
-        label = dn.fmt(stats_name, inv_guid.get(stats_name, ''))
-        w(f'  {qty:4s} {label:60s} {cat}')
+        for stats_name, count in sorted(counts.items()):
+            prefix = stats_name.split('_')[0]
+            if prefix in ('WPN', 'MAG'):
+                cat = '[weapon/magic]'
+            elif prefix == 'ARM':
+                cat = '[armour/accessory]'
+            elif prefix == 'ALCH':
+                cat = '[alchemy]'
+            elif prefix in ('BOOK', 'SCR'):
+                cat = '[book/scroll]'
+            elif prefix in ('FOOD', 'CONS'):
+                cat = '[consumable]'
+            elif prefix in ('LOOT', 'MISC', 'OBJ', 'KEY'):
+                cat = '[misc/loot]'
+            else:
+                cat = ''
+            qty = f'x{count}' if count > 1 else '   '
+            label = dn.fmt(stats_name, inv_guid.get(stats_name, ''))
+            w(f'  {qty:4s} {label:60s} {cat}')
 
-    # ---- Limits note ------------------------------------------------------
-    w('')
-    w('━' * 72)
-    w('LIMITS')
-    w('━' * 72)
-    w('''
+    # ---- Limits note — only when --limits requested -----------------------
+    if opt('limits'):
+        w('')
+        w('━' * 72)
+        w('LIMITS')
+        w('━' * 72)
+        w('''
   Spell attribution uses class-based heuristics: each spell ID is matched
   against a hard-coded set of abilities exclusive to that character's class.
   Generic abilities (Jump, Help, Shove, etc.) are omitted to reduce noise.
@@ -2023,46 +2055,58 @@ def find_latest_save() -> str | None:
 # ---------------------------------------------------------------------------
 
 def main():
-    args = list(sys.argv[1:])
+    import argparse
+    ap = argparse.ArgumentParser(
+        description='Extract character info from a BG3 .lsv save file.',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=(
+            'By default only party characters are shown (race, class, level,\n'
+            'spells/abilities, and equipped gear).  Use the flags below to\n'
+            'include additional sections.'
+        ),
+    )
+    ap.add_argument('save', nargs='?', metavar='save.lsv',
+                    help='path to save file (auto-detected if omitted)')
+    ap.add_argument('output', nargs='?', metavar='output.txt',
+                    help='write report to file (default: stdout)')
+    ap.add_argument('--save-info', action='store_true',
+                    help='include save metadata (name, date, mods, …)')
+    ap.add_argument('--quests', action='store_true',
+                    help='include quest and story state (Osiris; adds ~1-2 s)')
+    ap.add_argument('--carried', action='store_true',
+                    help="include each character's carried inventory")
+    ap.add_argument('--all-items', action='store_true',
+                    help='include full item list for the current level')
+    ap.add_argument('--limits', action='store_true',
+                    help='include known limitations note')
+    ap.add_argument('--thumbnail', '-t', metavar='PATH',
+                    help="write the save's thumbnail image to PATH")
+    opts = ap.parse_args()
 
-    # Strip --thumbnail PATH out of the argument list before positional parsing.
-    thumb_path = None
-    for flag in ('--thumbnail', '-t'):
-        if flag in args:
-            idx = args.index(flag)
-            if idx + 1 < len(args):
-                thumb_path = args[idx + 1]
-                del args[idx:idx + 2]
-            else:
-                sys.exit(f'usage: {flag} requires a PATH argument')
-
-    save_path = args[0] if args else None
-    out_path  = args[1] if len(args) > 1 else None
-
+    save_path = opts.save
     if not save_path:
         save_path = find_latest_save()
         if not save_path:
-            sys.exit('usage: bg3_save_reader.py [save.lsv] [output.txt]\n'
-                     'No save given and none auto-detected; pass a .lsv path '
-                     'or set BG3_SAVE_DIR to your Savegames directory.')
+            ap.error('no save given and none auto-detected; '
+                     'pass a .lsv path or set BG3_SAVE_DIR')
         print(f'No save specified; using most recent: {save_path}', file=sys.stderr)
 
     frames = extract_frames(save_path)
 
-    if thumb_path:
-        dims = extract_thumbnail(frames, thumb_path)
+    if opts.thumbnail:
+        dims = extract_thumbnail(frames, opts.thumbnail)
         if dims:
-            print(f'Thumbnail written to {thumb_path} ({dims[0]}x{dims[1]})', file=sys.stderr)
+            print(f'Thumbnail written to {opts.thumbnail} ({dims[0]}x{dims[1]})', file=sys.stderr)
         else:
-            print(f'Thumbnail written to {thumb_path} (dimensions unknown)', file=sys.stderr)
+            print(f'Thumbnail written to {opts.thumbnail} (dimensions unknown)', file=sys.stderr)
 
     print(f'Parsing {save_path} …', file=sys.stderr)
-    report = build_report(save_path, frames)
+    report = build_report(save_path, frames, opts)
 
-    if out_path:
-        with open(out_path, 'w', encoding='utf-8') as fh:
+    if opts.output:
+        with open(opts.output, 'w', encoding='utf-8') as fh:
             fh.write(report)
-        print(f'Report written to {out_path}', file=sys.stderr)
+        print(f'Report written to {opts.output}', file=sys.stderr)
     else:
         print(report)
 
