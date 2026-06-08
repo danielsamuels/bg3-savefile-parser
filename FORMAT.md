@@ -95,10 +95,10 @@ nibble): `0` = none, `1` = zlib, `2` = LZ4 (block, `uncompressed_size` known),
 | Frame | Magic | Decomp | Status | Contents |
 |------:|-------|-------:|:------:|----------|
 | 0 | LSOF | 3.1 MB | ✅ | **Globals** — `Characters`, `Items`, item `Creators` (Entity→TemplateID), and the `NewAge` LSMF blob; ~30 root regions including `Story`, `Journal`, `Waypoints`, `GameControl` |
-| 1 | LSOF | 153 KB | ❌ | Secondary level LSF — probably a background/camp area's level state |
+| 1 | LSOF | 153 KB | ❌ | **Secondary level LSF** — 14 root regions (`Characters`, `Items`, `ItemMover`, `Triggers`, `Projectiles`, `Constellations`, `ConstellationHelpers`, `VariableManagers`, `AnubisFramework`, `SavedStates`, `Splines`, `CacheTemplates`, `NewAge`, `ModuleSettings`); 32 Character nodes (NPC-only, no party origin GUIDs), 79 Item nodes (world loot, no Translate or Stats matching any party position). A background/secondary area level cache. Contains no party character data and no party-owned items — not useful for the report. |
 | 2 | LSOF | 2.1 MB | ❌ | Navigation mesh — `GridDefinition` root + 2,109 hashed navmesh tile roots; no item/character data |
 | 3 | LSOF | 10.8 MB | ✅ | **Level cache** (`SCL_Main_A`) — `Characters`, `Items`, `Surfaces`, AI state, `CrimeHandler`; ~11.8 k live `Item` nodes with `Stats` and world transforms |
-| 4 | LSOF | 24 KB | ❌ | Compact snapshot — `Characters`, `Items`, `Projectiles`, `Level`; likely a respawn-point or load-screen preview state |
+| 4 | LSOF | 24 KB | ❌ | **Compact snapshot** — 37 root regions (most unresolved names `?XXXXXXXX`; resolved: `Characters`, `Items`, `Projectiles`, `Constellations`, `AtmosphereOverrides`, `AITurnData`, `CrimeHandler`, `Level`, `ModuleSettings`); 1 Character node (empty attrs, no template GUID), 0 Item nodes. Likely a minimal respawn-point or transition-screen state. No party data, no items. |
 | 5 | LSOF | 14.7 MB | ❌ | Fog-of-war / shroud — `GridDefinition` + 14,898 hashed tile visibility bitmap roots; no item/character data |
 | 6 | LSOF | 2 KB | ❌ | Single `MetaData` root — supplemental save metadata |
 | 7 | RIFF | ~1.7 MB | ❌ | **Load-screen thumbnail** — a RIFF-format image; not an LSF |
