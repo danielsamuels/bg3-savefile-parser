@@ -156,13 +156,14 @@ The **long (V3) node & attribute layout** is used **only** when
 `version ≥ VerExtendedNodes AND MetadataFormat == 1`. Otherwise the short (V2)
 layout is used.
 
-> **Gotcha (this cost a real bug):** observed files use `MetadataFormat` `0`
+> **Gotcha (this cost two bugs):** observed files use `MetadataFormat` `0`
 > (saves) or `2` (the game's root-template `_merged.lsf`). Both are the **V2**
 > layout — `2` is *not* extended. Keying the node width off `mfmt != 0` wrongly
-> picks 16-byte nodes for the `_merged.lsf`, corrupting the node table. This
-> parser instead detects the V2/V3 split via the presence of a **keys section**
-> (`keys_unc/keys_disk != 0`), which coincides with `KeysAndAdjacency`. The
-> strictly correct test is `MetadataFormat == 1`.
+> picks 16-byte nodes for the `_merged.lsf`, corrupting the node table. An
+> intermediate fix keyed off the keys-section sizes (`keys_unc/keys_disk != 0`),
+> but save frames 2/4/5 have a non-empty keys section with `mfmt=0` (V2 layout),
+> making that test also wrong. **The correct and final test is `MetadataFormat == 1`**,
+> which this parser now uses.
 
 ### String hash table (strings section)
 

@@ -175,11 +175,12 @@ def parse_lsof(data: bytes) -> list[dict]:
 
     cflags, _, _, mfmt = struct.unpack_from('<BB2sI', data, 56)
     chunked = ver >= 0x02
-    # Wide (16-byte) node entries go with a populated keys section, signalled by
-    # the keys section sizes (_ku/_kd) — NOT by the metadata-format word (mfmt).
-    # The game's root-template _merged.lsf set mfmt=2 yet still use 12-byte node
-    # entries with no keys section, so keying off mfmt mis-sized the node table.
-    has_keys = (_ku != 0 or _kd != 0)
+    # V3 (16-byte) node entries are used ONLY when MetadataFormat == 1
+    # (KeysAndAdjacency). Two known false signals to avoid:
+    #   mfmt=2 (_merged.lsf): has no keys section — not V3.
+    #   mfmt=0 with non-empty keys section (save frames 2/4/5): also not V3.
+    # The keys-section sizes (_ku/_kd) are unreliable; mfmt==1 is the correct test.
+    has_keys = (mfmt == 1)
 
     # A section with sizeOnDisk == 0 is stored uncompressed; its on-disk byte
     # count is then the uncompressed size.  (Save frames are compressed, so
