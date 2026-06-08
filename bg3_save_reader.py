@@ -55,6 +55,7 @@ Known limitations
 
 import datetime
 import json
+import os
 import re
 import struct
 import sys
@@ -108,7 +109,9 @@ def decomp_section(raw: bytes, disk: int, unc: int, flags: int, chunked: bool) -
     if m == 0:
         return raw[:disk]
     if m == 2:
-        return lz4.frame.decompress(raw[:disk]) if chunked else lz4.block.decompress(raw[:disk], uncompressed_size=unc)
+        if chunked:
+            return lz4.frame.decompress(raw[:disk])
+        return lz4.block.decompress(raw[:disk], uncompressed_size=unc)
     raise ValueError(f'unknown compression mode {m}')
 
 
@@ -991,9 +994,8 @@ def extract_spells_by_character(
         result[name] = owned
         assigned |= exclusive
 
-    # Second pass: attribute remaining non-universal spells to best-match class
-    remainder = all_spell_ids - assigned - UNIVERSAL
-    # Spells with no exclusive owner go to a shared/generic bucket (omitted for brevity)
+    # Second pass: non-universal spells with no exclusive owner go to a shared/
+    # generic bucket (omitted for brevity; future work).
 
     return result
 
@@ -1191,7 +1193,9 @@ def is_equipment_type(stats: str) -> bool:
     return True
 
 
-def collect_character_positions(nodes0: list[dict], party_nodes: dict[str, int]) -> dict[str, tuple]:
+def collect_character_positions(
+    nodes0: list[dict], party_nodes: dict[str, int]
+) -> dict[str, tuple]:
     """display_name -> exact Translate tuple of that character."""
     out = {}
     for name, ni in party_nodes.items():
@@ -1463,8 +1467,6 @@ def ecs_resolve_equipped(
 # name), an ambiguous stats name resolves to the first/base variant.  All of
 # this is best-effort: with no game install (or a parse miss) the report falls
 # back to the bare internal name.
-
-import os
 
 LSPK_FILE_ENTRY = 272  # bytes per file-list entry in LSPK v18
 
@@ -1749,6 +1751,7 @@ def build_report(save_path: str, frames: list[bytes] | None = None) -> str:
         w(f'Mods       : none')
     w(f'Item names : {"resolved from game data" if dn.available else "internal only (game data not found; set BG3_DATA_DIR)"}')
 
+
     party_info = info.get('Active Party', {}).get('Characters', [])
 
     # ---- Parse Osiris story state (frame 9) ---------------------------------
@@ -1862,7 +1865,7 @@ def build_report(save_path: str, frames: list[bytes] | None = None) -> str:
             for sid in sorted(spells):
                 w(f'      – {sid}')
         else:
-            w(f'    Spells/Abilities : (class-specific list not found)')
+            w('    Spells/Abilities : (class-specific list not found)')
 
         # Equipped + carried items, attributed by shared world position
         char_ni = party_nodes.get(display_name)
@@ -1895,9 +1898,9 @@ def build_report(save_path: str, frames: list[bytes] | None = None) -> str:
             for s, guid in carried:
                 w(f'      – {dn.fmt(s, guid)}')
         elif char_ni is None:
-            w(f'    Equipment : character node not found')
+            w('    Equipment : character node not found')
         else:
-            w(f'    Equipment : no items attributed (character off current level?)')
+            w('    Equipment : no items attributed (character off current level?)')
 
     # ---- Inventory --------------------------------------------------------
     w('')

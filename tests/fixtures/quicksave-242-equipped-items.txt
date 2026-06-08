@@ -1,0 +1,56 @@
+Quicksave 242
+
+Maia:
+    Helm: Grymskull Helm
+    Cloak: <None>
+    Chest: Adamantine Splint Armour
+    Gloves: Gloves of the Growling Underdog
+    Boots: Disintegrating Night Walkers
+    Light: <None>
+    Main hand: Phalar Aluve
+    Off hand: <None>
+    Neck: Amulet of the Harpers
+    Ring 1: Shifting Corpus Ring
+    Ring 2: <None>
+    Ranged: Titanstring Bow
+
+    An item in her inventory: Greatclub +1
+
+Wyll:
+    Helm: Shadow of Menzoberranzan
+    Cloak: Cloak of Protection
+    Chest: Spidersilk Armour
+    Hands: Gloves of Belligerent Skies
+    Feet: Evasive Shoes
+    Main hand: Knife of the Undermountain King
+    Off hand: Safeguard Shield
+    Neck: Pearl of Power Amulet:
+    Ring 1: <None>
+    Ring 2: <None>
+    Ranged: Bow of the Banshee
+    
+    Item in his inventory: Flawed Helldusk Armour 
+    
+Karlach:
+    Helm: Diadem of Arcane Synergy
+    Chest: The Mighty Cloth
+    Boots: Boots of Speed
+    Main hand: Jorgoral's Greatsword
+    Neck: Amulet of Misty Step
+    Ring 1: Ring of Flinging
+    Ring 2: Caustic Band
+    Ranged: Harold
+    
+Shadowheart: 
+    Helm: Circlet of Blasting
+    Chest: Luminous Armour
+    Hands: Gloves of Dexterity
+    Feet: Boots of Striding
+    Main hand: The Blood of Lathander
+    Off hand: Shield of Devotion
+    Neck: Amulet of Restoration
+    Ring 1: Onyx Ring
+    Ring 2: The Whispering Promise
+    Ranged: Hunting Shortbow
+    
+    Item in her inventory: Hellrider's Pride, Rope

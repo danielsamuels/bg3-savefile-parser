@@ -165,3 +165,28 @@ The parser reads the following from the ECS blob:
   slot number is not recovered.
 - **Per-character inventory ownership** via ECS: same blocker. The
   `Translate`-matching heuristic (see above) is used instead.
+
+## Development
+
+Install dev dependencies and run all checks with:
+
+```sh
+# Lint
+uvx ruff check bg3_save_reader.py
+
+# Format check (reports would-be changes without applying them)
+uvx ruff format --check bg3_save_reader.py
+
+# Tests (requires QuickSave_242.lsv; save-dependent tests skip when absent)
+uv run --extra dev pytest
+
+# Type check
+uv run --extra dev mypy bg3_save_reader.py
+```
+
+The save file path defaults to the standard Steam/Proton location; override it
+with the `BG3_SAVE_FILE` environment variable:
+
+```sh
+BG3_SAVE_FILE=/path/to/QuickSave_242.lsv uv run --extra dev pytest
+```
