@@ -323,22 +323,108 @@ Entity-Component-System dump**.
 | 24 | u64 | (size/count, unidentified) |
 | … | | component column data, then the directory |
 
-### Component-type directory (✅ located)
+### Component-type directory (✅ decoded)
 
-`blob[16]` points to a directory listing **every component type present**,
-grouped by namespace. Names are stored **without** the `eoc::` / `ls::` prefix
-(so a search for the full bg3se name like `eoc::inventory::MemberComponent`
-fails; the substring `MemberComponent` is present). The inventory cluster is
-contiguous, e.g. in `QuickSave_242` around byte 4068640–4069200:
+`blob[16]` points to a directory (`dir_off`) listing **every component type
+present** — 355 entries in `QuickSave_242`. Names are stored **without** the
+`eoc::` / `ls::` prefix (so a search for the full bg3se name like
+`eoc::inventory::MemberComponent` fails; the substring `MemberComponent` is
+present). Layout, offsets relative to `dir_off`:
+
+| Offset | Field |
+|-------:|-------|
+| `+0..+23` | 24-byte header (hashes/build-id-looking; not decoded) |
+| `+32` | `u32 desc_table_rel` — descriptor-table offset, relative to `names_off` |
+| `+36` | `u16 entry_count` (355) |
+| `+48` | `names_off`: start of the names blob, size = `u64 @ blob[24]` (29,544 B); component names concatenated **with no separators**, e.g. `"core.v0.Levelcore.v0.EntityIdgame.action_resources.v1.Component…"` |
+
+The descriptor table sits at `desc_base = names_off + desc_table_rel`, one
+48-byte entry per component type:
+
+```c
+struct ComponentDesc {
+    u64 name_offset;  // into the names blob
+    u64 name_length;
+    u64 hash;         // not decoded
+    u32 elem_size;    // bytes per row
+    u32 flags;        // not decoded
+    u64 row_count;
+    u64 data_offset;  // absolute byte offset of this component's column data
+};
+```
+
+This is a complete `name → {elem_size, row_count, data_offset}` index for all
+355 types, e.g. `core.v0.EntityId` (elem=16 — one entity-instance GUID per
+row), `game.inventory.v0.MemberData` (#125, elem=16, rows=1314,
+data_off=0x166010), `game.inventory.v0.MemberComponent` (#126, elem=8,
+rows=1314, data_off=0x16b230). The inventory cluster is contiguous in the
+names blob: `CanBeWieldedComponent · ContainerSlotData · MemberData ·
+MemberComponent · OwnerComponent · StackMemberComponent · WieldedComponent · …`
+
+### Cross-component references: absolute byte-pointers (✅ decoded)
+
+Where one component's row references another entity, the on-disk value is a
+**direct absolute byte offset into the blob** — not a handle, not a GUID. A
+`locate(offset)` helper (scan all `ComponentDesc` entries for
+`data_offset <= off < data_offset + elem_size*row_count`) resolves any such
+value to `(component_name, row_index, byte_in_row)`. Every
+`MemberData.ptr_a` (below) resolves with `byte_in_row == 0` against
+`core.v0.EntityId` — i.e. it points at the start of an entity's 16-byte GUID
+record, the closest thing to a stable cross-reference the on-disk format has.
+
+### Entity-GUID bridge — corrects an earlier "no link exists" claim (✅ found)
+
+A prior pass concluded that LSF item/character GUIDs never appear in the LSMF
+blob's entity tables — and used that to argue the worn/carried question was
+structurally unrecoverable. **That conclusion compared the wrong GUID
+namespace.** `CurrentTemplate` on an `Item`/`Character` LSF node is a
+*template/content* GUID; `core.v0.EntityId` rows hold *entity-instance* GUIDs —
+two disjoint spaces. The bridge between them is the existing
+`_build_entity_template_map(nodes, root_name)` helper (`entity_guid →
+template_guid`); inverted and chained:
 
 ```
-CanBeWieldedComponent · ContainerSlotData · MemberData · MemberComponent ·
-OwnerComponent · StackMemberComponent · WieldedComponent · …
+item.CurrentTemplate ──(invert map for 'Items')──► entity_guid ──(raw 16-byte search)──► core.v0.EntityId row
 ```
 
-The directory's exact binary framing is **not yet decoded**: the names are not
-simple `u16`-length-prefixed strings — they appear concatenated with
-namespace/tag bytes (e.g. `swarm` + `MemberComponent` + `game…`).
+this resolves cleanly for every item tested (Wyll's 7 known-equipped items each
+land 5–8 `EntityId` row instances — entities are re-listed multiple times,
+seemingly once per save "epoch"/frame). **So entity identity for a known item
+*is* recoverable from the blob.** What is *not* recoverable (next section) is
+which inventory/slot that entity sits in.
+
+### `MemberData` / `MemberComponent` traced and ruled out as the item↔slot link (❌)
+
+`game.inventory.v0.MemberData` (#125, rows=1314): `{ u64 ptr_a, u64 handle_b }`.
+`ptr_a` always resolves (via the byte-pointer scheme above) to an `EntityId`
+row-start; collapsed across duplicates this is only **262 distinct GUIDs**.
+**None of the 1419 known item-entity GUIDs (found via the bridge above) is among
+those 262**, and only 1/1419 items has *any* `EntityId` row instance inside the
+byte-range `ptr_a` targets — indistinguishable from chance overlap. Those 262
+GUIDs also don't resolve through `_build_entity_template_map` for
+`Characters`/`Items`/`Containers`/`GameObjects`/`Triggers`, and don't appear
+anywhere else in the LSF tree (including `Creator.Entity`) — they look like
+**inventory-container pseudo-entities** (one per character/container/shop; 262
+is a plausible count for a full save), each a distinct ECS entity from the
+character or container that "owns" it.
+
+`handle_b`, read as four little-endian `u16`s `[low, mid, hi, top]`: `top` is
+always `0`; `hi` is ≈constant (`0x0354`/`0x0355`, a world/type tag); `mid` has
+only **30 distinct values** across all 1314 rows (a per-batch/spawn salt, not a
+per-item value); `low` spans the full `u16` range (407/1314 rows have a nonzero
+high byte, ruling out a clean `int16 EquipmentSlot` reading on its own).
+Exhaustively testing `mid` against the 7 known items' entity GUIDs and
+`EntityId` row indices (raw byte-pairs LE/BE, crc32, adler32, sum-mod-65536)
+produced **zero matches**.
+
+**Net result: the one component whose name and `{Inventory, EquipmentSlot}`
+shape most plausibly matches the equip-slot data turns out to enumerate
+(container-pseudo-entity, packed-handle) pairs that never reference the item
+entities themselves.** Either the real item↔slot link lives in a still-unidentified
+component, or `handle_b` packs an `EntityHandle` whose translation table doesn't
+exist anywhere in the accessible LSF tree (confirmed by exhaustive search) —
+which is the same "no handle→item table exposed" wall described below, now
+narrowed to a specific, ruled-out candidate.
 
 ### What the equipment data looks like (from bg3se, in live memory)
 
@@ -371,20 +457,39 @@ rotation/scale fields. These give a known-value entry point into entity framing.
 
 ### What blocks a full decode
 
-1. The directory's name/column framing isn't cracked, so columns can't yet be
-   mapped to component types programmatically.
-2. Component rows cross-reference entities by **`EntityHandle`** (a packed
-   index+salt), not by the 16-byte GUIDs used elsewhere. There is no decoded
-   handle → GUID / handle → item table, so even after locating the
-   `MemberComponent` column you can't yet say *which* item/character a row is.
+The directory is now decoded (any component's `{elem_size, row_count,
+data_offset}` is a lookup away — see above), and entity identity for a *known*
+item is recoverable via the `CurrentTemplate → entity_guid → EntityId` bridge.
+What remains genuinely blocked:
+
+1. **`handle_b`/`EntityHandle` decoding.** `MemberData.handle_b` (and presumably
+   `EntityHandle` fields elsewhere) is a packed 64-bit value whose four `u16`
+   sub-fields don't correspond to anything we can independently derive — no
+   tested hash/transform of a known item's GUID or row index lands on any of
+   `handle_b`'s 30 distinct "mid" values. There is **no handle → GUID / handle →
+   item table anywhere in the LSF tree** (confirmed by an exhaustive whole-tree
+   search for the candidate owner GUIDs and `Creator.Entity` cross-references).
+2. **The component that actually links an item entity to its inventory/slot is
+   still unidentified.** `MemberData`/`MemberComponent` — the obvious candidate
+   by name and by its `{Inventory: EntityHandle, EquipmentSlot: int16}` C++
+   shape — was traced end-to-end and demonstrably never references any of the
+   1419 known item entities (see above); whatever component does hold that link
+   has not been found among the 355 directory entries.
 3. The blob contains no slot-name or full-component-name strings to anchor on
    beyond the directory.
 
 > Approaches that **failed** and shouldn't be retried as-is: treating the
 > per-component GUID arrays as ownership lists (they're ordered by entity handle
-> = creation order), and co-occurrence / run-segmentation / run-header scans of
-> the column data. The viable path is to decode the directory framing, then the
-> entity/handle tables, then read `MemberComponent` — a substantial effort.
+> = creation order); co-occurrence / run-segmentation / run-header scans of the
+> column data; comparing `CurrentTemplate` GUIDs directly against `EntityId`
+> rows (wrong namespace — use the inverted `_build_entity_template_map` bridge
+> instead); and — newly ruled out this pass — decoding `MemberData`/
+> `MemberComponent` as the item↔slot table (it enumerates
+> container-pseudo-entity ↔ packed-handle pairs, not item ↔ slot pairs).
+> The viable path, if anyone picks this back up: find which of the other ~353
+> components actually carries a reference to item `EntityId` rows (that's the
+> real `MemberComponent` analog), then crack its handle field — the directory
+> and byte-pointer scheme above make that search mechanical, if still tedious.
 
 ### Also in the blob
 

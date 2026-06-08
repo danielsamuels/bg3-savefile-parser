@@ -27,8 +27,9 @@ What it extracts
   Spells/abilities  – extracted from the LSMF ECS blob string pool;
                       split by known BG3 spell-ID prefixes and attributed
                       to each character using class-specific rules
-  Equipped gear     – items whose on-equip passives create STATUS nodes
-                      (partial: only passive-granting items are visible)
+  Equipped gear     – items with a STATUS on-equip passive, the 0x04000000
+                      Flags bit, or high ECS component membership (≥15);
+                      unequipped equipment-type items go to carried
   Inventory         – all items with empty "Level" in the level cache
                       (~1 000+ items; ownership attribution needs LSMF parsing)
   Display names     – internal names resolved to "Display Name (INTERNAL_NAME)"
@@ -38,8 +39,9 @@ What it extracts
 
 Known limitations
 -----------------
-  Complete equipment slots (weapon/shield/ring/amulet/armour by slot) and
-  per-character inventory ownership live in the LSMF ECS binary blob.
+  Exact equipment slot (Helmet/Boots/Amulet/Ring/…) is not recovered — it
+  lives in the ECS blob's MemberComponent.EquipmentSlot behind packed
+  EntityHandle cross-references with no on-disk handle→GUID table.
   Spell attribution uses class-based heuristics; a small number of generic
   abilities (Jump, Help, Shove, etc.) appear for all characters and are
   reported once in the "shared" section rather than per character.
@@ -70,7 +72,7 @@ except ImportError:
 ZSTD_MAGIC = b'\x28\xb5\x2f\xfd'
 
 
-def _extract_frames(path: str) -> list[bytes]:
+def extract_frames(path: str) -> list[bytes]:
     with open(path, 'rb') as fh:
         data = fh.read()
     frames, pos = [], 0
@@ -87,11 +89,11 @@ def _extract_frames(path: str) -> list[bytes]:
     return frames
 
 
-def _decomp_frame(raw: bytes) -> bytes:
+def decomp_frame(raw: bytes) -> bytes:
     return zstd.ZstdDecompressor().decompress(raw)
 
 
-def _decomp_section(raw: bytes, disk: int, unc: int, flags: int, chunked: bool) -> bytes:
+def decomp_section(raw: bytes, disk: int, unc: int, flags: int, chunked: bool) -> bytes:
     if disk == 0 and unc == 0:
         return b''
     if disk == 0:
@@ -104,7 +106,7 @@ def _decomp_section(raw: bytes, disk: int, unc: int, flags: int, chunked: bool) 
     raise ValueError(f'unknown compression mode {m}')
 
 
-def _parse_string_table(data: bytes) -> list[list[str]]:
+def parse_string_table(data: bytes) -> list[list[str]]:
     names, pos = [], 0
     (n,) = struct.unpack_from('<I', data, pos); pos += 4
     for _ in range(n):
@@ -117,14 +119,14 @@ def _parse_string_table(data: bytes) -> list[list[str]]:
     return names
 
 
-def _lkp(names: list[list[str]], nh: int) -> str:
+def lkp(names: list[list[str]], nh: int) -> str:
     try:
         return names[nh >> 16][nh & 0xFFFF]
     except IndexError:
         return f'?{nh:08x}'
 
 
-def _read_val(val_data: bytes, off: int, tid: int, length: int):
+def read_val(val_data: bytes, off: int, tid: int, length: int):
     try:
         if tid in (20, 21, 22, 23, 29, 30):
             return val_data[off:off + length - 1].decode('utf-8', 'replace').rstrip('\x00')
@@ -193,12 +195,12 @@ def parse_lsof(data: bytes) -> list[dict]:
     att_raw = data[pos:pos + att_n]; pos += att_n
     val_raw = data[pos:pos + val_n]
 
-    str_data = _decomp_section(str_raw, str_disk, str_unc, cflags, False)
-    nod_data = _decomp_section(nod_raw, nod_disk, nod_unc, cflags, chunked)
-    att_data = _decomp_section(att_raw, att_disk, att_unc, cflags, chunked)
-    val_data = _decomp_section(val_raw, val_disk, val_unc, cflags, chunked)
+    str_data = decomp_section(str_raw, str_disk, str_unc, cflags, False)
+    nod_data = decomp_section(nod_raw, nod_disk, nod_unc, cflags, chunked)
+    att_data = decomp_section(att_raw, att_disk, att_unc, cflags, chunked)
+    val_data = decomp_section(val_raw, val_disk, val_unc, cflags, chunked)
 
-    names = _parse_string_table(str_data)
+    names = parse_string_table(str_data)
     node_size = 16 if has_keys else 12
     num_nodes = len(nod_data) // node_size
 
@@ -207,7 +209,7 @@ def parse_lsof(data: bytes) -> list[dict]:
         base = i * node_size
         nh = struct.unpack_from('<I', nod_data, base)[0]
         par = struct.unpack_from('<i', nod_data, base + 8)[0]
-        nodes.append({'name': _lkp(names, nh), 'parent': par, 'children': [], 'attrs': {}})
+        nodes.append({'name': lkp(names, nh), 'parent': par, 'children': [], 'attrs': {}})
 
     for i, nd in enumerate(nodes):
         if 0 <= nd['parent'] < num_nodes:
@@ -221,8 +223,8 @@ def parse_lsof(data: bytes) -> list[dict]:
         ni = struct.unpack_from('<i', att_data, base + 8)[0]
         tid = tl & 0x3F
         length = tl >> 6
-        aname = _lkp(names, nh)
-        val = _read_val(val_data, data_off, tid, length)
+        aname = lkp(names, nh)
+        val = read_val(val_data, data_off, tid, length)
         if val is not None and ni < num_nodes:
             nodes[ni]['attrs'][aname] = val
         data_off += length
@@ -234,8 +236,8 @@ def parse_lsof(data: bytes) -> list[dict]:
 # Info.json  (frame 8 in the LSPK)
 # ---------------------------------------------------------------------------
 
-def _parse_info_json(frames: list[bytes]) -> dict:
-    raw = _decomp_frame(frames[8])
+def parse_info_json(frames: list[bytes]) -> dict:
+    raw = decomp_frame(frames[8])
     return json.loads(raw.decode('utf-8'))
 
 
@@ -244,18 +246,18 @@ def _parse_info_json(frames: list[bytes]) -> dict:
 # ---------------------------------------------------------------------------
 
 # Known BG3 spell-ID prefixes (order matters – longest first)
-_SPELL_PREFIXES = [
+SPELL_PREFIXES = [
     'Teleportation_', 'AspectOfTheBeast_', 'FightingStyle_', 'TotemSpirit_',
     'PactOfThe', 'Projectile_', 'Summon_', 'Target_', 'Shout_', 'Zone_',
     'Rush_', 'Wall_',
 ]
 
-_PREFIX_RE = re.compile(
-    r'(?=' + '|'.join(re.escape(p) for p in _SPELL_PREFIXES) + r')'
+PREFIX_RE = re.compile(
+    r'(?=' + '|'.join(re.escape(p) for p in SPELL_PREFIXES) + r')'
 )
 
 # Spell IDs exclusive to each class/subclass (used for attribution)
-_CLASS_EXCLUSIVE = {
+CLASS_EXCLUSIVE = {
     # Fighter / Battle Master
     'Fighter': {
         'Shout_SecondWind', 'Shout_ActionSurge', 'Shout_IndomitableAction',
@@ -308,7 +310,7 @@ _CLASS_EXCLUSIVE = {
 }
 
 # Abilities common to all or most characters (not attributable by class)
-_UNIVERSAL = {
+UNIVERSAL = {
     'Target_HealingWord', 'Projectile_Jump', 'Target_Dip', 'Shout_Hide',
     'Shout_Dash', 'Target_Help', 'Shout_Disengage', 'Target_MainHandAttack',
     'Target_OffhandAttack', 'Target_UnarmedAttack', 'Target_Topple',
@@ -318,7 +320,7 @@ _UNIVERSAL = {
 }
 
 
-def _extract_lsmf_blob(nodes: list[dict]) -> bytes | None:
+def extract_lsmf_blob(nodes: list[dict]) -> bytes | None:
     """Return the raw LSMF ScratchBuffer blob from the NewAge node."""
     for nd in nodes:
         if nd['name'] == 'NewAge' and nd['parent'] == -1:
@@ -326,9 +328,9 @@ def _extract_lsmf_blob(nodes: list[dict]) -> bytes | None:
     return None
 
 
-def _split_spell_string(packed: str) -> list[str]:
+def split_spell_string(packed: str) -> list[str]:
     """Split a concatenated BG3 spell-ID string into individual spell IDs."""
-    parts = _PREFIX_RE.split(packed)
+    parts = PREFIX_RE.split(packed)
     result = []
     for part in parts:
         part = part.strip('\x00 ')
@@ -337,7 +339,7 @@ def _split_spell_string(packed: str) -> list[str]:
     return result
 
 
-def _extract_spell_strings_from_lsmf(blob: bytes) -> list[str]:
+def extract_spell_strings_from_lsmf(blob: bytes) -> list[str]:
     """
     Find all significant packed spell-ID strings in the LSMF blob.
     Returns the list of all non-trivial ASCII runs that contain spell IDs.
@@ -353,13 +355,13 @@ def _extract_spell_strings_from_lsmf(blob: bytes) -> list[str]:
         if run_len >= 30:
             s = blob[start:pos].decode('ascii', 'replace')
             # Only keep strings that look like they contain spell IDs
-            if any(p in s for p in _SPELL_PREFIXES):
+            if any(p in s for p in SPELL_PREFIXES):
                 all_strings.append(s)
         pos += 1
     return all_strings
 
 
-_CLASS_MAIN_TO_KEY = {
+CLASS_MAIN_TO_KEY = {
     'Fighter':   'Fighter',
     'Warlock':   'Warlock',
     'Barbarian': 'Barbarian',
@@ -378,12 +380,12 @@ def extract_spells_by_character(
 
     Returns a dict mapping display_name → list of spell IDs.
     """
-    all_strings = _extract_spell_strings_from_lsmf(lsmf_blob)
+    all_strings = extract_spell_strings_from_lsmf(lsmf_blob)
 
     # Collect all spell IDs from all runs
     all_spell_ids: set[str] = set()
     for s in all_strings:
-        for sid in _split_spell_string(s):
+        for sid in split_spell_string(s):
             all_spell_ids.add(sid)
 
     # Build per-character exclusive attribution
@@ -398,18 +400,18 @@ def extract_spells_by_character(
         classes = char_info.get('Classes', [])
         if classes:
             main_class = classes[0].get('Main', '')
-            class_key = _CLASS_MAIN_TO_KEY.get(main_class, main_class)
+            class_key = CLASS_MAIN_TO_KEY.get(main_class, main_class)
             char_class_map[display_name] = class_key
 
     # First pass: attribute exclusively owned spells
     for name, class_key in char_class_map.items():
-        exclusive = _CLASS_EXCLUSIVE.get(class_key, set())
+        exclusive = CLASS_EXCLUSIVE.get(class_key, set())
         owned = sorted(all_spell_ids & exclusive)
         result[name] = owned
         assigned |= exclusive
 
     # Second pass: attribute remaining non-universal spells to best-match class
-    remainder = all_spell_ids - assigned - _UNIVERSAL
+    remainder = all_spell_ids - assigned - UNIVERSAL
     # Spells with no exclusive owner go to a shared/generic bucket (omitted for brevity)
 
     return result
@@ -429,7 +431,7 @@ PARTY_ORIGINS = {
 NULL_UUID = '00000000-0000-0000-0000-000000000000'
 
 
-def _find_party_character_nodes(nodes: list[dict]) -> dict[str, int]:
+def find_party_character_nodes(nodes: list[dict]) -> dict[str, int]:
     chars_root = next(
         (i for i, nd in enumerate(nodes) if nd['name'] == 'Characters' and nd['parent'] == -1),
         None,
@@ -439,37 +441,37 @@ def _find_party_character_nodes(nodes: list[dict]) -> dict[str, int]:
 
     found = {}
 
-    def _walk(ni: int):
+    def walk(ni: int):
         nd = nodes[ni]
         tmpl = nd['attrs'].get('CurrentTemplate', '')
         if tmpl in PARTY_ORIGINS:
             found[PARTY_ORIGINS[tmpl]] = ni
         for ci in nd['children']:
-            _walk(ci)
+            walk(ci)
 
     for ci in nodes[chars_root]['children']:
-        _walk(ci)
+        walk(ci)
     return found
 
 
-def _collect_status_equipped_items(nodes: list[dict], char_ni: int) -> list[dict]:
+def collect_status_equipped_items(nodes: list[dict], char_ni: int) -> list[dict]:
     result = []
 
-    def _walk(ni: int):
+    def walk(ni: int):
         nd = nodes[ni]
         if nd['name'] == 'STATUS':
             src = nd['attrs'].get('SourceEquippedItem', '')
             if src and src != NULL_UUID:
                 result.append({'entity': src, 'status_id': nd['attrs'].get('ID', '')})
         for ci in nd['children']:
-            _walk(ci)
+            walk(ci)
 
     for ci in nodes[char_ni]['children']:
-        _walk(ci)
+        walk(ci)
     return result
 
 
-def _build_entity_template_map(nodes: list[dict], root_name: str) -> dict[str, str]:
+def build_entity_template_map(nodes: list[dict], root_name: str) -> dict[str, str]:
     factory_root = next(
         (i for i, nd in enumerate(nodes) if nd['name'] == root_name and nd['parent'] == -1),
         None,
@@ -494,7 +496,7 @@ def _build_entity_template_map(nodes: list[dict], root_name: str) -> dict[str, s
     return result
 
 
-def _build_template_stats_map(nodes: list[dict]) -> dict[str, str]:
+def build_template_stats_map(nodes: list[dict]) -> dict[str, str]:
     items_root = next(
         (i for i, nd in enumerate(nodes) if nd['name'] == 'Items' and nd['parent'] == -1),
         None,
@@ -530,7 +532,7 @@ def _build_template_stats_map(nodes: list[dict]) -> dict[str, str]:
     return result
 
 
-def _collect_inventory_items(nodes: list[dict]) -> list[dict]:
+def collect_inventory_items(nodes: list[dict]) -> list[dict]:
     items_root = next(
         (i for i, nd in enumerate(nodes) if nd['name'] == 'Items' and nd['parent'] == -1),
         None,
@@ -587,28 +589,28 @@ def _collect_inventory_items(nodes: list[dict]) -> list[dict]:
 EQUIPPED_FLAG_BIT = 0x04000000
 
 # Item stats-name prefixes / substrings that are never worn equipment.
-_NON_EQUIP_PREFIXES = (
+NON_EQUIP_PREFIXES = (
     'OBJ_', 'CONS_', 'ALCH_', 'FOOD_', 'SCR_', 'SCROLL_', 'BOOK_',
     'LOOT_', 'KEY_', 'PUZ_', 'PLT_', 'TItem_', 'GOLD_',
 )
-_NON_EQUIP_SUBSTR = (
+NON_EQUIP_SUBSTR = (
     '_Camp_', 'Underwear', 'Keychain', 'GoldPile',
     'Backpack', 'AlchemyPouch', 'CampSupplies',
 )
 
 
-def _is_equipment_type(stats: str) -> bool:
+def is_equipment_type(stats: str) -> bool:
     """True if a stats name could plausibly be worn equipment."""
     if not stats:
         return False
-    if stats.startswith(_NON_EQUIP_PREFIXES):
+    if stats.startswith(NON_EQUIP_PREFIXES):
         return False
-    if any(sub in stats for sub in _NON_EQUIP_SUBSTR):
+    if any(sub in stats for sub in NON_EQUIP_SUBSTR):
         return False
     return True
 
 
-def _collect_character_positions(nodes0: list[dict], party_nodes: dict[str, int]) -> dict[str, tuple]:
+def collect_character_positions(nodes0: list[dict], party_nodes: dict[str, int]) -> dict[str, tuple]:
     """display_name -> exact Translate tuple of that character."""
     out = {}
     for name, ni in party_nodes.items():
@@ -618,7 +620,7 @@ def _collect_character_positions(nodes0: list[dict], party_nodes: dict[str, int]
     return out
 
 
-def _collect_items_by_position(node_lists: list[list[dict]],
+def collect_items_by_position(node_lists: list[list[dict]],
                                positions: dict[str, tuple]) -> dict[str, list[tuple]]:
     """Group Item records by which character's exact Translate they share.
 
@@ -654,40 +656,207 @@ def _collect_items_by_position(node_lists: list[list[dict]],
     return {n: [(s, f, g) for s, (f, g) in d.items()] for n, d in acc.items()}
 
 
-def _split_equipped_carried(
+def split_equipped_carried(
     items: list[tuple],
     status_equipped: set[str],
 ) -> tuple[list[tuple], list[tuple], list[tuple]]:
-    """Classify a character's attributed items into (equipped, carried, undetermined).
+    """Classify attributed items into (equipped, carried, undetermined) using LSF signals.
 
-    The save's LSF data carries no reliable worn-vs-carried flag (a worn item
-    with no on-equip passive is byte-identical to a carried one), so we only
-    assert what the signals support:
-
-      equipped     – has a positive worn signal: a STATUS on-equip effect, or
-                     the 0x04000000 Flags bit on an equipment-type item.
+      equipped     – STATUS on-equip effect, or 0x04000000 Flags bit on an
+                     equipment-type item.
       carried      – not equipment at all (consumables, keys, gold, camp/
-                     cosmetic clothing): confidently *not* worn gear.
-      undetermined – equipment-type items with no worn signal: could be worn
-                     (e.g. boots/amulets that grant no passive) or a spare.
+                     cosmetic clothing).
+      undetermined – equipment-type items with no LSF worn signal; a second
+                     pass via ecs_resolve_equipped resolves these using ECS
+                     component membership counts.
 
-    Each returned entry is a (stats, guid) pair.  The true worn set + slot lives
-    in the ECS blob's MemberComponent.EquipmentSlot (see LIMITS.md).
+    Each returned entry is a (stats, guid) pair.
     """
     equipped, carried, undetermined = [], [], []
     for stats, flags, guid in items:
         signalled = stats in status_equipped or (
             isinstance(flags, int)
             and (flags & EQUIPPED_FLAG_BIT)
-            and _is_equipment_type(stats)
+            and is_equipment_type(stats)
         )
         if signalled:
             equipped.append((stats, guid))
-        elif _is_equipment_type(stats):
+        elif is_equipment_type(stats):
             undetermined.append((stats, guid))
         else:
             carried.append((stats, guid))
     return sorted(set(equipped)), sorted(set(carried)), sorted(set(undetermined))
+
+
+def parse_lsmf_membership(
+    blob: bytes,
+) -> tuple[dict[str, list[int]], dict[int, int]] | None:
+    """Parse the LSMF ECS blob to extract per-entity component membership counts.
+
+    Returns (guid_to_rows, membership_count) where:
+      guid_to_rows      — entity GUID string → list of EntityId row indices
+      membership_count  — entity row index → number of component ownerlists it appears in
+
+    Equipped items remain materialised in the ECS world (~35–41 memberships).
+    Items moved to a backpack dematerialise (~3–6 memberships).
+    Returns None on any parse failure.
+    """
+    # LSMF header layout (offsets are absolute into blob):
+    #   blob[8:16]   = dir_off   (absolute offset of the component directory)
+    #   blob[16:24]  = names_size (byte length of the component-names section)
+    #   blob[32:36]  = desc_table_rel (desc table offset, relative to names_off)
+    #   blob[36:38]  = entry_count (number of component descriptors)
+    #   names_off    = dir_off + 48  (names section starts 48 bytes into the directory)
+    # Each 48-byte ComponentDesc at desc_base + i*48:
+    #   [0:8]   name_offset (into names section)
+    #   [8:16]  name_length
+    #   [16:24] hash (not decoded)
+    #   [24:28] elem_size
+    #   [28:32] flags (not decoded)
+    #   [32:40] row_count
+    #   [40:48] data_offset (absolute byte offset of this component's column data)
+    BLOB_HDR_BASE = 48  # all absolute offsets in the blob are stored as (actual - 48)
+    try:
+        L = len(blob)
+        _, dir_off, names_size = struct.unpack_from('<QQQ', blob, 8)
+        names_off = dir_off + BLOB_HDR_BASE
+        desc_table_rel = struct.unpack_from('<I', blob, 32)[0]
+        entry_count = struct.unpack_from('<H', blob, 36)[0]
+        if not (0 < names_off < L and 0 < entry_count < 2000):
+            return None
+        names_sec = blob[names_off:names_off + names_size]
+        desc_base = names_off + desc_table_rel
+
+        eid_off = eid_rows = 0
+        rows_by_comp: dict[int, int] = {}
+        for i in range(entry_count):
+            base = desc_base + i * 48
+            if base + 48 > L:
+                break
+            name_off, name_len, _ = struct.unpack_from('<QQQ', blob, base)
+            row_count, data_offset = struct.unpack_from('<QQ', blob, base + 32)
+            rows_by_comp[i] = row_count
+            if 0 < name_len < 200:
+                name = names_sec[name_off:name_off + name_len].decode('utf-8', 'replace')
+                if name == 'core.v0.EntityId':
+                    eid_off, eid_rows = data_offset, row_count
+
+        if not eid_rows or eid_off + eid_rows * 16 > L:
+            return None
+
+        # Build entity GUID → row indices
+        guid_to_rows: dict[str, list[int]] = {}
+        for i in range(eid_rows):
+            off = eid_off + i * 16
+            g = str(UUID(bytes_le=blob[off:off + 16]))
+            guid_to_rows.setdefault(g, []).append(i)
+
+        # Ownerlist region: each 32-byte record is {start, end, comp_idx, entity_count}.
+        # Records sit in a contiguous table; sentinel entries have comp=0xFFFF…FFFF or start==end.
+        def _valid_ol(p: int):
+            if p + 32 > L:
+                return None
+            start, end, comp, ec = struct.unpack_from('<QQQQ', blob, p)
+            if (comp < entry_count and ec > 0 and rows_by_comp.get(comp, -1) == ec
+                    and end > start and (end - start) == ec * 4
+                    and end <= L and start < L):
+                return start, ec
+            return None
+
+        # 4-byte scan to find candidate positions (captures all valid records plus
+        # some false positives at non-32-aligned offsets).
+        valid_pos: list[int] = []
+        p = 0
+        while p + 32 <= L:
+            if _valid_ol(p) is not None:
+                valid_pos.append(p)
+            p += 4
+
+        # Identify the real ownerlist table as the densest chain of valid positions
+        # spaced by a multiple of 32 (non-32-aligned entries are false positives from
+        # the scan above and are skipped; the real table is a tight 32-byte-stride array).
+        anchor, best_count = 0, 0
+        for vi in range(len(valid_pos)):
+            count, last = 1, valid_pos[vi]
+            for vj in range(vi + 1, len(valid_pos)):
+                d = valid_pos[vj] - last
+                if d % 32 == 0 and d <= 32 * 40:
+                    count += 1
+                    last = valid_pos[vj]
+                elif d > 32 * 40:
+                    break
+            if count > best_count:
+                anchor, best_count = valid_pos[vi], count
+
+        # Walk the table from anchor in 32-byte steps; count per-entity memberships.
+        membership_count: dict[int, int] = {}
+        if best_count > 0:
+            p, misses = anchor, 0
+            while p + 32 <= L and misses < 4:
+                rec = _valid_ol(p)
+                if rec is not None:
+                    start, ec = rec
+                    for ei in struct.unpack_from(f'<{ec}I', blob, start):
+                        membership_count[ei] = membership_count.get(ei, 0) + 1
+                    misses = 0
+                else:
+                    _, _, comp, _ = struct.unpack_from('<QQQQ', blob, p)
+                    misses = 0 if comp == 0xFFFFFFFFFFFFFFFF else misses + 1
+                p += 32
+
+        return guid_to_rows, membership_count
+
+    except Exception:
+        return None
+
+
+def invert_entity_template_map(
+    entity_to_template: dict[str, str],
+) -> dict[str, list[str]]:
+    """Reverse entity_guid→template_guid to template_guid→[entity_guids]."""
+    result: dict[str, list[str]] = {}
+    for entity_guid, tmpl_guid in entity_to_template.items():
+        result.setdefault(tmpl_guid, []).append(entity_guid)
+    return result
+
+
+def ecs_resolve_equipped(
+    undetermined: list[tuple],
+    template_to_instances: dict[str, list[str]],
+    guid_to_rows: dict[str, list[int]],
+    membership_count: dict[int, int],
+    *,
+    threshold: int = 15,
+) -> tuple[list[tuple], list[tuple], list[tuple]]:
+    """Classify undetermined items via ECS component membership counts.
+
+    Equipped items (materialised in the ECS world) have ~35–41 component
+    memberships; items moved to a backpack dematerialise to ~3–6.
+    A threshold of 15 sits cleanly between the two groups.
+
+    Items whose template GUID has no ECS entity at all are left undetermined
+    rather than silently classified as carried.
+
+    Returns (now_equipped, now_carried, still_undetermined).
+    """
+    now_equipped: list[tuple] = []
+    now_carried: list[tuple] = []
+    still_undetermined: list[tuple] = []
+    for stats, tmpl_guid in undetermined:
+        rows = [
+            row
+            for ig in template_to_instances.get(tmpl_guid, [])
+            for row in guid_to_rows.get(ig, [])
+        ]
+        if not rows:
+            still_undetermined.append((stats, tmpl_guid))
+            continue
+        max_mc = max(membership_count.get(row, 0) for row in rows)
+        if max_mc >= threshold:
+            now_equipped.append((stats, tmpl_guid))
+        else:
+            now_carried.append((stats, tmpl_guid))
+    return now_equipped, now_carried, still_undetermined
 
 
 # ---------------------------------------------------------------------------
@@ -715,10 +884,10 @@ def _split_equipped_carried(
 
 import os
 
-_LSPK_FILE_ENTRY = 272  # bytes per file-list entry in LSPK v18
+LSPK_FILE_ENTRY = 272  # bytes per file-list entry in LSPK v18
 
 # Root-template _merged.lsf files, in load order (later overrides earlier).
-_ROOT_TEMPLATE_FILES = [
+ROOT_TEMPLATE_FILES = [
     ('Shared.pak',  'Public/Shared/RootTemplates/_merged.lsf'),
     ('Shared.pak',  'Public/SharedDev/RootTemplates/_merged.lsf'),
     ('Gustav.pak',  'Public/GustavDev/RootTemplates/_merged.lsf'),
@@ -726,14 +895,14 @@ _ROOT_TEMPLATE_FILES = [
     ('Gustav.pak',  'Public/Honour/RootTemplates/_merged.lsf'),
     ('GustavX.pak', 'Public/GustavX/RootTemplates/_merged.lsf'),
 ]
-_LOCA_PAK = 'Localization/English.pak'
-_LOCA_FILE = 'Localization/English/english.loca'
+LOCA_PAK = 'Localization/English.pak'
+LOCA_FILE = 'Localization/English/english.loca'
 
 # Bump when the resolver logic changes so a stale cache is not silently reused.
-_DISPLAYNAME_SCHEMA_VERSION = 2
+DISPLAYNAME_SCHEMA_VERSION = 2
 
 
-def _find_game_data_dir() -> str | None:
+def find_game_data_dir() -> str | None:
     """Locate the BG3 Data directory, or None if not found."""
     env = os.environ.get('BG3_DATA_DIR')
     if env and os.path.isdir(env):
@@ -751,7 +920,7 @@ def _find_game_data_dir() -> str | None:
     return None
 
 
-def _lspk_filelist(fh) -> dict[str, tuple]:
+def lspk_filelist(fh) -> dict[str, tuple]:
     """Return {name: (offset, part, flags, size_on_disk, uncompressed)} for an LSPK v18."""
     fh.seek(0)
     head = fh.read(64)
@@ -762,20 +931,20 @@ def _lspk_filelist(fh) -> dict[str, tuple]:
     fh.seek(flist_off)
     num_files, comp_size = struct.unpack_from('<II', fh.read(8))
     comp = fh.read(comp_size)
-    raw = lz4.block.decompress(comp, uncompressed_size=num_files * _LSPK_FILE_ENTRY)
+    raw = lz4.block.decompress(comp, uncompressed_size=num_files * LSPK_FILE_ENTRY)
     out = {}
     for i in range(num_files):
-        b = i * _LSPK_FILE_ENTRY
+        b = i * LSPK_FILE_ENTRY
         name = raw[b:b + 256].split(b'\x00')[0].decode('latin1')
         off_lo, off_hi, part, flags, sod, unc = struct.unpack_from('<IHBBII', raw, b + 256)
         out[name] = ((off_lo | (off_hi << 32)), part, flags, sod, unc)
     return out
 
 
-def _lspk_extract(pak_path: str, name: str) -> bytes:
+def lspk_extract(pak_path: str, name: str) -> bytes:
     """Extract and decompress a single file from an LSPK v18 package."""
     with open(pak_path, 'rb') as fh:
-        flist = _lspk_filelist(fh)
+        flist = lspk_filelist(fh)
         if name not in flist:
             raise KeyError(name)
         offset, part, flags, sod, unc = flist[name]
@@ -795,7 +964,7 @@ def _lspk_extract(pak_path: str, name: str) -> bytes:
     raise ValueError(f'unknown LSPK compression method {method}')
 
 
-def _parse_loca(blob: bytes) -> dict[str, str]:
+def parse_loca(blob: bytes) -> dict[str, str]:
     """Parse an english.loca blob into {handle: text}."""
     sig, num, texts_off = struct.unpack_from('<4sII', blob, 0)
     if sig != b'LOCA':
@@ -815,9 +984,9 @@ def _parse_loca(blob: bytes) -> dict[str, str]:
     return out
 
 
-def _cache_path(data_dir: str) -> str:
+def cache_path(data_dir: str) -> str:
     sig_parts = []
-    for pak in {p for p, _ in _ROOT_TEMPLATE_FILES} | {_LOCA_PAK}:
+    for pak in {p for p, _ in ROOT_TEMPLATE_FILES} | {LOCA_PAK}:
         fp = os.path.join(data_dir, pak)
         try:
             st = os.stat(fp)
@@ -825,7 +994,7 @@ def _cache_path(data_dir: str) -> str:
         except OSError:
             pass
     import hashlib
-    sig_parts.append(f'schema:{_DISPLAYNAME_SCHEMA_VERSION}')
+    sig_parts.append(f'schema:{DISPLAYNAME_SCHEMA_VERSION}')
     sig = hashlib.md5('|'.join(sorted(sig_parts)).encode()).hexdigest()[:16]
     cdir = os.path.join(
         os.environ.get('XDG_CACHE_HOME', os.path.expanduser('~/.cache')),
@@ -841,7 +1010,7 @@ def build_displayname_maps(data_dir: str) -> tuple[dict[str, str], dict[str, str
     Results are cached under XDG_CACHE_HOME keyed on the source paks' mtime/size,
     so the ~1 s parse only happens after a game update.
     """
-    cache = _cache_path(data_dir)
+    cache = cache_path(data_dir)
     try:
         with open(cache, encoding='utf-8') as fh:
             data = json.load(fh)
@@ -849,14 +1018,14 @@ def build_displayname_maps(data_dir: str) -> tuple[dict[str, str], dict[str, str
     except (OSError, ValueError, KeyError):
         pass
 
-    handle_to_text = _parse_loca(_lspk_extract(os.path.join(data_dir, _LOCA_PAK), _LOCA_FILE))
+    handle_to_text = parse_loca(lspk_extract(os.path.join(data_dir, LOCA_PAK), LOCA_FILE))
 
     guid_handle: dict[str, str] = {}   # template GUID -> own DisplayName handle ('' if none)
     guid_parent: dict[str, str] = {}   # template GUID -> ParentTemplateId
     stats_handle: dict[str, str] = {}  # stats name -> DisplayName handle
-    for pak, name in _ROOT_TEMPLATE_FILES:
+    for pak, name in ROOT_TEMPLATE_FILES:
         try:
-            nodes = parse_lsof(_lspk_extract(os.path.join(data_dir, pak), name))
+            nodes = parse_lsof(lspk_extract(os.path.join(data_dir, pak), name))
         except (OSError, KeyError, ValueError):
             continue
         for nd in nodes:
@@ -914,7 +1083,7 @@ class DisplayNames:
 
     @classmethod
     def load(cls) -> 'DisplayNames':
-        data_dir = _find_game_data_dir()
+        data_dir = find_game_data_dir()
         if not data_dir:
             return cls({}, {})
         try:
@@ -942,7 +1111,7 @@ class DisplayNames:
 # Report formatting
 # ---------------------------------------------------------------------------
 
-def _fmt_class(cls: dict) -> str:
+def fmt_class(cls: dict) -> str:
     main = cls.get('Main', '')
     sub = cls.get('Sub', '')
     return f'{main} / {sub}' if sub else main
@@ -956,13 +1125,13 @@ def build_report(save_path: str) -> str:
     w(f'Source: {save_path}')
     w('=' * 72)
 
-    frames = _extract_frames(save_path)
+    frames = extract_frames(save_path)
 
     # Display-name resolver (best-effort; empty if game data not found)
     dn = DisplayNames.load()
 
     # ---- Info.json --------------------------------------------------------
-    info = _parse_info_json(frames)
+    info = parse_info_json(frames)
     save_name = info.get('Save Name', '?')
     game_ver  = info.get('Game Version', '?')
     cur_level = info.get('Current Level', '?')
@@ -978,13 +1147,13 @@ def build_report(save_path: str) -> str:
     party_info = info.get('Active Party', {}).get('Characters', [])
 
     # ---- Parse Globals (frame 0) ------------------------------------------
-    frame0_data = _decomp_frame(frames[0])
+    frame0_data = decomp_frame(frames[0])
     nodes0 = parse_lsof(frame0_data)
 
-    party_nodes = _find_party_character_nodes(nodes0)
-    entity_to_template0 = _build_entity_template_map(nodes0, 'Items')
-    template_to_stats0 = _build_template_stats_map(nodes0)
-    char_positions = _collect_character_positions(nodes0, party_nodes)
+    party_nodes = find_party_character_nodes(nodes0)
+    entity_to_template0 = build_entity_template_map(nodes0, 'Items')
+    template_to_stats0 = build_template_stats_map(nodes0)
+    char_positions = collect_character_positions(nodes0, party_nodes)
 
     # Extract LSMF blob for spell data
     lsmf_blob = None
@@ -1000,16 +1169,20 @@ def build_report(save_path: str) -> str:
     if lsmf_blob:
         spell_map = extract_spells_by_character(lsmf_blob, party_info)
 
+    # Parse LSMF once; also build the reverse map used by ecs_resolve_equipped
+    lsmf_ecs = parse_lsmf_membership(lsmf_blob) if lsmf_blob else None
+    template_to_instances = invert_entity_template_map(entity_to_template0)
+
     # ---- Parse level cache (frame 3) for item data -----------------------
-    frame3_data = _decomp_frame(frames[3])
+    frame3_data = decomp_frame(frames[3])
     nodes3 = parse_lsof(frame3_data)
-    template_to_stats3 = _build_template_stats_map(nodes3)
+    template_to_stats3 = build_template_stats_map(nodes3)
 
     # Merged template→stats: frame 0 (equipped items) takes priority
     template_to_stats = {**template_to_stats3, **template_to_stats0}
 
     # Per-character item attribution by shared world position (frame 0 + frame 3)
-    items_by_char = _collect_items_by_position([nodes0, nodes3], char_positions)
+    items_by_char = collect_items_by_position([nodes0, nodes3], char_positions)
 
     # ---- Characters -------------------------------------------------------
     w('')
@@ -1026,7 +1199,7 @@ def build_report(save_path: str) -> str:
         subregion = char_info.get('Subregion', '')
 
         display_name = origin if origin != 'Generic' else 'Maia (player)'
-        cls_str = '; '.join(_fmt_class(c) for c in classes) if classes else '?'
+        cls_str = '; '.join(fmt_class(c) for c in classes) if classes else '?'
 
         w('')
         w(f'  {display_name}')
@@ -1050,7 +1223,7 @@ def build_report(save_path: str) -> str:
         char_ni = party_nodes.get(display_name)
         status_equipped: set[str] = set()
         if char_ni is not None:
-            for e in _collect_status_equipped_items(nodes0, char_ni):
+            for e in collect_status_equipped_items(nodes0, char_ni):
                 tmpl = entity_to_template0.get(e['entity'], '')
                 stats_name = template_to_stats.get(tmpl, '')
                 if stats_name:
@@ -1058,15 +1231,19 @@ def build_report(save_path: str) -> str:
 
         attributed = items_by_char.get(display_name, [])
         if attributed:
-            equipped, carried, undetermined = _split_equipped_carried(attributed, status_equipped)
+            equipped, carried, undetermined = split_equipped_carried(attributed, status_equipped)
+            if undetermined and lsmf_ecs is not None:
+                ecs_eq, ecs_ca, undetermined = ecs_resolve_equipped(
+                    undetermined, template_to_instances, *lsmf_ecs,
+                )
+                equipped = sorted(set(equipped) | set(ecs_eq))
+                carried = sorted(set(carried) | set(ecs_ca))
             w(f'    Equipped ({len(equipped)}):')
             for s, guid in equipped:
                 tag = '  (passive confirmed)' if s in status_equipped else ''
                 w(f'      – {dn.fmt(s, guid)}{tag}')
             if undetermined:
                 w(f'    Worn or carried — undetermined ({len(undetermined)}):')
-                w(f'      (equipment with no worn signal in the save; the true')
-                w(f'       worn set + slot is only in the ECS blob — see LIMITS.md)')
                 for s, guid in undetermined:
                     w(f'      – {dn.fmt(s, guid)}')
             w(f'    Carried / personal inventory ({len(carried)}):')
@@ -1086,7 +1263,7 @@ def build_report(save_path: str) -> str:
     w('(world loot, containers, vendor stock) for reference.')
     w('━' * 72)
 
-    inv = _collect_inventory_items(nodes3)
+    inv = collect_inventory_items(nodes3)
     counts = Counter(item['stats'] for item in inv if item['stats'])
     inv_guid: dict[str, str] = {}  # stats -> a representative CurrentTemplate GUID
     for item in inv:
@@ -1127,15 +1304,11 @@ def build_report(save_path: str) -> str:
 
   Per-character item ownership is recovered from shared world position
   (each carried/worn item copies its holder's Translate).  Whether an
-  attributed item is *worn* is only asserted when a signal supports it (a
-  STATUS on-equip effect, or the 0x04000000 Flags bit); equipment-type items
-  with no such signal are listed as "worn or carried — undetermined" rather
-  than guessed, because the save's LSF data has no reliable worn flag (a worn
-  item granting no passive is byte-identical to a carried one).  The
-  authoritative worn set and exact slot live in the NewAge LSMF ECS blob
-  (MemberComponent.EquipmentSlot), which this parser does not decode; a few
-  unique items have no LSF Item record at all and live only in that blob.
-  See LIMITS.md.
+  attributed item is *worn* is determined by: a STATUS on-equip effect; the
+  0x04000000 Flags bit; or high ECS component membership (≥15 ownerlists —
+  equipped items are materialised in the ECS world with ~35–41 memberships,
+  backpack items dematerialise to ~3–6).  Exact slot
+  (MemberComponent.EquipmentSlot) is not recovered.  See LIMITS.md.
 
   Display names are resolved from the installed game data (root templates +
   english.loca).  Carried items use a per-save local template GUID, so they
@@ -1157,7 +1330,7 @@ def build_report(save_path: str) -> str:
 # command line, the most recently modified .lsv across the known locations is
 # used (override the search root with BG3_SAVE_DIR).
 
-def _candidate_profile_dirs() -> list[str]:
+def candidate_profile_dirs() -> list[str]:
     home = os.path.expanduser('~')
     bg3 = "Larian Studios/Baldur's Gate 3/PlayerProfiles"
     dirs = [
@@ -1172,13 +1345,13 @@ def _candidate_profile_dirs() -> list[str]:
     return dirs
 
 
-def _find_latest_save() -> str | None:
+def find_latest_save() -> str | None:
     """Return the path of the most recently modified .lsv, or None if none found."""
     import glob
     # An explicit BG3_SAVE_DIR restricts the search; otherwise scan the known
     # platform locations.
     env = os.environ.get('BG3_SAVE_DIR')
-    roots = [env] if env else _candidate_profile_dirs()
+    roots = [env] if env else candidate_profile_dirs()
 
     # A root may be a PlayerProfiles dir, a Savegames/Story dir, or a single
     # save folder; these patterns match a .lsv at each of those depths.
@@ -1207,7 +1380,7 @@ def main():
     out_path  = args[1] if len(args) > 1 else None
 
     if not save_path:
-        save_path = _find_latest_save()
+        save_path = find_latest_save()
         if not save_path:
             sys.exit('usage: bg3_save_reader.py [save.lsv] [output.txt]\n'
                      'No save given and none auto-detected; pass a .lsv path '

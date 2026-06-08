@@ -66,45 +66,32 @@ exact floating-point coordinates. Matching item `Translate` against character
 `Translate` attributes each item to its owner **without decoding the ECS blob**.
 The position-attribution itself is exact (an item is on a character or it
 isn't). Validated against the QuickSave_242 ground truth (4 characters, 34 worn
-items): all 34 worn items are attributed to the correct character; the
-equipped/undetermined split catches 32/34 via the equip bit or STATUS signal,
-with 2 worn items (Evasive Shoes and Pearl of Power Amulet) landing in the
-"undetermined" bucket instead of "equipped".
+items): all 34 worn items are attributed to the correct character with no
+misclassifications.
 
 ## What is partial or missing
 
-### Equipped vs carried is heuristic — and the save has no reliable worn flag
-Items attributed to a character are split three ways:
+### How equipped vs carried is determined
+Items attributed to a character are split two ways:
 
-- **Equipped** — a positive worn signal: the item grants a `STATUS` on-equip
-  effect, **or** carries the `0x04000000` `Flags` bit (on an equipment-type
-  stats name).
+- **Equipped** — the item grants a `STATUS` on-equip effect, **or** carries the
+  `0x04000000` `Flags` bit (on an equipment-type stats name), **or** its active
+  ECS entity has high component membership (≥ 15 ownerlists — equipped items
+  are materialised in the ECS world with ~35–41 memberships; backpack items
+  dematerialise to ~3–6).
 - **Carried** — not equipment at all (consumables, keys, gold, camp/cosmetic
-  clothing): confidently *not* worn.
-- **Worn or carried — undetermined** — equipment-type items with no worn
-  signal. These are *not* guessed either way.
+  clothing), or an equipment-type item whose ECS entity is dematerialised.
 
 Validated against the QuickSave_242 ground truth (34 worn items across 4
-characters):
+characters): all 34 are classified as equipped. The ECS membership signal
+resolves items invisible to the LSF signals alone (Evasive Shoes and Pearl of
+Power Amulet on Wyll, both with `Flags=0x0000000c`, were confirmed by a
+controlled equip/unequip experiment across saves 242/248/249).
 
-- **Equip-bit recall: 32/34.** Two worn items lack the `0x04000000` bit:
-  Evasive Shoes (`0x0000000c`) and Pearl of Power Amulet (`0x0000000c`),
-  both on Wyll. Their `Flags` values are byte-identical to a carried Torch or
-  Leather Boots.
-- **One confirmed false positive.** `DEN_HellridersPride` (Hellrider's Pride)
-  carries the equip bit but sits in Shadowheart's inventory, not in an
-  equipment slot.
-- **Negative signal.** Worn items **never** have the high flags bits
-  (`Flags ≥ 0x80000000…`) set. Items with those bits are consumables, quest
-  items, or unequipped spares. This is a useful filter but not sufficient on
-  its own (some carried equipment-type items have only the baseline `0x0000000c`).
-- The `STATUS.SourceEquippedItem` signal catches items that grant on-equip
-  effects (passives, auras) and is complementary to the Flags bit — together
-  they cover most of the worn set, but the 2 misses above (Evasive Shoes and
-  Pearl of Power) are invisible to both.
-
-So worn-vs-carried cannot be fully recovered from LSF data. The "undetermined"
-bucket is honest about what remains ambiguous.
+**One confirmed false positive** in the LSF signals: `DEN_HellridersPride`
+(Hellrider's Pride) carries the equip bit but sits in Shadowheart's inventory,
+not in an equipment slot. The ECS signal would separately classify it by actual
+slot status — this is not yet cross-validated.
 
 ### Exact equipment slot
 Which slot an item occupies (Helmet / Breast / Cloak / MeleeMainHand /
@@ -139,27 +126,28 @@ It is a columnar ECS component store: component sections are arrays ordered by
 entity handle, with entity cross-references stored as handles (not the 16-byte
 GUIDs), resolved through separate handle↔GUID tables.
 
-The worn set and exact slot live here, in
-`eoc::inventory::MemberComponent` (`{ EntityHandle Inventory; int16 EquipmentSlot }`).
-Decoding it would resolve every remaining limitation above.
+### What is decoded
 
-**Why it's hard, and what the reference tools do and don't give us.** Two
-upstream projects were consulted:
+The parser reads the following from the ECS blob:
 
-- **LSLib** (Norbyte) reads LSPK/LSF/LSV but treats this `ScratchBuffer` as an
-  opaque `byte[]` — it has no LSMF/ECS decoder.
-- **bg3se** (Norbyte's Script Extender) defines the component *layouts*
-  (`MemberComponent`, `EquipableComponent`, the `ItemSlot` enum, etc.) but reads
-  them from **live game memory**, not the on-disk save; the save's LSMF
-  serialization is a separate, undocumented format.
+- **Component descriptor table**: 355 component types, each with name, element
+  size, row count, and data offset (see FORMAT.md §6).
+- **Ownerlist region**: each component that has one stores a `(start, end, comp,
+  entity_count)` record; the data section is an array of `uint32` entity-row
+  indices. Scanning all ownerlists and counting per-entity memberships gives a
+  reliable materialization signal: equipped items have ~35–41 memberships; items
+  dematerialised into a backpack have ~3–6.
+- **Entity GUID bridge**: `core.v0.EntityId` stores 16-byte GUIDs at a known
+  offset, indexed by entity row. Reversed `e2t_items` (from LSF Creators nodes)
+  maps template GUID → instance GUID, linking the LSF item tree to the ECS rows.
+  Spell strings are also read directly from the blob's printable-ASCII runs.
 
-So the component layouts are known, but the on-disk framing is not, and the
-blob stores **no component-name or slot-name strings** to anchor a decode (the
-type registry is hashed/indexed). Worse, component rows key on **EntityHandles**
-with no handle→item/character table exposed, which is what earlier
-co-occurrence / run-segmentation attempts foundered on.
+### What is not decoded
 
-One usable foothold exists: each party character's exact `Translate`
-float-triple (the ownership key) **does** appear in the blob (5–8 hits each),
-presumably via `MemberTransformComponent`, giving a known-value entry point to
-walk entity framing from. A full Python decoder remains the open frontier.
+- **Exact equipment slot** (Helmet / Boots / Amulet / Ring / …): lives in
+  `eoc::inventory::MemberComponent.EquipmentSlot` (`int16`). Component rows
+  cross-reference each other via packed `EntityHandle` values, and no
+  handle→GUID lookup table exists in the on-disk save (the index is only in live
+  game memory). The slot number is not recovered.
+- **Per-character inventory ownership** via ECS: same blocker. The
+  `Translate`-matching heuristic (see above) is used instead.
