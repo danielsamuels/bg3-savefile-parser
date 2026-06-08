@@ -48,6 +48,7 @@ Known limitations
   See LIMITS.md for full details.
 """
 
+import datetime
 import json
 import re
 import struct
@@ -239,6 +240,78 @@ def parse_lsof(data: bytes) -> list[dict]:
 def parse_info_json(frames: list[bytes]) -> dict:
     raw = decomp_frame(frames[8])
     return json.loads(raw.decode('utf-8'))
+
+
+# ---------------------------------------------------------------------------
+# MetaData  (frame 6 in the LSPK)
+# ---------------------------------------------------------------------------
+
+def parse_metadata(frames: list[bytes]) -> dict:
+    """Parse frame 6 (LSOF MetaData) and return a dict of useful fields.
+
+    Returns:
+        save_time           int  — wall-clock save time (Unix epoch seconds)
+        save_game_id        int  — save slot number (e.g. 242)
+        save_game_type      int  — save type code (1 = QuickSave, observed once)
+        game_id             str  — campaign identity UUID
+        game_session_id     str  — session identity UUID
+        leader_name         str  — party leader's name
+        seed                int  — RNG seed
+        modded              bool — True when any non-base modules are present
+        has_unofficial_mods bool — True when BG3 itself flags the save as
+                                   unofficially modded (UI/cosmetic mods leave
+                                   this False; gameplay-altering mods set it —
+                                   one-sample observation, may not be universal)
+        user_mods           list[dict]  — user-installed mods (base game
+                                          modules like GustavX excluded);
+                                          each entry has 'name' and 'folder'
+        all_mods            list[dict]  — all ModuleShortDesc entries including
+                                          base game modules
+    """
+    data = decomp_frame(frames[6])
+    nodes = parse_lsof(data)
+
+    # Node 0 is the bare 'MetaData' root (no attrs); node 1 is the child that
+    # carries all attributes.  Find the child with the attrs rather than relying
+    # on a hard-coded index.
+    meta_attrs: dict = {}
+    for nd in nodes:
+        if nd['name'] == 'MetaData' and nd['attrs']:
+            meta_attrs = nd['attrs']
+            break
+
+    # Mod list: each ModuleShortDesc child of the Mods node.
+    # Note: the parsed UUID field in ModuleShortDesc has a different byte order
+    # from entity GUIDs and cannot be used as a canonical mod identifier.
+    # The Folder string (e.g. "ImpUI_26922ba9-6018-5252-075d-7ff2ba6ed879")
+    # embeds the canonical mod UUID for user mods; use Name+Folder for identity.
+    BASE_MODULES = {'GustavX', 'Shared', 'SharedDev', 'Gustav', 'Halflings',
+                    'Origins', 'Honour', 'DiceSet01', 'DiceSet02', 'DiceSet03',
+                    'DiceSet04', 'DiceSet05', 'DiceSet06', 'DiceSet07'}
+
+    all_mods: list[dict] = []
+    for nd in nodes:
+        if nd['name'] == 'ModuleShortDesc':
+            name = nd['attrs'].get('Name', '')
+            folder = nd['attrs'].get('Folder', '')
+            if name or folder:
+                all_mods.append({'name': name, 'folder': folder})
+
+    user_mods = [m for m in all_mods if m['name'] not in BASE_MODULES]
+
+    return {
+        'save_time':           meta_attrs.get('SaveTime'),
+        'save_game_id':        meta_attrs.get('SaveGameID'),
+        'save_game_type':      meta_attrs.get('SaveGameType'),
+        'game_id':             meta_attrs.get('GameID', ''),
+        'game_session_id':     meta_attrs.get('GameSessionID', ''),
+        'leader_name':         meta_attrs.get('LeaderName', ''),
+        'seed':                meta_attrs.get('Seed'),
+        'modded':              bool(meta_attrs.get('Modded', False)),
+        'has_unofficial_mods': bool(meta_attrs.get('HasUnofficialMods', False)),
+        'user_mods':           user_mods,
+        'all_mods':            all_mods,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -1137,11 +1210,33 @@ def build_report(save_path: str) -> str:
     cur_level = info.get('Current Level', '?')
     difficulty = ', '.join(info.get('Difficulty', []))
 
+    # ---- MetaData (frame 6) -----------------------------------------------
+    meta = parse_metadata(frames)
+    save_time_str = '?'
+    if meta.get('save_time') is not None:
+        try:
+            dt = datetime.datetime.fromtimestamp(meta['save_time'], tz=datetime.timezone.utc)
+            save_time_str = dt.strftime('%Y-%m-%d %H:%M:%S UTC')
+        except (OSError, OverflowError, ValueError):
+            save_time_str = str(meta['save_time'])
+
     w('')
     w(f'Save Name  : {save_name}')
+    w(f'Save #     : {meta.get("save_game_id", "?")}')
+    w(f'Saved At   : {save_time_str}')
     w(f'Game Ver   : {game_ver}')
     w(f'Level      : {cur_level}')
     w(f'Difficulty : {difficulty}')
+    w(f'Leader     : {meta.get("leader_name", "?")}')
+    user_mods = meta.get('user_mods', [])
+    has_unofficial = meta.get('has_unofficial_mods', False)
+    if user_mods:
+        flag = '  (flagged unofficial by game)' if has_unofficial else ''
+        w(f'Mods       : {len(user_mods)} user mod(s){flag}')
+        for mod_entry in user_mods:
+            w(f'             {mod_entry.get("name", "?")}')
+    else:
+        w(f'Mods       : none')
     w(f'Item names : {"resolved from game data" if dn.available else "internal only (game data not found; set BG3_DATA_DIR)"}')
 
     party_info = info.get('Active Party', {}).get('Characters', [])

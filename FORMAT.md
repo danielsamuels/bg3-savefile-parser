@@ -29,6 +29,8 @@ All integers are little-endian.
                                               │
    .pak game data ──► LSPK package  ──►       ├─ frame 0  Globals  ── contains ─┐
                                               ├─ frame 3  level cache           │
+                                              ├─ frame 6  MetaData (save time,  │
+                                              │            mods, session UUIDs) │
                                               ├─ frame 8  Info.json (plain JSON)│
                                               └─ frame 9  Osiris story (binary) │
                                                                                 ▼
@@ -85,17 +87,79 @@ nibble): `0` = none, `1` = zlib, `2` = LZ4 (block, `uncompressed_size` known),
 > **`.lsv` shortcut.** A save is an LSPK package whose contained files are each
 > a stand-alone zstd frame. This parser locates them pragmatically by scanning
 > for the zstd magic `28 b5 2f fd` rather than walking the file list
-> (`_extract_frames`). The full LSPK reader above (`_lspk_filelist` /
-> `_lspk_extract`) is used for the game `.pak`s.
+> (`extract_frames`). The full LSPK reader above (`lspk_filelist` /
+> `lspk_extract`) is used for the game `.pak`s.
 
 ### Frame map of a `.lsv` save
 
-| Frame | Contents |
-|------:|----------|
-| 0 | **Globals** — `Characters`, `Items`, item `Creators` (Entity→TemplateID), and the `NewAge` LSMF blob |
-| 3 | **`SCL_Main_A` level cache** — ~11.8 k live `Item` nodes with `Stats` names and world transforms |
-| 8 | **`Info.json`** — plain JSON: save name, game version, active party (class/level/XP/location) |
-| 9 | **Osiris** story state — binary, not parsed here |
+10 frames (0–9) in `QuickSave_242`. ✅ = parsed by this tool; ❌ = not parsed.
+
+| Frame | Magic | Decomp | Status | Contents |
+|------:|-------|-------:|:------:|----------|
+| 0 | LSOF | 3.1 MB | ✅ | **Globals** — `Characters`, `Items`, item `Creators` (Entity→TemplateID), and the `NewAge` LSMF blob; ~30 root regions including `Story`, `Journal`, `Waypoints`, `GameControl` |
+| 1 | LSOF | 153 KB | ❌ | Secondary level LSF — probably a background/camp area's level state |
+| 2 | LSOF | 2.1 MB | ❌ | Navigation mesh — `GridDefinition` root + 2,109 hashed navmesh tile roots; no item/character data |
+| 3 | LSOF | 10.8 MB | ✅ | **Level cache** (`SCL_Main_A`) — `Characters`, `Items`, `Surfaces`, AI state, `CrimeHandler`; ~11.8 k live `Item` nodes with `Stats` and world transforms |
+| 4 | LSOF | 24 KB | ❌ | Compact snapshot — `Characters`, `Items`, `Projectiles`, `Level`; likely a respawn-point or load-screen preview state |
+| 5 | LSOF | 14.7 MB | ❌ | Fog-of-war / shroud — `GridDefinition` + 14,898 hashed tile visibility bitmap roots; no item/character data |
+| 6 | LSOF | 2 KB | ✅ | **`MetaData`** — save metadata: wall-clock save time (Unix epoch), save number, campaign/session UUIDs, party leader name, RNG seed, mod list (`ModuleShortDesc` nodes), difficulty code, active ruleset UUIDs, game version, camera state |
+| 7 | RIFF | ~1.7 MB | ❌ | **Load-screen thumbnail** — a RIFF-format image; not an LSF |
+| 8 | JSON | 2.5 KB | ✅ | **`Info.json`** — save name, game version, difficulty, current level, active party (class/level/XP) |
+| 9 | Osiris | 47.7 MB | ❌ | **Osiris database** — scripting engine state (`Osiris save file, Version 1.8`): quest flags, story counters, dialogue state |
+
+### Frame 6 — `MetaData` node attributes (fully decoded, 2 KB LSOF)
+
+Frame 6 decompresses to ~2 077 bytes and contains a single `MetaData` root with
+one child `MetaData` node that carries all attributes, plus several child nodes
+(`ModuleSettings/Mods`, `GameVersions`, `PartyMetaData`, `ClientDatas`,
+`Rulesets`, `CustomRulesetValues`). The useful attributes on the inner
+`MetaData` node:
+
+| Attribute | Type | Observed value | Notes |
+|-----------|------|---------------|-------|
+| `SaveTime` | UInt (5) | `1780520898` | Wall-clock save time, Unix epoch seconds (verified: `datetime.utcfromtimestamp(1780520898)` → 2026-06-03 21:08:18 UTC) |
+| `SaveGameID` | Int (4) | `242` | Save slot number — matches the filename |
+| `SaveGameType` | Int (4) | `1` | Save type code; `1` observed for QuickSave — mapping unverified beyond one save |
+| `GameID` | UUID (31) | `bd8ccd4d-…` | Persistent campaign identity |
+| `GameSessionID` | UUID (31) | `ea7c1dd2-…` | Per-session identity (changes each play session) |
+| `LeaderName` | String (20) | `"Maia"` | Party leader display name |
+| `Seed` | UInt (5) | `176876464` | RNG seed for this save |
+| `Modded` | Bool (19) | `true` | True when any non-base modules are listed in the mod table |
+| `HasUnofficialMods` | Bool (19) | `false` | BG3's own "tainted" flag; observed False when only UI/cosmetic mods are installed alongside GustavX — exact triggering conditions unverified beyond one save |
+| `Difficulty` | Int (4) | `2` | Difficulty code (2 observed with `DifficultyMedium` per `Info.json`; full enum unknown) |
+| `Level` | FixedString (22) | `"SCL_Main_A"` | Current level — same as `Info.json "Current Level"` |
+| `CurrentSubRegion` | FixedString (22) | `""` | Current sub-region (may be empty) |
+| `TutorialFinished` | Bool (19) | `true` | |
+| `Sanity` | Bool (19) | `true` | |
+| `Crossplay` | Bool (19) | `false` | |
+| `DisabledSingleSave` | Bool (19) | `false` | |
+| `DishonorDifficultySelection` | UUID (31) | null UUID | Honour-mode tracking (null UUID = not in Honour mode) |
+| `TimeStamp` | UInt (5) | `147905` | In-game time counter; units unverified |
+| `OriginalPlatform` | Int (4) | `7` | Platform code; `7` observed for Steam — full enum unknown |
+
+**Redundant with `Info.json`:** `Level`, `Difficulty` code, game version (under
+`GameVersions/GameVersion.Object`).
+
+**Child nodes of interest:**
+
+- `ModuleSettings/Mods/ModuleShortDesc` — one entry per active mod: `Name`,
+  `Folder`, `MD5`, `Version64`, `PublishHandle`, and a `UUID` field.
+  **UUID byte-order warning:** the `UUID` field in `ModuleShortDesc` does not
+  follow the standard UUID byte-layout used elsewhere in LSF (the last two
+  groups of bytes are swapped compared to the canonical form embedded in the
+  `Folder` string, e.g. `Folder = "ImpUI_26922ba9-6018-5252-075d-7ff2ba6ed879"`
+  vs `UUID` attr reads as `26922ba9-6018-5252-5d07-f27f6eba79d8`).  Use the
+  `Folder` string for canonical mod identity, not the parsed `UUID` attr.
+  GustavX is always present (base game module); additional entries are
+  user-installed mods.
+- `GameVersions/GameVersion.Object` — `FixedString` game version, e.g.
+  `"4.1.1.7209685"`.
+- `Rulesets` — two `FixedString` ruleset UUIDs (one per `Rulesets` node);
+  the second corresponds to `RulesetLarian` per `Info.json`.
+- `PartyMetaData/CharacterMetaData` — per-character icon IDs and name
+  handle refs (loca/runtime handles; not resolved by this parser).
+- `ClientDatas/ClientData` — UI state: `Slot`, `HotbarLocked`,
+  `GameCameraDistance`, `GameCameraRotation`.
 
 ---
 
@@ -542,6 +606,7 @@ handle indexes straight into this table.
 | LSF parse (V2 layout, saves + `_merged.lsf`) | ✅ |
 | V3 (`KeysAndAdjacency`) LSF layout | not exercised by these files; format documented above |
 | Character / class / level / XP | ✅ (Info.json) |
+| **Frame 6 MetaData** | ✅ `parse_metadata`: wall-clock save time, save number, campaign/session UUIDs, leader name, RNG seed, mod list |
 | Per-character item ownership | ✅ (Translate matching) |
 | Display names | ✅ (root templates + `.loca`) |
 | Spell lists | ⚠️ heuristic (string pool + class rules) |
