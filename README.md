@@ -25,6 +25,9 @@ dependencies (`zstandard`, `lz4`) are declared inline, so
 # Parse a specific save (writes to stdout, or to a file if given):
 uv run bg3_save_reader.py /path/to/QuickSave_NNN.lsv [report.txt]
 
+# Or give just the save number (finds the matching save automatically):
+uv run bg3_save_reader.py 286
+
 # Or omit the path to auto-detect and use the most recent save:
 uv run bg3_save_reader.py
 ```
@@ -53,6 +56,9 @@ the usual Steam locations); without one, items are shown by their internal name.
 ## Status
 
 Characters, ownership, display names, and the item pool are reliable. Spell
-attribution is heuristic. The exact equipment slot and the worn-vs-carried
-distinction require decoding the `LSMF` ECS blob, which is an open problem —
-see the status table in [FORMAT.md](FORMAT.md#8-status--open-problems).
+attribution is heuristic. The worn-vs-carried distinction is resolved by a
+layered set of signals (the `0x04000000` Flags bit, active on-equip STATUS
+effects, and several `LSMF` ECS components), validated against in-game ground
+truth across many saves. The exact equipment slot is inferred from game stat
+files for conflict resolution but is not recovered from the save itself — see
+the status table in [FORMAT.md](FORMAT.md#8-status--open-problems).
