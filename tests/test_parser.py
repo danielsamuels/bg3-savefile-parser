@@ -140,6 +140,29 @@ def test_smoke_build_report():
 #   Karlach: WPN_Torch
 #   Shadowheart: DEN_HellridersPride
 
+# Items eliminated by the object-type filter and slot-conflict resolver, both of
+# which require game data.  When game data is unavailable (e.g. CI), these appear
+# as false positives in each character's equipped set.
+GAME_DATA_FILTERED: dict[str, set[str]] = {
+    'Maia (player)': {
+        'ARM_HalfPlate_Body',
+        'FOR_DangerousBook',
+        'UNI_CONT_DEVIL_PuzzleBox_A',
+        'WPN_Greatclub_1',
+    },
+    'Wyll': {
+        'ARM_Boots_Leather',
+        'MAG_Lesser_Infernal_Plate_Armor',
+        'WPN_Torch',
+    },
+    'Karlach': {
+        'WPN_Torch',
+    },
+    'Shadowheart': {
+        'DEN_HellridersPride',
+    },
+}
+
 EXPECTED_EQUIPPED: dict[str, set[str]] = {
     'Maia (player)': {
         'ARM_Instrument_Lute',
@@ -195,14 +218,23 @@ def test_equipped_items_ground_truth():
     Equipped item sets for QuickSave_242 must exactly match the validated
     baseline.  Any addition or removal in any character's equipped set causes
     this test to fail.
+
+    When game data is unavailable (CI, no BG3 install) the object-type filter
+    and slot-conflict resolver are inactive, so GAME_DATA_FILTERED items appear
+    as false positives.  The expected set is widened accordingly so the test
+    remains exact-equality in both regimes.
     """
     report = parser.build_report(QUICKSAVE_MAIA, opts=Namespace(verbose=True))
     actual = extract_equipped_from_report(report)
+    game_data_available = parser.DisplayNames.load().available
 
     for char, expected_set in EXPECTED_EQUIPPED.items():
+        expected = set(expected_set)
+        if not game_data_available:
+            expected |= GAME_DATA_FILTERED.get(char, set())
         actual_set = actual.get(char, set())
-        added = actual_set - expected_set
-        removed = expected_set - actual_set
+        added = actual_set - expected
+        removed = expected - actual_set
         assert not added and not removed, (
             f'{char}: equipped set changed.\n'
             f'  Added   (unexpected): {sorted(added)}\n'
