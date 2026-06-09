@@ -518,6 +518,67 @@ class TestResolveSlotConflicts:
         assert ('ARM_Item2', 'g2') in kept_flags
         assert ('ARM_Item1', 'g1') in demoted
 
+    def test_status_equipped_wins_over_higher_mc(self):
+        # Phalar Aluve / moonlantern scenario: two flags items compete for Melee Main Weapon.
+        # The one with an active status effect wins even when the other has higher MC.
+        flags_eq = [('UND_SwordInStone', 'g_sword'), ('Quest_Lantern', 'g_lantern')]
+        ecs_eq: list = []
+        stats_to_slot = {
+            'UND_SwordInStone': 'Melee Main Weapon',
+            'Quest_Lantern': 'Melee Main Weapon',
+        }
+        stats_to_entity = {'UND_SwordInStone': 'e_sword', 'Quest_Lantern': 'e_lantern'}
+        guid_to_rows = {'e_sword': [1], 'e_lantern': [2]}
+        membership_count = {1: 40, 2: 41}  # lantern has higher MC but sword has status
+        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+            flags_eq, ecs_eq, stats_to_slot, stats_to_entity, guid_to_rows, membership_count,
+            status_equipped=frozenset(['UND_SwordInStone']),
+        )
+        assert ('UND_SwordInStone', 'g_sword') in kept_flags
+        assert ('Quest_Lantern', 'g_lantern') in demoted
+
+    def test_status_equipped_none_falls_back_to_owned_loot(self):
+        # Without status_equipped, the existing owned_loot/MC fallback applies.
+        flags_eq = [('WPN_Sword', 'g1'), ('WPN_Axe', 'g2')]
+        ecs_eq: list = []
+        stats_to_slot = {'WPN_Sword': 'Melee Main Weapon', 'WPN_Axe': 'Melee Main Weapon'}
+        stats_to_entity = {'WPN_Sword': 'e1', 'WPN_Axe': 'e2'}
+        guid_to_rows = {'e1': [1], 'e2': [2]}
+        membership_count = {1: 40, 2: 38}  # sword has higher MC
+        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+            flags_eq, ecs_eq, stats_to_slot, stats_to_entity, guid_to_rows, membership_count,
+            status_equipped=None,
+        )
+        assert ('WPN_Sword', 'g1') in kept_flags
+        assert ('WPN_Axe', 'g2') in demoted
+
+    def test_status_equipped_wins_mixed_flags_and_ecs(self):
+        # Real save 268 scenario: two flags items compete alongside several ECS items
+        # for Melee Main Weapon.  The flags winner must still be chosen by status_equipped,
+        # not by MC (the other flags item had a higher MC in the real save).
+        flags_eq = [('UND_SwordInStone', 'g_sword'), ('Quest_Lantern', 'g_lantern')]
+        ecs_eq = [('WPN_Torch', 'g_torch'), ('WPN_Pitchfork', 'g_pitch')]
+        stats_to_slot = {
+            'UND_SwordInStone': 'Melee Main Weapon',
+            'Quest_Lantern': 'Melee Main Weapon',
+            'WPN_Torch': 'Melee Main Weapon',
+            'WPN_Pitchfork': 'Melee Main Weapon',
+        }
+        stats_to_entity = {
+            'UND_SwordInStone': 'e_sword', 'Quest_Lantern': 'e_lantern',
+            'WPN_Torch': 'e_torch', 'WPN_Pitchfork': 'e_pitch',
+        }
+        guid_to_rows = {'e_sword': [1], 'e_lantern': [2], 'e_torch': [3], 'e_pitch': [4]}
+        membership_count = {1: 40, 2: 41, 3: 5, 4: 5}  # lantern has higher MC but sword has status
+        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+            flags_eq, ecs_eq, stats_to_slot, stats_to_entity, guid_to_rows, membership_count,
+            status_equipped=frozenset(['UND_SwordInStone']),
+        )
+        assert ('UND_SwordInStone', 'g_sword') in kept_flags
+        assert ('Quest_Lantern', 'g_lantern') in demoted
+        assert ('WPN_Torch', 'g_torch') in demoted
+        assert ('WPN_Pitchfork', 'g_pitch') in demoted
+
     def test_twohanded_weapon_demotes_ecs_offhand(self):
         # MAG_Colossal_Greatsword scenario: Karlach has a 2-handed flags weapon in
         # Melee Main Weapon; ECS-promoted shield in Melee Offhand Weapon is demoted.

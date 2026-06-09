@@ -1775,13 +1775,15 @@ def resolve_slot_conflicts(
     membership_count: dict[int, int],
     owned_as_loot_rows: frozenset[int] | None = None,
     two_handed_stats: frozenset[str] | None = None,
+    status_equipped: frozenset[str] | None = None,
 ) -> tuple[list[tuple], list[tuple], list[tuple]]:
     """Resolve cases where more items are signalled for a slot than it can hold.
 
     Priority: Flags-signalled items beat ECS-only items for the same slot.
-    When multiple Flags items compete for the same slot, the item present in
-    game.v0.OwnedAsLootComponent wins (stale eq-bits lack this component);
-    ties are broken by per-instance membership count (higher MC wins).
+    When multiple Flags items compete for the same slot, tiebreaker priority is:
+      1. active on-equip status (status_equipped) — truly wielded item
+      2. OwnedAsLootComponent — stale-eq-bit items are absent from it
+      3. per-instance membership count (higher MC wins)
     Ring slot has capacity 2; all others capacity 1.
 
     If a 2-handed weapon is flags-equipped in "Melee Main Weapon", all
@@ -1824,6 +1826,13 @@ def resolve_slot_conflicts(
     kept_ecs:   list[tuple] = list(no_slot_ecs)
     demoted:    list[tuple] = []
 
+    def flags_sort_key(sg: tuple) -> tuple:
+        return (
+            0 if (status_equipped and sg[0] in status_equipped) else 1,
+            0 if in_owned_loot(sg[0]) else 1,
+            -get_mc(sg[0]),
+        )
+
     for slot, candidates in slot_candidates.items():
         capacity = SLOT_CAPACITY.get(slot, 1)
         if len(candidates) <= capacity:
@@ -1833,15 +1842,12 @@ def resolve_slot_conflicts(
         flags_cands = [(s, g) for s, g, sig in candidates if sig == 'flags']
         ecs_cands   = [(s, g) for s, g, sig in candidates if sig == 'ecs']
         if flags_cands and ecs_cands:
-            winners = sorted(flags_cands, key=lambda sg: -get_mc(sg[0]))[:capacity]
+            winners = sorted(flags_cands, key=flags_sort_key)[:capacity]
             kept_flags.extend(winners)
             demoted.extend(sg for sg in flags_cands if sg not in winners)
             demoted.extend(ecs_cands)
         elif flags_cands:
-            winners = sorted(
-                flags_cands,
-                key=lambda sg: (0 if in_owned_loot(sg[0]) else 1, -get_mc(sg[0])),
-            )[:capacity]
+            winners = sorted(flags_cands, key=flags_sort_key)[:capacity]
             kept_flags.extend(winners)
             demoted.extend(sg for sg in flags_cands if sg not in winners)
         else:
@@ -2017,8 +2023,14 @@ def cache_path(data_dir: str) -> str:
 
 def build_displayname_maps(
     data_dir: str,
-) -> tuple[dict[str, str], dict[str, str], dict[str, str], frozenset[str], dict[str, str], frozenset[str]]:
-    """Build (guid->name, stats->name, spell_id->name, object_type_stats, stats_to_slot, two_handed_stats).
+) -> tuple[
+    dict[str, str], dict[str, str], dict[str, str],
+    frozenset[str], dict[str, str], frozenset[str],
+]:
+    """Build display-name and item-stat maps from installed game data.
+
+    Returns (guid->name, stats->name, spell_id->name, object_type_stats, stats_to_slot,
+    two_handed_stats).
 
     Results are cached under XDG_CACHE_HOME keyed on the source paks' mtime/size,
     so the ~1 s parse only happens after a game update.
@@ -2503,6 +2515,7 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
                     guid_to_rows, membership_count,
                     owned_as_loot_rows=lsmf_owned_loot,
                     two_handed_stats=dn.two_handed_stats or None,
+                    status_equipped=frozenset(status_equipped) if status_equipped else None,
                 )
                 carried = sorted(set(carried) | set(demoted))
 
