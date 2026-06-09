@@ -28,9 +28,9 @@ import bg3_save_reader as parser  # noqa: E402
 # Save-file fixture paths
 # ---------------------------------------------------------------------------
 
-FIXTURES = Path(__file__).parent / 'fixtures'
-QUICKSAVE_MAIA = FIXTURES / 'quicksave_maia.lsv'
-SHADOWHEART_TUTORIAL = FIXTURES / 'autosave_shadowheart_tutorial.lsv'
+_FIXTURES = Path(__file__).parent / 'fixtures'
+QUICKSAVE_MAIA = str(_FIXTURES / 'quicksave_maia.lsv')
+SHADOWHEART_TUTORIAL = str(_FIXTURES / 'autosave_shadowheart_tutorial.lsv')
 
 
 # ---------------------------------------------------------------------------
@@ -95,7 +95,7 @@ def extract_equipped_from_report(report: str) -> dict[str, set[str]]:
 
 def test_smoke_build_report():
     """build_report() must complete without error and produce a plausible report."""
-    report = parser.build_report(str(QUICKSAVE_MAIA), opts=Namespace(verbose=True))
+    report = parser.build_report(QUICKSAVE_MAIA, opts=Namespace(verbose=True))
     assert isinstance(report, str)
     assert len(report) > 1000
 
@@ -196,7 +196,7 @@ def test_equipped_items_ground_truth():
     baseline.  Any addition or removal in any character's equipped set causes
     this test to fail.
     """
-    report = parser.build_report(str(QUICKSAVE_MAIA), opts=Namespace(verbose=True))
+    report = parser.build_report(QUICKSAVE_MAIA, opts=Namespace(verbose=True))
     actual = extract_equipped_from_report(report)
 
     for char, expected_set in EXPECTED_EQUIPPED.items():
@@ -523,7 +523,7 @@ class TestBuildInstanceEntityMap:
 
 def test_save_info():
     """--save-info section must appear and contain recognisable fields."""
-    report = parser.build_report(str(QUICKSAVE_MAIA), opts=Namespace(save_info=True))
+    report = parser.build_report(QUICKSAVE_MAIA, opts=Namespace(save_info=True))
     assert 'Save Name' in report
     assert 'Game Ver' in report
     assert 'Leader' in report
@@ -532,7 +532,7 @@ def test_save_info():
 
 def test_quests():
     """--quests must parse the Osiris story state and emit a quests section."""
-    report = parser.build_report(str(QUICKSAVE_MAIA), opts=Namespace(quests=True))
+    report = parser.build_report(QUICKSAVE_MAIA, opts=Namespace(quests=True))
     assert 'QUEST & STORY STATE' in report
     # The Osiris version line proves the parser reached the binary format.
     assert 'Osiris version:' in report
@@ -543,7 +543,7 @@ def test_quests():
 
 def test_thumbnail(tmp_path):
     """extract_thumbnail must write a valid WebP file and return dimensions."""
-    frames = parser.extract_frames(str(QUICKSAVE_MAIA))
+    frames = parser.extract_frames(QUICKSAVE_MAIA)
     out = tmp_path / 'thumb.webp'
     dims = parser.extract_thumbnail(frames, str(out))
     assert out.exists()
@@ -558,14 +558,14 @@ def test_thumbnail(tmp_path):
 
 def test_carried():
     """--carried must emit a Carried / personal inventory section."""
-    report = parser.build_report(str(QUICKSAVE_MAIA), opts=Namespace(carried=True))
+    report = parser.build_report(QUICKSAVE_MAIA, opts=Namespace(carried=True))
     assert 'Carried / personal inventory' in report
 
 
 
 def test_all_items():
     """--all-items must emit the full level inventory section."""
-    report = parser.build_report(str(QUICKSAVE_MAIA), opts=Namespace(all_items=True))
+    report = parser.build_report(QUICKSAVE_MAIA, opts=Namespace(all_items=True))
     assert 'ALL ITEMS ON CURRENT LEVEL' in report
     assert 'items total' in report
 
@@ -573,7 +573,7 @@ def test_all_items():
 
 def test_limits():
     """--limits must emit the known-limitations note."""
-    report = parser.build_report(str(QUICKSAVE_MAIA), opts=Namespace(limits=True))
+    report = parser.build_report(QUICKSAVE_MAIA, opts=Namespace(limits=True))
     assert 'LIMITS' in report
     assert 'Spell attribution' in report
 
@@ -581,7 +581,7 @@ def test_limits():
 
 def test_main_stdout(capsys):
     """main() with a save path must print the report to stdout."""
-    with mock.patch('sys.argv', ['bg3_save_reader', str(QUICKSAVE_MAIA)]):
+    with mock.patch('sys.argv', ['bg3_save_reader', QUICKSAVE_MAIA]):
         parser.main()
     captured = capsys.readouterr()
     assert 'BG3 Save File Report' in captured.out
@@ -592,7 +592,7 @@ def test_main_stdout(capsys):
 def test_main_output_file(tmp_path):
     """main() with an output path must write the report to the file."""
     out = tmp_path / 'report.txt'
-    with mock.patch('sys.argv', ['bg3_save_reader', str(QUICKSAVE_MAIA), str(out)]):
+    with mock.patch('sys.argv', ['bg3_save_reader', QUICKSAVE_MAIA, str(out)]):
         parser.main()
     assert out.exists()
     content = out.read_text(encoding='utf-8')
@@ -606,7 +606,7 @@ def test_main_output_file(tmp_path):
 
 def test_shadowheart_tutorial_frames():
     """Shadowheart AutoSave_2 must have the expected LSPK structure."""
-    frames = parser.extract_frames(str(SHADOWHEART_TUTORIAL))
+    frames = parser.extract_frames(SHADOWHEART_TUTORIAL)
     assert 'Globals.lsf' in frames
     assert 'meta.lsf' in frames
     assert 'thumbnail' in frames
@@ -620,7 +620,7 @@ def test_shadowheart_tutorial_frames():
 
 def test_shadowheart_tutorial_report():
     """build_report() on the tutorial save must complete and mention Shadowheart."""
-    report = parser.build_report(str(SHADOWHEART_TUTORIAL))
+    report = parser.build_report(SHADOWHEART_TUTORIAL)
     assert isinstance(report, str)
     assert len(report) > 500
     assert 'Shadowheart' in report
@@ -629,6 +629,6 @@ def test_shadowheart_tutorial_report():
 
 def test_shadowheart_quests():
     """Osiris parsing must work on the tutorial save's StorySave.bin."""
-    report = parser.build_report(str(SHADOWHEART_TUTORIAL), opts=Namespace(quests=True))
+    report = parser.build_report(SHADOWHEART_TUTORIAL, opts=Namespace(quests=True))
     assert 'QUEST & STORY STATE' in report
     assert 'Osiris version:' in report
