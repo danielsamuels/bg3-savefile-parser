@@ -128,11 +128,12 @@ def test_smoke_build_report():
 #
 # Previously documented false positives that are now fixed by the slot-conflict
 # resolver and Object-type filter:
-#   Maia:   ARM_HalfPlate_Body, FOR_DangerousBook, UNI_CONT_DEVIL_PuzzleBox_A,
-#           WPN_Greatclub_1
-#   Wyll:   ARM_Boots_Leather, MAG_Lesser_Infernal_Plate_Armor, WPN_Torch
+#   Maia:   ARM_HalfPlate_Body, FOR_DangerousBook, UNI_CONT_DEVIL_PuzzleBox_A
+#   Wyll:   MAG_Lesser_Infernal_Plate_Armor, WPN_Torch
 #   Karlach: WPN_Torch
 #   Shadowheart: DEN_HellridersPride
+# (WPN_Greatclub_1 and ARM_Boots_Leather are no longer here: the
+#  WieldedComponent ECS-promotion gate eliminates them without game data.)
 
 # Items eliminated by the object-type filter and slot-conflict resolver, both of
 # which require game data.  When game data is unavailable (e.g. CI), these appear
@@ -142,10 +143,8 @@ GAME_DATA_FILTERED: dict[str, set[str]] = {
         'ARM_HalfPlate_Body',
         'FOR_DangerousBook',
         'UNI_CONT_DEVIL_PuzzleBox_A',
-        'WPN_Greatclub_1',
     },
     'Wyll': {
-        'ARM_Boots_Leather',
         'MAG_Lesser_Infernal_Plate_Armor',
         'WPN_Torch',
     },
