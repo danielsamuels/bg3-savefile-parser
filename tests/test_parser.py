@@ -121,12 +121,6 @@ def test_smoke_build_report():
 #
 # Remaining deviation from the human-authored ground-truth file:
 #
-#   Maia:
-#     ARM_Instrument_Lute    — not in the ground-truth file; false positive from
-#                              the Flags bit.  Instrument items have their own
-#                              slot (MusicalInstrument) with no conflict, so
-#                              slot-conflict resolution cannot eliminate it.
-#
 #   Karlach:
 #     UNI_Karlach_Gloves     — not in the ground-truth file; possible false
 #                              positive, but there is no competing Gloves item to
