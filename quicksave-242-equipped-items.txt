@@ -1,5 +1,13 @@
 Quicksave 242
 
+Notes:
+- The "Shoes" slot (VanityBoots in the game data) is a cosmetic appearance
+  override with ArmorType: None and no stats. The parser correctly omits
+  these items (ARM_Camp_* prefix) from the equipped list.
+- The "Instrument" slot and "Light" slot are non-stat equipment slots.
+- Items listed under "Items in inventory" are known false positives where
+  the parser's equip signals fire incorrectly.
+
 Maia:
     Helm: Grymskull Helm
     Cloak: <None>
