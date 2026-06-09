@@ -26,5 +26,5 @@ jobs:
       - name: Type check (ty)
         run: uv run ty check bg3_save_reader.py
 
-      - name: Test (pytest — unit tests only, no save file in CI)
-        run: uv run pytest tests/ -v -k "not requires_save"
+      - name: Test (pytest)
+        run: uv run pytest tests/ -v

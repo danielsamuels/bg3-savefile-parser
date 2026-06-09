@@ -1,12 +1,16 @@
 """
 Tests for bg3_save_reader.py.
 
-The save file (QuickSave_242.lsv) is looked up via the BG3_SAVE_FILE env var
-or the known development path.  Tests that require the save are skipped when
-it is absent so the suite stays green on machines that don't have the file.
+Two save files are bundled in tests/fixtures/:
+  quicksave_maia.lsv                — full party, mid-campaign (primary fixture)
+  autosave_shadowheart_tutorial.lsv — solo Shadowheart, tutorial / Nautiloid
+
+The BG3_SAVE_FILE env var overrides the primary fixture path.
+Tests are skipped when the fixture file is absent so the suite remains green
+on machines where the fixtures have been deleted.
 
 Run with:
-    uv run --extra dev pytest
+    uv run pytest
 """
 
 import os
@@ -14,6 +18,7 @@ import re
 import sys
 from argparse import Namespace
 from pathlib import Path
+from unittest import mock
 
 import pytest
 
@@ -27,18 +32,24 @@ sys.path.insert(0, str(PROJECT_ROOT))
 import bg3_save_reader as parser  # noqa: E402
 
 # ---------------------------------------------------------------------------
-# Save-file fixture path
+# Save-file fixture paths
 # ---------------------------------------------------------------------------
+
+FIXTURES = Path(__file__).parent / 'fixtures'
 
 SAVE_FILE = os.environ.get(
     'BG3_SAVE_FILE',
-    '/var/home/dan/.local/share/Larian Studios/Baldur\'s Gate 3'
-    '/PlayerProfiles/Public/Savegames/Story'
-    '/Maia-8312621517__QuickSave_242/QuickSave_242.lsv',
+    str(FIXTURES / 'quicksave_maia.lsv'),
 )
+SHADOWHEART_SAVE_FILE = str(FIXTURES / 'autosave_shadowheart_tutorial.lsv')
 
 SAVE_AVAILABLE = os.path.isfile(SAVE_FILE)
-requires_save = pytest.mark.skipif(not SAVE_AVAILABLE, reason='QuickSave_242.lsv not found')
+SHADOWHEART_SAVE_AVAILABLE = os.path.isfile(SHADOWHEART_SAVE_FILE)
+
+requires_save = pytest.mark.skipif(not SAVE_AVAILABLE, reason='quicksave_maia.lsv not found')
+requires_shadowheart_save = pytest.mark.skipif(
+    not SHADOWHEART_SAVE_AVAILABLE, reason='autosave_shadowheart_tutorial.lsv not found'
+)
 
 
 # ---------------------------------------------------------------------------
@@ -522,3 +533,121 @@ class TestBuildInstanceEntityMap:
         ])
         result = parser.build_instance_entity_map(nodes)
         assert result == {}
+
+
+# ---------------------------------------------------------------------------
+# Integration tests using bundled fixture save files
+# ---------------------------------------------------------------------------
+
+@requires_save
+def test_save_info():
+    """--save-info section must appear and contain recognisable fields."""
+    report = parser.build_report(SAVE_FILE, opts=Namespace(save_info=True))
+    assert 'Save Name' in report
+    assert 'Game Ver' in report
+    assert 'Leader' in report
+
+
+@requires_save
+def test_quests():
+    """--quests must parse the Osiris story state and emit a quests section."""
+    report = parser.build_report(SAVE_FILE, opts=Namespace(quests=True))
+    assert 'QUEST & STORY STATE' in report
+    # The Osiris version line proves the parser reached the binary format.
+    assert 'Osiris version:' in report
+    # A mid-campaign save should have at least a handful of in-progress quests.
+    assert 'Quests in progress' in report
+
+
+@requires_save
+def test_thumbnail(tmp_path):
+    """extract_thumbnail must write a valid WebP file and return dimensions."""
+    frames = parser.extract_frames(SAVE_FILE)
+    out = tmp_path / 'thumb.webp'
+    dims = parser.extract_thumbnail(frames, str(out))
+    assert out.exists()
+    assert out.stat().st_size > 0
+    # All observed saves use VP8X extended WebP.
+    assert out.read_bytes()[:4] == b'RIFF'
+    assert dims is not None
+    w, h = dims
+    assert w > 0 and h > 0
+
+
+@requires_save
+def test_carried():
+    """--carried must emit a Carried / personal inventory section."""
+    report = parser.build_report(SAVE_FILE, opts=Namespace(carried=True))
+    assert 'Carried / personal inventory' in report
+
+
+@requires_save
+def test_all_items():
+    """--all-items must emit the full level inventory section."""
+    report = parser.build_report(SAVE_FILE, opts=Namespace(all_items=True))
+    assert 'ALL ITEMS ON CURRENT LEVEL' in report
+    assert 'items total' in report
+
+
+@requires_save
+def test_limits():
+    """--limits must emit the known-limitations note."""
+    report = parser.build_report(SAVE_FILE, opts=Namespace(limits=True))
+    assert 'LIMITS' in report
+    assert 'Spell attribution' in report
+
+
+@requires_save
+def test_main_stdout(capsys):
+    """main() with a save path must print the report to stdout."""
+    with mock.patch('sys.argv', ['bg3_save_reader', SAVE_FILE]):
+        parser.main()
+    captured = capsys.readouterr()
+    assert 'BG3 Save File Report' in captured.out
+    assert len(captured.out) > 1000
+
+
+@requires_save
+def test_main_output_file(tmp_path):
+    """main() with an output path must write the report to the file."""
+    out = tmp_path / 'report.txt'
+    with mock.patch('sys.argv', ['bg3_save_reader', SAVE_FILE, str(out)]):
+        parser.main()
+    assert out.exists()
+    content = out.read_text(encoding='utf-8')
+    assert 'BG3 Save File Report' in content
+
+
+# ---------------------------------------------------------------------------
+# Integration tests for the Shadowheart tutorial save (fewer LevelCache files)
+# ---------------------------------------------------------------------------
+
+@requires_shadowheart_save
+def test_shadowheart_tutorial_frames():
+    """Shadowheart AutoSave_2 must have the expected LSPK structure."""
+    frames = parser.extract_frames(SHADOWHEART_SAVE_FILE)
+    assert 'Globals.lsf' in frames
+    assert 'meta.lsf' in frames
+    assert 'thumbnail' in frames
+    assert 'SaveInfo.json' in frames
+    assert 'StorySave.bin' in frames
+    lc_keys = [k for k in frames if k.startswith('LevelCache/')]
+    assert len(lc_keys) == 2
+    assert 'LevelCache/TUT_Avernus_C.lsf' in frames
+
+
+@requires_shadowheart_save
+def test_shadowheart_tutorial_report():
+    """build_report() on the tutorial save must complete and mention Shadowheart."""
+    report = parser.build_report(SHADOWHEART_SAVE_FILE)
+    assert isinstance(report, str)
+    assert len(report) > 500
+    assert 'Shadowheart' in report
+
+
+@requires_shadowheart_save
+def test_shadowheart_quests():
+    """Osiris parsing must work on the tutorial save's StorySave.bin."""
+    report = parser.build_report(SHADOWHEART_SAVE_FILE, opts=Namespace(quests=True))
+    assert 'QUEST & STORY STATE' in report
+    assert 'Osiris version:' in report
