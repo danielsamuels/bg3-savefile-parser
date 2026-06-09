@@ -2630,26 +2630,49 @@ def candidate_profile_dirs() -> list[str]:
     return dirs
 
 
+def _glob_saves(roots: list[str], patterns: tuple[str, ...]) -> set[str]:
+    import glob
+    found: set[str] = set()
+    for root in roots:
+        if not os.path.isdir(root):
+            continue
+        for pat in patterns:
+            found.update(glob.glob(os.path.join(root, pat)))
+    return found
+
+
 def find_latest_save() -> str | None:
     """Return the path of the most recently modified .lsv, or None if none found."""
-    import glob
-    # An explicit BG3_SAVE_DIR restricts the search; otherwise scan the known
-    # platform locations.
     env = os.environ.get('BG3_SAVE_DIR')
     roots = [env] if env else candidate_profile_dirs()
-
     # A root may be a PlayerProfiles dir, a Savegames/Story dir, or a single
     # save folder; these patterns match a .lsv at each of those depths.
     patterns = (
         '*/Savegames/Story/*/*.lsv', 'Savegames/Story/*/*.lsv',
         'Story/*/*.lsv', '*/*.lsv', '*.lsv',
     )
-    found = set()
-    for root in roots:
-        if not os.path.isdir(root):
-            continue
-        for pat in patterns:
-            found.update(glob.glob(os.path.join(root, pat)))
+    found = _glob_saves(roots, patterns)
+    if not found:
+        return None
+    return max(found, key=os.path.getmtime)
+
+
+def find_save_by_token(token: str) -> str | None:
+    """Find the most recently modified save whose name ends with _{token}.
+
+    Accepts a bare number ("268") or a full save name ("QuickSave_268").
+    Searches the same roots as find_latest_save().
+    """
+    env = os.environ.get('BG3_SAVE_DIR')
+    roots = [env] if env else candidate_profile_dirs()
+    patterns = (
+        f'*/Savegames/Story/*_{token}/*_{token}.lsv',
+        f'Savegames/Story/*_{token}/*_{token}.lsv',
+        f'Story/*_{token}/*_{token}.lsv',
+        f'*_{token}/*_{token}.lsv',
+        f'*_{token}.lsv',
+    )
+    found = _glob_saves(roots, patterns)
     if not found:
         return None
     return max(found, key=os.path.getmtime)
@@ -2697,6 +2720,12 @@ def main():
             ap.error('no save given and none auto-detected; '
                      'pass a .lsv path or set BG3_SAVE_DIR')
         print(f'No save specified; using most recent: {save_path}', file=sys.stderr)
+    elif not os.path.exists(save_path):
+        resolved = find_save_by_token(save_path)
+        if not resolved:
+            ap.error(f'no save found matching {save_path!r}')
+        save_path = resolved
+        print(f'Resolved {opts.save!r} → {save_path}', file=sys.stderr)
 
     frames = extract_frames(save_path)
 
