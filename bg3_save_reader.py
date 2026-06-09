@@ -58,7 +58,6 @@ import struct
 import sys
 from collections import Counter
 from typing import Any, TypedDict, cast
-from uuid import UUID
 
 import lz4.block
 import lz4.frame
@@ -154,41 +153,62 @@ def lkp(names: list[list[str]], nh: int) -> str:
         return f'?{nh:08x}'
 
 
+def guid_le_str(x: bytes) -> str:
+    """Canonical UUID string for a 16-byte fully little-endian BG3 GUID.
+
+    Equivalent to swapping the byte pairs at positions 8–15 and rendering
+    via UUID(bytes_le=…), but ~3× faster (no UUID object construction).
+    """
+    h = x.hex()
+    return (f'{h[6:8]}{h[4:6]}{h[2:4]}{h[0:2]}-{h[10:12]}{h[8:10]}-'
+            f'{h[14:16]}{h[12:14]}-{h[18:20]}{h[16:18]}-'
+            f'{h[22:24]}{h[20:22]}{h[26:28]}{h[24:26]}{h[30:32]}{h[28:30]}')
+
+
+S_I = struct.Struct('<i')
+S_U16 = struct.Struct('<H')
+S_I16 = struct.Struct('<h')
+S_U32 = struct.Struct('<I')
+S_F32 = struct.Struct('<f')
+S_I64 = struct.Struct('<q')
+S_U64 = struct.Struct('<Q')
+S_VEC3 = struct.Struct('<fff')
+
+# LSF attribute type IDs that hold strings:
+# String/WString/LSString/LSWString/Path/FixedString
+STRING_TIDS = frozenset((20, 21, 22, 23, 29, 30))
+
+
 def read_val(val_data: bytes, off: int, tid: int, length: int):
     # LSF attribute type IDs as defined in the Larian LSLib source.
     try:
-        if tid in (20, 21, 22, 23, 29, 30):  # String/WString/LSString/LSWString/Path/FixedString
+        if tid in STRING_TIDS:
             return val_data[off:off + length - 1].decode('utf-8', 'replace').rstrip('\x00')
         if tid == 28:  # TranslatedString: 2-byte version + 4-byte string length prefix
-            hlen = struct.unpack_from('<i', val_data, off + 2)[0]
+            hlen = S_I.unpack_from(val_data, off + 2)[0]
             return val_data[off + 6:off + 6 + hlen - 1].decode('utf-8', 'replace').rstrip('\x00')
-        if tid == 31:  # guid (16-byte fully little-endian UUID — swap all byte pairs)
-            b = bytearray(val_data[off:off + 16])
-            b[8], b[9] = b[9], b[8]
-            b[10], b[11] = b[11], b[10]
-            b[12], b[13] = b[13], b[12]
-            b[14], b[15] = b[15], b[14]
-            return str(UUID(bytes_le=bytes(b)))
+        if tid == 31:  # guid (16-byte fully little-endian UUID)
+            return guid_le_str(val_data[off:off + 16])
         if tid == 1:   # uint8
             return val_data[off]
         if tid == 2:   # uint16
-            return struct.unpack_from('<H', val_data, off)[0]
+            return S_U16.unpack_from(val_data, off)[0]
         if tid == 3:   # int16
-            return struct.unpack_from('<h', val_data, off)[0]
+            return S_I16.unpack_from(val_data, off)[0]
         if tid == 4:   # int32
-            return struct.unpack_from('<i', val_data, off)[0]
+            return S_I.unpack_from(val_data, off)[0]
         if tid == 5:   # uint32
-            return struct.unpack_from('<I', val_data, off)[0]
+            return S_U32.unpack_from(val_data, off)[0]
         if tid == 6:   # float
-            return struct.unpack_from('<f', val_data, off)[0]
+            return S_F32.unpack_from(val_data, off)[0]
         if tid == 19:  # bool
             return bool(val_data[off])
         if tid in (26, 32):  # int64, int64_2 (alias used in some versions)
-            return struct.unpack_from('<q', val_data, off)[0]
+            return S_I64.unpack_from(val_data, off)[0]
         if tid == 24:  # uint64
-            return struct.unpack_from('<Q', val_data, off)[0]
+            return S_U64.unpack_from(val_data, off)[0]
         if tid == 12:  # vec3 (three packed floats: x, y, z world position)
-            return struct.unpack_from('<fff', val_data, off)
+            return S_VEC3.unpack_from(val_data, off)
         if tid == 25:  # ScratchBuffer (opaque byte blob, e.g. LSMF ECS data)
             return val_data[off:off + length]
         return None
@@ -242,28 +262,30 @@ def parse_lsof(data: bytes) -> list[dict]:
     node_size = 16 if has_keys else 12
     num_nodes = len(nod_data) // node_size
 
-    nodes: list[Node] = []
-    for i in range(num_nodes):
-        base = i * node_size
-        nh = struct.unpack_from('<I', nod_data, base)[0]
-        par = struct.unpack_from('<i', nod_data, base + 8)[0]
-        nodes.append({'name': lkp(names, nh), 'parent': par, 'children': [], 'attrs': {}})
+    # Node entries: name-handle (u32), first-attr (u32), parent (i32)
+    # [, keys (u32) when V3].  Only the trailing whole entries are parsed.
+    node_struct = struct.Struct('<I4xi4x' if has_keys else '<I4xi')
+    nodes: list[Node] = [
+        {'name': lkp(names, nh), 'parent': par, 'children': [], 'attrs': {}}
+        for nh, par in node_struct.iter_unpack(nod_data[:num_nodes * node_size])
+    ]
 
     for i, nd in enumerate(nodes):
         if 0 <= nd['parent'] < num_nodes:
             nodes[nd['parent']]['children'].append(i)
 
+    # Attribute entries: name-handle (u32), type-and-length (u32), node (i32).
+    # Attribute names repeat heavily, so the handle→name lookup is memoized.
+    name_cache: dict[int, str] = {}
     data_off = 0
-    for i in range(len(att_data) // 12):
-        base = i * 12
-        nh = struct.unpack_from('<I', att_data, base)[0]
-        tl = struct.unpack_from('<I', att_data, base + 4)[0]
-        ni = struct.unpack_from('<i', att_data, base + 8)[0]
+    for nh, tl, ni in struct.Struct('<IIi').iter_unpack(att_data[:len(att_data) // 12 * 12]):
         tid = tl & 0x3F
         length = tl >> 6
-        aname = lkp(names, nh)
         val = read_val(val_data, data_off, tid, length)
         if val is not None and ni < num_nodes:
+            aname = name_cache.get(nh)
+            if aname is None:
+                aname = name_cache[nh] = lkp(names, nh)
             nodes[ni]['attrs'][aname] = val
         data_off += length
 
@@ -1451,12 +1473,7 @@ def parse_lsmf_membership(
         guid_to_rows: dict[str, list[int]] = {}
         for i in range(eid_rows):
             off = eid_off + i * 16
-            b = bytearray(blob[off:off + 16])
-            b[8], b[9] = b[9], b[8]
-            b[10], b[11] = b[11], b[10]
-            b[12], b[13] = b[13], b[12]
-            b[14], b[15] = b[15], b[14]
-            g = str(UUID(bytes_le=bytes(b)))
+            g = guid_le_str(blob[off:off + 16])
             guid_to_rows.setdefault(g, []).append(i)
 
         # Ownerlist region: each 32-byte record is {start, end, comp_idx, entity_count}.
