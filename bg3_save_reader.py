@@ -1012,6 +1012,7 @@ CLASS_MAIN_TO_KEY = {
 def extract_spells_by_character(
     lsmf_blob: bytes,
     party_info: list[dict],
+    player_name: str = 'Player',
 ) -> dict[str, list[str]]:
     """
     Extract spells from the LSMF blob and attribute them to party members
@@ -1035,7 +1036,7 @@ def extract_spells_by_character(
     char_class_map: dict[str, str] = {}
     for char_info in party_info:
         origin = char_info.get('Origin', 'Generic')
-        display_name = origin if origin != 'Generic' else 'Maia (player)'
+        display_name = origin if origin != 'Generic' else player_name
         classes = char_info.get('Classes', [])
         if classes:
             main_class = classes[0].get('Main', '')
@@ -1059,8 +1060,9 @@ def extract_spells_by_character(
 # Character extraction from Globals (frame 0)
 # ---------------------------------------------------------------------------
 
+PLAYER_CHAR_TEMPLATE = 'f08563b3-748d-4783-7b83-62b8c60b220b'
+
 PARTY_ORIGINS = {
-    'f08563b3-748d-4783-7b83-62b8c60b220b': 'Maia (player)',
     'c774d764-4a17-48dc-70b4-ac32cee97d44': 'Wyll',
     '2c76687d-93a2-477b-188b-148a49b54c30': 'Karlach',
     '3ed74f06-3c60-42dc-f683-34f047cb79c6': 'Shadowheart',
@@ -1069,7 +1071,7 @@ PARTY_ORIGINS = {
 NULL_UUID = '00000000-0000-0000-0000-000000000000'
 
 
-def find_party_character_nodes(nodes: list[dict]) -> dict[str, int]:
+def find_party_character_nodes(nodes: list[dict], player_name: str = 'Player') -> dict[str, int]:
     chars_root = next(
         (i for i, nd in enumerate(nodes) if nd['name'] == 'Characters' and nd['parent'] == -1),
         None,
@@ -1082,7 +1084,9 @@ def find_party_character_nodes(nodes: list[dict]) -> dict[str, int]:
     def walk(ni: int):
         nd = nodes[ni]
         tmpl = nd['attrs'].get('CurrentTemplate', '')
-        if tmpl in PARTY_ORIGINS:
+        if tmpl == PLAYER_CHAR_TEMPLATE:
+            found[player_name] = ni
+        elif tmpl in PARTY_ORIGINS:
             found[PARTY_ORIGINS[tmpl]] = ni
         for ci in nd['children']:
             walk(ci)
@@ -2010,14 +2014,17 @@ def build_report(save_path: str, frames: list[bytes] | None = None, opts=None) -
     info = parse_info_json(frames)
     party_info = info.get('Active Party', {}).get('Characters', [])
 
-    # ---- MetaData (frame 6) — only when --save-info requested -------------
+    # ---- MetaData (frame 6) -----------------------------------------------
+    meta = parse_metadata(frames)
+    leader_name = meta.get('leader_name') or ''
+    player_display_name = f'{leader_name} (player)' if leader_name else 'Player'
+
     if opt('save-info'):
         save_name = info.get('Save Name', '?')
         game_ver  = info.get('Game Version', '?')
         cur_level = info.get('Current Level', '?')
         difficulty = ', '.join(info.get('Difficulty', []))
 
-        meta = parse_metadata(frames)
         save_time_str = '?'
         if meta.get('save_time') is not None:
             try:
@@ -2057,7 +2064,7 @@ def build_report(save_path: str, frames: list[bytes] | None = None, opts=None) -
     frame0_data = decomp_frame(frames[0])
     nodes0 = parse_lsof(frame0_data)
 
-    party_nodes = find_party_character_nodes(nodes0)
+    party_nodes = find_party_character_nodes(nodes0, player_display_name)
     entity_to_template0 = build_entity_template_map(nodes0, 'Items')
     template_to_stats0 = build_template_stats_map(nodes0)
     char_positions = collect_character_positions(nodes0, party_nodes)
@@ -2074,7 +2081,7 @@ def build_report(save_path: str, frames: list[bytes] | None = None, opts=None) -
     # Extract spells from LSMF
     spell_map: dict[str, list[str]] = {}
     if lsmf_blob:
-        spell_map = extract_spells_by_character(lsmf_blob, party_info)
+        spell_map = extract_spells_by_character(lsmf_blob, party_info, player_display_name)
 
     # Parse LSMF once; also build the reverse map used by ecs_resolve_equipped
     lsmf_ecs = parse_lsmf_membership(lsmf_blob) if lsmf_blob else None
@@ -2144,7 +2151,7 @@ def build_report(save_path: str, frames: list[bytes] | None = None, opts=None) -
         xp        = char_info.get('Experience Points (Total)', None)
         subregion = char_info.get('Subregion', '')
 
-        display_name = origin if origin != 'Generic' else 'Maia (player)'
+        display_name = origin if origin != 'Generic' else player_display_name
         cls_str = '; '.join(fmt_class(c) for c in classes) if classes else '?'
 
         w('')
