@@ -518,6 +518,56 @@ class TestResolveSlotConflicts:
         assert ('ARM_Item2', 'g2') in kept_flags
         assert ('ARM_Item1', 'g1') in demoted
 
+    def test_twohanded_weapon_demotes_ecs_offhand(self):
+        # MAG_Colossal_Greatsword scenario: Karlach has a 2-handed flags weapon in
+        # Melee Main Weapon; ECS-promoted shield in Melee Offhand Weapon is demoted.
+        flags_eq = [('MAG_Greatsword', 'g_sword')]
+        ecs_eq = [('MAG_Shield', 'g_shield')]
+        stats_to_slot = {
+            'MAG_Greatsword': 'Melee Main Weapon',
+            'MAG_Shield': 'Melee Offhand Weapon',
+        }
+        two_handed_stats = frozenset(['MAG_Greatsword'])
+        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+            flags_eq, ecs_eq, stats_to_slot, {}, {}, {},
+            two_handed_stats=two_handed_stats,
+        )
+        assert ('MAG_Greatsword', 'g_sword') in kept_flags
+        assert ('MAG_Shield', 'g_shield') in demoted
+        assert ('MAG_Shield', 'g_shield') not in kept_ecs
+
+    def test_onehanded_weapon_preserves_offhand(self):
+        # A one-handed weapon should not affect the offhand slot.
+        flags_eq = [('WPN_Longsword', 'g_sword')]
+        ecs_eq = [('ARM_Shield', 'g_shield')]
+        stats_to_slot = {
+            'WPN_Longsword': 'Melee Main Weapon',
+            'ARM_Shield': 'Melee Offhand Weapon',
+        }
+        two_handed_stats = frozenset(['WPN_Greatsword'])  # longsword not in here
+        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+            flags_eq, ecs_eq, stats_to_slot, {}, {}, {},
+            two_handed_stats=two_handed_stats,
+        )
+        assert ('WPN_Longsword', 'g_sword') in kept_flags
+        assert ('ARM_Shield', 'g_shield') in kept_ecs
+        assert demoted == []
+
+    def test_twohanded_none_preserves_offhand(self):
+        # With two_handed_stats=None, no 2-handed constraint is applied.
+        flags_eq = [('WPN_Greatsword', 'g_sword')]
+        ecs_eq = [('ARM_Shield', 'g_shield')]
+        stats_to_slot = {
+            'WPN_Greatsword': 'Melee Main Weapon',
+            'ARM_Shield': 'Melee Offhand Weapon',
+        }
+        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+            flags_eq, ecs_eq, stats_to_slot, {}, {}, {},
+            two_handed_stats=None,
+        )
+        assert ('ARM_Shield', 'g_shield') in kept_ecs
+        assert demoted == []
+
 
 # ---------------------------------------------------------------------------
 # Unit tests for build_instance_entity_map

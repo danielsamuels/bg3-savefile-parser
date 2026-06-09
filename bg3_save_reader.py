@@ -1774,6 +1774,7 @@ def resolve_slot_conflicts(
     guid_to_rows: dict[str, list[int]],
     membership_count: dict[int, int],
     owned_as_loot_rows: frozenset[int] | None = None,
+    two_handed_stats: frozenset[str] | None = None,
 ) -> tuple[list[tuple], list[tuple], list[tuple]]:
     """Resolve cases where more items are signalled for a slot than it can hold.
 
@@ -1782,6 +1783,9 @@ def resolve_slot_conflicts(
     game.v0.OwnedAsLootComponent wins (stale eq-bits lack this component);
     ties are broken by per-instance membership count (higher MC wins).
     Ring slot has capacity 2; all others capacity 1.
+
+    If a 2-handed weapon is flags-equipped in "Melee Main Weapon", all
+    ECS-only items in "Melee Offhand Weapon" are demoted (can't dual-wield).
 
     Returns (kept_flags_equipped, kept_ecs_equipped, demoted_to_carried).
     """
@@ -1845,6 +1849,21 @@ def resolve_slot_conflicts(
             kept_ecs.extend(winners)
             demoted.extend(sg for sg in ecs_cands if sg not in winners)
 
+    # 2-handed weapon in Melee Main Weapon blocks the offhand slot entirely.
+    if two_handed_stats:
+        main_has_twohanded = any(
+            s in two_handed_stats for s, _ in kept_flags
+            if stats_to_slot.get(s) == 'Melee Main Weapon'
+        )
+        if main_has_twohanded:
+            still_kept: list[tuple] = []
+            for s, g in kept_ecs:
+                if stats_to_slot.get(s) == 'Melee Offhand Weapon':
+                    demoted.append((s, g))
+                else:
+                    still_kept.append((s, g))
+            kept_ecs = still_kept
+
     return kept_flags, kept_ecs, demoted
 
 
@@ -1889,7 +1908,7 @@ STAT_ITEM_PAKS = ['Shared.pak', 'Gustav.pak', 'GustavX.pak']
 STAT_ITEM_FILE_RE = re.compile(r'/Stats/Generated/Data/(?:Armor|Weapon|Object)\.txt$')
 
 # Bump when the resolver logic changes so a stale cache is not silently reused.
-DISPLAYNAME_SCHEMA_VERSION = 4
+DISPLAYNAME_SCHEMA_VERSION = 5
 
 
 def find_game_data_dir() -> str | None:
@@ -2014,6 +2033,7 @@ def build_displayname_maps(
             data.get('spells', {}),
             frozenset(data.get('object_types', [])),
             data.get('stats_slots', {}),
+            frozenset(data.get('two_handed', [])),
         )
     except (OSError, ValueError, KeyError):
         pass
@@ -2107,16 +2127,18 @@ def build_displayname_maps(
                     start = bm.end()
                     nb = re.search(r'^new entry', text[start:], re.MULTILINE)
                     block = text[start: start + (nb.start() if nb else len(text))]
-                    type_m  = re.search(r'^type "([^"]+)"',       block, re.MULTILINE)
-                    using_m = re.search(r'^using "([^"]+)"',       block, re.MULTILINE)
-                    slot_m  = re.search(r'^data "Slot" "([^"]+)"', block, re.MULTILINE)
+                    type_m  = re.search(r'^type "([^"]+)"',                  block, re.MULTILINE)
+                    using_m = re.search(r'^using "([^"]+)"',                  block, re.MULTILINE)
+                    slot_m  = re.search(r'^data "Slot" "([^"]+)"',            block, re.MULTILINE)
+                    wp_m    = re.search(r'^data "Weapon Properties" "([^"]+)"', block, re.MULTILINE)
                     new_using = using_m.group(1) if using_m else None
                     prev = stat_raw.get(name)
                     if prev is None:
                         stat_raw[name] = {
-                            'type':  type_m.group(1) if type_m else None,
-                            'using': new_using,
-                            'slot':  slot_m.group(1) if slot_m else None,
+                            'type':        type_m.group(1) if type_m else None,
+                            'using':       new_using,
+                            'slot':        slot_m.group(1) if slot_m else None,
+                            'weapon_props': wp_m.group(1) if wp_m else None,
                         }
                     else:
                         # Honour-mode patches use `using "SameName"` for value-only
@@ -2127,6 +2149,8 @@ def build_displayname_maps(
                             prev['type'] = type_m.group(1)
                         if slot_m:
                             prev['slot'] = slot_m.group(1)
+                        if wp_m:
+                            prev['weapon_props'] = wp_m.group(1)
         except (OSError, KeyError, ValueError):
             pass
 
@@ -2151,6 +2175,24 @@ def build_displayname_maps(
         if s:
             stats_to_slot[name] = s
 
+    def resolve_weapon_props(name: str, depth: int = 0) -> str | None:
+        if depth > 24:
+            return None
+        entry = stat_raw.get(name)
+        if not entry:
+            return None
+        if entry.get('weapon_props'):
+            return entry['weapon_props']
+        parent = entry.get('using')
+        if parent and parent != name:
+            return resolve_weapon_props(parent, depth + 1)
+        return None
+
+    two_handed_stats_list = [
+        n for n in stat_raw
+        if 'Twohanded' in (resolve_weapon_props(n) or '')
+    ]
+
     try:
         with open(cache, 'w', encoding='utf-8') as fh:
             json.dump({
@@ -2159,10 +2201,15 @@ def build_displayname_maps(
                 'spells': spell_name,
                 'object_types': object_type_stats_list,
                 'stats_slots': stats_to_slot,
+                'two_handed': two_handed_stats_list,
             }, fh)
     except OSError:
         pass
-    return guid_name, stats_name, spell_name, frozenset(object_type_stats_list), stats_to_slot
+    return (
+        guid_name, stats_name, spell_name,
+        frozenset(object_type_stats_list), stats_to_slot,
+        frozenset(two_handed_stats_list),
+    )
 
 
 class DisplayNames:
@@ -2175,12 +2222,14 @@ class DisplayNames:
         spell_name:        dict[str, str]   | None = None,
         object_type_stats: frozenset[str]   | None = None,
         stats_to_slot:     dict[str, str]   | None = None,
+        two_handed_stats:  frozenset[str]   | None = None,
     ):
         self._guid   = guid_name
         self._stats  = stats_name
         self._spells = spell_name or {}
         self.object_type_stats: frozenset[str] = object_type_stats or frozenset()
         self.stats_to_slot:     dict[str, str] = stats_to_slot     or {}
+        self.two_handed_stats:  frozenset[str] = two_handed_stats  or frozenset()
         self.verbose = False  # set to True to append (INTERNAL_NAME) after display names
 
     @classmethod
@@ -2453,6 +2502,7 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
                     dn.stats_to_slot, char_stats_to_entity,
                     guid_to_rows, membership_count,
                     owned_as_loot_rows=lsmf_owned_loot,
+                    two_handed_stats=dn.two_handed_stats or None,
                 )
                 carried = sorted(set(carried) | set(demoted))
 
