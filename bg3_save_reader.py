@@ -75,9 +75,6 @@ class Node(TypedDict):
 # LSPK / LSOF low-level helpers
 # ---------------------------------------------------------------------------
 
-ZSTD_MAGIC = b'\x28\xb5\x2f\xfd'
-
-
 def extract_frames(path: str) -> dict[str, bytes]:
     """Read a .lsv save file and return its named frames.
 
@@ -91,38 +88,11 @@ def extract_frames(path: str) -> dict[str, bytes]:
     """
     with open(path, 'rb') as fh:
         data = fh.read()
-
-    if data[:4] == b'LSPK':
-        flist = lspk_filelist(io.BytesIO(data))
-        sorted_entries = sorted(flist.items(), key=lambda kv: kv[1][0])
-        raw_frames = [data[off:off + sod] for _, (off, _p, _f, sod, _u) in sorted_entries]
-        names = [n for n, _ in sorted_entries]
-        return normalize_named_frames(raw_frames, names)
-
-    # Fallback for non-LSPK files: scan for ZSTD magic bytes then assign
-    # slots by canonical position.  Should not occur for standard .lsv saves.
-    scanned: list[bytes] = []
-    pos = 0
-    while pos < len(data):
-        idx = data.find(ZSTD_MAGIC, pos)
-        if idx == -1:
-            break
-        nxt = data.find(ZSTD_MAGIC, idx + 4)
-        if nxt == -1:
-            scanned.append(data[idx:])
-            break
-        scanned.append(data[idx:nxt])
-        pos = nxt
-    slots = normalize_frames(scanned)
-    result: dict[str, bytes] = {}
-    for slot, key in ((0, 'Globals.lsf'), (6, 'meta.lsf'), (7, 'thumbnail'),
-                      (8, 'SaveInfo.json'), (9, 'StorySave.bin')):
-        if slot < len(slots) and slots[slot]:
-            result[key] = slots[slot]
-    for i, slot in enumerate((2, 3, 4, 5)):
-        if slot < len(slots) and slots[slot]:
-            result[f'LevelCache/scene_{i}'] = slots[slot]
-    return result
+    flist = lspk_filelist(io.BytesIO(data))
+    sorted_entries = sorted(flist.items(), key=lambda kv: kv[1][0])
+    raw_frames = [data[off:off + sod] for _, (off, _p, _f, sod, _u) in sorted_entries]
+    names = [n for n, _ in sorted_entries]
+    return normalize_named_frames(raw_frames, names)
 
 
 def normalize_named_frames(raw_frames: list[bytes], names: list[str]) -> dict[str, bytes]:
@@ -139,50 +109,6 @@ def normalize_named_frames(raw_frames: list[bytes], names: list[str]) -> dict[st
         else:
             result[name] = frame
     return result
-
-
-def normalize_frames(frames: list[bytes]) -> list[bytes]:
-    """Fallback reordering for saves not loaded via the LSPK manifest.
-
-    Used only when extract_frames falls back to the ZSTD magic scan (i.e.
-    the file is not an LSPK container, which should not happen for .lsv saves).
-
-    Some saves store fewer files in the archive, and the thumbnail (a RIFF/WebP
-    file) may appear first (AutoSaves) or last (manual saves) depending on write
-    order.  Both layouts are remapped to a canonical 10-slot list so the
-    caller's slot-to-name conversion produces the correct keys.
-    """
-    if len(frames) != 7:
-        return frames
-    raw0 = zstd.ZstdDecompressor().decompress(frames[0])
-    sig0 = raw0[:4]
-    if sig0 == b'RIFF':
-        return [
-            frames[1],  # 0: globals
-            b'',        # 1: unused
-            frames[2],  # 2: lsof
-            frames[3],  # 3: level cache
-            b'',        # 4: unused
-            b'',        # 5: unused
-            frames[4],  # 6: metadata
-            frames[0],  # 7: thumbnail
-            frames[5],  # 8: info_json
-            frames[6],  # 9: osiris
-        ]
-    if sig0 == b'LSOF':
-        return [
-            frames[0],  # 0: globals
-            b'',        # 1: unused
-            frames[1],  # 2: lsof
-            frames[2],  # 3: level cache
-            b'',        # 4: unused
-            b'',        # 5: unused
-            frames[3],  # 6: metadata
-            frames[6],  # 7: thumbnail
-            frames[4],  # 8: info_json
-            frames[5],  # 9: osiris
-        ]
-    return frames
 
 
 def decomp_frame(raw: bytes) -> bytes:
