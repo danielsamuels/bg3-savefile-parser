@@ -1022,26 +1022,20 @@ def split_spell_string(packed: str) -> list[str]:
     return result
 
 
+ASCII_RUN_RE = re.compile(rb'[ -~]{30,}')
+
+
 def extract_spell_strings_from_lsmf(blob: bytes) -> list[str]:
     """
     Find all significant packed spell-ID strings in the LSMF blob.
     Returns the list of all non-trivial ASCII runs that contain spell IDs.
     """
-    # Find runs of printable ASCII that contain spell-ID prefixes
-    all_strings = []
-    pos = 0
-    while pos < len(blob):
-        start = pos
-        while pos < len(blob) and 32 <= blob[pos] < 127:
-            pos += 1
-        run_len = pos - start
-        if run_len >= 30:
-            s = blob[start:pos].decode('ascii', 'replace')
-            # Only keep strings that look like they contain spell IDs
-            if any(p in s for p in SPELL_PREFIXES):
-                all_strings.append(s)
-        pos += 1
-    return all_strings
+    prefixes = tuple(p.encode() for p in SPELL_PREFIXES)
+    return [
+        m.group().decode('ascii')
+        for m in ASCII_RUN_RE.finditer(blob)
+        if any(p in m.group() for p in prefixes)
+    ]
 
 
 CLASS_MAIN_TO_KEY = {
