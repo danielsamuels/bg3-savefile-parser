@@ -485,6 +485,39 @@ class TestResolveSlotConflicts:
         assert ('UNK_Item2', 'g2') in kept_ecs
         assert demoted == []
 
+    def test_owned_loot_tiebreaks_flags_conflict(self):
+        # Two Flags items claim the same slot; the one in OwnedAsLootComponent wins
+        # even when it has lower MC (the real save-246 / Hellrider's Pride scenario).
+        flags_eq = [('DEN_HellridersPride', 'g_stale'), ('MAG_Thunder_Gloves', 'g_real')]
+        ecs_eq: list = []
+        stats_to_slot = {'DEN_HellridersPride': 'Gloves', 'MAG_Thunder_Gloves': 'Gloves'}
+        stats_to_entity = {'DEN_HellridersPride': 'e_stale', 'MAG_Thunder_Gloves': 'e_real'}
+        guid_to_rows = {'e_stale': [10], 'e_real': [20]}
+        membership_count = {10: 37, 20: 35}  # stale has higher MC
+        # Only e_real (row 20) is in OwnedAsLootComponent
+        owned_as_loot_rows = frozenset([20])
+        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+            flags_eq, ecs_eq, stats_to_slot, stats_to_entity, guid_to_rows, membership_count,
+            owned_as_loot_rows=owned_as_loot_rows,
+        )
+        assert ('MAG_Thunder_Gloves', 'g_real') in kept_flags
+        assert ('DEN_HellridersPride', 'g_stale') in demoted
+
+    def test_owned_loot_absent_falls_back_to_mc(self):
+        # When owned_as_loot_rows is None, falls back to MC tiebreaker.
+        flags_eq = [('ARM_Item1', 'g1'), ('ARM_Item2', 'g2')]
+        ecs_eq: list = []
+        stats_to_slot = {'ARM_Item1': 'Chest', 'ARM_Item2': 'Chest'}
+        stats_to_entity = {'ARM_Item1': 'e1', 'ARM_Item2': 'e2'}
+        guid_to_rows = {'e1': [1], 'e2': [2]}
+        membership_count = {1: 38, 2: 42}  # e2 has higher MC
+        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+            flags_eq, ecs_eq, stats_to_slot, stats_to_entity, guid_to_rows, membership_count,
+            owned_as_loot_rows=None,
+        )
+        assert ('ARM_Item2', 'g2') in kept_flags
+        assert ('ARM_Item1', 'g1') in demoted
+
 
 # ---------------------------------------------------------------------------
 # Unit tests for build_instance_entity_map

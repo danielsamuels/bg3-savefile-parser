@@ -1518,6 +1518,96 @@ def parse_lsmf_membership(
         return None
 
 
+OWNED_AS_LOOT_COMP = 'game.v0.OwnedAsLootComponent'
+
+
+def parse_lsmf_owned_loot_rows(blob: bytes) -> frozenset[int]:
+    """Return ECS row indices present in game.v0.OwnedAsLootComponent.
+
+    Items in this component are actively owned as inventory loot by a character;
+    items with a stale Flags eq-bit but no longer equipped are absent from it.
+    Returns an empty frozenset on any parse failure or if the component is absent.
+    """
+    BLOB_HDR_BASE = 48
+    try:
+        L = len(blob)
+        _, dir_off, names_size = struct.unpack_from('<QQQ', blob, 8)
+        names_off = dir_off + BLOB_HDR_BASE
+        desc_table_rel = struct.unpack_from('<I', blob, 32)[0]
+        entry_count = struct.unpack_from('<H', blob, 36)[0]
+        if not (0 < names_off < L and 0 < entry_count < 2000):
+            return frozenset()
+        names_sec = blob[names_off:names_off + names_size]
+        desc_base = names_off + desc_table_rel
+
+        target_comp_idx: int | None = None
+        rows_by_comp: dict[int, int] = {}
+        for i in range(entry_count):
+            base = desc_base + i * 48
+            if base + 48 > L:
+                break
+            name_off, name_len, _ = struct.unpack_from('<QQQ', blob, base)
+            row_count, _ = struct.unpack_from('<QQ', blob, base + 32)
+            rows_by_comp[i] = row_count
+            if 0 < name_len < 200:
+                name = names_sec[name_off:name_off + name_len].decode('utf-8', 'replace')
+                if name == OWNED_AS_LOOT_COMP:
+                    target_comp_idx = i
+
+        if target_comp_idx is None:
+            return frozenset()
+
+        def _valid_ol(p: int):
+            if p + 32 > L:
+                return None
+            start, end, comp, ec = struct.unpack_from('<QQQQ', blob, p)
+            if (comp < entry_count and ec > 0 and rows_by_comp.get(comp, -1) == ec
+                    and end > start and (end - start) == ec * 4
+                    and end <= L and start < L):
+                return start, ec, comp
+            return None
+
+        valid_pos: list[int] = []
+        p = 0
+        while p + 32 <= L:
+            if _valid_ol(p) is not None:
+                valid_pos.append(p)
+            p += 4
+
+        anchor, best_count = 0, 0
+        for vi in range(len(valid_pos)):
+            count, last = 1, valid_pos[vi]
+            for vj in range(vi + 1, len(valid_pos)):
+                d = valid_pos[vj] - last
+                if d % 32 == 0 and d <= 32 * 40:
+                    count += 1
+                    last = valid_pos[vj]
+                elif d > 32 * 40:
+                    break
+            if count > best_count:
+                anchor, best_count = valid_pos[vi], count
+
+        result: set[int] = set()
+        if best_count > 0:
+            p, misses = anchor, 0
+            while p + 32 <= L and misses < 4:
+                rec = _valid_ol(p)
+                if rec is not None:
+                    start, ec, comp_idx = rec
+                    if comp_idx == target_comp_idx:
+                        result.update(struct.unpack_from(f'<{ec}I', blob, start))
+                    misses = 0
+                else:
+                    _, _, comp, _ = struct.unpack_from('<QQQQ', blob, p)
+                    misses = 0 if comp == 0xFFFFFFFFFFFFFFFF else misses + 1
+                p += 32
+
+        return frozenset(result)
+
+    except Exception:
+        return frozenset()
+
+
 def invert_entity_template_map(
     entity_to_template: dict[str, str],
 ) -> dict[str, list[str]]:
@@ -1586,12 +1676,14 @@ def resolve_slot_conflicts(
     stats_to_entity: dict[str, str],
     guid_to_rows: dict[str, list[int]],
     membership_count: dict[int, int],
+    owned_as_loot_rows: frozenset[int] | None = None,
 ) -> tuple[list[tuple], list[tuple], list[tuple]]:
     """Resolve cases where more items are signalled for a slot than it can hold.
 
     Priority: Flags-signalled items beat ECS-only items for the same slot.
-    Ties within a signal type are broken by per-instance membership count
-    (higher MC = more likely the physically worn item).
+    When multiple Flags items compete for the same slot, the item present in
+    game.v0.OwnedAsLootComponent wins (stale eq-bits lack this component);
+    ties are broken by per-instance membership count (higher MC wins).
     Ring slot has capacity 2; all others capacity 1.
 
     Returns (kept_flags_equipped, kept_ecs_equipped, demoted_to_carried).
@@ -1601,6 +1693,14 @@ def resolve_slot_conflicts(
         if not eg:
             return 0
         return max((membership_count.get(r, 0) for r in guid_to_rows.get(eg, [])), default=0)
+
+    def in_owned_loot(stats: str) -> bool:
+        if not owned_as_loot_rows:
+            return False
+        eg = stats_to_entity.get(stats, '')
+        if not eg:
+            return False
+        return any(r in owned_as_loot_rows for r in guid_to_rows.get(eg, []))
 
     slot_candidates: dict[str, list[tuple]] = {}
     no_slot_flags: list[tuple] = []
@@ -1637,7 +1737,10 @@ def resolve_slot_conflicts(
             demoted.extend(sg for sg in flags_cands if sg not in winners)
             demoted.extend(ecs_cands)
         elif flags_cands:
-            winners = sorted(flags_cands, key=lambda sg: -get_mc(sg[0]))[:capacity]
+            winners = sorted(
+                flags_cands,
+                key=lambda sg: (0 if in_owned_loot(sg[0]) else 1, -get_mc(sg[0])),
+            )[:capacity]
             kept_flags.extend(winners)
             demoted.extend(sg for sg in flags_cands if sg not in winners)
         else:
@@ -2119,6 +2222,7 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
 
     # Parse LSMF once; also build the reverse map used by ecs_resolve_equipped
     lsmf_ecs = parse_lsmf_membership(lsmf_blob) if lsmf_blob else None
+    lsmf_owned_loot = parse_lsmf_owned_loot_rows(lsmf_blob) if lsmf_blob else None
     template_to_instances = invert_entity_template_map(entity_to_template0)
     instance_entity_map = build_instance_entity_map(nodes0)
 
@@ -2249,6 +2353,7 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
                     flags_equipped, ecs_eq,
                     dn.stats_to_slot, char_stats_to_entity,
                     guid_to_rows, membership_count,
+                    owned_as_loot_rows=lsmf_owned_loot,
                 )
                 carried = sorted(set(carried) | set(demoted))
 
