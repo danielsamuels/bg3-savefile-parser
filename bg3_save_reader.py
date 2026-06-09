@@ -1518,17 +1518,20 @@ def parse_lsmf_membership(
         return None
 
 
+# Items owned as inventory loot by a character. Direction relative to "worn"
+# varies by save: a genuinely equipped item may be present (save 246 gloves)
+# or absent (save 286 weapons), so this is only a weak tiebreaker.
 OWNED_AS_LOOT_COMP = 'game.v0.OwnedAsLootComponent'
+# Items that are (or were) in a weapon slot. For Flags-equipped items this
+# supports genuineness; for ECS-promoted items it marks a stale leftover.
 WIELDED_COMP = 'game.inventory.v0.WieldedComponent'
+# Physics disabled because the item is attached to a character in the world
+# (worn/held visual), absent on items sitting inside an inventory.
+GRAVITY_DISABLED_COMP = 'game.gravity.v0.GravityDisabledComponent'
 
 
-def parse_lsmf_owned_loot_rows(blob: bytes) -> frozenset[int]:
-    """Return ECS row indices present in game.v0.OwnedAsLootComponent.
-
-    Items in this component are actively owned as inventory loot by a character;
-    items with a stale Flags eq-bit but no longer equipped are absent from it.
-    Returns an empty frozenset on any parse failure or if the component is absent.
-    """
+def get_entity_components(blob: bytes, entity_rows: list[int]) -> list[str]:
+    """Return names of every LSMF component the given entity rows belong to."""
     BLOB_HDR_BASE = 48
     try:
         L = len(blob)
@@ -1537,11 +1540,11 @@ def parse_lsmf_owned_loot_rows(blob: bytes) -> frozenset[int]:
         desc_table_rel = struct.unpack_from('<I', blob, 32)[0]
         entry_count = struct.unpack_from('<H', blob, 36)[0]
         if not (0 < names_off < L and 0 < entry_count < 2000):
-            return frozenset()
+            return []
         names_sec = blob[names_off:names_off + names_size]
         desc_base = names_off + desc_table_rel
 
-        target_comp_idx: int | None = None
+        comp_names: dict[int, str] = {}
         rows_by_comp: dict[int, int] = {}
         for i in range(entry_count):
             base = desc_base + i * 48
@@ -1551,12 +1554,7 @@ def parse_lsmf_owned_loot_rows(blob: bytes) -> frozenset[int]:
             row_count, _ = struct.unpack_from('<QQ', blob, base + 32)
             rows_by_comp[i] = row_count
             if 0 < name_len < 200:
-                name = names_sec[name_off:name_off + name_len].decode('utf-8', 'replace')
-                if name == OWNED_AS_LOOT_COMP:
-                    target_comp_idx = i
-
-        if target_comp_idx is None:
-            return frozenset()
+                comp_names[i] = names_sec[name_off:name_off + name_len].decode('utf-8', 'replace')
 
         def _valid_ol(p: int):
             if p + 32 > L:
@@ -1568,7 +1566,7 @@ def parse_lsmf_owned_loot_rows(blob: bytes) -> frozenset[int]:
                 return start, ec, comp
             return None
 
-        valid_pos: list[int] = []
+        valid_pos = []
         p = 0
         while p + 32 <= L:
             if _valid_ol(p) is not None:
@@ -1588,36 +1586,39 @@ def parse_lsmf_owned_loot_rows(blob: bytes) -> frozenset[int]:
             if count > best_count:
                 anchor, best_count = valid_pos[vi], count
 
-        result: set[int] = set()
+        row_set = set(entity_rows)
+        matched: list[str] = []
         if best_count > 0:
             p, misses = anchor, 0
             while p + 32 <= L and misses < 4:
                 rec = _valid_ol(p)
                 if rec is not None:
-                    start, ec, comp_idx = rec
-                    if comp_idx == target_comp_idx:
-                        result.update(struct.unpack_from(f'<{ec}I', blob, start))
+                    start, ec, comp = rec
+                    members = set(struct.unpack_from(f'<{ec}I', blob, start))
+                    if row_set & members:
+                        matched.append(comp_names.get(comp, f'comp_{comp}'))
                     misses = 0
                 else:
-                    _, _, comp, _ = struct.unpack_from('<QQQQ', blob, p)
-                    misses = 0 if comp == 0xFFFFFFFFFFFFFFFF else misses + 1
+                    _, _, comp2, _ = struct.unpack_from('<QQQQ', blob, p)
+                    misses = 0 if comp2 == 0xFFFFFFFFFFFFFFFF else misses + 1
                 p += 32
-
-        return frozenset(result)
-
+        return matched
     except Exception:
-        return frozenset()
+        return []
 
 
-def parse_lsmf_wielded_rows(blob: bytes) -> frozenset[int]:
-    """Return ECS row indices present in game.inventory.v0.WieldedComponent.
+def parse_lsmf_component_rows(
+    blob: bytes,
+    comp_names: tuple[str, ...],
+) -> dict[str, frozenset[int]]:
+    """Return ECS row indices for each named LSMF component, in a single scan.
 
-    Items in this component were placed in a weapon/equipment slot at some point
-    and retain a stale marker even after being moved to the main inventory.
-    ECS-promoted items whose entity row is wielded are carried, not equipped.
-    Returns an empty frozenset on any parse failure or if the component is absent.
+    The result maps each requested component name to the frozenset of row
+    indices belonging to it (an empty frozenset if the component is absent).
+    Any parse failure yields empty frozensets for all requested names.
     """
     BLOB_HDR_BASE = 48
+    result: dict[str, set[int]] = {name: set() for name in comp_names}
     try:
         L = len(blob)
         _, dir_off, names_size = struct.unpack_from('<QQQ', blob, 8)
@@ -1625,11 +1626,11 @@ def parse_lsmf_wielded_rows(blob: bytes) -> frozenset[int]:
         desc_table_rel = struct.unpack_from('<I', blob, 32)[0]
         entry_count = struct.unpack_from('<H', blob, 36)[0]
         if not (0 < names_off < L and 0 < entry_count < 2000):
-            return frozenset()
+            return {name: frozenset() for name in comp_names}
         names_sec = blob[names_off:names_off + names_size]
         desc_base = names_off + desc_table_rel
 
-        target_comp_idx: int | None = None
+        target_names: dict[int, str] = {}
         rows_by_comp: dict[int, int] = {}
         for i in range(entry_count):
             base = desc_base + i * 48
@@ -1640,13 +1641,13 @@ def parse_lsmf_wielded_rows(blob: bytes) -> frozenset[int]:
             rows_by_comp[i] = row_count
             if 0 < name_len < 200:
                 name = names_sec[name_off:name_off + name_len].decode('utf-8', 'replace')
-                if name == WIELDED_COMP:
-                    target_comp_idx = i
+                if name in comp_names:
+                    target_names[i] = name
 
-        if target_comp_idx is None:
-            return frozenset()
+        if not target_names:
+            return {name: frozenset() for name in comp_names}
 
-        def _valid_ol(p: int):
+        def valid_record(p: int):
             if p + 32 > L:
                 return None
             start, end, comp, ec = struct.unpack_from('<QQQQ', blob, p)
@@ -1659,7 +1660,7 @@ def parse_lsmf_wielded_rows(blob: bytes) -> frozenset[int]:
         valid_pos: list[int] = []
         p = 0
         while p + 32 <= L:
-            if _valid_ol(p) is not None:
+            if valid_record(p) is not None:
                 valid_pos.append(p)
             p += 4
 
@@ -1676,25 +1677,25 @@ def parse_lsmf_wielded_rows(blob: bytes) -> frozenset[int]:
             if count > best_count:
                 anchor, best_count = valid_pos[vi], count
 
-        result: set[int] = set()
         if best_count > 0:
             p, misses = anchor, 0
             while p + 32 <= L and misses < 4:
-                rec = _valid_ol(p)
+                rec = valid_record(p)
                 if rec is not None:
                     start, ec, comp_idx = rec
-                    if comp_idx == target_comp_idx:
-                        result.update(struct.unpack_from(f'<{ec}I', blob, start))
+                    if comp_idx in target_names:
+                        rows = struct.unpack_from(f'<{ec}I', blob, start)
+                        result[target_names[comp_idx]].update(rows)
                     misses = 0
                 else:
                     _, _, comp, _ = struct.unpack_from('<QQQQ', blob, p)
                     misses = 0 if comp == 0xFFFFFFFFFFFFFFFF else misses + 1
                 p += 32
 
-        return frozenset(result)
+        return {name: frozenset(rows) for name, rows in result.items()}
 
     except Exception:
-        return frozenset()
+        return {name: frozenset() for name in comp_names}
 
 
 def invert_entity_template_map(
@@ -2380,8 +2381,11 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
 
     # Parse LSMF once; also build the reverse map used by ecs_resolve_equipped
     lsmf_ecs = parse_lsmf_membership(lsmf_blob) if lsmf_blob else None
-    lsmf_owned_loot = parse_lsmf_owned_loot_rows(lsmf_blob) if lsmf_blob else None
-    lsmf_wielded = parse_lsmf_wielded_rows(lsmf_blob) if lsmf_blob else None
+    comp_rows = parse_lsmf_component_rows(
+        lsmf_blob, (OWNED_AS_LOOT_COMP, WIELDED_COMP),
+    ) if lsmf_blob else {}
+    lsmf_owned_loot = comp_rows.get(OWNED_AS_LOOT_COMP)
+    lsmf_wielded = comp_rows.get(WIELDED_COMP)
     template_to_instances = invert_entity_template_map(entity_to_template0)
     instance_entity_map = build_instance_entity_map(nodes0)
 
@@ -2477,12 +2481,14 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
         # Equipped + carried items, attributed by shared world position
         char_ni = party_nodes.get(display_name)
         status_equipped: set[str] = set()
+        _SE_DETAIL: list[dict] = []
         if char_ni is not None:
             for e in collect_status_equipped_items(nodes0, char_ni):
                 tmpl = entity_to_template0.get(e['entity'], '')
                 stats_name = template_to_stats.get(tmpl, '')
                 if stats_name:
                     status_equipped.add(stats_name)
+                    _SE_DETAIL.append({'stats': stats_name, 'status_id': e.get('status_id', '')})
 
         # Build per-character stats→entity map using parallel Creators/Items arrays
         char_pos = char_positions.get(display_name)
@@ -2492,8 +2498,34 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
                 if trans == char_pos:
                     char_stats_to_entity[stats_key] = eg
 
+        _TRACE = {
+            'MAG_PoR_OfVigilance_Halberd', 'Quest_SCL_MoonlanternWithPixie',
+            'UND_SwordInStone', 'MAG_Duergar_Sword_KingsKnife',
+        }
         attributed = items_by_char.get(display_name, [])
         if attributed:
+            _tattr = [(s, f, g) for s, f, g in attributed if s in _TRACE]
+            if _tattr:
+                import sys
+                guid_to_rows2, membership_count2 = lsmf_ecs if lsmf_ecs else ({}, {})
+                for s, f, g in _tattr:
+                    eg = char_stats_to_entity.get(s, '')
+                    rows = guid_to_rows2.get(eg, [])
+                    mc = max((membership_count2.get(r, 0) for r in rows), default=0)
+                    in_loot = bool(
+                        lsmf_owned_loot and eg and
+                        any(r in lsmf_owned_loot for r in rows)
+                    )
+                    eq_bit = bool(isinstance(f, int) and (f & EQUIPPED_FLAG_BIT))
+                    has_status = s in status_equipped
+                    se_ids = [d['status_id'] for d in _SE_DETAIL if d['stats'] == s]
+                    flags_hex = hex(f) if isinstance(f, int) else f
+                    comps = get_entity_components(
+                        lsmf_blob, rows) if lsmf_blob and rows else []
+                    print(f'[ITEM] {display_name} / {s}', file=sys.stderr)
+                    print(f'  eq_bit={eq_bit} flags={flags_hex} mc={mc} in_loot={in_loot} '
+                          f'has_status={has_status} status_ids={se_ids}', file=sys.stderr)
+                    print(f'  components={sorted(comps)}', file=sys.stderr)
             flags_equipped, carried, undetermined = split_equipped_carried(
                 attributed, status_equipped,
                 object_type_stats=dn.object_type_stats or None,
