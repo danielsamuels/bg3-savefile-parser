@@ -17,9 +17,6 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Install dependencies
-        run: uv sync --extra dev
-
       - name: Lint (ruff)
         run: uvx ruff check bg3_save_reader.py tests/
 
