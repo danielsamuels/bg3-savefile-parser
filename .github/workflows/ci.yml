@@ -17,11 +17,14 @@ jobs:
         with:
           enable-cache: true
 
+      - name: Install dependencies
+        run: uv sync --extra dev
+
       - name: Lint (ruff)
         run: uvx ruff check bg3_save_reader.py tests/
 
       - name: Type check (ty)
-        run: uvx ty check bg3_save_reader.py
+        run: uv run ty check bg3_save_reader.py
 
       - name: Test (pytest — unit tests only, no save file in CI)
-        run: uv run --extra dev pytest tests/ -v -k "not requires_save"
+        run: uv run pytest tests/ -v -k "not requires_save"
