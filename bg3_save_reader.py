@@ -2017,8 +2017,8 @@ def cache_path(data_dir: str) -> str:
 
 def build_displayname_maps(
     data_dir: str,
-) -> tuple[dict[str, str], dict[str, str], dict[str, str], frozenset[str], dict[str, str]]:
-    """Build (guid->name, stats->name, spell_id->name, object_type_stats, stats_to_slot).
+) -> tuple[dict[str, str], dict[str, str], dict[str, str], frozenset[str], dict[str, str], frozenset[str]]:
+    """Build (guid->name, stats->name, spell_id->name, object_type_stats, stats_to_slot, two_handed_stats).
 
     Results are cached under XDG_CACHE_HOME keyed on the source paks' mtime/size,
     so the ~1 s parse only happens after a game update.
