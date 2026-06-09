@@ -129,17 +129,13 @@ def normalize_named_frames(raw_frames: list[bytes], names: list[str]) -> dict[st
     """Map named LSPK manifest entries to a dict keyed by semantic name."""
     result: dict[str, bytes] = {}
     for name, frame in zip(names, raw_frames):
-        if name == 'Globals.lsf':
-            result['Globals.lsf'] = frame
-        elif name == 'meta.lsf':
-            result['meta.lsf'] = frame
-        elif name.lower().endswith('.webp'):
+        if name.lower().endswith('.webp'):
             result['thumbnail'] = frame
         elif name in ('SaveInfo.json', 'Info.json'):
             result['info'] = frame
         elif name == 'StorySave.bin':
             result['osiris'] = frame
-        elif name.startswith('LevelCache/'):
+        else:
             result[name] = frame
     return result
 
