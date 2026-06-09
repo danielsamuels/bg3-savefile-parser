@@ -1532,16 +1532,20 @@ GRAVITY_DISABLED_COMP = 'game.gravity.v0.GravityDisabledComponent'
 
 def parse_lsmf_component_rows(
     blob: bytes,
-    comp_names: tuple[str, ...],
+    comp_names: tuple[str, ...] | None = None,
 ) -> dict[str, frozenset[int]]:
     """Return ECS row indices for each named LSMF component, in a single scan.
 
     The result maps each requested component name to the frozenset of row
     indices belonging to it (an empty frozenset if the component is absent).
+    With comp_names=None, every component found in the blob is extracted.
     Any parse failure yields empty frozensets for all requested names.
     """
     BLOB_HDR_BASE = 48
-    result: dict[str, set[int]] = {name: set() for name in comp_names}
+
+    def empty() -> dict[str, frozenset[int]]:
+        return {name: frozenset() for name in comp_names or ()}
+
     try:
         L = len(blob)
         _, dir_off, names_size = struct.unpack_from('<QQQ', blob, 8)
@@ -1549,7 +1553,7 @@ def parse_lsmf_component_rows(
         desc_table_rel = struct.unpack_from('<I', blob, 32)[0]
         entry_count = struct.unpack_from('<H', blob, 36)[0]
         if not (0 < names_off < L and 0 < entry_count < 2000):
-            return {name: frozenset() for name in comp_names}
+            return empty()
         names_sec = blob[names_off:names_off + names_size]
         desc_base = names_off + desc_table_rel
 
@@ -1564,11 +1568,14 @@ def parse_lsmf_component_rows(
             rows_by_comp[i] = row_count
             if 0 < name_len < 200:
                 name = names_sec[name_off:name_off + name_len].decode('utf-8', 'replace')
-                if name in comp_names:
+                if comp_names is None or name in comp_names:
                     target_names[i] = name
 
         if not target_names:
-            return {name: frozenset() for name in comp_names}
+            return empty()
+        result: dict[str, set[int]] = {
+            name: set() for name in (comp_names or target_names.values())
+        }
 
         def valid_record(p: int):
             if p + 32 > L:
@@ -1618,7 +1625,7 @@ def parse_lsmf_component_rows(
         return {name: frozenset(rows) for name, rows in result.items()}
 
     except Exception:
-        return {name: frozenset() for name in comp_names}
+        return empty()
 
 
 def invert_entity_template_map(
@@ -2317,6 +2324,13 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
     lsmf_owned_loot = comp_rows.get(OWNED_AS_LOOT_COMP)
     lsmf_wielded = comp_rows.get(WIELDED_COMP)
     lsmf_gravity_off = comp_rows.get(GRAVITY_DISABLED_COMP)
+
+    # --inspect: map every LSMF component's rows so items can be looked up
+    inspect_pat = (getattr(opts, 'inspect', None) or '') if opts is not None else ''
+    all_comp_rows: dict[str, frozenset[int]] = {}
+    if inspect_pat and lsmf_blob:
+        all_comp_rows = parse_lsmf_component_rows(lsmf_blob)
+
     template_to_instances = invert_entity_template_map(entity_to_template0)
     instance_entity_map = build_instance_entity_map(nodes0)
 
@@ -2428,6 +2442,24 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
                     char_stats_to_entity[stats_key] = eg
 
         attributed = items_by_char.get(display_name, [])
+        if inspect_pat and attributed:
+            matches = [(s, f) for s, f, _g in attributed if inspect_pat.lower() in s.lower()]
+            if matches:
+                guid_to_rows_i, membership_count_i = lsmf_ecs if lsmf_ecs else ({}, {})
+                w(f'    Inspect — items matching {inspect_pat!r}:')
+                for s, f in matches:
+                    eg = char_stats_to_entity.get(s, '')
+                    rows = set(guid_to_rows_i.get(eg, []))
+                    mc = max((membership_count_i.get(r, 0) for r in rows), default=0)
+                    eq_bit = bool(isinstance(f, int) and f & EQUIPPED_FLAG_BIT)
+                    flags_hex = hex(f) if isinstance(f, int) else repr(f)
+                    w(f'      – {s}')
+                    w(f'        eq_bit={eq_bit} flags={flags_hex} mc={mc} '
+                      f'status={s in status_equipped}')
+                    comps = sorted(n for n, rs in all_comp_rows.items() if rows & rs)
+                    w(f'        components ({len(comps)}):')
+                    for c in comps:
+                        w(f'          {c}')
         if attributed:
             flags_equipped, carried, undetermined = split_equipped_carried(
                 attributed, status_equipped,
@@ -2648,6 +2680,9 @@ def main():
                     help='show internal names in parentheses after display names')
     ap.add_argument('--thumbnail', '-t', metavar='PATH',
                     help="write the save's thumbnail image to PATH")
+    ap.add_argument('--inspect', metavar='NAME',
+                    help='show classification signals and ECS components for party items '
+                         'whose internal stats name contains NAME (case-insensitive)')
     opts = ap.parse_args()
 
     save_path = opts.save
