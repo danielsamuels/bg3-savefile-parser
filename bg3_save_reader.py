@@ -85,7 +85,7 @@ def extract_frames(path: str) -> dict[str, bytes]:
       'Globals.lsf'    — world state (party, items, LSMF blob)
       'meta.lsf'       — save metadata (leader name, mods, timestamps)
       'thumbnail'      — load-screen WebP image (filename varies per save)
-      'SaveInfo.json'  — save info JSON (legacy 'Info.json' normalised to this)
+      'SaveInfo.json'  — save info JSON ('Info.json' normalised to this if present)
       'StorySave.bin'  — Osiris story-state database
       'LevelCache/…'   — one key per level-cache file, using its LSPK name
     """
@@ -130,7 +130,7 @@ def normalize_named_frames(raw_frames: list[bytes], names: list[str]) -> dict[st
 
     The only normalisation applied is to entries whose names vary per save:
       *.WebP       → 'thumbnail'   (filename includes the save name)
-      'Info.json'  → 'SaveInfo.json'  (older name for the same file)
+      'Info.json'  → 'SaveInfo.json'  (alternative name for the same file)
     Everything else is stored under its actual LSPK name.
     """
     result: dict[str, bytes] = {}
