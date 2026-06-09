@@ -28,9 +28,9 @@ import bg3_save_reader as parser  # noqa: E402
 # Save-file fixture paths
 # ---------------------------------------------------------------------------
 
-_FIXTURES = Path(__file__).parent / 'fixtures'
-QUICKSAVE_MAIA = str(_FIXTURES / 'quicksave_maia.lsv')
-SHADOWHEART_TUTORIAL = str(_FIXTURES / 'autosave_shadowheart_tutorial.lsv')
+FIXTURE_DIR = Path(__file__).parent / 'fixtures'
+QUICKSAVE_MAIA = str(FIXTURE_DIR / 'quicksave_maia.lsv')
+SHADOWHEART_TUTORIAL = str(FIXTURE_DIR / 'autosave_shadowheart_tutorial.lsv')
 
 
 # ---------------------------------------------------------------------------
