@@ -523,6 +523,63 @@ class TestResolveSlotConflicts:
 # Unit tests for build_instance_entity_map
 # ---------------------------------------------------------------------------
 
+class TestEcsResolveEquipped:
+    """Tests for ecs_resolve_equipped(), focusing on the wielded_rows filter."""
+
+    def test_wielded_rows_demotes_to_carried(self):
+        # ARM_Shield scenario: item with high MC but present in WieldedComponent
+        # should be classified as carried, not equipped.
+        undetermined = [('ARM_Shield', 'tmpl-shield')]
+        entity_guid = 'entity-shield'
+        stats_to_entity = {'ARM_Shield': entity_guid}
+        guid_to_rows = {entity_guid: [10, 20, 30]}
+        membership_count = {10: 38, 20: 0, 30: 0}
+        wielded_rows = frozenset([10])  # row 10 is in WieldedComponent
+
+        eq, ca, undet = parser.ecs_resolve_equipped(
+            undetermined, {}, guid_to_rows, membership_count,
+            stats_to_entity=stats_to_entity,
+            wielded_rows=wielded_rows,
+        )
+        assert eq == []
+        assert ('ARM_Shield', 'tmpl-shield') in ca
+        assert undet == []
+
+    def test_not_wielded_promotes_to_equipped(self):
+        # UNI_Karlach_Gloves scenario: item with high MC and NOT in WieldedComponent
+        # should be classified as equipped.
+        undetermined = [('UNI_Karlach_Gloves', 'tmpl-gloves')]
+        entity_guid = 'entity-gloves'
+        stats_to_entity = {'UNI_Karlach_Gloves': entity_guid}
+        guid_to_rows = {entity_guid: [15, 40, 50]}
+        membership_count = {15: 38, 40: 0, 50: 0}
+        wielded_rows = frozenset([99])  # row 15 is NOT in WieldedComponent
+
+        eq, ca, undet = parser.ecs_resolve_equipped(
+            undetermined, {}, guid_to_rows, membership_count,
+            stats_to_entity=stats_to_entity,
+            wielded_rows=wielded_rows,
+        )
+        assert ('UNI_Karlach_Gloves', 'tmpl-gloves') in eq
+        assert ca == []
+        assert undet == []
+
+    def test_no_wielded_rows_behaves_as_before(self):
+        # Without wielded_rows parameter, high-MC item is promoted as before.
+        undetermined = [('ARM_Shield', 'tmpl-shield')]
+        entity_guid = 'entity-shield'
+        stats_to_entity = {'ARM_Shield': entity_guid}
+        guid_to_rows = {entity_guid: [10]}
+        membership_count = {10: 38}
+
+        eq, ca, undet = parser.ecs_resolve_equipped(
+            undetermined, {}, guid_to_rows, membership_count,
+            stats_to_entity=stats_to_entity,
+        )
+        assert ('ARM_Shield', 'tmpl-shield') in eq
+        assert ca == []
+
+
 class TestBuildInstanceEntityMap:
     """Tests for build_instance_entity_map()."""
 

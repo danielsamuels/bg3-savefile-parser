@@ -1519,6 +1519,7 @@ def parse_lsmf_membership(
 
 
 OWNED_AS_LOOT_COMP = 'game.v0.OwnedAsLootComponent'
+WIELDED_COMP = 'game.inventory.v0.WieldedComponent'
 
 
 def parse_lsmf_owned_loot_rows(blob: bytes) -> frozenset[int]:
@@ -1608,6 +1609,94 @@ def parse_lsmf_owned_loot_rows(blob: bytes) -> frozenset[int]:
         return frozenset()
 
 
+def parse_lsmf_wielded_rows(blob: bytes) -> frozenset[int]:
+    """Return ECS row indices present in game.inventory.v0.WieldedComponent.
+
+    Items in this component were placed in a weapon/equipment slot at some point
+    and retain a stale marker even after being moved to the main inventory.
+    ECS-promoted items whose entity row is wielded are carried, not equipped.
+    Returns an empty frozenset on any parse failure or if the component is absent.
+    """
+    BLOB_HDR_BASE = 48
+    try:
+        L = len(blob)
+        _, dir_off, names_size = struct.unpack_from('<QQQ', blob, 8)
+        names_off = dir_off + BLOB_HDR_BASE
+        desc_table_rel = struct.unpack_from('<I', blob, 32)[0]
+        entry_count = struct.unpack_from('<H', blob, 36)[0]
+        if not (0 < names_off < L and 0 < entry_count < 2000):
+            return frozenset()
+        names_sec = blob[names_off:names_off + names_size]
+        desc_base = names_off + desc_table_rel
+
+        target_comp_idx: int | None = None
+        rows_by_comp: dict[int, int] = {}
+        for i in range(entry_count):
+            base = desc_base + i * 48
+            if base + 48 > L:
+                break
+            name_off, name_len, _ = struct.unpack_from('<QQQ', blob, base)
+            row_count, _ = struct.unpack_from('<QQ', blob, base + 32)
+            rows_by_comp[i] = row_count
+            if 0 < name_len < 200:
+                name = names_sec[name_off:name_off + name_len].decode('utf-8', 'replace')
+                if name == WIELDED_COMP:
+                    target_comp_idx = i
+
+        if target_comp_idx is None:
+            return frozenset()
+
+        def _valid_ol(p: int):
+            if p + 32 > L:
+                return None
+            start, end, comp, ec = struct.unpack_from('<QQQQ', blob, p)
+            if (comp < entry_count and ec > 0 and rows_by_comp.get(comp, -1) == ec
+                    and end > start and (end - start) == ec * 4
+                    and end <= L and start < L):
+                return start, ec, comp
+            return None
+
+        valid_pos: list[int] = []
+        p = 0
+        while p + 32 <= L:
+            if _valid_ol(p) is not None:
+                valid_pos.append(p)
+            p += 4
+
+        anchor, best_count = 0, 0
+        for vi in range(len(valid_pos)):
+            count, last = 1, valid_pos[vi]
+            for vj in range(vi + 1, len(valid_pos)):
+                d = valid_pos[vj] - last
+                if d % 32 == 0 and d <= 32 * 40:
+                    count += 1
+                    last = valid_pos[vj]
+                elif d > 32 * 40:
+                    break
+            if count > best_count:
+                anchor, best_count = valid_pos[vi], count
+
+        result: set[int] = set()
+        if best_count > 0:
+            p, misses = anchor, 0
+            while p + 32 <= L and misses < 4:
+                rec = _valid_ol(p)
+                if rec is not None:
+                    start, ec, comp_idx = rec
+                    if comp_idx == target_comp_idx:
+                        result.update(struct.unpack_from(f'<{ec}I', blob, start))
+                    misses = 0
+                else:
+                    _, _, comp, _ = struct.unpack_from('<QQQQ', blob, p)
+                    misses = 0 if comp == 0xFFFFFFFFFFFFFFFF else misses + 1
+                p += 32
+
+        return frozenset(result)
+
+    except Exception:
+        return frozenset()
+
+
 def invert_entity_template_map(
     entity_to_template: dict[str, str],
 ) -> dict[str, list[str]]:
@@ -1626,6 +1715,7 @@ def ecs_resolve_equipped(
     *,
     threshold: int = 15,
     stats_to_entity: dict[str, str] | None = None,
+    wielded_rows: frozenset[int] | None = None,
 ) -> tuple[list[tuple], list[tuple], list[tuple]]:
     """Classify undetermined items via ECS component membership counts.
 
@@ -1636,6 +1726,12 @@ def ecs_resolve_equipped(
     When stats_to_entity is provided, the per-instance entity GUID is used
     directly instead of looking up all level instances of the template, which
     prevents MC contamination from unrelated instances of the same item type.
+
+    When wielded_rows is provided, items whose entity row is in
+    game.inventory.v0.WieldedComponent are classified as carried rather than
+    equipped: the WieldedComponent retains a stale marker for items that were
+    previously in a weapon/equipment slot but have since been moved to the main
+    inventory, so high MC alone is not sufficient for promotion.
 
     Items whose template GUID has no ECS entity at all are left undetermined
     rather than silently classified as carried.
@@ -1659,7 +1755,8 @@ def ecs_resolve_equipped(
             still_undetermined.append((stats, tmpl_guid))
             continue
         max_mc = max(membership_count.get(row, 0) for row in rows)
-        if max_mc >= threshold:
+        in_wielded = wielded_rows is not None and any(r in wielded_rows for r in rows)
+        if max_mc >= threshold and not in_wielded:
             now_equipped.append((stats, tmpl_guid))
         else:
             now_carried.append((stats, tmpl_guid))
@@ -2223,6 +2320,7 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
     # Parse LSMF once; also build the reverse map used by ecs_resolve_equipped
     lsmf_ecs = parse_lsmf_membership(lsmf_blob) if lsmf_blob else None
     lsmf_owned_loot = parse_lsmf_owned_loot_rows(lsmf_blob) if lsmf_blob else None
+    lsmf_wielded = parse_lsmf_wielded_rows(lsmf_blob) if lsmf_blob else None
     template_to_instances = invert_entity_template_map(entity_to_template0)
     instance_entity_map = build_instance_entity_map(nodes0)
 
@@ -2344,6 +2442,7 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
                 ecs_eq, ecs_ca, undetermined = ecs_resolve_equipped(
                     undetermined, template_to_instances, *lsmf_ecs,
                     stats_to_entity=char_stats_to_entity,
+                    wielded_rows=lsmf_wielded,
                 )
                 carried = sorted(set(carried) | set(ecs_ca))
 
