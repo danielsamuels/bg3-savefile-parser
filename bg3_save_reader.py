@@ -1080,9 +1080,16 @@ def extract_spells_by_character(
 PLAYER_CHAR_TEMPLATE = 'f08563b3-748d-4783-7b83-62b8c60b220b'
 
 PARTY_ORIGINS = {
-    'c774d764-4a17-48dc-70b4-ac32cee97d44': 'Wyll',
+    'c7c13742-bacd-460a-658f-64f841fe55f2': 'Astarion',
+    'ad9af97d-75da-406a-13ae-717063c504f6': 'Gale',
+    '7628bc0e-52b8-42a7-6a85-a61341fd2333': 'Halsin',
+    '91b6b200-7d00-4d62-c98d-e8999d331afa': 'Jaheira',
     '2c76687d-93a2-477b-188b-148a49b54c30': 'Karlach',
+    '58a69333-40bf-8358-171d-f2ffd74012fb': "Lae'zel",
+    '25721313-0c15-4935-7681-139f85431b45': 'Minthara',
+    '0de603c5-42e2-4811-ad9d-52f608deba0e': 'Minsc',
     '3ed74f06-3c60-42dc-f683-34f047cb79c6': 'Shadowheart',
+    'c774d764-4a17-48dc-70b4-ac32cee97d44': 'Wyll',
 }
 
 NULL_UUID = '00000000-0000-0000-0000-000000000000'
