@@ -1777,14 +1777,19 @@ def resolve_slot_conflicts(
     owned_as_loot_rows: frozenset[int] | None = None,
     two_handed_stats: frozenset[str] | None = None,
     status_equipped: frozenset[str] | None = None,
+    wielded_rows: frozenset[int] | None = None,
+    gravity_disabled_rows: frozenset[int] | None = None,
 ) -> tuple[list[tuple], list[tuple], list[tuple]]:
     """Resolve cases where more items are signalled for a slot than it can hold.
 
     Priority: Flags-signalled items beat ECS-only items for the same slot.
     When multiple Flags items compete for the same slot, tiebreaker priority is:
       1. active on-equip status (status_equipped) — truly wielded item
-      2. OwnedAsLootComponent — stale-eq-bit items are absent from it
-      3. per-instance membership count (higher MC wins)
+      2. WieldedComponent or GravityDisabledComponent — physically attached
+         to the character (in a weapon slot / worn-visual physics override)
+      3. OwnedAsLootComponent — direction is save-dependent, but when neither
+         item has a physical-attachment signal the in-loot item is the worn one
+      4. per-instance membership count (higher MC wins)
     Ring slot has capacity 2; all others capacity 1.
 
     If a 2-handed weapon is flags-equipped in "Melee Main Weapon", all
@@ -1798,13 +1803,13 @@ def resolve_slot_conflicts(
             return 0
         return max((membership_count.get(r, 0) for r in guid_to_rows.get(eg, [])), default=0)
 
-    def in_owned_loot(stats: str) -> bool:
-        if not owned_as_loot_rows:
+    def in_rows(stats: str, rows: frozenset[int] | None) -> bool:
+        if not rows:
             return False
         eg = stats_to_entity.get(stats, '')
         if not eg:
             return False
-        return any(r in owned_as_loot_rows for r in guid_to_rows.get(eg, []))
+        return any(r in rows for r in guid_to_rows.get(eg, []))
 
     slot_candidates: dict[str, list[tuple]] = {}
     no_slot_flags: list[tuple] = []
@@ -1828,9 +1833,11 @@ def resolve_slot_conflicts(
     demoted:    list[tuple] = []
 
     def flags_sort_key(sg: tuple) -> tuple:
+        attached = in_rows(sg[0], wielded_rows) or in_rows(sg[0], gravity_disabled_rows)
         return (
             0 if (status_equipped and sg[0] in status_equipped) else 1,
-            0 if in_owned_loot(sg[0]) else 1,
+            0 if attached else 1,
+            0 if in_rows(sg[0], owned_as_loot_rows) else 1,
             -get_mc(sg[0]),
         )
 
@@ -2382,10 +2389,11 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
     # Parse LSMF once; also build the reverse map used by ecs_resolve_equipped
     lsmf_ecs = parse_lsmf_membership(lsmf_blob) if lsmf_blob else None
     comp_rows = parse_lsmf_component_rows(
-        lsmf_blob, (OWNED_AS_LOOT_COMP, WIELDED_COMP),
+        lsmf_blob, (OWNED_AS_LOOT_COMP, WIELDED_COMP, GRAVITY_DISABLED_COMP),
     ) if lsmf_blob else {}
     lsmf_owned_loot = comp_rows.get(OWNED_AS_LOOT_COMP)
     lsmf_wielded = comp_rows.get(WIELDED_COMP)
+    lsmf_gravity_off = comp_rows.get(GRAVITY_DISABLED_COMP)
     template_to_instances = invert_entity_template_map(entity_to_template0)
     instance_entity_map = build_instance_entity_map(nodes0)
 
@@ -2548,6 +2556,8 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
                     owned_as_loot_rows=lsmf_owned_loot,
                     two_handed_stats=dn.two_handed_stats or None,
                     status_equipped=frozenset(status_equipped) if status_equipped else None,
+                    wielded_rows=lsmf_wielded,
+                    gravity_disabled_rows=lsmf_gravity_off,
                 )
                 carried = sorted(set(carried) | set(demoted))
 

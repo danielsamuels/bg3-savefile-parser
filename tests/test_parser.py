@@ -573,6 +573,63 @@ class TestResolveSlotConflicts:
         assert ('WPN_Torch', 'g_torch') in demoted
         assert ('WPN_Pitchfork', 'g_pitch') in demoted
 
+    def test_wielded_wins_over_owned_loot_and_mc(self):
+        # Real save 286 (Wyll): Knife of the Undermountain King is genuinely
+        # equipped (has WieldedComponent) while Phalar Aluve sits in the
+        # inventory with higher MC and OwnedAsLootComponent membership.
+        flags_eq = [('MAG_KingsKnife', 'g_knife'), ('UND_SwordInStone', 'g_sword')]
+        ecs_eq: list = []
+        stats_to_slot = {
+            'MAG_KingsKnife': 'Melee Main Weapon',
+            'UND_SwordInStone': 'Melee Main Weapon',
+        }
+        stats_to_entity = {'MAG_KingsKnife': 'e_knife', 'UND_SwordInStone': 'e_sword'}
+        guid_to_rows = {'e_knife': [1], 'e_sword': [2]}
+        membership_count = {1: 37, 2: 41}  # stale sword has higher MC
+        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+            flags_eq, ecs_eq, stats_to_slot, stats_to_entity, guid_to_rows, membership_count,
+            owned_as_loot_rows=frozenset([2]),  # only the stale sword is in loot
+            wielded_rows=frozenset([1]),
+        )
+        assert ('MAG_KingsKnife', 'g_knife') in kept_flags
+        assert ('UND_SwordInStone', 'g_sword') in demoted
+
+    def test_gravity_disabled_wins_over_owned_loot_and_mc(self):
+        # Real save 286 (Maia): Halberd of Vigilance is genuinely equipped
+        # (has GravityDisabledComponent) while the moonlantern sits in the
+        # inventory with higher MC and OwnedAsLootComponent membership.
+        flags_eq = [('MAG_Halberd', 'g_halberd'), ('Quest_Lantern', 'g_lantern')]
+        ecs_eq: list = []
+        stats_to_slot = {
+            'MAG_Halberd': 'Melee Main Weapon',
+            'Quest_Lantern': 'Melee Main Weapon',
+        }
+        stats_to_entity = {'MAG_Halberd': 'e_halberd', 'Quest_Lantern': 'e_lantern'}
+        guid_to_rows = {'e_halberd': [1], 'e_lantern': [2]}
+        membership_count = {1: 36, 2: 40}  # stale lantern has higher MC
+        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+            flags_eq, ecs_eq, stats_to_slot, stats_to_entity, guid_to_rows, membership_count,
+            owned_as_loot_rows=frozenset([2]),  # only the stale lantern is in loot
+            gravity_disabled_rows=frozenset([1]),
+        )
+        assert ('MAG_Halberd', 'g_halberd') in kept_flags
+        assert ('Quest_Lantern', 'g_lantern') in demoted
+
+    def test_status_equipped_wins_over_attachment_components(self):
+        # status_equipped remains the strongest signal, above wielded/gravity.
+        flags_eq = [('WPN_A', 'g_a'), ('WPN_B', 'g_b')]
+        stats_to_slot = {'WPN_A': 'Melee Main Weapon', 'WPN_B': 'Melee Main Weapon'}
+        stats_to_entity = {'WPN_A': 'e_a', 'WPN_B': 'e_b'}
+        guid_to_rows = {'e_a': [1], 'e_b': [2]}
+        membership_count = {1: 30, 2: 40}
+        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+            flags_eq, [], stats_to_slot, stats_to_entity, guid_to_rows, membership_count,
+            status_equipped=frozenset(['WPN_A']),
+            wielded_rows=frozenset([2]),  # B looks attached, but A has the status
+        )
+        assert ('WPN_A', 'g_a') in kept_flags
+        assert ('WPN_B', 'g_b') in demoted
+
     def test_twohanded_weapon_demotes_ecs_offhand(self):
         # MAG_Colossal_Greatsword scenario: Karlach has a 2-handed flags weapon in
         # Melee Main Weapon; ECS-promoted shield in Melee Offhand Weapon is demoted.
