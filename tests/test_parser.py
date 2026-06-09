@@ -127,51 +127,30 @@ def test_smoke_build_report():
 # The expected sets below are the parser's validated output for QuickSave_242,
 # cross-checked against tests/fixtures/quicksave-242-equipped-items.txt.
 #
-# Known deviations from the human-authored ground-truth file are annotated:
+# Remaining deviation from the human-authored ground-truth file:
 #
 #   Maia:
-#     ARM_HalfPlate_Body     — "Half Plate Armour": the parser classifies this
-#                              as equipped; the ground-truth file lists
-#                              "Adamantine Splint Armour" as her chest piece.
-#                              Both items are present; ARM_HalfPlate_Body likely
-#                              sits in her inventory with the equip flag set.
-#     ARM_Instrument_Lute    — not in the ground-truth file; likely a false
-#                              positive from the Flags bit.
-#     FOR_DangerousBook      — "The Necromancy of Thay": not in the ground-truth
-#                              file; classified as equipped but is a carried book.
-#     UNI_CONT_DEVIL_PuzzleBox_A — "Mysterious Artefact": carried quest item
-#                              flagged as equipped; not in the ground-truth file.
-#     WPN_Greatclub_1        — "Greatclub +1": ground-truth lists this as an
-#                              *inventory* item; parser classifies it as equipped.
-#
-#   Wyll:
-#     ARM_Boots_Leather      — "Leather Boots": not in the ground-truth file;
-#                              likely a false positive (spare footwear).
-#     MAG_Lesser_Infernal_Plate_Armor — "Hellgloom Armour" in current game data
-#                              / "Flawed Helldusk Armour" in the ground-truth
-#                              file (older label); ground-truth lists this as an
-#                              *inventory* item, not worn.
-#     WPN_Torch              — not worn equipment; false positive.
+#     ARM_Instrument_Lute    — not in the ground-truth file; false positive from
+#                              the Flags bit.  Instrument items have their own
+#                              slot (MusicalInstrument) with no conflict, so
+#                              slot-conflict resolution cannot eliminate it.
 #
 #   Karlach:
-#     UNI_Karlach_Gloves     — not in the ground-truth file (no gloves listed
-#                              for Karlach); possible false positive.
-#     WPN_Torch              — not worn equipment; false positive.
+#     UNI_Karlach_Gloves     — not in the ground-truth file; possible false
+#                              positive, but there is no competing Gloves item to
+#                              demote it via slot-conflict resolution.
 #
-#   Shadowheart:
-#     DEN_HellridersPride    — "Hellrider's Pride": ground-truth explicitly lists
-#                              this as an *inventory* item.  LIMITS.md documents
-#                              it as a known LSF false positive.
-#
-# This test pins the *current* parser output as the regression baseline.
-# If any item appears or disappears from any character's equipped set, the test
-# fails — that is the regression guard.
+# Previously documented false positives that are now fixed by the slot-conflict
+# resolver and Object-type filter:
+#   Maia:   ARM_HalfPlate_Body, FOR_DangerousBook, UNI_CONT_DEVIL_PuzzleBox_A,
+#           WPN_Greatclub_1
+#   Wyll:   ARM_Boots_Leather, MAG_Lesser_Infernal_Plate_Armor, WPN_Torch
+#   Karlach: WPN_Torch
+#   Shadowheart: DEN_HellridersPride
 
 EXPECTED_EQUIPPED: dict[str, set[str]] = {
     'Maia (player)': {
-        'ARM_HalfPlate_Body',
         'ARM_Instrument_Lute',
-        'FOR_DangerousBook',
         'FOR_NightWalkers',
         'MAG_FlamingFist_ScoutRing',
         'MAG_Harpers_HarpersAmulet',
@@ -180,22 +159,17 @@ EXPECTED_EQUIPPED: dict[str, set[str]] = {
         'MAG_StrongString_Longbow',
         'MAG_ZOC_AdvantageOnMeleeAttackWhileSurounded_Gloves',
         'UND_SwordInStone',
-        'UNI_CONT_DEVIL_PuzzleBox_A',
-        'WPN_Greatclub_1',
     },
     'Wyll': {
-        'ARM_Boots_Leather',
         'GOB_DrowCommander_Leather_Armor',
         'MAG_BG_OfTheBanshee_Bow',
         'MAG_Duergar_Sword_KingsKnife',
         'MAG_Evasive_Shoes',
-        'MAG_Lesser_Infernal_Plate_Armor',
         'MAG_PHB_CloakOfProtection_Cloak',
         'MAG_PHB_ofPower_Pearl_Amulet',
         'MAG_Safeguard_Shield',
         'MAG_Thunder_Reverberation_Gloves',
         'UND_ShadowOfMenzoberranzan',
-        'WPN_Torch',
     },
     'Karlach': {
         'ARM_BootsOfSpeed',
@@ -207,13 +181,11 @@ EXPECTED_EQUIPPED: dict[str, set[str]] = {
         'MAG_Gish_ArcaneSynergy_Circlet',
         'MAG_Harpers_RingOfProjection',
         'UNI_Karlach_Gloves',
-        'WPN_Torch',
     },
     'Shadowheart': {
         'ARM_CircletOfBlasting',
         'ARM_Ring_I_Silver_A',
         'CRE_BloodOfLathander',
-        'DEN_HellridersPride',
         'MAG_BG_OfDevotion_Shield',
         'MAG_BG_OfDexterity_Gloves',
         'MAG_Healer_HPRestoration_Amulet',
@@ -358,3 +330,195 @@ class TestIsEquipmentType:
 
     def test_key_prefix_not_equipment(self):
         assert parser.is_equipment_type('KEY_IronKey') is False
+
+
+# ---------------------------------------------------------------------------
+# Unit tests for split_equipped_carried (object_type_stats filter)
+# ---------------------------------------------------------------------------
+
+class TestSplitEquippedCarried:
+    """Tests for split_equipped_carried()."""
+
+    EQUIPPED_FLAG = 0x04000000
+
+    def test_status_equipped_wins(self):
+        items = [('WPN_Sword', 0, 'g1')]
+        equipped, carried, undetermined = parser.split_equipped_carried(
+            items, status_equipped={'WPN_Sword'},
+        )
+        assert equipped == [('WPN_Sword', 'g1')]
+        assert carried == []
+        assert undetermined == []
+
+    def test_flag_bit_equipped(self):
+        items = [('WPN_Sword', self.EQUIPPED_FLAG, 'g1')]
+        equipped, carried, undetermined = parser.split_equipped_carried(
+            items, status_equipped=set(),
+        )
+        assert equipped == [('WPN_Sword', 'g1')]
+
+    def test_non_equipment_always_carried(self):
+        items = [('CONS_Potion', self.EQUIPPED_FLAG, 'g1')]
+        equipped, carried, undetermined = parser.split_equipped_carried(
+            items, status_equipped=set(),
+        )
+        assert carried == [('CONS_Potion', 'g1')]
+        assert equipped == []
+
+    def test_object_type_overrides_flag(self):
+        # A FOR_DangerousBook-like item: has the Flags bit but is type Object.
+        items = [('FOR_DangerousBook', self.EQUIPPED_FLAG, 'g1')]
+        equipped, carried, undetermined = parser.split_equipped_carried(
+            items, status_equipped=set(),
+            object_type_stats=frozenset({'FOR_DangerousBook'}),
+        )
+        assert carried == [('FOR_DangerousBook', 'g1')]
+        assert equipped == []
+
+    def test_object_type_overrides_status(self):
+        items = [('UNI_CONT_PuzzleBox', 0, 'g1')]
+        equipped, carried, undetermined = parser.split_equipped_carried(
+            items, status_equipped={'UNI_CONT_PuzzleBox'},
+            object_type_stats=frozenset({'UNI_CONT_PuzzleBox'}),
+        )
+        assert carried == [('UNI_CONT_PuzzleBox', 'g1')]
+        assert equipped == []
+
+    def test_equipment_without_signal_is_undetermined(self):
+        items = [('ARM_Boots', 0, 'g1')]
+        equipped, carried, undetermined = parser.split_equipped_carried(
+            items, status_equipped=set(),
+        )
+        assert undetermined == [('ARM_Boots', 'g1')]
+        assert equipped == []
+        assert carried == []
+
+
+# ---------------------------------------------------------------------------
+# Unit tests for resolve_slot_conflicts
+# ---------------------------------------------------------------------------
+
+class TestResolveSlotConflicts:
+    """Tests for resolve_slot_conflicts()."""
+
+    def test_no_conflict_passes_through(self):
+        flags_eq = [('WPN_Sword', 'g1')]
+        ecs_eq = [('ARM_Boots', 'g2')]
+        stats_to_slot = {'WPN_Sword': 'Melee Main Weapon', 'ARM_Boots': 'Boots'}
+        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+            flags_eq, ecs_eq, stats_to_slot, {}, {}, {},
+        )
+        assert set(kept_flags) == {('WPN_Sword', 'g1')}
+        assert set(kept_ecs) == {('ARM_Boots', 'g2')}
+        assert demoted == []
+
+    def test_flags_beats_ecs_for_same_slot(self):
+        # Flags item and ECS item both claim the Chest slot — flags wins.
+        flags_eq = [('ARM_Splint', 'g1')]
+        ecs_eq = [('ARM_HalfPlate', 'g2')]
+        stats_to_slot = {'ARM_Splint': 'Chest', 'ARM_HalfPlate': 'Chest'}
+        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+            flags_eq, ecs_eq, stats_to_slot, {}, {}, {},
+        )
+        assert ('ARM_Splint', 'g1') in kept_flags
+        assert ('ARM_HalfPlate', 'g2') in demoted
+        assert ('ARM_HalfPlate', 'g2') not in kept_ecs
+
+    def test_ring_slot_allows_two(self):
+        flags_eq = [('MAG_Ring1', 'g1'), ('MAG_Ring2', 'g2')]
+        ecs_eq: list = []
+        stats_to_slot = {'MAG_Ring1': 'Ring', 'MAG_Ring2': 'Ring'}
+        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+            flags_eq, ecs_eq, stats_to_slot, {}, {}, {},
+        )
+        assert len(kept_flags) == 2
+        assert demoted == []
+
+    def test_ring_slot_demotes_third(self):
+        flags_eq = [('MAG_Ring1', 'g1'), ('MAG_Ring2', 'g2'), ('MAG_Ring3', 'g3')]
+        ecs_eq: list = []
+        stats_to_slot = {'MAG_Ring1': 'Ring', 'MAG_Ring2': 'Ring', 'MAG_Ring3': 'Ring'}
+        # All same signal; MC tiebreaker needed.  Provide MC so we can predict winner.
+        guid_to_rows = {'g1': [1], 'g2': [2], 'g3': [3]}
+        membership_count = {1: 40, 2: 38, 3: 36}
+        stats_to_entity = {'MAG_Ring1': 'g1', 'MAG_Ring2': 'g2', 'MAG_Ring3': 'g3'}
+        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+            flags_eq, ecs_eq, stats_to_slot, stats_to_entity, guid_to_rows, membership_count,
+        )
+        assert len(kept_flags) == 2
+        assert len(demoted) == 1
+        # Highest MC (g1=40, g2=38) should be kept; g3=36 demoted.
+        assert ('MAG_Ring3', 'g3') in demoted
+
+    def test_no_slot_info_passes_through(self):
+        # Items with no slot data are not touched by conflict resolution.
+        flags_eq = [('UNK_Item', 'g1')]
+        ecs_eq = [('UNK_Item2', 'g2')]
+        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+            flags_eq, ecs_eq, {}, {}, {}, {},
+        )
+        assert ('UNK_Item', 'g1') in kept_flags
+        assert ('UNK_Item2', 'g2') in kept_ecs
+        assert demoted == []
+
+
+# ---------------------------------------------------------------------------
+# Unit tests for build_instance_entity_map
+# ---------------------------------------------------------------------------
+
+class TestBuildInstanceEntityMap:
+    """Tests for build_instance_entity_map()."""
+
+    def _make_nodes(self, items_data: list[dict]) -> list[dict]:
+        """Build a minimal node tree for Items/Factory/Creators+Items."""
+        nodes: list[dict] = []
+
+        # node 0: Items root (parent=-1)
+        nodes.append({'name': 'Items', 'parent': -1, 'children': [1], 'attrs': {}})
+        # node 1: Factory
+        nodes.append({'name': 'Factory', 'parent': 0, 'children': [2, 3], 'attrs': {}})
+        # node 2: Creators
+        creator_indices = list(range(4, 4 + len(items_data)))
+        nodes.append({'name': 'Creators', 'parent': 1, 'children': creator_indices, 'attrs': {}})
+        # node 3: Items (parallel list)
+        item_indices = list(range(4 + len(items_data), 4 + 2 * len(items_data)))
+        nodes.append({'name': 'Items', 'parent': 1, 'children': item_indices, 'attrs': {}})
+
+        for d in items_data:
+            nodes.append({'name': 'Creator', 'parent': 2, 'children': [], 'attrs': {
+                'Entity': d['entity'],
+                'TemplateID': d.get('template', ''),
+            }})
+        for d in items_data:
+            nodes.append({'name': 'Item', 'parent': 3, 'children': [], 'attrs': {
+                'Translate': d['translate'],
+                'Stats': d['stats'],
+            }})
+
+        # Fix parent indices in creator/item nodes
+        for i, d in enumerate(items_data):
+            nodes[4 + i]['parent'] = 2
+            nodes[4 + len(items_data) + i]['parent'] = 3
+
+        return nodes
+
+    def test_basic_mapping(self):
+        nodes = self._make_nodes([
+            {'entity': 'ent-1', 'translate': (1.0, 2.0, 3.0), 'stats': 'WPN_Sword'},
+            {'entity': 'ent-2', 'translate': (4.0, 5.0, 6.0), 'stats': 'ARM_Boots'},
+        ])
+        result = parser.build_instance_entity_map(nodes)
+        assert result[((1.0, 2.0, 3.0), 'WPN_Sword')] == 'ent-1'
+        assert result[((4.0, 5.0, 6.0), 'ARM_Boots')] == 'ent-2'
+
+    def test_empty_when_no_items_root(self):
+        nodes = [{'name': 'Other', 'parent': -1, 'children': [], 'attrs': {}}]
+        assert parser.build_instance_entity_map(nodes) == {}
+
+    def test_skips_missing_fields(self):
+        # An item with no Stats field should not appear in the result.
+        nodes = self._make_nodes([
+            {'entity': 'ent-1', 'translate': (1.0, 2.0, 3.0), 'stats': ''},
+        ])
+        result = parser.build_instance_entity_map(nodes)
+        assert result == {}

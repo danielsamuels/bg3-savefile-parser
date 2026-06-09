@@ -1,13 +1,21 @@
 [project]
 name = "bg3-save-reader"
 version = "0.1.0"
+description = "Parse Baldur's Gate 3 save files and report character gear, spells, and quests"
+license = { text = "MIT" }
+authors = [{ name = "Daniel Finch", email = "daniel.samuels1@gmail.com" }]
 requires-python = ">=3.11"
 # Runtime deps mirror the PEP 723 inline script header in bg3_save_reader.py.
 # Both are needed for the module to be importable in tests.
 dependencies = ["zstandard", "lz4"]
 
+[project.urls]
+Homepage = "https://github.com/danielsamuels/bg3-savefile-parser"
+Repository = "https://github.com/danielsamuels/bg3-savefile-parser"
+Issues = "https://github.com/danielsamuels/bg3-savefile-parser/issues"
+
 [project.optional-dependencies]
-dev = ["pytest", "ruff", "mypy"]
+dev = ["pytest", "ruff", "ty"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -18,17 +26,11 @@ line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]
-# E702 (semicolons) and E741 (ambiguous var names) exist in the existing
-# binary-parser code where semicolons are used intentionally for readability.
-# They are excluded here to avoid mass rewrites of correct low-level code.
-ignore = ["E702", "E741"]
 
 [tool.ruff.format]
 # The existing source file uses single quotes throughout; skip whole-file
 # reformatting to avoid polluting git history with cosmetic changes.
 quote-style = "single"
 
-[tool.mypy]
-python_version = "3.11"
-strict = false
-ignore_missing_imports = true
+[tool.ty.environment]
+python-version = "3.11"

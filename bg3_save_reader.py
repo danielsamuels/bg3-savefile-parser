@@ -56,17 +56,19 @@ import re
 import struct
 import sys
 from collections import Counter
+from typing import Any, TypedDict, cast
 from uuid import UUID
 
-try:
-    import zstandard as zstd
-except ImportError:
-    sys.exit("pip install zstandard")
-try:
-    import lz4.block
-    import lz4.frame
-except ImportError:
-    sys.exit("pip install lz4")
+import lz4.block
+import lz4.frame
+import zstandard as zstd
+
+
+class Node(TypedDict):
+    name: str
+    parent: int
+    children: list[int]
+    attrs: dict[str, Any]
 
 # ---------------------------------------------------------------------------
 # LSPK / LSOF low-level helpers
@@ -113,14 +115,18 @@ def decomp_section(raw: bytes, disk: int, unc: int, flags: int, chunked: bool) -
 
 def parse_string_table(data: bytes) -> list[list[str]]:
     names, pos = [], 0
-    (n,) = struct.unpack_from('<I', data, pos); pos += 4
+    (n,) = struct.unpack_from('<I', data, pos)
+    pos += 4
     for _ in range(n):
-        chain = []; names.append(chain)
-        (ns,) = struct.unpack_from('<H', data, pos); pos += 2
+        chain = []
+        names.append(chain)
+        (ns,) = struct.unpack_from('<H', data, pos)
+        pos += 2
         for _ in range(ns):
-            (l,) = struct.unpack_from('<H', data, pos); pos += 2
-            chain.append(data[pos:pos + l].decode('utf-8', 'replace'))
-            pos += l
+            (slen,) = struct.unpack_from('<H', data, pos)
+            pos += 2
+            chain.append(data[pos:pos + slen].decode('utf-8', 'replace'))
+            pos += slen
     return names
 
 
@@ -132,36 +138,37 @@ def lkp(names: list[list[str]], nh: int) -> str:
 
 
 def read_val(val_data: bytes, off: int, tid: int, length: int):
+    # LSF attribute type IDs as defined in the Larian LSLib source.
     try:
-        if tid in (20, 21, 22, 23, 29, 30):
+        if tid in (20, 21, 22, 23, 29, 30):  # String/WString/LSString/LSWString/Path/FixedString
             return val_data[off:off + length - 1].decode('utf-8', 'replace').rstrip('\x00')
-        if tid == 28:
+        if tid == 28:  # TranslatedString: 2-byte version + 4-byte string length prefix
             hlen = struct.unpack_from('<i', val_data, off + 2)[0]
             return val_data[off + 6:off + 6 + hlen - 1].decode('utf-8', 'replace').rstrip('\x00')
-        if tid == 31:
+        if tid == 31:  # guid (16-byte little-endian UUID)
             return str(UUID(bytes_le=val_data[off:off + 16]))
-        if tid == 1:
+        if tid == 1:   # uint8
             return val_data[off]
-        if tid == 2:
+        if tid == 2:   # uint16
             return struct.unpack_from('<H', val_data, off)[0]
-        if tid == 3:
+        if tid == 3:   # int16
             return struct.unpack_from('<h', val_data, off)[0]
-        if tid == 4:
+        if tid == 4:   # int32
             return struct.unpack_from('<i', val_data, off)[0]
-        if tid == 5:
+        if tid == 5:   # uint32
             return struct.unpack_from('<I', val_data, off)[0]
-        if tid == 6:
+        if tid == 6:   # float
             return struct.unpack_from('<f', val_data, off)[0]
-        if tid == 19:
+        if tid == 19:  # bool
             return bool(val_data[off])
-        if tid in (26, 32):
+        if tid in (26, 32):  # int64, int64_2 (alias used in some versions)
             return struct.unpack_from('<q', val_data, off)[0]
-        if tid == 24:
+        if tid == 24:  # uint64
             return struct.unpack_from('<Q', val_data, off)[0]
-        if tid == 12:
+        if tid == 12:  # vec3 (three packed floats: x, y, z world position)
             return struct.unpack_from('<fff', val_data, off)
-        if tid == 25:
-            return val_data[off:off + length]   # ScratchBuffer (opaque)
+        if tid == 25:  # ScratchBuffer (opaque byte blob, e.g. LSMF ECS data)
+            return val_data[off:off + length]
         return None
     except Exception:
         return None
@@ -196,9 +203,12 @@ def parse_lsof(data: bytes) -> list[dict]:
     val_n = val_disk or val_unc
 
     pos = 64
-    str_raw = data[pos:pos + str_n]; pos += str_n
-    nod_raw = data[pos:pos + nod_n]; pos += nod_n
-    att_raw = data[pos:pos + att_n]; pos += att_n
+    str_raw = data[pos:pos + str_n]
+    pos += str_n
+    nod_raw = data[pos:pos + nod_n]
+    pos += nod_n
+    att_raw = data[pos:pos + att_n]
+    pos += att_n
     val_raw = data[pos:pos + val_n]
 
     str_data = decomp_section(str_raw, str_disk, str_unc, cflags, False)
@@ -210,7 +220,7 @@ def parse_lsof(data: bytes) -> list[dict]:
     node_size = 16 if has_keys else 12
     num_nodes = len(nod_data) // node_size
 
-    nodes = []
+    nodes: list[Node] = []
     for i in range(num_nodes):
         base = i * node_size
         nh = struct.unpack_from('<I', nod_data, base)[0]
@@ -235,7 +245,7 @@ def parse_lsof(data: bytes) -> list[dict]:
             nodes[ni]['attrs'][aname] = val
         data_off += length
 
-    return nodes
+    return cast(list[dict], nodes)
 
 
 # ---------------------------------------------------------------------------
@@ -439,28 +449,44 @@ class OsiReader:
         return len(self.data) - self.pos
 
     def u8(self) -> int:
-        v = self.data[self.pos]; self.pos += 1; return v
+        v = self.data[self.pos]
+        self.pos += 1
+        return v
 
     def i8(self) -> int:
-        v = struct.unpack_from('b', self.data, self.pos)[0]; self.pos += 1; return v
+        v = struct.unpack_from('b', self.data, self.pos)[0]
+        self.pos += 1
+        return v
 
     def u16(self) -> int:
-        v = struct.unpack_from('<H', self.data, self.pos)[0]; self.pos += 2; return v
+        v = struct.unpack_from('<H', self.data, self.pos)[0]
+        self.pos += 2
+        return v
 
     def u32(self) -> int:
-        v = struct.unpack_from('<I', self.data, self.pos)[0]; self.pos += 4; return v
+        v = struct.unpack_from('<I', self.data, self.pos)[0]
+        self.pos += 4
+        return v
 
     def i32(self) -> int:
-        v = struct.unpack_from('<i', self.data, self.pos)[0]; self.pos += 4; return v
+        v = struct.unpack_from('<i', self.data, self.pos)[0]
+        self.pos += 4
+        return v
 
     def i64(self) -> int:
-        v = struct.unpack_from('<q', self.data, self.pos)[0]; self.pos += 8; return v
+        v = struct.unpack_from('<q', self.data, self.pos)[0]
+        self.pos += 8
+        return v
 
     def u64(self) -> int:
-        v = struct.unpack_from('<Q', self.data, self.pos)[0]; self.pos += 8; return v
+        v = struct.unpack_from('<Q', self.data, self.pos)[0]
+        self.pos += 8
+        return v
 
     def f32(self) -> float:
-        v = struct.unpack_from('<f', self.data, self.pos)[0]; self.pos += 4; return v
+        v = struct.unpack_from('<f', self.data, self.pos)[0]
+        self.pos += 4
+        return v
 
     def bool(self) -> bool:
         v = self.u8()
@@ -495,7 +521,8 @@ def osi_read_value(rdr: OsiReader) -> dict:
             return {'is_valid': False, 'value': None}
     d = rdr.u8()  # discriminator byte: ord('0'), ord('1'), or ord('e')
     if d == ord('1'):
-        rdr.type_id(); v = rdr.i32()
+        rdr.type_id()
+        v = rdr.i32()
         return {'is_valid': True, 'value': v}
     elif d == ord('0'):
         t = rdr.type_id()
@@ -525,14 +552,18 @@ def osi_read_value(rdr: OsiReader) -> dict:
 def osi_read_typed_value(rdr: OsiReader) -> dict:
     v = osi_read_value(rdr)
     if rdr.ver < OSI_VER_VALUE_FLAGS:
-        rdr.bool(); rdr.bool(); rdr.bool()   # is_valid, out_param, is_a_type
+        rdr.bool()  # is_valid
+        rdr.bool()  # out_param
+        rdr.bool()  # is_a_type
     return v
 
 
 def osi_read_variable(rdr: OsiReader) -> dict:
     v = osi_read_typed_value(rdr)
     if rdr.ver < OSI_VER_VALUE_FLAGS:
-        rdr.i8(); rdr.bool(); rdr.bool()     # var_index, unused, adapted
+        rdr.i8()    # var_index
+        rdr.bool()  # unused
+        rdr.bool()  # adapted
     return v
 
 
@@ -588,20 +619,33 @@ def osi_skip_enums(rdr: OsiReader) -> None:
         rdr.u16()
         ec = rdr.u32()
         for _ in range(ec):
-            rdr.string(); rdr.u64()
+            rdr.string()
+            rdr.u64()
 
 
 def osi_skip_div_objects(rdr: OsiReader) -> None:
     n = rdr.u32()
     for _ in range(n):
-        rdr.string(); rdr.u8(); rdr.u32(); rdr.u32(); rdr.u32(); rdr.u32()
+        rdr.string()
+        rdr.u8()
+        rdr.u32()
+        rdr.u32()
+        rdr.u32()
+        rdr.u32()
 
 
 def osi_skip_functions(rdr: OsiReader) -> None:
     n = rdr.u32()
     for _ in range(n):
-        rdr.u32(); rdr.u32(); rdr.u32(); rdr.ref_u32(); rdr.u8()
-        rdr.u32(); rdr.u32(); rdr.u32(); rdr.u32()
+        rdr.u32()
+        rdr.u32()
+        rdr.u32()
+        rdr.ref_u32()
+        rdr.u8()
+        rdr.u32()
+        rdr.u32()
+        rdr.u32()
+        rdr.u32()
         rdr.string()
         ob = rdr.u32()
         for _ in range(ob):
@@ -638,23 +682,35 @@ def osi_read_nodes(rdr: OsiReader) -> dict:
             pass
         elif nt in (OSI_NODE_AND, OSI_NODE_NOT_AND):
             osi_read_node_entry_item(rdr)
-            rdr.ref_u32(); rdr.ref_u32(); rdr.ref_u32(); rdr.ref_u32()
             rdr.ref_u32()
-            osi_read_node_entry_item(rdr); rdr.u8()
             rdr.ref_u32()
-            osi_read_node_entry_item(rdr); rdr.u8()
+            rdr.ref_u32()
+            rdr.ref_u32()
+            rdr.ref_u32()
+            osi_read_node_entry_item(rdr)
+            rdr.u8()
+            rdr.ref_u32()
+            osi_read_node_entry_item(rdr)
+            rdr.u8()
         elif nt == OSI_NODE_REL_OP:
             osi_read_node_entry_item(rdr)
-            rdr.ref_u32(); rdr.ref_u32()
             rdr.ref_u32()
-            osi_read_node_entry_item(rdr); rdr.u8()
-            rdr.i8(); rdr.i8()
-            osi_read_value(rdr); osi_read_value(rdr); rdr.i32()
+            rdr.ref_u32()
+            rdr.ref_u32()
+            osi_read_node_entry_item(rdr)
+            rdr.u8()
+            rdr.i8()
+            rdr.i8()
+            osi_read_value(rdr)
+            osi_read_value(rdr)
+            rdr.i32()
         elif nt == OSI_NODE_RULE:
             osi_read_node_entry_item(rdr)
-            rdr.ref_u32(); rdr.ref_u32()
             rdr.ref_u32()
-            osi_read_node_entry_item(rdr); rdr.u8()
+            rdr.ref_u32()
+            rdr.ref_u32()
+            osi_read_node_entry_item(rdr)
+            rdr.u8()
             cc = rdr.u32()
             for _ in range(cc):
                 osi_read_call(rdr)
@@ -681,7 +737,8 @@ def osi_skip_adapters(rdr: OsiReader) -> None:
             rdr.i8()
         mc = rdr.u8()
         for _ in range(mc):
-            rdr.u8(); rdr.u8()
+            rdr.u8()
+            rdr.u8()
 
 
 def osi_read_databases(rdr: OsiReader) -> dict:
@@ -758,7 +815,9 @@ def parse_osiris(frames: list[bytes]) -> dict | None:
         while data[pos] != 0:  # skip version string
             pos += 1
         pos += 1                # consume null terminator
-        major = data[pos]; minor = data[pos + 1]; pos += 4
+        major = data[pos]
+        minor = data[pos + 1]
+        pos += 4
         ver = (major << 8) | minor
         pos += 0x80             # version buffer
         pos += 4                # debug flags
@@ -1075,6 +1134,30 @@ def build_entity_template_map(nodes: list[dict], root_name: str) -> dict[str, st
     return result
 
 
+def build_instance_entity_map(nodes: list[dict]) -> dict[tuple, str]:
+    """Return {(translate, stats): entity_guid} from parallel Creators/Items arrays."""
+    items_root = next(
+        (i for i, nd in enumerate(nodes) if nd['name'] == 'Items' and nd['parent'] == -1), None)
+    if items_root is None:
+        return {}
+    factory_ni = nodes[items_root]['children'][0] if nodes[items_root]['children'] else None
+    if factory_ni is None:
+        return {}
+    factory_children = nodes[factory_ni]['children']
+    creators_ni = next((ci for ci in factory_children if nodes[ci]['name'] == 'Creators'), None)
+    items_ni    = next((ci for ci in factory_children if nodes[ci]['name'] == 'Items'),    None)
+    if creators_ni is None or items_ni is None:
+        return {}
+    result: dict[tuple, str] = {}
+    for creator_ci, item_ci in zip(nodes[creators_ni]['children'], nodes[items_ni]['children']):
+        entity    = nodes[creator_ci]['attrs'].get('Entity', '')
+        translate = nodes[item_ci]['attrs'].get('Translate')
+        stats     = nodes[item_ci]['attrs'].get('Stats', '')
+        if entity and translate and stats:
+            result[(translate, stats)] = entity
+    return result
+
+
 def build_template_stats_map(nodes: list[dict]) -> dict[str, str]:
     items_root = next(
         (i for i, nd in enumerate(nodes) if nd['name'] == 'Items' and nd['parent'] == -1),
@@ -1240,13 +1323,15 @@ def collect_items_by_position(node_lists: list[list[dict]],
 def split_equipped_carried(
     items: list[tuple],
     status_equipped: set[str],
+    object_type_stats: frozenset[str] | None = None,
 ) -> tuple[list[tuple], list[tuple], list[tuple]]:
     """Classify attributed items into (equipped, carried, undetermined) using LSF signals.
 
       equipped     – STATUS on-equip effect, or 0x04000000 Flags bit on an
                      equipment-type item.
       carried      – not equipment at all (consumables, keys, gold, camp/
-                     cosmetic clothing).
+                     cosmetic clothing), or Object-type items (books, containers,
+                     quest items) that cannot be equipped.
       undetermined – equipment-type items with no LSF worn signal; a second
                      pass via ecs_resolve_equipped resolves these using ECS
                      component membership counts.
@@ -1255,6 +1340,9 @@ def split_equipped_carried(
     """
     equipped, carried, undetermined = [], [], []
     for stats, flags, guid in items:
+        if object_type_stats and stats in object_type_stats:
+            carried.append((stats, guid))
+            continue
         signalled = stats in status_equipped or (
             isinstance(flags, int)
             and (flags & EQUIPPED_FLAG_BIT)
@@ -1409,12 +1497,17 @@ def ecs_resolve_equipped(
     membership_count: dict[int, int],
     *,
     threshold: int = 15,
+    stats_to_entity: dict[str, str] | None = None,
 ) -> tuple[list[tuple], list[tuple], list[tuple]]:
     """Classify undetermined items via ECS component membership counts.
 
     Equipped items (materialised in the ECS world) have ~35–41 component
     memberships; items moved to a backpack dematerialise to ~3–6.
     A threshold of 15 sits cleanly between the two groups.
+
+    When stats_to_entity is provided, the per-instance entity GUID is used
+    directly instead of looking up all level instances of the template, which
+    prevents MC contamination from unrelated instances of the same item type.
 
     Items whose template GUID has no ECS entity at all are left undetermined
     rather than silently classified as carried.
@@ -1425,11 +1518,15 @@ def ecs_resolve_equipped(
     now_carried: list[tuple] = []
     still_undetermined: list[tuple] = []
     for stats, tmpl_guid in undetermined:
-        rows = [
-            row
-            for ig in template_to_instances.get(tmpl_guid, [])
-            for row in guid_to_rows.get(ig, [])
-        ]
+        if stats_to_entity and stats in stats_to_entity:
+            entity_guid = stats_to_entity[stats]
+            rows = guid_to_rows.get(entity_guid, [])
+        else:
+            rows = [
+                row
+                for ig in template_to_instances.get(tmpl_guid, [])
+                for row in guid_to_rows.get(ig, [])
+            ]
         if not rows:
             still_undetermined.append((stats, tmpl_guid))
             continue
@@ -1439,6 +1536,78 @@ def ecs_resolve_equipped(
         else:
             now_carried.append((stats, tmpl_guid))
     return now_equipped, now_carried, still_undetermined
+
+
+SLOT_CAPACITY: dict[str, int] = {'Ring': 2}
+
+
+def resolve_slot_conflicts(
+    flags_equipped: list[tuple],
+    ecs_equipped: list[tuple],
+    stats_to_slot: dict[str, str],
+    stats_to_entity: dict[str, str],
+    guid_to_rows: dict[str, list[int]],
+    membership_count: dict[int, int],
+) -> tuple[list[tuple], list[tuple], list[tuple]]:
+    """Resolve cases where more items are signalled for a slot than it can hold.
+
+    Priority: Flags-signalled items beat ECS-only items for the same slot.
+    Ties within a signal type are broken by per-instance membership count
+    (higher MC = more likely the physically worn item).
+    Ring slot has capacity 2; all others capacity 1.
+
+    Returns (kept_flags_equipped, kept_ecs_equipped, demoted_to_carried).
+    """
+    def get_mc(stats: str) -> int:
+        eg = stats_to_entity.get(stats, '')
+        if not eg:
+            return 0
+        return max((membership_count.get(r, 0) for r in guid_to_rows.get(eg, [])), default=0)
+
+    slot_candidates: dict[str, list[tuple]] = {}
+    no_slot_flags: list[tuple] = []
+    no_slot_ecs:   list[tuple] = []
+
+    for stats, guid in flags_equipped:
+        slot = stats_to_slot.get(stats)
+        if slot:
+            slot_candidates.setdefault(slot, []).append((stats, guid, 'flags'))
+        else:
+            no_slot_flags.append((stats, guid))
+    for stats, guid in ecs_equipped:
+        slot = stats_to_slot.get(stats)
+        if slot:
+            slot_candidates.setdefault(slot, []).append((stats, guid, 'ecs'))
+        else:
+            no_slot_ecs.append((stats, guid))
+
+    kept_flags: list[tuple] = list(no_slot_flags)
+    kept_ecs:   list[tuple] = list(no_slot_ecs)
+    demoted:    list[tuple] = []
+
+    for slot, candidates in slot_candidates.items():
+        capacity = SLOT_CAPACITY.get(slot, 1)
+        if len(candidates) <= capacity:
+            for stats, guid, signal in candidates:
+                (kept_flags if signal == 'flags' else kept_ecs).append((stats, guid))
+            continue
+        flags_cands = [(s, g) for s, g, sig in candidates if sig == 'flags']
+        ecs_cands   = [(s, g) for s, g, sig in candidates if sig == 'ecs']
+        if flags_cands and ecs_cands:
+            winners = sorted(flags_cands, key=lambda sg: -get_mc(sg[0]))[:capacity]
+            kept_flags.extend(winners)
+            demoted.extend(sg for sg in flags_cands if sg not in winners)
+            demoted.extend(ecs_cands)
+        elif flags_cands:
+            winners = sorted(flags_cands, key=lambda sg: -get_mc(sg[0]))[:capacity]
+            kept_flags.extend(winners)
+            demoted.extend(sg for sg in flags_cands if sg not in winners)
+        else:
+            winners = sorted(ecs_cands, key=lambda sg: -get_mc(sg[0]))[:capacity]
+            kept_ecs.extend(winners)
+            demoted.extend(sg for sg in ecs_cands if sg not in winners)
+
+    return kept_flags, kept_ecs, demoted
 
 
 # ---------------------------------------------------------------------------
@@ -1478,8 +1647,11 @@ ROOT_TEMPLATE_FILES = [
 LOCA_PAK = 'Localization/English.pak'
 LOCA_FILE = 'Localization/English/english.loca'
 
+STAT_ITEM_PAKS = ['Shared.pak', 'Gustav.pak', 'GustavX.pak']
+STAT_ITEM_FILE_RE = re.compile(r'/Stats/Generated/Data/(?:Armor|Weapon|Object)\.txt$')
+
 # Bump when the resolver logic changes so a stale cache is not silently reused.
-DISPLAYNAME_SCHEMA_VERSION = 3
+DISPLAYNAME_SCHEMA_VERSION = 4
 
 
 def find_game_data_dir() -> str | None:
@@ -1552,9 +1724,11 @@ def parse_loca(blob: bytes) -> dict[str, str]:
     pos = 12
     entries = []
     for _ in range(num):
-        key = blob[pos:pos + 64].split(b'\x00')[0].decode('latin1'); pos += 64
+        key = blob[pos:pos + 64].split(b'\x00')[0].decode('latin1')
+        pos += 64
         pos += 2  # version (uint16)
-        length = struct.unpack_from('<I', blob, pos)[0]; pos += 4
+        length = struct.unpack_from('<I', blob, pos)[0]
+        pos += 4
         entries.append((key, length))
     out = {}
     tp = texts_off
@@ -1584,8 +1758,10 @@ def cache_path(data_dir: str) -> str:
     return os.path.join(cdir, f'displaynames-{sig}.json')
 
 
-def build_displayname_maps(data_dir: str) -> tuple[dict[str, str], dict[str, str], dict[str, str]]:
-    """Build (guid->name, stats->name, spell_id->name) from game data.
+def build_displayname_maps(
+    data_dir: str,
+) -> tuple[dict[str, str], dict[str, str], dict[str, str], frozenset[str], dict[str, str]]:
+    """Build (guid->name, stats->name, spell_id->name, object_type_stats, stats_to_slot).
 
     Results are cached under XDG_CACHE_HOME keyed on the source paks' mtime/size,
     so the ~1 s parse only happens after a game update.
@@ -1594,7 +1770,13 @@ def build_displayname_maps(data_dir: str) -> tuple[dict[str, str], dict[str, str
     try:
         with open(cache, encoding='utf-8') as fh:
             data = json.load(fh)
-        return data['guid'], data['stats'], data.get('spells', {})
+        return (
+            data['guid'],
+            data['stats'],
+            data.get('spells', {}),
+            frozenset(data.get('object_types', [])),
+            data.get('stats_slots', {}),
+        )
     except (OSError, ValueError, KeyError):
         pass
 
@@ -1652,7 +1834,9 @@ def build_displayname_maps(data_dir: str) -> tuple[dict[str, str], dict[str, str
     try:
         with open(shared_pak, 'rb') as fh:
             flist = lspk_filelist(fh)
-        spell_files = sorted(k for k in flist if re.search(r'/Stats/Generated/Data/Spell_.*\.txt$', k))
+        spell_files = sorted(
+            k for k in flist if re.search(r'/Stats/Generated/Data/Spell_.*\.txt$', k)
+        )
         for sf in spell_files:
             text = lspk_extract(shared_pak, sf).decode('utf-8', errors='replace')
             for block_match in re.finditer(r'^new entry "([^"]+)"', text, re.MULTILINE):
@@ -1668,22 +1852,97 @@ def build_displayname_maps(data_dir: str) -> tuple[dict[str, str], dict[str, str
     except (OSError, KeyError, ValueError):
         pass
 
+    # Item stat files: Armor.txt / Weapon.txt / Object.txt from item paks.
+    # Used to (a) identify Object-type items that cannot be equipped, and
+    # (b) resolve the equipment slot for each item (following the `using` chain).
+    stat_raw: dict[str, dict] = {}
+    for pak_name in STAT_ITEM_PAKS:
+        pak_path = os.path.join(data_dir, pak_name)
+        try:
+            with open(pak_path, 'rb') as fh:
+                flist2 = lspk_filelist(fh)
+            item_files = sorted(k for k in flist2 if STAT_ITEM_FILE_RE.search(k))
+            for sf in item_files:
+                text = lspk_extract(pak_path, sf).decode('utf-8', errors='replace')
+                for bm in re.finditer(r'^new entry "([^"]+)"', text, re.MULTILINE):
+                    name = bm.group(1)
+                    start = bm.end()
+                    nb = re.search(r'^new entry', text[start:], re.MULTILINE)
+                    block = text[start: start + (nb.start() if nb else len(text))]
+                    type_m  = re.search(r'^type "([^"]+)"',       block, re.MULTILINE)
+                    using_m = re.search(r'^using "([^"]+)"',       block, re.MULTILINE)
+                    slot_m  = re.search(r'^data "Slot" "([^"]+)"', block, re.MULTILINE)
+                    new_using = using_m.group(1) if using_m else None
+                    prev = stat_raw.get(name)
+                    if prev is None:
+                        stat_raw[name] = {
+                            'type':  type_m.group(1) if type_m else None,
+                            'using': new_using,
+                            'slot':  slot_m.group(1) if slot_m else None,
+                        }
+                    else:
+                        # Honour-mode patches use `using "SameName"` for value-only
+                        # overrides; skip self-referential `using` to avoid loops.
+                        if new_using and new_using != name:
+                            prev['using'] = new_using
+                        if type_m:
+                            prev['type'] = type_m.group(1)
+                        if slot_m:
+                            prev['slot'] = slot_m.group(1)
+        except (OSError, KeyError, ValueError):
+            pass
+
+    object_type_stats_list = [n for n, d in stat_raw.items() if d.get('type') == 'Object']
+
+    def resolve_slot(name: str, depth: int = 0) -> str | None:
+        if depth > 24:
+            return None
+        entry = stat_raw.get(name)
+        if not entry:
+            return None
+        if entry['slot']:
+            return entry['slot']
+        parent = entry.get('using')
+        if parent and parent != name:
+            return resolve_slot(parent, depth + 1)
+        return None
+
+    stats_to_slot: dict[str, str] = {}
+    for name in stat_raw:
+        s = resolve_slot(name)
+        if s:
+            stats_to_slot[name] = s
+
     try:
         with open(cache, 'w', encoding='utf-8') as fh:
-            json.dump({'guid': guid_name, 'stats': stats_name, 'spells': spell_name}, fh)
+            json.dump({
+                'guid': guid_name,
+                'stats': stats_name,
+                'spells': spell_name,
+                'object_types': object_type_stats_list,
+                'stats_slots': stats_to_slot,
+            }, fh)
     except OSError:
         pass
-    return guid_name, stats_name, spell_name
+    return guid_name, stats_name, spell_name, frozenset(object_type_stats_list), stats_to_slot
 
 
 class DisplayNames:
     """Resolves internal item/spell identifiers to 'Display Name (INTERNAL_NAME)'."""
 
-    def __init__(self, guid_name: dict[str, str], stats_name: dict[str, str],
-                 spell_name: dict[str, str] | None = None):
-        self._guid = guid_name
-        self._stats = stats_name
+    def __init__(
+        self,
+        guid_name:         dict[str, str],
+        stats_name:        dict[str, str],
+        spell_name:        dict[str, str]   | None = None,
+        object_type_stats: frozenset[str]   | None = None,
+        stats_to_slot:     dict[str, str]   | None = None,
+    ):
+        self._guid   = guid_name
+        self._stats  = stats_name
         self._spells = spell_name or {}
+        self.object_type_stats: frozenset[str] = object_type_stats or frozenset()
+        self.stats_to_slot:     dict[str, str] = stats_to_slot     or {}
         self.verbose = False  # set to True to append (INTERNAL_NAME) after display names
 
     @classmethod
@@ -1783,8 +2042,13 @@ def build_report(save_path: str, frames: list[bytes] | None = None, opts=None) -
             for mod_entry in user_mods:
                 w(f'             {mod_entry.get("name", "?")}')
         else:
-            w(f'Mods       : none')
-        w(f'Item names : {"resolved from game data" if dn.available else "internal only (game data not found; set BG3_DATA_DIR)"}')
+            w('Mods       : none')
+        item_name_source = (
+            'resolved from game data'
+            if dn.available
+            else 'internal only (game data not found; set BG3_DATA_DIR)'
+        )
+        w(f'Item names : {item_name_source}')
 
     # ---- Parse Osiris story state (frame 9) — only when --quests requested -
     osiris = parse_osiris(frames) if opt('quests') else None
@@ -1815,6 +2079,7 @@ def build_report(save_path: str, frames: list[bytes] | None = None, opts=None) -
     # Parse LSMF once; also build the reverse map used by ecs_resolve_equipped
     lsmf_ecs = parse_lsmf_membership(lsmf_blob) if lsmf_blob else None
     template_to_instances = invert_entity_template_map(entity_to_template0)
+    instance_entity_map = build_instance_entity_map(nodes0)
 
     # ---- Parse level cache (frame 3) for item data -----------------------
     frame3_data = decomp_frame(frames[3])
@@ -1911,15 +2176,38 @@ def build_report(save_path: str, frames: list[bytes] | None = None, opts=None) -
                 if stats_name:
                     status_equipped.add(stats_name)
 
+        # Build per-character stats→entity map using parallel Creators/Items arrays
+        char_pos = char_positions.get(display_name)
+        char_stats_to_entity: dict[str, str] = {}
+        if char_pos is not None:
+            for (trans, stats_key), eg in instance_entity_map.items():
+                if trans == char_pos:
+                    char_stats_to_entity[stats_key] = eg
+
         attributed = items_by_char.get(display_name, [])
         if attributed:
-            equipped, carried, undetermined = split_equipped_carried(attributed, status_equipped)
+            flags_equipped, carried, undetermined = split_equipped_carried(
+                attributed, status_equipped,
+                object_type_stats=dn.object_type_stats or None,
+            )
+            ecs_eq: list[tuple] = []
             if undetermined and lsmf_ecs is not None:
                 ecs_eq, ecs_ca, undetermined = ecs_resolve_equipped(
                     undetermined, template_to_instances, *lsmf_ecs,
+                    stats_to_entity=char_stats_to_entity,
                 )
-                equipped = sorted(set(equipped) | set(ecs_eq))
                 carried = sorted(set(carried) | set(ecs_ca))
+
+            if dn.stats_to_slot and lsmf_ecs is not None:
+                guid_to_rows, membership_count = lsmf_ecs
+                flags_equipped, ecs_eq, demoted = resolve_slot_conflicts(
+                    flags_equipped, ecs_eq,
+                    dn.stats_to_slot, char_stats_to_entity,
+                    guid_to_rows, membership_count,
+                )
+                carried = sorted(set(carried) | set(demoted))
+
+            equipped = sorted(set(flags_equipped) | set(ecs_eq))
             w(f'    Equipped ({len(equipped)}):')
             for s, guid in equipped:
                 w(f'      – {dn.fmt(s, guid)}')
