@@ -78,73 +78,69 @@ class Node(TypedDict):
 ZSTD_MAGIC = b'\x28\xb5\x2f\xfd'
 
 
-def extract_frames(path: str) -> list[bytes]:
+def extract_frames(path: str) -> dict[str, bytes]:
+    """Read a .lsv save file and return its named frames.
+
+    Keys for fixed-purpose entries:
+      'Globals.lsf'    — world state (party, items, LSMF blob)
+      'meta.lsf'       — save metadata (leader name, mods, timestamps)
+      'thumbnail'      — load-screen WebP image (name varies per save)
+      'info'           — SaveInfo.json / Info.json
+      'osiris'         — StorySave.bin (Osiris story-state database)
+      'LevelCache/…'   — one key per level-cache file, using its LSPK name
+    """
     with open(path, 'rb') as fh:
         data = fh.read()
 
     if data[:4] == b'LSPK':
         flist = lspk_filelist(io.BytesIO(data))
         sorted_entries = sorted(flist.items(), key=lambda kv: kv[1][0])
-        frames = [data[off:off + sod] for _, (off, _p, _f, sod, _u) in sorted_entries]
+        raw_frames = [data[off:off + sod] for _, (off, _p, _f, sod, _u) in sorted_entries]
         names = [n for n, _ in sorted_entries]
-        return normalize_named_frames(frames, names)
+        return normalize_named_frames(raw_frames, names)
 
-    # Fallback for non-LSPK files: scan for ZSTD magic bytes
-    frames, pos = [], 0
+    # Fallback for non-LSPK files: scan for ZSTD magic bytes then assign
+    # slots by canonical position.  Should not occur for standard .lsv saves.
+    scanned: list[bytes] = []
+    pos = 0
     while pos < len(data):
         idx = data.find(ZSTD_MAGIC, pos)
         if idx == -1:
             break
         nxt = data.find(ZSTD_MAGIC, idx + 4)
         if nxt == -1:
-            frames.append(data[idx:])
+            scanned.append(data[idx:])
             break
-        frames.append(data[idx:nxt])
+        scanned.append(data[idx:nxt])
         pos = nxt
-    return normalize_frames(frames)
+    slots = normalize_frames(scanned)
+    result: dict[str, bytes] = {}
+    for slot, key in ((0, 'Globals.lsf'), (6, 'meta.lsf'), (7, 'thumbnail'),
+                      (8, 'info'), (9, 'osiris')):
+        if slot < len(slots) and slots[slot]:
+            result[key] = slots[slot]
+    for i, slot in enumerate((2, 3, 4, 5)):
+        if slot < len(slots) and slots[slot]:
+            result[f'LevelCache/scene_{i}'] = slots[slot]
+    return result
 
 
-def normalize_named_frames(frames: list[bytes], names: list[str]) -> list[bytes]:
-    """Map named LSPK manifest entries to the canonical 10-slot frame array.
-
-    Fixed entries are placed by name.  LevelCache/*.lsf files (already sorted
-    by file offset by the caller) fill the remaining slots in order.
-
-    Slot layout (canonical):
-      0: Globals.lsf            6: meta.lsf
-      1-5: LevelCache/*.lsf     7: *.WebP  (thumbnail)
-                                8: SaveInfo.json / Info.json
-                                9: StorySave.bin (Osiris)
-
-    Older 7-frame saves have only 2 LevelCache entries.  normalize_frames()
-    historically placed them at slots 2–3 (slot 1 empty), so we replicate
-    that here so that frame[3] keeps pointing at the item-stats cache.
-    """
-    result = [b''] * 10
-    level_cache: list[bytes] = []
-
-    for name, frame in zip(names, frames):
+def normalize_named_frames(raw_frames: list[bytes], names: list[str]) -> dict[str, bytes]:
+    """Map named LSPK manifest entries to a dict keyed by semantic name."""
+    result: dict[str, bytes] = {}
+    for name, frame in zip(names, raw_frames):
         if name == 'Globals.lsf':
-            result[0] = frame
+            result['Globals.lsf'] = frame
         elif name == 'meta.lsf':
-            result[6] = frame
+            result['meta.lsf'] = frame
         elif name.lower().endswith('.webp'):
-            result[7] = frame
+            result['thumbnail'] = frame
         elif name in ('SaveInfo.json', 'Info.json'):
-            result[8] = frame
+            result['info'] = frame
         elif name == 'StorySave.bin':
-            result[9] = frame
+            result['osiris'] = frame
         elif name.startswith('LevelCache/'):
-            level_cache.append(frame)
-
-    # 10-frame saves have 5 LevelCache entries → slots 1-5.
-    # Older saves have 2 → start at slot 2 to keep the item-stats cache at slot 3.
-    start = 1 if len(frames) >= 10 else 2
-    for i, frame in enumerate(level_cache):
-        slot = start + i
-        if slot <= 5:
-            result[slot] = frame
-
+            result[name] = frame
     return result
 
 
@@ -153,11 +149,11 @@ def normalize_frames(frames: list[bytes]) -> list[bytes]:
 
     Used only when extract_frames falls back to the ZSTD magic scan (i.e.
     the file is not an LSPK container, which should not happen for .lsv saves).
-    Handles the two 7-frame variants seen in older saves by sniffing the
-    content signature of the first frame.
 
-    Both old layouts map to the same 10-frame canonical order:
-      [globals, -, lsof, levelcache, -, -, metadata, thumb, info_json, osiris]
+    Some saves store fewer files in the archive, and the thumbnail (a RIFF/WebP
+    file) may appear first (AutoSaves) or last (manual saves) depending on write
+    order.  Both layouts are remapped to a canonical 10-slot list so the
+    caller's slot-to-name conversion produces the correct keys.
     """
     if len(frames) != 7:
         return frames
@@ -347,20 +343,20 @@ def parse_lsof(data: bytes) -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
-# Info.json  (frame 8 in the LSPK)
+# SaveInfo.json / Info.json  (info in the LSPK)
 # ---------------------------------------------------------------------------
 
-def parse_info_json(frames: list[bytes]) -> dict:
-    raw = decomp_frame(frames[8])
+def parse_info_json(frames: dict[str, bytes]) -> dict:
+    raw = decomp_frame(frames['info'])
     return json.loads(raw.decode('utf-8'))
 
 
 # ---------------------------------------------------------------------------
-# MetaData  (frame 6 in the LSPK)
+# MetaData  (meta.lsf in the LSPK)
 # ---------------------------------------------------------------------------
 
-def parse_metadata(frames: list[bytes]) -> dict:
-    """Parse frame 6 (LSOF MetaData) and return a dict of useful fields.
+def parse_metadata(frames: dict[str, bytes]) -> dict:
+    """Parse meta.lsf (LSOF MetaData) and return a dict of useful fields.
 
     Returns:
         save_time           int  — wall-clock save time (Unix epoch seconds)
@@ -381,7 +377,7 @@ def parse_metadata(frames: list[bytes]) -> dict:
         all_mods            list[dict]  — all ModuleShortDesc entries including
                                           base game modules
     """
-    data = decomp_frame(frames[6])
+    data = decomp_frame(frames['meta.lsf'])
     nodes = parse_lsof(data)
 
     # Node 0 is the bare 'MetaData' root (no attrs); node 1 is the child that
@@ -427,11 +423,11 @@ def parse_metadata(frames: list[bytes]) -> dict:
     }
 
 
-# Thumbnail extractor  (frame 7 in the LSPK)
+# Thumbnail extractor  (thumbnail / *.WebP in the LSPK)
 # ---------------------------------------------------------------------------
 
-def extract_thumbnail(frames: list[bytes], output_path: str) -> tuple[int, int] | None:
-    """Decompress frame 7 (the load-screen thumbnail) and write it to output_path.
+def extract_thumbnail(frames: dict[str, bytes], output_path: str) -> tuple[int, int] | None:
+    """Decompress the load-screen thumbnail and write it to output_path.
 
     The frame is a RIFF/WebP image.  Dimensions are parsed from the RIFF chunk
     structure without requiring Pillow or any image library.
@@ -443,7 +439,7 @@ def extract_thumbnail(frames: list[bytes], output_path: str) -> tuple[int, int] 
 
     Returns (width, height) as a tuple, or None if the format is unrecognised.
     """
-    data = decomp_frame(frames[7])
+    data = decomp_frame(frames['thumbnail'])
     with open(output_path, 'wb') as fh:
         fh.write(data)
 
@@ -881,7 +877,7 @@ def osi_read_goals(rdr: OsiReader) -> dict:
     return goals
 
 
-def parse_osiris(frames: list[bytes]) -> dict | None:
+def parse_osiris(frames: dict[str, bytes]) -> dict | None:
     """Parse frame 9 (Osiris story state) and return useful quest/story data.
 
     Returns a dict with:
@@ -898,9 +894,9 @@ def parse_osiris(frames: list[bytes]) -> dict | None:
     Databases section is reachable; this costs ~1–2 s on a typical save.
     """
     try:
-        if len(frames) <= 9:
+        if 'osiris' not in frames:
             return None
-        data = decomp_frame(frames[9])
+        data = decomp_frame(frames['osiris'])
 
         # --- Header ---
         # null byte, then unscrambled version string (NUL-terminated),
@@ -2090,7 +2086,7 @@ def fmt_class(cls: dict) -> str:
     return f'{main} / {sub}' if sub else main
 
 
-def build_report(save_path: str, frames: list[bytes] | None = None, opts=None) -> str:
+def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=None) -> str:
     lines = []
     w = lines.append
 
@@ -2112,7 +2108,7 @@ def build_report(save_path: str, frames: list[bytes] | None = None, opts=None) -
     info = parse_info_json(frames)
     party_info = info.get('Active Party', {}).get('Characters', [])
 
-    # ---- MetaData (frame 6) -----------------------------------------------
+    # ---- MetaData ------------------------------------------------------------
     meta = parse_metadata(frames)
     leader_name = meta.get('leader_name') or ''
     player_display_name = f'{leader_name} (player)' if leader_name else 'Player'
@@ -2155,11 +2151,11 @@ def build_report(save_path: str, frames: list[bytes] | None = None, opts=None) -
         )
         w(f'Item names : {item_name_source}')
 
-    # ---- Parse Osiris story state (frame 9) — only when --quests requested -
+    # ---- Parse Osiris story state — only when --quests requested -----------
     osiris = parse_osiris(frames) if opt('quests') else None
 
-    # ---- Parse Globals (frame 0) ------------------------------------------
-    frame0_data = decomp_frame(frames[0])
+    # ---- Parse Globals.lsf --------------------------------------------------
+    frame0_data = decomp_frame(frames['Globals.lsf'])
     nodes0 = parse_lsof(frame0_data)
 
     party_nodes = find_party_character_nodes(nodes0, player_display_name)
@@ -2186,22 +2182,26 @@ def build_report(save_path: str, frames: list[bytes] | None = None, opts=None) -
     template_to_instances = invert_entity_template_map(entity_to_template0)
     instance_entity_map = build_instance_entity_map(nodes0)
 
-    # ---- Parse level cache (frame 3) for item data -----------------------
-    frame3_data = decomp_frame(frames[3])
-    nodes3 = parse_lsof(frame3_data)
-    template_to_stats3 = build_template_stats_map(nodes3)
+    # ---- Parse all level-cache files for item data --------------------------
+    all_lc_node_lists: list[list[dict]] = []
+    template_to_stats_lc: dict[str, str] = {}
+    for lc_key, lc_raw in frames.items():
+        if lc_key.startswith('LevelCache/') and lc_raw:
+            lc_nodes = parse_lsof(decomp_frame(lc_raw))
+            all_lc_node_lists.append(lc_nodes)
+            template_to_stats_lc.update(build_template_stats_map(lc_nodes))
 
-    # Merged template→stats: frame 0 (equipped items) takes priority
-    template_to_stats = {**template_to_stats3, **template_to_stats0}
+    # Merged template→stats: Globals.lsf (equipped items) takes priority
+    template_to_stats = {**template_to_stats_lc, **template_to_stats0}
 
-    # Per-character item attribution by shared world position (frame 0 + frame 3)
-    items_by_char = collect_items_by_position([nodes0, nodes3], char_positions)
+    # Per-character item attribution across Globals.lsf + all level caches
+    items_by_char = collect_items_by_position([nodes0] + all_lc_node_lists, char_positions)
 
     # ---- Quest & story state (Osiris) — only when --quests requested --------
     if opt('quests'):
         w('')
         w('━' * 72)
-        w('QUEST & STORY STATE  (Osiris frame 9)')
+        w('QUEST & STORY STATE  (Osiris / StorySave.bin)')
         w('━' * 72)
         if osiris is None:
             w('\n  (Osiris parse failed or frame not present)\n')
@@ -2339,7 +2339,8 @@ def build_report(save_path: str, frames: list[bytes] | None = None, opts=None) -
         w('(world loot, containers, vendor stock) for reference.')
         w('━' * 72)
 
-        inv = collect_inventory_items(nodes3)
+        inv = [item for lc_nodes in all_lc_node_lists
+               for item in collect_inventory_items(lc_nodes)]
         counts = Counter(item['stats'] for item in inv if item['stats'])
         inv_guid: dict[str, str] = {}  # stats -> a representative CurrentTemplate GUID
         for item in inv:
