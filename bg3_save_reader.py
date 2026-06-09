@@ -57,6 +57,7 @@ import re
 import struct
 import sys
 from collections import Counter
+from functools import lru_cache
 from typing import Any, TypedDict, cast
 
 import lz4.block
@@ -1406,18 +1407,30 @@ def split_equipped_carried(
     return sorted(set(equipped)), sorted(set(carried)), sorted(set(undetermined))
 
 
-def parse_lsmf_membership(
-    blob: bytes,
-) -> tuple[dict[str, list[int]], dict[int, int]] | None:
-    """Parse the LSMF ECS blob to extract per-entity component membership counts.
+# Items owned as inventory loot by a character. Direction relative to "worn"
+# varies by save: a genuinely equipped item may be present (save 246 gloves)
+# or absent (save 286 weapons), so this is only a weak tiebreaker.
+OWNED_AS_LOOT_COMP = 'game.v0.OwnedAsLootComponent'
+# Items that are (or were) in a weapon slot. For Flags-equipped items this
+# supports genuineness; for ECS-promoted items it marks a stale leftover.
+WIELDED_COMP = 'game.inventory.v0.WieldedComponent'
+# Physics disabled because the item is attached to a character in the world
+# (worn/held visual), absent on items sitting inside an inventory.
+GRAVITY_DISABLED_COMP = 'game.gravity.v0.GravityDisabledComponent'
 
-    Returns (guid_to_rows, membership_count) where:
-      guid_to_rows      — entity GUID string → list of EntityId row indices
-      membership_count  — entity row index → number of component ownerlists it appears in
 
-    Equipped items remain materialised in the ECS world (~35–41 memberships).
-    Items moved to a backpack dematerialise (~3–6 memberships).
+@lru_cache(maxsize=1)
+def scan_lsmf_blob(blob: bytes) -> tuple | None:
+    """Parse the LSMF header, component descriptors, and ownerlist table.
+
+    Returns (comp_descs, records) where comp_descs[i] = (name, row_count,
+    data_offset) for component descriptor i, and records is a tuple of
+    (comp_idx, start, entity_count) for every valid ownerlist record found.
     Returns None on any parse failure.
+
+    The ownerlist scan walks the whole blob and dominates LSMF parse time, so
+    the result is cached (size 1): membership counting, per-component row
+    extraction, and --inspect all share one scan of the same blob.
     """
     # LSMF blob header (absolute offsets):
     #   blob[8:16]   = unknown (ignored)
@@ -1446,7 +1459,7 @@ def parse_lsmf_membership(
         names_sec = blob[names_off:names_off + names_size]
         desc_base = names_off + desc_table_rel
 
-        eid_off = eid_rows = 0
+        comp_descs: list[tuple[str, int, int]] = []
         rows_by_comp: dict[int, int] = {}
         for i in range(entry_count):
             base = desc_base + i * 48
@@ -1455,31 +1468,22 @@ def parse_lsmf_membership(
             name_off, name_len, _ = struct.unpack_from('<QQQ', blob, base)
             row_count, data_offset = struct.unpack_from('<QQ', blob, base + 32)
             rows_by_comp[i] = row_count
+            name = ''
             if 0 < name_len < 200:
                 name = names_sec[name_off:name_off + name_len].decode('utf-8', 'replace')
-                if name == 'core.v0.EntityId':
-                    eid_off, eid_rows = data_offset, row_count
-
-        if not eid_rows or eid_off + eid_rows * 16 > L:
-            return None
-
-        # Build entity GUID → row indices
-        guid_to_rows: dict[str, list[int]] = {}
-        for i in range(eid_rows):
-            off = eid_off + i * 16
-            g = guid_le_str(blob[off:off + 16])
-            guid_to_rows.setdefault(g, []).append(i)
+            comp_descs.append((name, row_count, data_offset))
 
         # Ownerlist region: each 32-byte record is {start, end, comp_idx, entity_count}.
-        # Records sit in a contiguous table; sentinel entries have comp=0xFFFF…FFFF or start==end.
-        def _valid_ol(p: int):
-            if p + 32 > L:
-                return None
-            start, end, comp, ec = struct.unpack_from('<QQQQ', blob, p)
+        # Records sit in a contiguous table; sentinel entries have comp=0xFFFF…FFFF
+        # or start==end.
+        unpack_rec = struct.Struct('<QQQQ').unpack_from
+
+        def valid_record(p: int):
+            start, end, comp, ec = unpack_rec(blob, p)
             if (comp < entry_count and ec > 0 and rows_by_comp.get(comp, -1) == ec
                     and end > start and (end - start) == ec * 4
                     and end <= L and start < L):
-                return start, ec
+                return comp, start, ec
             return None
 
         # 4-byte scan to find candidate positions (captures all valid records plus
@@ -1487,7 +1491,7 @@ def parse_lsmf_membership(
         valid_pos: list[int] = []
         p = 0
         while p + 32 <= L:
-            if _valid_ol(p) is not None:
+            if valid_record(p) is not None:
                 valid_pos.append(p)
             p += 4
 
@@ -1507,136 +1511,95 @@ def parse_lsmf_membership(
             if count > best_count:
                 anchor, best_count = valid_pos[vi], count
 
-        # Walk the table from anchor in 32-byte steps; count per-entity memberships.
-        membership_count: dict[int, int] = {}
+        # Walk the table from anchor in 32-byte steps, collecting every record.
+        records: list[tuple[int, int, int]] = []
         if best_count > 0:
             p, misses = anchor, 0
             while p + 32 <= L and misses < 4:
-                rec = _valid_ol(p)
+                rec = valid_record(p)
                 if rec is not None:
-                    start, ec = rec
-                    for ei in struct.unpack_from(f'<{ec}I', blob, start):
-                        membership_count[ei] = membership_count.get(ei, 0) + 1
+                    records.append(rec)
                     misses = 0
                 else:
-                    _, _, comp, _ = struct.unpack_from('<QQQQ', blob, p)
+                    comp = unpack_rec(blob, p)[2]
                     misses = 0 if comp == 0xFFFFFFFFFFFFFFFF else misses + 1
                 p += 32
 
-        return guid_to_rows, membership_count
+        return tuple(comp_descs), tuple(records)
 
     except Exception:
         return None
 
 
-# Items owned as inventory loot by a character. Direction relative to "worn"
-# varies by save: a genuinely equipped item may be present (save 246 gloves)
-# or absent (save 286 weapons), so this is only a weak tiebreaker.
-OWNED_AS_LOOT_COMP = 'game.v0.OwnedAsLootComponent'
-# Items that are (or were) in a weapon slot. For Flags-equipped items this
-# supports genuineness; for ECS-promoted items it marks a stale leftover.
-WIELDED_COMP = 'game.inventory.v0.WieldedComponent'
-# Physics disabled because the item is attached to a character in the world
-# (worn/held visual), absent on items sitting inside an inventory.
-GRAVITY_DISABLED_COMP = 'game.gravity.v0.GravityDisabledComponent'
+def parse_lsmf_membership(
+    blob: bytes,
+) -> tuple[dict[str, list[int]], dict[int, int]] | None:
+    """Extract per-entity component membership counts from the LSMF ECS blob.
+
+    Returns (guid_to_rows, membership_count) where:
+      guid_to_rows      — entity GUID string → list of EntityId row indices
+      membership_count  — entity row index → number of component ownerlists it appears in
+
+    Equipped items remain materialised in the ECS world (~35–41 memberships).
+    Items moved to a backpack dematerialise (~3–6 memberships).
+    Returns None on any parse failure.
+    """
+    scanned = scan_lsmf_blob(blob)
+    if scanned is None:
+        return None
+    comp_descs, records = scanned
+
+    eid_off = eid_rows = 0
+    for name, row_count, data_offset in comp_descs:
+        if name == 'core.v0.EntityId':
+            eid_off, eid_rows = data_offset, row_count
+    if not eid_rows or eid_off + eid_rows * 16 > len(blob):
+        return None
+
+    guid_to_rows: dict[str, list[int]] = {}
+    for i in range(eid_rows):
+        off = eid_off + i * 16
+        g = guid_le_str(blob[off:off + 16])
+        guid_to_rows.setdefault(g, []).append(i)
+
+    membership_count: Counter[int] = Counter()
+    try:
+        for _comp, start, ec in records:
+            membership_count.update(struct.unpack_from(f'<{ec}I', blob, start))
+    except Exception:
+        return None
+
+    return guid_to_rows, membership_count
 
 
 def parse_lsmf_component_rows(
     blob: bytes,
     comp_names: tuple[str, ...] | None = None,
 ) -> dict[str, frozenset[int]]:
-    """Return ECS row indices for each named LSMF component, in a single scan.
+    """Return ECS row indices for each named LSMF component.
 
     The result maps each requested component name to the frozenset of row
     indices belonging to it (an empty frozenset if the component is absent).
-    With comp_names=None, every component found in the blob is extracted.
+    With comp_names=None, every component with an ownerlist is extracted.
     Any parse failure yields empty frozensets for all requested names.
     """
-    BLOB_HDR_BASE = 48
-
-    def empty() -> dict[str, frozenset[int]]:
-        return {name: frozenset() for name in comp_names or ()}
+    result: dict[str, set[int]] = {name: set() for name in comp_names or ()}
+    scanned = scan_lsmf_blob(blob)
+    if scanned is None:
+        return {name: frozenset() for name in result}
+    comp_descs, records = scanned
 
     try:
-        L = len(blob)
-        _, dir_off, names_size = struct.unpack_from('<QQQ', blob, 8)
-        names_off = dir_off + BLOB_HDR_BASE
-        desc_table_rel = struct.unpack_from('<I', blob, 32)[0]
-        entry_count = struct.unpack_from('<H', blob, 36)[0]
-        if not (0 < names_off < L and 0 < entry_count < 2000):
-            return empty()
-        names_sec = blob[names_off:names_off + names_size]
-        desc_base = names_off + desc_table_rel
-
-        target_names: dict[int, str] = {}
-        rows_by_comp: dict[int, int] = {}
-        for i in range(entry_count):
-            base = desc_base + i * 48
-            if base + 48 > L:
-                break
-            name_off, name_len, _ = struct.unpack_from('<QQQ', blob, base)
-            row_count, _ = struct.unpack_from('<QQ', blob, base + 32)
-            rows_by_comp[i] = row_count
-            if 0 < name_len < 200:
-                name = names_sec[name_off:name_off + name_len].decode('utf-8', 'replace')
-                if comp_names is None or name in comp_names:
-                    target_names[i] = name
-
-        if not target_names:
-            return empty()
-        result: dict[str, set[int]] = {
-            name: set() for name in (comp_names or target_names.values())
-        }
-
-        def valid_record(p: int):
-            if p + 32 > L:
-                return None
-            start, end, comp, ec = struct.unpack_from('<QQQQ', blob, p)
-            if (comp < entry_count and ec > 0 and rows_by_comp.get(comp, -1) == ec
-                    and end > start and (end - start) == ec * 4
-                    and end <= L and start < L):
-                return start, ec, comp
-            return None
-
-        valid_pos: list[int] = []
-        p = 0
-        while p + 32 <= L:
-            if valid_record(p) is not None:
-                valid_pos.append(p)
-            p += 4
-
-        anchor, best_count = 0, 0
-        for vi in range(len(valid_pos)):
-            count, last = 1, valid_pos[vi]
-            for vj in range(vi + 1, len(valid_pos)):
-                d = valid_pos[vj] - last
-                if d % 32 == 0 and d <= 32 * 40:
-                    count += 1
-                    last = valid_pos[vj]
-                elif d > 32 * 40:
-                    break
-            if count > best_count:
-                anchor, best_count = valid_pos[vi], count
-
-        if best_count > 0:
-            p, misses = anchor, 0
-            while p + 32 <= L and misses < 4:
-                rec = valid_record(p)
-                if rec is not None:
-                    start, ec, comp_idx = rec
-                    if comp_idx in target_names:
-                        rows = struct.unpack_from(f'<{ec}I', blob, start)
-                        result[target_names[comp_idx]].update(rows)
-                    misses = 0
-                else:
-                    _, _, comp, _ = struct.unpack_from('<QQQQ', blob, p)
-                    misses = 0 if comp == 0xFFFFFFFFFFFFFFFF else misses + 1
-                p += 32
-
-        return {name: frozenset(rows) for name, rows in result.items()}
-
+        for comp, start, ec in records:
+            name = comp_descs[comp][0] if comp < len(comp_descs) else ''
+            if not name or (comp_names is not None and name not in result):
+                continue
+            result.setdefault(name, set()).update(
+                struct.unpack_from(f'<{ec}I', blob, start))
     except Exception:
-        return empty()
+        return {name: frozenset() for name in comp_names or ()}
+
+    return {name: frozenset(rows) for name, rows in result.items()}
 
 
 def invert_entity_template_map(
