@@ -1922,8 +1922,7 @@ def build_report(save_path: str, frames: list[bytes] | None = None, opts=None) -
                 carried = sorted(set(carried) | set(ecs_ca))
             w(f'    Equipped ({len(equipped)}):')
             for s, guid in equipped:
-                tag = '  (passive confirmed)' if s in status_equipped else ''
-                w(f'      – {dn.fmt(s, guid)}{tag}')
+                w(f'      – {dn.fmt(s, guid)}')
             if undetermined:
                 w(f'    Worn or carried — undetermined ({len(undetermined)}):')
                 for s, guid in undetermined:

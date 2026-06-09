@@ -84,8 +84,6 @@ def extract_equipped_from_report(report: str) -> dict[str, set[str]]:
             item_match = re.match(r'\s+–\s+(.+)', line)
             if item_match:
                 item_text = item_match.group(1).strip()
-                # Strip trailing annotation like "  (passive confirmed)"
-                item_text = re.sub(r'\s+\(passive confirmed\)\s*$', '', item_text)
                 # Try to extract the (STATS_NAME) parenthetical
                 paren_match = re.search(r'\(([^)]+)\)\s*$', item_text)
                 if paren_match:
