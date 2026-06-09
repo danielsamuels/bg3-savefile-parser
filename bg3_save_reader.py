@@ -85,7 +85,7 @@ def extract_frames(path: str) -> dict[str, bytes]:
       'Globals.lsf'    — world state (party, items, LSMF blob)
       'meta.lsf'       — save metadata (leader name, mods, timestamps)
       'thumbnail'      — load-screen WebP image (filename varies per save)
-      'SaveInfo.json'  — save info JSON ('Info.json' normalised to this if present)
+      'SaveInfo.json'  — save info JSON
       'StorySave.bin'  — Osiris story-state database
       'LevelCache/…'   — one key per level-cache file, using its LSPK name
     """
@@ -128,17 +128,14 @@ def extract_frames(path: str) -> dict[str, bytes]:
 def normalize_named_frames(raw_frames: list[bytes], names: list[str]) -> dict[str, bytes]:
     """Map named LSPK manifest entries to a dict keyed by LSPK name.
 
-    The only normalisation applied is to entries whose names vary per save:
-      *.WebP       → 'thumbnail'   (filename includes the save name)
-      'Info.json'  → 'SaveInfo.json'  (alternative name for the same file)
+    The only normalisation applied is to the thumbnail entry, whose filename
+    includes the save name and therefore varies per save (e.g. QuickSave_242.WebP).
     Everything else is stored under its actual LSPK name.
     """
     result: dict[str, bytes] = {}
     for name, frame in zip(names, raw_frames):
         if name.lower().endswith('.webp'):
             result['thumbnail'] = frame
-        elif name == 'Info.json':
-            result['SaveInfo.json'] = frame
         else:
             result[name] = frame
     return result
@@ -343,7 +340,7 @@ def parse_lsof(data: bytes) -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
-# SaveInfo.json  (SaveInfo.json / Info.json in the LSPK)
+# SaveInfo.json
 # ---------------------------------------------------------------------------
 
 def parse_info_json(frames: dict[str, bytes]) -> dict:
