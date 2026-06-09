@@ -50,6 +50,7 @@ Known limitations
 """
 
 import datetime
+import io
 import json
 import os
 import re
@@ -80,6 +81,15 @@ ZSTD_MAGIC = b'\x28\xb5\x2f\xfd'
 def extract_frames(path: str) -> list[bytes]:
     with open(path, 'rb') as fh:
         data = fh.read()
+
+    if data[:4] == b'LSPK':
+        flist = lspk_filelist(io.BytesIO(data))
+        sorted_entries = sorted(flist.items(), key=lambda kv: kv[1][0])
+        frames = [data[off:off + sod] for _, (off, _p, _f, sod, _u) in sorted_entries]
+        names = [n for n, _ in sorted_entries]
+        return normalize_named_frames(frames, names)
+
+    # Fallback for non-LSPK files: scan for ZSTD magic bytes
     frames, pos = [], 0
     while pos < len(data):
         idx = data.find(ZSTD_MAGIC, pos)
@@ -94,17 +104,59 @@ def extract_frames(path: str) -> list[bytes]:
     return normalize_frames(frames)
 
 
+def normalize_named_frames(frames: list[bytes], names: list[str]) -> list[bytes]:
+    """Map named LSPK manifest entries to the canonical 10-slot frame array.
+
+    Fixed entries are placed by name.  LevelCache/*.lsf files (already sorted
+    by file offset by the caller) fill the remaining slots in order.
+
+    Slot layout (canonical):
+      0: Globals.lsf            6: meta.lsf
+      1-5: LevelCache/*.lsf     7: *.WebP  (thumbnail)
+                                8: SaveInfo.json / Info.json
+                                9: StorySave.bin (Osiris)
+
+    Older 7-frame saves have only 2 LevelCache entries.  normalize_frames()
+    historically placed them at slots 2–3 (slot 1 empty), so we replicate
+    that here so that frame[3] keeps pointing at the item-stats cache.
+    """
+    result = [b''] * 10
+    level_cache: list[bytes] = []
+
+    for name, frame in zip(names, frames):
+        if name == 'Globals.lsf':
+            result[0] = frame
+        elif name == 'meta.lsf':
+            result[6] = frame
+        elif name.lower().endswith('.webp'):
+            result[7] = frame
+        elif name in ('SaveInfo.json', 'Info.json'):
+            result[8] = frame
+        elif name == 'StorySave.bin':
+            result[9] = frame
+        elif name.startswith('LevelCache/'):
+            level_cache.append(frame)
+
+    # 10-frame saves have 5 LevelCache entries → slots 1-5.
+    # Older saves have 2 → start at slot 2 to keep the item-stats cache at slot 3.
+    start = 1 if len(frames) >= 10 else 2
+    for i, frame in enumerate(level_cache):
+        slot = start + i
+        if slot <= 5:
+            result[slot] = frame
+
+    return result
+
+
 def normalize_frames(frames: list[bytes]) -> list[bytes]:
-    """Reorder old-format (7-frame) saves to match the 10-frame layout.
+    """Fallback reordering for saves not loaded via the LSPK manifest.
 
-    Older saves have 7 frames.  The thumbnail (RIFF) appears at either
-    position 0 (observed in AutoSaves) or position 6 (manual saves) —
-    same content, different write order.  Both layouts:
+    Used only when extract_frames falls back to the ZSTD magic scan (i.e.
+    the file is not an LSPK container, which should not happen for .lsv saves).
+    Handles the two 7-frame variants seen in older saves by sniffing the
+    content signature of the first frame.
 
-      thumbnail-first:  [thumb, globals, lsof, levelcache, metadata, info_json, osiris]
-      thumbnail-last:   [globals, lsof, levelcache, metadata, info_json, osiris, thumb]
-
-    Current layout (10 frames):
+    Both old layouts map to the same 10-frame canonical order:
       [globals, -, lsof, levelcache, -, -, metadata, thumb, info_json, osiris]
     """
     if len(frames) != 7:
