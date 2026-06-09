@@ -97,13 +97,12 @@ def extract_frames(path: str) -> list[bytes]:
 def normalize_frames(frames: list[bytes]) -> list[bytes]:
     """Reorder old-format (7-frame) saves to match the 10-frame layout.
 
-    Two old layouts are known:
+    Older saves have 7 frames.  The thumbnail (RIFF) appears at either
+    position 0 (observed in AutoSaves) or position 6 (manual saves) —
+    same content, different write order.  Both layouts:
 
-    Format A — thumbnail-first (thumbnail at 0):
-      [thumb, globals, lsof, levelcache, metadata, info_json, osiris]
-
-    Format B — globals-first (thumbnail at 6):
-      [globals, lsof, levelcache, metadata, info_json, osiris, thumb]
+      thumbnail-first:  [thumb, globals, lsof, levelcache, metadata, info_json, osiris]
+      thumbnail-last:   [globals, lsof, levelcache, metadata, info_json, osiris, thumb]
 
     Current layout (10 frames):
       [globals, -, lsof, levelcache, -, -, metadata, thumb, info_json, osiris]
