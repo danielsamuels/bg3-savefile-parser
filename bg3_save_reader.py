@@ -1530,83 +1530,6 @@ WIELDED_COMP = 'game.inventory.v0.WieldedComponent'
 GRAVITY_DISABLED_COMP = 'game.gravity.v0.GravityDisabledComponent'
 
 
-def get_entity_components(blob: bytes, entity_rows: list[int]) -> list[str]:
-    """Return names of every LSMF component the given entity rows belong to."""
-    BLOB_HDR_BASE = 48
-    try:
-        L = len(blob)
-        _, dir_off, names_size = struct.unpack_from('<QQQ', blob, 8)
-        names_off = dir_off + BLOB_HDR_BASE
-        desc_table_rel = struct.unpack_from('<I', blob, 32)[0]
-        entry_count = struct.unpack_from('<H', blob, 36)[0]
-        if not (0 < names_off < L and 0 < entry_count < 2000):
-            return []
-        names_sec = blob[names_off:names_off + names_size]
-        desc_base = names_off + desc_table_rel
-
-        comp_names: dict[int, str] = {}
-        rows_by_comp: dict[int, int] = {}
-        for i in range(entry_count):
-            base = desc_base + i * 48
-            if base + 48 > L:
-                break
-            name_off, name_len, _ = struct.unpack_from('<QQQ', blob, base)
-            row_count, _ = struct.unpack_from('<QQ', blob, base + 32)
-            rows_by_comp[i] = row_count
-            if 0 < name_len < 200:
-                comp_names[i] = names_sec[name_off:name_off + name_len].decode('utf-8', 'replace')
-
-        def _valid_ol(p: int):
-            if p + 32 > L:
-                return None
-            start, end, comp, ec = struct.unpack_from('<QQQQ', blob, p)
-            if (comp < entry_count and ec > 0 and rows_by_comp.get(comp, -1) == ec
-                    and end > start and (end - start) == ec * 4
-                    and end <= L and start < L):
-                return start, ec, comp
-            return None
-
-        valid_pos = []
-        p = 0
-        while p + 32 <= L:
-            if _valid_ol(p) is not None:
-                valid_pos.append(p)
-            p += 4
-
-        anchor, best_count = 0, 0
-        for vi in range(len(valid_pos)):
-            count, last = 1, valid_pos[vi]
-            for vj in range(vi + 1, len(valid_pos)):
-                d = valid_pos[vj] - last
-                if d % 32 == 0 and d <= 32 * 40:
-                    count += 1
-                    last = valid_pos[vj]
-                elif d > 32 * 40:
-                    break
-            if count > best_count:
-                anchor, best_count = valid_pos[vi], count
-
-        row_set = set(entity_rows)
-        matched: list[str] = []
-        if best_count > 0:
-            p, misses = anchor, 0
-            while p + 32 <= L and misses < 4:
-                rec = _valid_ol(p)
-                if rec is not None:
-                    start, ec, comp = rec
-                    members = set(struct.unpack_from(f'<{ec}I', blob, start))
-                    if row_set & members:
-                        matched.append(comp_names.get(comp, f'comp_{comp}'))
-                    misses = 0
-                else:
-                    _, _, comp2, _ = struct.unpack_from('<QQQQ', blob, p)
-                    misses = 0 if comp2 == 0xFFFFFFFFFFFFFFFF else misses + 1
-                p += 32
-        return matched
-    except Exception:
-        return []
-
-
 def parse_lsmf_component_rows(
     blob: bytes,
     comp_names: tuple[str, ...],
@@ -2489,14 +2412,12 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
         # Equipped + carried items, attributed by shared world position
         char_ni = party_nodes.get(display_name)
         status_equipped: set[str] = set()
-        _SE_DETAIL: list[dict] = []
         if char_ni is not None:
             for e in collect_status_equipped_items(nodes0, char_ni):
                 tmpl = entity_to_template0.get(e['entity'], '')
                 stats_name = template_to_stats.get(tmpl, '')
                 if stats_name:
                     status_equipped.add(stats_name)
-                    _SE_DETAIL.append({'stats': stats_name, 'status_id': e.get('status_id', '')})
 
         # Build per-character stats→entity map using parallel Creators/Items arrays
         char_pos = char_positions.get(display_name)
@@ -2506,34 +2427,8 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
                 if trans == char_pos:
                     char_stats_to_entity[stats_key] = eg
 
-        _TRACE = {
-            'MAG_PoR_OfVigilance_Halberd', 'Quest_SCL_MoonlanternWithPixie',
-            'UND_SwordInStone', 'MAG_Duergar_Sword_KingsKnife',
-        }
         attributed = items_by_char.get(display_name, [])
         if attributed:
-            _tattr = [(s, f, g) for s, f, g in attributed if s in _TRACE]
-            if _tattr:
-                import sys
-                guid_to_rows2, membership_count2 = lsmf_ecs if lsmf_ecs else ({}, {})
-                for s, f, g in _tattr:
-                    eg = char_stats_to_entity.get(s, '')
-                    rows = guid_to_rows2.get(eg, [])
-                    mc = max((membership_count2.get(r, 0) for r in rows), default=0)
-                    in_loot = bool(
-                        lsmf_owned_loot and eg and
-                        any(r in lsmf_owned_loot for r in rows)
-                    )
-                    eq_bit = bool(isinstance(f, int) and (f & EQUIPPED_FLAG_BIT))
-                    has_status = s in status_equipped
-                    se_ids = [d['status_id'] for d in _SE_DETAIL if d['stats'] == s]
-                    flags_hex = hex(f) if isinstance(f, int) else f
-                    comps = get_entity_components(
-                        lsmf_blob, rows) if lsmf_blob and rows else []
-                    print(f'[ITEM] {display_name} / {s}', file=sys.stderr)
-                    print(f'  eq_bit={eq_bit} flags={flags_hex} mc={mc} in_loot={in_loot} '
-                          f'has_status={has_status} status_ids={se_ids}', file=sys.stderr)
-                    print(f'  components={sorted(comps)}', file=sys.stderr)
             flags_equipped, carried, undetermined = split_equipped_carried(
                 attributed, status_equipped,
                 object_type_stats=dn.object_type_stats or None,
