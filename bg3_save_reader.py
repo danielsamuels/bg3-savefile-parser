@@ -91,6 +91,53 @@ def extract_frames(path: str) -> list[bytes]:
             break
         frames.append(data[idx:nxt])
         pos = nxt
+    return normalize_frames(frames)
+
+
+def normalize_frames(frames: list[bytes]) -> list[bytes]:
+    """Reorder old-format (7-frame) saves to match the 10-frame layout.
+
+    Two old layouts are known:
+
+    Format A — thumbnail-first (thumbnail at 0):
+      [thumb, globals, lsof, levelcache, metadata, info_json, osiris]
+
+    Format B — globals-first (thumbnail at 6):
+      [globals, lsof, levelcache, metadata, info_json, osiris, thumb]
+
+    Current layout (10 frames):
+      [globals, -, lsof, levelcache, -, -, metadata, thumb, info_json, osiris]
+    """
+    if len(frames) != 7:
+        return frames
+    raw0 = zstd.ZstdDecompressor().decompress(frames[0])
+    sig0 = raw0[:4]
+    if sig0 == b'RIFF':
+        return [
+            frames[1],  # 0: globals
+            b'',        # 1: unused
+            frames[2],  # 2: lsof
+            frames[3],  # 3: level cache
+            b'',        # 4: unused
+            b'',        # 5: unused
+            frames[4],  # 6: metadata
+            frames[0],  # 7: thumbnail
+            frames[5],  # 8: info_json
+            frames[6],  # 9: osiris
+        ]
+    if sig0 == b'LSOF':
+        return [
+            frames[0],  # 0: globals
+            b'',        # 1: unused
+            frames[1],  # 2: lsof
+            frames[2],  # 3: level cache
+            b'',        # 4: unused
+            b'',        # 5: unused
+            frames[3],  # 6: metadata
+            frames[6],  # 7: thumbnail
+            frames[4],  # 8: info_json
+            frames[5],  # 9: osiris
+        ]
     return frames
 
 
