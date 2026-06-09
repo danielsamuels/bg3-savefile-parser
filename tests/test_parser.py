@@ -12,6 +12,7 @@ Run with:
 import os
 import re
 import sys
+from argparse import Namespace
 from pathlib import Path
 
 import pytest
@@ -104,7 +105,7 @@ def extract_equipped_from_report(report: str) -> dict[str, set[str]]:
 @requires_save
 def test_smoke_build_report():
     """build_report() must complete without error and produce a plausible report."""
-    report = parser.build_report(SAVE_FILE)
+    report = parser.build_report(SAVE_FILE, opts=Namespace(verbose=True))
     assert isinstance(report, str)
     assert len(report) > 1000
 
@@ -233,7 +234,7 @@ def test_equipped_items_ground_truth():
     baseline.  Any addition or removal in any character's equipped set causes
     this test to fail.
     """
-    report = parser.build_report(SAVE_FILE)
+    report = parser.build_report(SAVE_FILE, opts=Namespace(verbose=True))
     actual = extract_equipped_from_report(report)
 
     for char, expected_set in EXPECTED_EQUIPPED.items():

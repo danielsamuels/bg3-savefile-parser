@@ -22,6 +22,7 @@ and equipped gear.  Additional sections are opt-in:
     --carried       each character's carried inventory
     --all-items     full item list for the current level
     --limits        known limitations note
+    --verbose / -v  show internal names in parentheses after display names
     --thumbnail PATH / -t PATH
                     extract the load-screen thumbnail (1280×720 WebP) to PATH
 
@@ -1683,6 +1684,7 @@ class DisplayNames:
         self._guid = guid_name
         self._stats = stats_name
         self._spells = spell_name or {}
+        self.verbose = False  # set to True to append (INTERNAL_NAME) after display names
 
     @classmethod
     def load(cls) -> 'DisplayNames':
@@ -1705,14 +1707,16 @@ class DisplayNames:
         return self._stats.get(stats)
 
     def fmt(self, stats: str, guid: str = '') -> str:
-        """Format as 'Display Name (INTERNAL_NAME)', or just the internal name."""
         dn = self.name_for(stats, guid)
-        return f'{dn} ({stats})' if dn else stats
+        if dn:
+            return f'{dn} ({stats})' if self.verbose else dn
+        return stats
 
     def fmt_spell(self, spell_id: str) -> str:
-        """Format as 'Display Name (SPELL_ID)', or just the spell ID."""
         dn = self._spells.get(spell_id)
-        return f'{dn} ({spell_id})' if dn else spell_id
+        if dn:
+            return f'{dn} ({spell_id})' if self.verbose else dn
+        return spell_id
 
 
 # ---------------------------------------------------------------------------
@@ -1741,6 +1745,7 @@ def build_report(save_path: str, frames: list[bytes] | None = None, opts=None) -
 
     # Display-name resolver (best-effort; empty if game data not found)
     dn = DisplayNames.load()
+    dn.verbose = opt('verbose')
 
     # ---- Info.json --------------------------------------------------------
     info = parse_info_json(frames)
@@ -2079,6 +2084,8 @@ def main():
                     help='include full item list for the current level')
     ap.add_argument('--limits', action='store_true',
                     help='include known limitations note')
+    ap.add_argument('--verbose', '-v', action='store_true',
+                    help='show internal names in parentheses after display names')
     ap.add_argument('--thumbnail', '-t', metavar='PATH',
                     help="write the save's thumbnail image to PATH")
     opts = ap.parse_args()
