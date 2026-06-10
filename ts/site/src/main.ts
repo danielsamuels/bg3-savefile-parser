@@ -3,6 +3,7 @@ import type { CharacterReport, ItemRef, SaveInfo, SaveReport, SpellRef } from '@
 import './styles.css';
 import { allSaves, clearSaves, deleteSave, groupHistory, recordSave, renderHistoryHtml } from './history.ts';
 import { renderTextReport } from './textReport.ts';
+import { isWatching, startWatching, stopWatching, watchSupported } from './watch.ts';
 
 const worker = new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' });
 const statusEl = document.querySelector('#status') as HTMLElement;
@@ -346,6 +347,31 @@ historyEl.addEventListener('change', (e) => {
 });
 
 void refreshHistory();
+
+/* ---- Live save watching (Chromium only) --------------------------------- */
+
+const watchBtn = document.querySelector('#watch') as HTMLButtonElement;
+if (watchSupported()) {
+  watchBtn.hidden = false;
+  watchBtn.addEventListener('click', () => {
+    if (isWatching()) {
+      stopWatching();
+      watchBtn.textContent = 'Watch the save folder for quicksaves';
+      watchBtn.classList.remove('watching');
+      setStatus('Stopped watching.');
+      return;
+    }
+    void startWatching({
+      onSave: parse,
+      onStatus: (text) => setStatus(text),
+    }).then((started) => {
+      if (started) {
+        watchBtn.textContent = 'Watching for quicksaves (click to stop)';
+        watchBtn.classList.add('watching');
+      }
+    });
+  });
+}
 
 worker.onmessage = (ev: MessageEvent) => {
   const msg = ev.data as

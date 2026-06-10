@@ -130,6 +130,37 @@ code {
 body.has-report .drop { padding: var(--space-md) var(--space-lg); }
 body.has-report .drop-hint { display: none; }
 
+/* ---- Watch bar ---------------------------------------------------------- */
+
+.watchbar { text-align: center; margin: var(--space-sm) 0 0; }
+
+#watch {
+  background: none;
+  border: none;
+  color: var(--mute);
+  cursor: pointer;
+  font: 400 0.875rem var(--sans);
+  padding: 0.3rem 0.6rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.18s var(--ease-out);
+}
+
+#watch:hover { color: var(--gold-hi); }
+
+#watch.watching { color: var(--gold); text-decoration: none; }
+
+#watch.watching::before {
+  content: '';
+  display: inline-block;
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  background: var(--gold);
+  margin-right: 0.5em;
+  vertical-align: 0.05em;
+}
+
 /* ---- Status line ----------------------------------------------------- */
 
 .statusbar {
