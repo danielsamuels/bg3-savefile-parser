@@ -328,7 +328,7 @@ function renderCharacter(c: CharacterReport, index: number): string {
   </section>`;
 }
 
-/** Fallback when a quest has no journal title: drop the short all-caps
+/** Fallback when no journal titles resolved at all: drop the short all-caps
  *  prefixes from the id and split camel case. */
 function questLabel(id: string): string {
   const pretty = id
@@ -339,20 +339,43 @@ function questLabel(id: string): string {
   return pretty || id;
 }
 
-function questList(quests: QuestRef[]): string {
-  const names = new Map(quests.map((q) => [q.id, q.name]));
-  const label = (id: string): string => names.get(id) ?? questLabel(id);
-  const parents = new Map<string, string[]>();
+/** The in-game journal hides quests with no title (engine bookkeeping like
+ *  ORI_Avatar_*); mirror that. Named sub-quests of hidden parents are
+ *  promoted to top level, and duplicate titles collapse to one entry. */
+function questTree(quests: QuestRef[]): Map<string, Set<string>> {
+  const anyNamed = quests.some((q) => q.name !== null);
+  const titleOf = (q: QuestRef): string | null => q.name ?? (anyNamed ? null : questLabel(q.id));
+  const named = new Map<string, string>();
   for (const q of quests) {
-    const [parent, sub] = q.id.split('_SUB_') as [string, string?];
-    if (!parents.has(parent)) parents.set(parent, []);
-    if (sub) parents.get(parent)!.push(q.id);
+    const t = titleOf(q);
+    if (t !== null) named.set(q.id, t);
   }
-  const rows = [...parents.entries()]
+  const tree = new Map<string, Set<string>>();
+  for (const q of quests) {
+    const title = named.get(q.id);
+    if (title === undefined) continue;
+    const [parentId] = q.id.split('_SUB_') as [string, string?];
+    const parentTitle = q.id !== parentId ? named.get(parentId) : undefined;
+    if (parentTitle !== undefined && parentTitle !== title) {
+      tree.set(parentTitle, (tree.get(parentTitle) ?? new Set()).add(title));
+    } else if (!tree.has(title)) {
+      tree.set(title, new Set());
+    }
+  }
+  // A title shown as a sub-quest somewhere shouldn't also float at top level.
+  const subTitles = new Set([...tree.values()].flatMap((s) => [...s]));
+  for (const [title, subs] of tree) {
+    if (!subs.size && subTitles.has(title)) tree.delete(title);
+  }
+  return tree;
+}
+
+function questList(tree: Map<string, Set<string>>): string {
+  const rows = [...tree.entries()]
     .map(
       ([p, subs]) =>
-        `<li><span title="${esc(p)}">${esc(label(p))}</span>${
-          subs.length ? `<ul>${subs.map((s) => `<li>${esc(label(s))}</li>`).join('')}</ul>` : ''
+        `<li>${esc(p)}${
+          subs.size ? `<ul>${[...subs].map((s) => `<li>${esc(s)}</li>`).join('')}</ul>` : ''
         }</li>`,
     )
     .join('');
@@ -361,17 +384,18 @@ function questList(quests: QuestRef[]): string {
 
 function renderQuests(q: QuestsReport, index: number): string {
   if (q.failed) return '';
-  const topCount = (quests: QuestRef[]): number =>
-    new Set(quests.map((e) => e.id.split('_SUB_')[0])).size;
+  const active = questTree(q.active);
+  const closed = questTree(q.closed);
+  if (!active.size && !closed.size) return '';
   return `<section class="char" style="--i:${index}">
     <h3 class="char-name">Quest Log</h3>
     <details class="fold" open>
-      <summary>In progress <span class="count">${topCount(q.active)}</span></summary>
-      <div>${questList(q.active)}</div>
+      <summary>In progress <span class="count">${active.size}</span></summary>
+      <div>${questList(active)}</div>
     </details>
     <details class="fold">
-      <summary>Completed or closed <span class="count">${topCount(q.closed)}</span><span class="fold-note">the save does not distinguish completed from failed</span></summary>
-      <div>${questList(q.closed)}</div>
+      <summary>Completed or closed <span class="count">${closed.size}</span><span class="fold-note">the save does not distinguish completed from failed</span></summary>
+      <div>${questList(closed)}</div>
     </details>
   </section>`;
 }
