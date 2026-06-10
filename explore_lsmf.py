@@ -23,16 +23,16 @@ Or import it for spelunking (see FORMAT.md §6 for the structures):
 import struct
 import sys
 
-import bg3parser as p
+from bg3parser import discovery, lsf, lsmf, lspk, party
 
 
 class Lsmf:
     """A loaded save with its ECS blob indexed for exploration."""
 
     def __init__(self, save_token: str):
-        self.save = p.find_save_by_token(save_token) or save_token
-        self.frames = p.extract_frames(self.save)
-        self.nodes0 = p.parse_lsof(p.decomp_frame(self.frames['Globals.lsf']))
+        self.save = discovery.find_save_by_token(save_token) or save_token
+        self.frames = lspk.extract_frames(self.save)
+        self.nodes0 = lsf.parse_lsof(lsf.decomp_frame(self.frames['Globals.lsf']))
         self.blob = b''
         for nd in self.nodes0:
             if nd['name'] == 'NewAge' and nd['parent'] == -1:
@@ -41,17 +41,17 @@ class Lsmf:
                     self.blob = raw
                 break
         # name -> (elem_size, row_count, data_offset, owner_rows)
-        self.index = p.lsmf_component_index(self.blob)
+        self.index = lsmf.lsmf_component_index(self.blob)
         # Entity bridge: GUID -> EntityId rows; item template maps
-        self.ecs = p.parse_lsmf_membership(self.blob)
+        self.ecs = lsmf.parse_lsmf_membership(self.blob)
         self.guid_to_rows = self.ecs[0] if self.ecs else {}
-        self.e2t = p.build_entity_template_map(self.nodes0, 'Items')
-        self.t2i = p.invert_entity_template_map(self.e2t)
-        self.instance_map = p.build_instance_entity_map(self.nodes0)
-        meta = p.parse_metadata(self.frames)
+        self.e2t = party.build_entity_template_map(self.nodes0, 'Items')
+        self.t2i = party.invert_entity_template_map(self.e2t)
+        self.instance_map = party.build_instance_entity_map(self.nodes0)
+        meta = lspk.parse_metadata(self.frames)
         player = meta.get('leader_name') or 'Player'
-        self.party_nodes = p.find_party_character_nodes(self.nodes0, player)
-        self.char_positions = p.collect_character_positions(self.nodes0, self.party_nodes)
+        self.party_nodes = party.find_party_character_nodes(self.nodes0, player)
+        self.char_positions = party.collect_character_positions(self.nodes0, self.party_nodes)
 
     def comp(self, name: str) -> tuple:
         """(elem_size, row_count, data_offset, owner_rows) for a component."""
@@ -79,7 +79,7 @@ class Lsmf:
     def entity_guid(self, row: int) -> str:
         """Canonical GUID string stored in an EntityId row."""
         _elem, _rows, off, _owners = self.index['core.v0.EntityId']
-        return p.guid_le_str(self.blob[off + row * 16: off + row * 16 + 16])
+        return lsf.guid_le_str(self.blob[off + row * 16: off + row * 16 + 16])
 
     def item_entity_rows(self, char_name: str, stats: str) -> list[int]:
         """EntityId rows for a specific character's item instance."""
@@ -95,8 +95,8 @@ class Lsmf:
 
     def heap_u64s(self, begin: int, end: int) -> list[int]:
         """Read a {begin, end} heap range as u64s (pointers are absolute-48)."""
-        lo = begin + p.LSMF_HEAP_BASE
-        hi = end + p.LSMF_HEAP_BASE
+        lo = begin + lsmf.LSMF_HEAP_BASE
+        hi = end + lsmf.LSMF_HEAP_BASE
         n = max(0, (hi - lo) // 8)
         return list(struct.unpack_from(f'<{n}Q', self.blob, lo))
 

@@ -24,6 +24,7 @@ PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 import bg3parser as parser  # noqa: E402
+from bg3parser import gamedata, lsf, lsmf, lspk, party, render  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Save-file fixture paths
@@ -219,7 +220,7 @@ def test_equipped_items_ground_truth():
     """
     report = parser.build_report(QUICKSAVE_MAIA, opts=Namespace(verbose=True))
     actual = extract_equipped_from_report(report)
-    game_data_available = parser.DisplayNames.load().available
+    game_data_available = gamedata.DisplayNames.load().available
 
     for char, expected_set in EXPECTED_EQUIPPED.items():
         expected = set(expected_set)
@@ -243,68 +244,68 @@ class TestFmtClass:
     """Tests for fmt_class()."""
 
     def test_main_only(self):
-        assert parser.fmt_class({'Main': 'Fighter'}) == 'Fighter'
+        assert render.fmt_class({'Main': 'Fighter'}) == 'Fighter'
 
     def test_main_and_sub(self):
-        assert parser.fmt_class({'Main': 'Cleric', 'Sub': 'TrickeryDomain'}) == (
+        assert render.fmt_class({'Main': 'Cleric', 'Sub': 'TrickeryDomain'}) == (
             'Cleric / TrickeryDomain'
         )
 
     def test_empty_sub_omitted(self):
-        assert parser.fmt_class({'Main': 'Barbarian', 'Sub': ''}) == 'Barbarian'
+        assert render.fmt_class({'Main': 'Barbarian', 'Sub': ''}) == 'Barbarian'
 
     def test_missing_keys_graceful(self):
-        assert parser.fmt_class({}) == ''
+        assert render.fmt_class({}) == ''
 
     def test_sub_without_main(self):
         # Edge case: Sub set but Main empty — separator still used
-        assert parser.fmt_class({'Main': '', 'Sub': 'SomeSub'}) == ' / SomeSub'
+        assert render.fmt_class({'Main': '', 'Sub': 'SomeSub'}) == ' / SomeSub'
 
 
 class TestIsEquipmentType:
     """Tests for is_equipment_type()."""
 
     def test_weapon_is_equipment(self):
-        assert parser.is_equipment_type('WPN_Longsword') is True
+        assert party.is_equipment_type('WPN_Longsword') is True
 
     def test_armor_is_equipment(self):
-        assert parser.is_equipment_type('ARM_HalfPlate_Body') is True
+        assert party.is_equipment_type('ARM_HalfPlate_Body') is True
 
     def test_magic_item_is_equipment(self):
-        assert parser.is_equipment_type('MAG_Evasive_Shoes') is True
+        assert party.is_equipment_type('MAG_Evasive_Shoes') is True
 
     def test_consumable_not_equipment(self):
-        assert parser.is_equipment_type('CONS_Mushrooms_Bonecap') is False
+        assert party.is_equipment_type('CONS_Mushrooms_Bonecap') is False
 
     def test_obj_not_equipment(self):
-        assert parser.is_equipment_type('OBJ_Keychain') is False
+        assert party.is_equipment_type('OBJ_Keychain') is False
 
     def test_gold_not_equipment(self):
-        assert parser.is_equipment_type('GOLD_Pile') is False
+        assert party.is_equipment_type('GOLD_Pile') is False
 
     def test_scroll_not_equipment(self):
-        assert parser.is_equipment_type('SCR_SomeScroll') is False
+        assert party.is_equipment_type('SCR_SomeScroll') is False
 
     def test_scroll_long_form_not_equipment(self):
-        assert parser.is_equipment_type('SCROLL_Fireball') is False
+        assert party.is_equipment_type('SCROLL_Fireball') is False
 
     def test_empty_string_not_equipment(self):
-        assert parser.is_equipment_type('') is False
+        assert party.is_equipment_type('') is False
 
     def test_underwear_not_equipment(self):
-        assert parser.is_equipment_type('ARM_Underwear_Elves') is False
+        assert party.is_equipment_type('ARM_Underwear_Elves') is False
 
     def test_camp_body_not_equipment(self):
-        assert parser.is_equipment_type('ARM_Camp_Body') is False
+        assert party.is_equipment_type('ARM_Camp_Body') is False
 
     def test_backpack_not_equipment(self):
-        assert parser.is_equipment_type('OBJ_Bag_AlchemyPouch_Backpack') is False
+        assert party.is_equipment_type('OBJ_Bag_AlchemyPouch_Backpack') is False
 
     def test_loot_prefix_not_equipment(self):
-        assert parser.is_equipment_type('LOOT_Gem') is False
+        assert party.is_equipment_type('LOOT_Gem') is False
 
     def test_key_prefix_not_equipment(self):
-        assert parser.is_equipment_type('KEY_IronKey') is False
+        assert party.is_equipment_type('KEY_IronKey') is False
 
 
 # ---------------------------------------------------------------------------
@@ -318,7 +319,7 @@ class TestSplitEquippedCarried:
 
     def test_status_equipped_wins(self):
         items = [('WPN_Sword', 0, 'g1')]
-        equipped, carried, undetermined = parser.split_equipped_carried(
+        equipped, carried, undetermined = party.split_equipped_carried(
             items, status_equipped={'WPN_Sword'},
         )
         assert equipped == [('WPN_Sword', 'g1')]
@@ -327,14 +328,14 @@ class TestSplitEquippedCarried:
 
     def test_flag_bit_equipped(self):
         items = [('WPN_Sword', self.EQUIPPED_FLAG, 'g1')]
-        equipped, carried, undetermined = parser.split_equipped_carried(
+        equipped, carried, undetermined = party.split_equipped_carried(
             items, status_equipped=set(),
         )
         assert equipped == [('WPN_Sword', 'g1')]
 
     def test_non_equipment_always_carried(self):
         items = [('CONS_Potion', self.EQUIPPED_FLAG, 'g1')]
-        equipped, carried, undetermined = parser.split_equipped_carried(
+        equipped, carried, undetermined = party.split_equipped_carried(
             items, status_equipped=set(),
         )
         assert carried == [('CONS_Potion', 'g1')]
@@ -343,7 +344,7 @@ class TestSplitEquippedCarried:
     def test_object_type_overrides_flag(self):
         # A FOR_DangerousBook-like item: has the Flags bit but is type Object.
         items = [('FOR_DangerousBook', self.EQUIPPED_FLAG, 'g1')]
-        equipped, carried, undetermined = parser.split_equipped_carried(
+        equipped, carried, undetermined = party.split_equipped_carried(
             items, status_equipped=set(),
             object_type_stats=frozenset({'FOR_DangerousBook'}),
         )
@@ -352,7 +353,7 @@ class TestSplitEquippedCarried:
 
     def test_object_type_overrides_status(self):
         items = [('UNI_CONT_PuzzleBox', 0, 'g1')]
-        equipped, carried, undetermined = parser.split_equipped_carried(
+        equipped, carried, undetermined = party.split_equipped_carried(
             items, status_equipped={'UNI_CONT_PuzzleBox'},
             object_type_stats=frozenset({'UNI_CONT_PuzzleBox'}),
         )
@@ -361,7 +362,7 @@ class TestSplitEquippedCarried:
 
     def test_equipment_without_signal_is_undetermined(self):
         items = [('ARM_Boots', 0, 'g1')]
-        equipped, carried, undetermined = parser.split_equipped_carried(
+        equipped, carried, undetermined = party.split_equipped_carried(
             items, status_equipped=set(),
         )
         assert undetermined == [('ARM_Boots', 'g1')]
@@ -380,7 +381,7 @@ class TestResolveSlotConflicts:
         flags_eq = [('WPN_Sword', 'g1')]
         ecs_eq = [('ARM_Boots', 'g2')]
         stats_to_slot = {'WPN_Sword': 'Melee Main Weapon', 'ARM_Boots': 'Boots'}
-        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+        kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
             flags_eq, ecs_eq, stats_to_slot, {}, {}, {},
         )
         assert set(kept_flags) == {('WPN_Sword', 'g1')}
@@ -392,7 +393,7 @@ class TestResolveSlotConflicts:
         flags_eq = [('ARM_Splint', 'g1')]
         ecs_eq = [('ARM_HalfPlate', 'g2')]
         stats_to_slot = {'ARM_Splint': 'Chest', 'ARM_HalfPlate': 'Chest'}
-        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+        kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
             flags_eq, ecs_eq, stats_to_slot, {}, {}, {},
         )
         assert ('ARM_Splint', 'g1') in kept_flags
@@ -403,7 +404,7 @@ class TestResolveSlotConflicts:
         flags_eq = [('MAG_Ring1', 'g1'), ('MAG_Ring2', 'g2')]
         ecs_eq: list = []
         stats_to_slot = {'MAG_Ring1': 'Ring', 'MAG_Ring2': 'Ring'}
-        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+        kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
             flags_eq, ecs_eq, stats_to_slot, {}, {}, {},
         )
         assert len(kept_flags) == 2
@@ -417,7 +418,7 @@ class TestResolveSlotConflicts:
         guid_to_rows = {'g1': [1], 'g2': [2], 'g3': [3]}
         membership_count = {1: 40, 2: 38, 3: 36}
         stats_to_entity = {'MAG_Ring1': 'g1', 'MAG_Ring2': 'g2', 'MAG_Ring3': 'g3'}
-        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+        kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
             flags_eq, ecs_eq, stats_to_slot, stats_to_entity, guid_to_rows, membership_count,
         )
         assert len(kept_flags) == 2
@@ -429,7 +430,7 @@ class TestResolveSlotConflicts:
         # Items with no slot data are not touched by conflict resolution.
         flags_eq = [('UNK_Item', 'g1')]
         ecs_eq = [('UNK_Item2', 'g2')]
-        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+        kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
             flags_eq, ecs_eq, {}, {}, {}, {},
         )
         assert ('UNK_Item', 'g1') in kept_flags
@@ -447,7 +448,7 @@ class TestResolveSlotConflicts:
         membership_count = {10: 37, 20: 35}  # stale has higher MC
         # Only e_real (row 20) is in OwnedAsLootComponent
         owned_as_loot_rows = frozenset([20])
-        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+        kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
             flags_eq, ecs_eq, stats_to_slot, stats_to_entity, guid_to_rows, membership_count,
             owned_as_loot_rows=owned_as_loot_rows,
         )
@@ -462,7 +463,7 @@ class TestResolveSlotConflicts:
         stats_to_entity = {'ARM_Item1': 'e1', 'ARM_Item2': 'e2'}
         guid_to_rows = {'e1': [1], 'e2': [2]}
         membership_count = {1: 38, 2: 42}  # e2 has higher MC
-        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+        kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
             flags_eq, ecs_eq, stats_to_slot, stats_to_entity, guid_to_rows, membership_count,
             owned_as_loot_rows=None,
         )
@@ -481,7 +482,7 @@ class TestResolveSlotConflicts:
         stats_to_entity = {'UND_SwordInStone': 'e_sword', 'Quest_Lantern': 'e_lantern'}
         guid_to_rows = {'e_sword': [1], 'e_lantern': [2]}
         membership_count = {1: 40, 2: 41}  # lantern has higher MC but sword has status
-        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+        kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
             flags_eq, ecs_eq, stats_to_slot, stats_to_entity, guid_to_rows, membership_count,
             status_equipped=frozenset(['UND_SwordInStone']),
         )
@@ -496,7 +497,7 @@ class TestResolveSlotConflicts:
         stats_to_entity = {'WPN_Sword': 'e1', 'WPN_Axe': 'e2'}
         guid_to_rows = {'e1': [1], 'e2': [2]}
         membership_count = {1: 40, 2: 38}  # sword has higher MC
-        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+        kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
             flags_eq, ecs_eq, stats_to_slot, stats_to_entity, guid_to_rows, membership_count,
             status_equipped=None,
         )
@@ -521,7 +522,7 @@ class TestResolveSlotConflicts:
         }
         guid_to_rows = {'e_sword': [1], 'e_lantern': [2], 'e_torch': [3], 'e_pitch': [4]}
         membership_count = {1: 40, 2: 41, 3: 5, 4: 5}  # lantern has higher MC but sword has status
-        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+        kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
             flags_eq, ecs_eq, stats_to_slot, stats_to_entity, guid_to_rows, membership_count,
             status_equipped=frozenset(['UND_SwordInStone']),
         )
@@ -543,7 +544,7 @@ class TestResolveSlotConflicts:
         stats_to_entity = {'MAG_KingsKnife': 'e_knife', 'UND_SwordInStone': 'e_sword'}
         guid_to_rows = {'e_knife': [1], 'e_sword': [2]}
         membership_count = {1: 37, 2: 41}  # stale sword has higher MC
-        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+        kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
             flags_eq, ecs_eq, stats_to_slot, stats_to_entity, guid_to_rows, membership_count,
             owned_as_loot_rows=frozenset([2]),  # only the stale sword is in loot
             wielded_rows=frozenset([1]),
@@ -564,7 +565,7 @@ class TestResolveSlotConflicts:
         stats_to_entity = {'MAG_Halberd': 'e_halberd', 'Quest_Lantern': 'e_lantern'}
         guid_to_rows = {'e_halberd': [1], 'e_lantern': [2]}
         membership_count = {1: 36, 2: 40}  # stale lantern has higher MC
-        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+        kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
             flags_eq, ecs_eq, stats_to_slot, stats_to_entity, guid_to_rows, membership_count,
             owned_as_loot_rows=frozenset([2]),  # only the stale lantern is in loot
             gravity_disabled_rows=frozenset([1]),
@@ -579,7 +580,7 @@ class TestResolveSlotConflicts:
         stats_to_entity = {'WPN_A': 'e_a', 'WPN_B': 'e_b'}
         guid_to_rows = {'e_a': [1], 'e_b': [2]}
         membership_count = {1: 30, 2: 40}
-        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+        kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
             flags_eq, [], stats_to_slot, stats_to_entity, guid_to_rows, membership_count,
             status_equipped=frozenset(['WPN_A']),
             wielded_rows=frozenset([2]),  # B looks attached, but A has the status
@@ -597,7 +598,7 @@ class TestResolveSlotConflicts:
             'MAG_Shield': 'Melee Offhand Weapon',
         }
         two_handed_stats = frozenset(['MAG_Greatsword'])
-        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+        kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
             flags_eq, ecs_eq, stats_to_slot, {}, {}, {},
             two_handed_stats=two_handed_stats,
         )
@@ -614,7 +615,7 @@ class TestResolveSlotConflicts:
             'ARM_Shield': 'Melee Offhand Weapon',
         }
         two_handed_stats = frozenset(['WPN_Greatsword'])  # longsword not in here
-        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+        kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
             flags_eq, ecs_eq, stats_to_slot, {}, {}, {},
             two_handed_stats=two_handed_stats,
         )
@@ -630,7 +631,7 @@ class TestResolveSlotConflicts:
             'WPN_Greatsword': 'Melee Main Weapon',
             'ARM_Shield': 'Melee Offhand Weapon',
         }
-        kept_flags, kept_ecs, demoted = parser.resolve_slot_conflicts(
+        kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
             flags_eq, ecs_eq, stats_to_slot, {}, {}, {},
             two_handed_stats=None,
         )
@@ -655,7 +656,7 @@ class TestEcsResolveEquipped:
         membership_count = {10: 38, 20: 0, 30: 0}
         wielded_rows = frozenset([10])  # row 10 is in WieldedComponent
 
-        eq, ca, undet = parser.ecs_resolve_equipped(
+        eq, ca, undet = party.ecs_resolve_equipped(
             undetermined, {}, guid_to_rows, membership_count,
             stats_to_entity=stats_to_entity,
             wielded_rows=wielded_rows,
@@ -674,7 +675,7 @@ class TestEcsResolveEquipped:
         membership_count = {15: 38, 40: 0, 50: 0}
         wielded_rows = frozenset([99])  # row 15 is NOT in WieldedComponent
 
-        eq, ca, undet = parser.ecs_resolve_equipped(
+        eq, ca, undet = party.ecs_resolve_equipped(
             undetermined, {}, guid_to_rows, membership_count,
             stats_to_entity=stats_to_entity,
             wielded_rows=wielded_rows,
@@ -691,7 +692,7 @@ class TestEcsResolveEquipped:
         guid_to_rows = {entity_guid: [10]}
         membership_count = {10: 38}
 
-        eq, ca, undet = parser.ecs_resolve_equipped(
+        eq, ca, undet = party.ecs_resolve_equipped(
             undetermined, {}, guid_to_rows, membership_count,
             stats_to_entity=stats_to_entity,
         )
@@ -738,20 +739,20 @@ class TestBuildInstanceEntityMap:
             {'entity': 'ent-1', 'translate': (1.0, 2.0, 3.0), 'stats': 'WPN_Sword'},
             {'entity': 'ent-2', 'translate': (4.0, 5.0, 6.0), 'stats': 'ARM_Boots'},
         ])
-        result = parser.build_instance_entity_map(nodes)
+        result = party.build_instance_entity_map(nodes)
         assert result[((1.0, 2.0, 3.0), 'WPN_Sword')] == 'ent-1'
         assert result[((4.0, 5.0, 6.0), 'ARM_Boots')] == 'ent-2'
 
     def test_empty_when_no_items_root(self):
         nodes = [{'name': 'Other', 'parent': -1, 'children': [], 'attrs': {}}]
-        assert parser.build_instance_entity_map(nodes) == {}
+        assert party.build_instance_entity_map(nodes) == {}
 
     def test_skips_missing_fields(self):
         # An item with no Stats field should not appear in the result.
         nodes = self._make_nodes([
             {'entity': 'ent-1', 'translate': (1.0, 2.0, 3.0), 'stats': ''},
         ])
-        result = parser.build_instance_entity_map(nodes)
+        result = party.build_instance_entity_map(nodes)
         assert result == {}
 
 
@@ -784,7 +785,7 @@ def test_thumbnail(tmp_path):
     """extract_thumbnail must write a valid WebP file and return dimensions."""
     frames = parser.extract_frames(QUICKSAVE_MAIA)
     out = tmp_path / 'thumb.webp'
-    dims = parser.extract_thumbnail(frames, str(out))
+    dims = lspk.extract_thumbnail(frames, str(out))
     assert out.exists()
     assert out.stat().st_size > 0
     # All observed saves use VP8X extended WebP.
@@ -847,13 +848,13 @@ def test_build_report_is_gather_plus_render():
 def test_parse_lsmf_spellbooks_direct():
     """parse_lsmf_spellbooks must return many non-trivial books from the blob."""
     frames = parser.extract_frames(QUICKSAVE_MAIA)
-    nodes0 = parser.parse_lsof(parser.decomp_frame(frames['Globals.lsf']))
+    nodes0 = lsf.parse_lsof(lsf.decomp_frame(frames['Globals.lsf']))
     blob = next(nd['attrs']['NewAge'] for nd in nodes0
                 if nd['name'] == 'NewAge' and nd['parent'] == -1)
-    books = parser.parse_lsmf_spellbooks(blob)
+    books = lsmf.parse_lsmf_spellbooks(blob)
     assert len(books) > 100  # party + NPCs all carry spell books
-    classes = parser.parse_lsmf_classes(blob)
-    named = {parser.CLASS_UUID_NAMES.get(c) for cls in classes.values() for c, _s, _l in cls}
+    classes = lsmf.parse_lsmf_classes(blob)
+    named = {gamedata.CLASS_UUID_NAMES.get(c) for cls in classes.values() for c, _s, _l in cls}
     assert {'Warlock', 'Barbarian', 'Cleric', 'Fighter'} <= named
 
 
