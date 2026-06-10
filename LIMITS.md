@@ -128,10 +128,10 @@ string pool (see FORMAT.md §6). Party members are matched to their spell-book
 entity by class/subclass/level from `game.stats.v0.ClassesComponent`. The
 resulting lists are complete and current — class abilities, racial and
 illithid powers, item-granted spells, and mod-added spells all attribute to
-the right character. The old string-pool + class-rule heuristic remains only
-as a fallback (labelled "heuristic" in the report) for blobs where the chain
-fails. If two party members have identical class, subclass, *and* level, their
-books cannot be told apart by this method and the heuristic is used.
+the right character. If two party members have identical class, subclass,
+*and* level, their books cannot be told apart; the report says so explicitly
+for those members instead of guessing. (An earlier string-pool + class-rule
+heuristic was retired once the exact chain proved reliable across saves.)
 
 ## The ECS blob (NewAge / LSMF)
 

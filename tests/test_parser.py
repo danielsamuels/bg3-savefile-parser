@@ -238,48 +238,6 @@ def test_equipped_items_ground_truth():
 # Unit tests for pure functions (no save file required)
 # ---------------------------------------------------------------------------
 
-class TestSplitSpellString:
-    """Tests for split_spell_string()."""
-
-    def test_single_prefix(self):
-        result = parser.split_spell_string('Shout_SecondWind')
-        assert result == ['Shout_SecondWind']
-
-    def test_two_prefixes_concatenated(self):
-        result = parser.split_spell_string('Shout_SecondWindShout_ActionSurge')
-        assert result == ['Shout_SecondWind', 'Shout_ActionSurge']
-
-    def test_three_different_prefixes(self):
-        result = parser.split_spell_string(
-            'Projectile_EldritchBlastTarget_HexAgonizingBlastRepellingBlastShout_BladeWard'
-        )
-        assert result == [
-            'Projectile_EldritchBlast',
-            'Target_HexAgonizingBlastRepellingBlast',
-            'Shout_BladeWard',
-        ]
-
-    def test_empty_string(self):
-        assert parser.split_spell_string('') == []
-
-    def test_null_bytes_stripped(self):
-        result = parser.split_spell_string('\x00Shout_Rage\x00')
-        assert result == ['Shout_Rage']
-
-    def test_no_known_prefix(self):
-        # split_spell_string splits on prefix *boundaries* but does not filter;
-        # a string with no known prefix passes through as-is.
-        assert parser.split_spell_string('SomeRandomText') == ['SomeRandomText']
-
-    def test_teleportation_prefix(self):
-        result = parser.split_spell_string('Teleportation_Revivify')
-        assert result == ['Teleportation_Revivify']
-
-    def test_pact_prefix(self):
-        result = parser.split_spell_string('PactOfTheBlade')
-        assert result == ['PactOfTheBlade']
-
-
 class TestFmtClass:
     """Tests for fmt_class()."""
 

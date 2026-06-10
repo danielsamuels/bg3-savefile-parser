@@ -47,7 +47,7 @@ Known limitations
   ItemSlot field); Ring vs Ring 2 is recovered from container ordering.
   Spell books are read exactly from the save's ECS blob; if two party members
   share an identical class/subclass/level build, their books cannot be told
-  apart and a class-based heuristic is used for those members.
+  apart and a note is shown instead.
   See LIMITS.md for full details.
 """
 
@@ -922,187 +922,6 @@ def parse_osiris(frames: dict[str, bytes]) -> dict | None:
         return None
 
 
-# ---------------------------------------------------------------------------
-# Spell extraction from LSMF ECS blob
-# ---------------------------------------------------------------------------
-
-# Known BG3 spell-ID prefixes (order matters – longest first)
-SPELL_PREFIXES = [
-    'Teleportation_', 'AspectOfTheBeast_', 'FightingStyle_', 'TotemSpirit_',
-    'PactOfThe', 'Projectile_', 'Summon_', 'Target_', 'Shout_', 'Zone_',
-    'Rush_', 'Wall_',
-]
-
-PREFIX_RE = re.compile(
-    r'(?=' + '|'.join(re.escape(p) for p in SPELL_PREFIXES) + r')'
-)
-
-# Hand-observed spell IDs exclusive to each class (heuristic attribution).
-# FALLBACK ONLY: with an installed game, the canonical per-class spell pools
-# are derived from Progressions.lsx + SpellLists.lsx (see
-# build_displayname_maps) and this table is not consulted. It is kept for
-# no-game-data runs and is intentionally not exhaustive.
-CLASS_EXCLUSIVE = {
-    # Fighter / Battle Master
-    'Fighter': {
-        'Shout_SecondWind', 'Shout_ActionSurge', 'Shout_IndomitableAction',
-        'FightingStyle_Defense', 'FightingStyle_Dueling',
-        'FightingStyle_GreatWeaponFighting', 'FightingStyle_Protection',
-        'FightingStyle_Archery', 'FightingStyle_TwoWeaponFighting',
-        'Target_TripAttack', 'Projectile_TripAttack',
-        'Target_DisarmingAttack', 'Projectile_DisarmingAttack',
-        'Target_PrecisionAttack', 'Shout_PrecisionAttack',
-        'Target_MenacingAttack', 'Projectile_MenacingAttack',
-        'Target_Riposte', 'Shout_PushingAttack',
-        'Projectile_MAG_PushingAttack',
-    },
-    # Warlock / Fiend
-    'Warlock': {
-        'Projectile_EldritchBlast', 'Shout_BladeWard',
-        'Shout_ArmorOfAgathys', 'Shout_ArmsOfHadar',
-        'Target_HungerOfHadar', 'Shout_HellishRebuke',
-        'Wall_WallOfFire', 'Target_HexAgonizingBlastRepellingBlast',
-        'PactOfTheChain', 'PactOfTheBlade', 'PactOfTheTome',
-        'Wall_WallOfFireSculptorOfFlesh',
-        'Target_HungerOfHadarDevilsSight',
-    },
-    # Barbarian / Totem Warrior
-    'Barbarian': {
-        'Shout_Rage', 'Shout_Rage_Totem_Tiger', 'Shout_Rage_Totem_Bear',
-        'Target_RecklessAttack', 'Zone_TigersBloodlust',
-        'TotemSpirit_Bear', 'TotemSpirit_Tiger', 'TotemSpirit_Eagle',
-        'AspectOfTheBeast_Wolverine', 'AspectOfTheBeast_Bear',
-        'AspectOfTheBeast_Eagle', 'AspectOfTheBeast_Elk', 'AspectOfTheBeast_Wolf',
-        'Rush_SpringAttack',
-    },
-    # Cleric / Trickery Domain
-    'Cleric': {
-        'Target_SacredFlame', 'Target_Guidance', 'Target_Resistance',
-        'Shout_ProduceFlame', 'Target_Thaumaturgy',
-        'Target_Bless', 'Target_Bane', 'Target_ShieldOfFaith',
-        'Target_InflictWounds', 'Projectile_GuidingBolt',
-        'Shout_TurnUndead', 'Target_SpiritualWeapon',
-        'Shout_SpiritGuardians', 'Shout_SpiritGuardians_Radiant',
-        'Shout_SpiritGuardians_Necrotic',
-        'Shout_Aid', 'Shout_PassWithoutTrace',
-        'Target_BestowCurse', 'Zone_Fear', 'Target_DeathWard',
-        'Target_BlessingOfTheTrickster', 'Target_InvokeDuplicity',
-        'Shout_CloakOfShadows',
-        'Target_Banishment', 'Teleportation_Revivify',
-        'Shout_HealingWord_Mass', 'Shout_BeaconOfHope',
-        'Target_SpeakWithDead', 'Target_GuardianOfFaith',
-    },
-}
-
-# Abilities common to all or most characters (not attributable by class)
-UNIVERSAL = {
-    'Target_HealingWord', 'Projectile_Jump', 'Target_Dip', 'Shout_Hide',
-    'Shout_Dash', 'Target_Help', 'Shout_Disengage', 'Target_MainHandAttack',
-    'Target_OffhandAttack', 'Target_UnarmedAttack', 'Target_Topple',
-    'Shout_Disengage_CunningAction', 'Shout_Dash_CunningAction',
-    'Shout_Hide_BonusAction', 'Target_ShoveThrow_ThrowThrow_ImprovisedWeapon',
-    'Shout_MAG_Aid3_Self',
-}
-
-
-def extract_lsmf_blob(nodes: list[dict]) -> bytes | None:
-    """Return the raw LSMF ScratchBuffer blob from the NewAge node."""
-    for nd in nodes:
-        if nd['name'] == 'NewAge' and nd['parent'] == -1:
-            return nd['attrs'].get('NewAge')
-    return None
-
-
-def split_spell_string(packed: str) -> list[str]:
-    """Split a concatenated BG3 spell-ID string into individual spell IDs."""
-    parts = PREFIX_RE.split(packed)
-    result = []
-    for part in parts:
-        part = part.strip('\x00 ')
-        if part:
-            result.append(part)
-    return result
-
-
-ASCII_RUN_RE = re.compile(rb'[ -~]{30,}')
-
-
-def extract_spell_strings_from_lsmf(blob: bytes) -> list[str]:
-    """
-    Find all significant packed spell-ID strings in the LSMF blob.
-    Returns the list of all non-trivial ASCII runs that contain spell IDs.
-    """
-    prefixes = tuple(p.encode() for p in SPELL_PREFIXES)
-    return [
-        m.group().decode('ascii')
-        for m in ASCII_RUN_RE.finditer(blob)
-        if any(p in m.group() for p in prefixes)
-    ]
-
-
-CLASS_MAIN_TO_KEY = {
-    'Fighter':   'Fighter',
-    'Warlock':   'Warlock',
-    'Barbarian': 'Barbarian',
-    'Cleric':    'Cleric',
-    # add more classes here if needed
-}
-
-
-def extract_spells_by_character(
-    lsmf_blob: bytes,
-    party_info: list[dict],
-    player_name: str = 'Player',
-    class_spells: dict[str, list[str]] | None = None,
-) -> dict[str, list[str]]:
-    """
-    Extract spells from the LSMF blob and attribute them to party members
-    using class-based rules.
-
-    With class_spells (the canonical per-class pools from Progressions.lsx +
-    SpellLists.lsx), a spell is attributed to the party member whose
-    class/subclass pool is the only one in the party containing it. Without
-    game data, the hand-observed CLASS_EXCLUSIVE table is used instead.
-
-    Returns a dict mapping display_name → list of spell IDs.
-    """
-    all_strings = extract_spell_strings_from_lsmf(lsmf_blob)
-
-    # Collect all spell IDs from all runs
-    all_spell_ids: set[str] = set()
-    for s in all_strings:
-        for sid in split_spell_string(s):
-            all_spell_ids.add(sid)
-
-    # Per-member candidate pools
-    pools: dict[str, set[str]] = {}
-    for char_info in party_info:
-        origin = char_info.get('Origin', 'Generic')
-        display_name = origin if origin != 'Generic' else player_name
-        classes = char_info.get('Classes', [])
-        if not classes:
-            continue
-        if class_spells:
-            pool: set[str] = set()
-            for c in classes:
-                pool.update(class_spells.get(c.get('Main', ''), []))
-                pool.update(class_spells.get(c.get('Sub', ''), []))
-        else:
-            main_class = classes[0].get('Main', '')
-            class_key = CLASS_MAIN_TO_KEY.get(main_class, main_class)
-            pool = set(CLASS_EXCLUSIVE.get(class_key, set()))
-        pools[display_name] = pool
-
-    # Attribute spells whose pool membership is unique within the party
-    result: dict[str, list[str]] = {}
-    for name, pool in pools.items():
-        others: set[str] = set()
-        for other_name, other_pool in pools.items():
-            if other_name != name:
-                others |= other_pool
-        result[name] = sorted((all_spell_ids & pool) - others)
-
-    return result
 
 
 # ---------------------------------------------------------------------------
@@ -2083,7 +1902,7 @@ STAT_ITEM_PAKS = ['Shared.pak', 'Gustav.pak', 'GustavX.pak']
 STAT_ITEM_FILE_RE = re.compile(r'/Stats/Generated/Data/(?:Armor|Weapon|Object)\.txt$')
 
 # Bump when the resolver logic changes so a stale cache is not silently reused.
-DISPLAYNAME_SCHEMA_VERSION = 9
+DISPLAYNAME_SCHEMA_VERSION = 10
 
 
 def find_game_data_dir() -> str | None:
@@ -2194,12 +2013,11 @@ def build_displayname_maps(
 ) -> tuple[
     dict[str, str], dict[str, str], dict[str, str],
     frozenset[str], dict[str, str], frozenset[str], frozenset[str],
-    dict[str, list[str]],
 ]:
     """Build display-name and item-stat maps from installed game data.
 
     Returns (guid->name, stats->name, spell_id->name, object_type_stats, stats_to_slot,
-    two_handed_stats, sub_spells, class_spells).
+    two_handed_stats, sub_spells).
 
     Results are cached under XDG_CACHE_HOME keyed on the source paks' mtime/size,
     so the ~1 s parse only happens after a game update.
@@ -2216,7 +2034,6 @@ def build_displayname_maps(
             data.get('stats_slots', {}),
             frozenset(data.get('two_handed', [])),
             frozenset(data.get('sub_spells', [])),
-            data.get('class_spells', {}),
         )
     except (OSError, ValueError, KeyError):
         pass
@@ -2350,75 +2167,6 @@ def build_displayname_maps(
                 break
             cur = info['using']
 
-    # Canonical per-class spell pools from Progressions.lsx + SpellLists.lsx:
-    # each Progression node names a class/subclass and selects spell lists by
-    # UUID; the lists map UUID -> spell IDs. Used by the heuristic spell
-    # attribution in place of the hand-observed CLASS_EXCLUSIVE table.
-    spell_lists: dict[str, list[str]] = {}
-    class_spells: dict[str, list[str]] = {}
-    list_re = re.compile(r'(?:SelectSpells|AddSpells)\(([0-9a-f-]{36})')
-
-    def pak_files(suffix: str):
-        for pak_name in STAT_ITEM_PAKS:
-            pak_path = os.path.join(data_dir, pak_name)
-            try:
-                with open(pak_path, 'rb') as fh:
-                    flist = lspk_filelist(fh)
-            except (OSError, ValueError):
-                continue
-            for fname in sorted(flist):
-                if fname.endswith(suffix):
-                    try:
-                        yield lspk_extract(pak_path, fname).decode('utf-8', 'replace')
-                    except (OSError, KeyError, ValueError):
-                        continue
-
-    for xml in pak_files('Lists/SpellLists.lsx'):
-        for nm in re.finditer(r'<node id="SpellList">(.*?)</node>', xml, re.S):
-            u = re.search(r'id="UUID" type="guid" value="([0-9a-f-]+)"', nm.group(1))
-            sp = re.search(r'id="Spells" type="LSString" value="([^"]*)"', nm.group(1))
-            if u and sp:
-                spell_lists.setdefault(u.group(1), [s for s in sp.group(1).split(';') if s])
-    # Martial abilities (maneuvers, Rage, …) are granted indirectly: the
-    # progression adds or selects a passive whose Boosts contain
-    # UnlockSpell(...). Selected passives come from PassiveLists.lsx.
-    passive_spells: dict[str, list[str]] = {}
-    for text in pak_files('Stats/Generated/Data/Passive.txt'):
-        for bm in re.finditer(r'^new entry "([^"]+)"', text, re.MULTILINE):
-            start = bm.end()
-            nb = re.search(r'^new entry', text[start:], re.MULTILINE)
-            block = text[start: start + (nb.start() if nb else len(text))]
-            unlocked = re.findall(r'UnlockSpell\((\w+)', block)
-            if unlocked:
-                passive_spells.setdefault(bm.group(1), []).extend(unlocked)
-    passive_lists: dict[str, list[str]] = {}
-    for xml in pak_files('Lists/PassiveLists.lsx'):
-        for nm in re.finditer(r'<node id="PassiveList">(.*?)</node>', xml, re.S):
-            u = re.search(r'id="UUID" type="guid" value="([0-9a-f-]+)"', nm.group(1))
-            pv = re.search(r'id="Passives" type="LSString" value="([^"]*)"', nm.group(1))
-            if u and pv:
-                passive_lists.setdefault(
-                    u.group(1),
-                    [s.strip() for s in re.split(r'[,;]', pv.group(1)) if s.strip()])
-    passive_list_re = re.compile(r'SelectPassives\(([0-9a-f-]{36})')
-    for xml in pak_files('Progressions/Progressions.lsx'):
-        for nm in re.finditer(r'<node id="Progression">(.*?)</node>', xml, re.S):
-            body = nm.group(1)
-            name_m = re.search(r'id="Name" type="LSString" value="([^"]+)"', body)
-            if not name_m:
-                continue
-            pool = class_spells.setdefault(name_m.group(1), [])
-            for sel in re.finditer(r'id="(?:Selectors|Boosts)"[^>]*value="([^"]*)"', body):
-                for lm in list_re.finditer(sel.group(1)):
-                    pool.extend(spell_lists.get(lm.group(1), []))
-                pool.extend(re.findall(r'UnlockSpell\((\w+)', sel.group(1)))
-                for plm in passive_list_re.finditer(sel.group(1)):
-                    for pname in passive_lists.get(plm.group(1), []):
-                        pool.extend(passive_spells.get(pname, []))
-            for pl in re.finditer(r'id="PassivesAdded"[^>]*value="([^"]*)"', body):
-                for pname in pl.group(1).split(';'):
-                    pool.extend(passive_spells.get(pname.strip(), []))
-
     # Item stat files: Armor.txt / Weapon.txt / Object.txt from item paks.
     # Used to (a) identify Object-type items that cannot be equipped, and
     # (b) resolve the equipment slot for each item (following the `using` chain).
@@ -2512,7 +2260,6 @@ def build_displayname_maps(
                 'stats_slots': stats_to_slot,
                 'two_handed': two_handed_stats_list,
                 'sub_spells': sub_spell_list,
-                'class_spells': {k: sorted(set(v)) for k, v in class_spells.items()},
             }, fh)
     except OSError:
         pass
@@ -2520,7 +2267,6 @@ def build_displayname_maps(
         guid_name, stats_name, spell_name,
         frozenset(object_type_stats_list), stats_to_slot,
         frozenset(two_handed_stats_list), frozenset(sub_spell_list),
-        {k: sorted(set(v)) for k, v in class_spells.items()},
     )
 
 
@@ -2536,7 +2282,6 @@ class DisplayNames:
         stats_to_slot:     dict[str, str]   | None = None,
         two_handed_stats:  frozenset[str]   | None = None,
         sub_spells:        frozenset[str]   | None = None,
-        class_spells:      dict[str, list[str]] | None = None,
     ):
         self._guid   = guid_name
         self._stats  = stats_name
@@ -2545,7 +2290,6 @@ class DisplayNames:
         self.stats_to_slot:     dict[str, str] = stats_to_slot     or {}
         self.two_handed_stats:  frozenset[str] = two_handed_stats  or frozenset()
         self.sub_spells:        frozenset[str] = sub_spells        or frozenset()
-        self.class_spells:      dict[str, list[str]] = class_spells or {}
         self.verbose = False  # set to True to append (INTERNAL_NAME) after display names
 
     @classmethod
@@ -2681,13 +2425,9 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
     # matched to its spell-book entity by (class, subclass, level) from
     # Info.json; multiple entities can match (origin-pool stand-ins exist for
     # each companion), so the largest book — the live character — wins.
-    # The heuristic string-pool attribution remains as a fallback.
-    spell_map: dict[str, list[str]] = {}
     spellbooks: dict[int, list[str]] = {}
     entity_classes: dict[int, tuple] = {}
     if lsmf_blob:
-        spell_map = extract_spells_by_character(
-            lsmf_blob, party_info, player_display_name, dn.class_spells or None)
         spellbooks = parse_lsmf_spellbooks(lsmf_blob)
         entity_classes = parse_lsmf_classes(lsmf_blob)
 
@@ -2701,7 +2441,7 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
         return (tuple(want), level)
 
     # Class matching cannot tell two members with identical class, subclass,
-    # AND level apart; those members fall back to the heuristic.
+    # AND level apart; those members get an explanatory note instead.
     party_builds = [k for ci in party_info if (k := build_key(ci)) is not None]
     ambiguous_builds = {k for k in party_builds if party_builds.count(k) > 1}
 
@@ -2826,7 +2566,7 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
         if subregion:
             w(f'    Location  : {subregion}')
 
-        # Spells — exact book when the entity match succeeds, else heuristic
+        # Spells — exact book from the ECS blob
         book = exact_spellbook(char_info)
         if book is not None:
             distinct = set(book)
@@ -2844,12 +2584,11 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
             w(f'    Spells/Abilities ({len(shown)}{suffix}):')
             for line in shown:
                 w(f'      – {line}')
-        elif (spells := spell_map.get(display_name, [])):
-            w(f'    Spells/Abilities ({len(spells)}, heuristic):')
-            for sid in sorted(spells):
-                w(f'      – {dn.fmt_spell(sid)}')
+        elif build_key(char_info) in ambiguous_builds:
+            w('    Spells/Abilities : (identical class build to another party member '
+              '— spell books cannot be told apart)')
         else:
-            w('    Spells/Abilities : (class-specific list not found)')
+            w('    Spells/Abilities : (spell book not found)')
 
         # Equipped + carried items, attributed by shared world position
         char_ni = party_nodes.get(display_name)
@@ -3005,8 +2744,8 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
   Spell attribution reads each character's exact spell book from the save's
   ECS blob (SpellBookComponent -> SpellData -> SpellId -> string pool),
   matching party members by class/subclass/level.  If two members share an
-  identical build, their books cannot be told apart; those members fall back
-  to a class-based heuristic (marked "heuristic" in the report).
+  identical build, their books cannot be told apart and a note is shown
+  instead.
 
   Per-character item ownership is recovered from shared world position
   (each carried/worn item copies its holder's Translate).  Whether an

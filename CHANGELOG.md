@@ -52,7 +52,9 @@ All notable changes to this project will be documented here.
   `SpellId` `{pointer, length}` references into the blob's spell-ID string
   pool. Party members are matched by `game.stats.v0.ClassesComponent`
   (class/subclass/level, UUIDs from `ClassDescriptions.lsx`). Replaces the
-  class-rule heuristic, which remains only as a fallback.
+  class-rule heuristic entirely (the heuristic and its hand-maintained
+  CLASS_EXCLUSIVE table were subsequently removed; identical-build party
+  members get an explanatory note instead).
 - **Equipment slot per worn item** displayed in the report, derived from item
   stats. Established (byte-sweep over 12 known-slot items) that the save does
   not serialise `ItemSlot` at all — the engine re-derives it from stats.

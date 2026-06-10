@@ -822,9 +822,8 @@ What remains genuinely blocked:
 ### Also in the blob
 
 - Spell / ability IDs as a large pool of concatenated ASCII (e.g.
-  `Projectile_EldritchBlast`, `Shout_SecondWind`). These are now read exactly
-  via the spell-book chain above; a prefix-scan heuristic remains only as a
-  fallback for blobs where that chain fails.
+  `Projectile_EldritchBlast`, `Shout_SecondWind`). These are read exactly via
+  the spell-book chain above.
 - Earlier analysis suggested some unique items (Shifting Corpus Ring, Spidersilk
   Armour) had no LSF `Item` node — this was incorrect. Ground-truth verification
   shows both `MAG_FlamingFist_ScoutRing` (Shifting Corpus Ring) and
