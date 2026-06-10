@@ -655,13 +655,47 @@ smaller).
 - **`game.inventory.v0.ContainerSlotData`** (elem=16, no ownerlist —
   referenced by pointer): `{u64 ptr → item EntityId row, u32 slot,
   u32 generation}`. `slot` is the position **within that container**
-  (insertion-order/grid index, *not* the `ItemSlot` enum); `generation` is a
-  save-epoch counter (664 across all containers in the test save).
+  (inventory-grid cell, *not* the `ItemSlot` enum); `generation` reads as a
+  small epoch counter on old rows but as uninitialised garbage (string-pool
+  fragments) on fresh ones — don't rely on it. An item that has moved between
+  containers can retain **stale rows** alongside its current one, and a slot
+  row is **reused in place** when one item replaces another in the same
+  container slot (observed when swapping amulets between saves 292→294).
 - **`game.inventory.v0.MemberData.ptr_a`** points at single-item shadow
   inventories whose `IsOwnedComponent` names *other characters* — historical
   ownership bookkeeping (loot source), not current location. Treat
   `MemberComponent`/`MemberData` as a "has been in an inventory" signal, not
   a live container assignment.
+
+Containers are inventory **grid pages** (~13–16 slots for characters), and a
+character's containers freely mix worn and carried items — container identity
+alone does **not** mark equipment. The camp **Traveller's Chest** is simply
+the largest container (256 slots); its contents are fully listable, with item
+identity recovered through `ContainerSlotData → EntityId` and names through
+the LSF instance map or, for items with no Creators entry in the current
+level, `game.templates.v0.TemplateComponent` — whose pool string is a
+*static* root-template GUID, so the GUID→DisplayName path works for it.
+
+### The equipment cluster (✅ decoded — worn items form a row block)
+
+Each character's worn items occupy a **near-contiguous block of
+`ContainerSlotData` rows** (their slots in the character's own containers,
+allocated together), while an item moved to a bag gets a fresh row far
+outside the block and an item that *was* worn keeps its old, now out-of-block
+row. Ground-truthed across QuickSave_286–294 for four party members
+simultaneously: every genuinely worn item (including ECS-only-signal ones
+like the Evasive Shoes) sits inside its character's block, every stale
+equip-bit item (Phalar Aluve, Jorgoral's Greatsword, Hellrider's Pride)
+sits outside it, with no exceptions.
+
+The parser anchors the block on items whose worn status is already certain
+from LSF signals (uncontested Flags-bit items), trims anchors further than
+24 rows from the anchor median (stale outliers), widens the span by 8 rows,
+and uses membership in that window as the dominant worn/carried signal
+(`party.equipment_cluster`). Within the block, row order resolves what the
+stat files cannot: Ring vs Ring 2 (QuickSave_291) and main- vs off-hand for
+a dual-wield pair (QuickSave_292: Githyanki Shortsword row 954 = main hand,
+Dagger row 957 = off hand) — earlier row = first/upper slot in both cases.
 
 ### Entity-GUID bridge — corrects an earlier "no link exists" claim (✅ found)
 
@@ -796,10 +830,11 @@ What remains genuinely blocked:
    with a stable per-container position, which is how assignments the stats
    cannot express — which of two rings sits in Ring vs Ring2, main- vs
    off-hand for dual-wielded weapons — survive a save/load round trip.
-   **Ground-truth verified** (QuickSave_291, two rings worn by one
-   character): the ring with the earlier `ContainerSlotData` **row** sits in
-   the first (upper) UI ring slot; the `position` field within the entry is
-   insertion bookkeeping and does *not* track the UI order.
+   **Ground-truth verified** for both cases: QuickSave_291 (two worn rings —
+   the ring with the earlier `ContainerSlotData` **row** sits in the first
+   (upper) UI ring slot) and QuickSave_292 (dual-wielded weapons — the
+   earlier row is the main hand). The `position` field within the entry is
+   the inventory-grid cell and does *not* track the UI order.
 3. The blob contains no slot-name or full-component-name strings to anchor on
    beyond the directory.
 

@@ -83,26 +83,36 @@ Items attributed to a character are classified in layers:
    `STATUS` (`SourceEquippedItem`) or carries the `0x04000000` `Flags` bit on
    an equipment-type stats name. Items that are not equipment at all
    (consumables, keys, gold, camp/cosmetic clothing) are carried.
-3. **ECS membership.** Equipment-type items with no LSF signal are resolved by
+3. **The equipment cluster.** A character's worn items occupy a
+   near-contiguous block of `ContainerSlotData` rows in the save's ECS blob,
+   while items moved to a bag get a row far outside it (see FORMAT.md §6).
+   The block is anchored on the uncontested signalled items from layer 2;
+   membership in it then dominates the remaining layers: a Flags item located
+   outside the cluster has a stale equip bit and is demoted (an item keeps
+   its Flags bit after being unequipped), and an item inside the cluster is
+   worn even when every other signal misses it.
+4. **ECS membership.** Equipment-type items with no LSF signal are resolved by
    ECS component membership count: equipped items are materialised in the ECS
    world with ~35–41 ownerlist memberships, while items dematerialised into a
    backpack drop to ~3–6, so a threshold of 15 separates them cleanly. The
    count is taken per physical instance (the save's parallel Creators/Items
    arrays map each item to its specific entity), so other level instances of
-   the same item type cannot contaminate it. Items present in
-   `game.inventory.v0.WieldedComponent` are *not* promoted by this rule: that
-   component retains a stale marker on items that were previously in a weapon
-   slot but have since moved to the inventory, and those keep a high
-   membership count.
-4. **Slot-conflict resolution.** After both passes, equipped candidates are
+   the same item type cannot contaminate it. The cluster from layer 3 gates
+   the result where available (the membership count alone cannot separate
+   worn items from items lying loose in the main inventory); without one,
+   items present in `game.inventory.v0.WieldedComponent` are *not* promoted,
+   as that component retains a stale marker on previously-slotted items.
+5. **Slot-conflict resolution.** After all passes, equipped candidates are
    grouped by equipment slot (the stat files' `Slot` field via the `using`
-   chain). A slot holds one item — rings hold two. When more items claim a
-   slot than it can hold, Flags-signalled items beat ECS-only items, and
-   Flags-vs-Flags ties are broken in priority order: active on-equip status,
-   then physical attachment (`WieldedComponent` /
-   `GravityDisabledComponent`), then `OwnedAsLootComponent` membership, then
-   higher membership count. A two-handed weapon in the main-hand slot also
-   demotes any ECS-only offhand claim. Losers are reclassified as carried.
+   chain). A slot holds one item — rings hold two, and the melee slot holds
+   a dual-wield pair (two one-handed Flags items inside the cluster). When
+   more items claim a slot than it can hold, Flags-signalled items beat
+   ECS-only items, and Flags-vs-Flags ties are broken in priority order:
+   active on-equip status, then cluster membership, then physical attachment
+   (`WieldedComponent` / `GravityDisabledComponent`), then
+   `OwnedAsLootComponent` membership, then higher membership count. A
+   two-handed weapon in the main-hand slot also demotes any ECS-only offhand
+   claim. Losers are reclassified as carried.
 
 The underlying signals were established by controlled equip/unequip
 experiments: a diff of the same save with Evasive Shoes worn (242) vs bagged
@@ -110,10 +120,14 @@ experiments: a diff of the same save with Evasive Shoes worn (242) vs bagged
 (`game.inventory.v0.MemberComponent` among them); saves 242/248/249 confirmed
 the same for the Pearl of Power Amulet. The full cascade is validated against
 ground-truth party loadouts across the test saves (QuickSave_242 through
-QuickSave_291): every confirmed misclassification found along the way —
+QuickSave_294): every confirmed misclassification found along the way —
 Hellrider's Pride with a stale equip bit, previously-wielded weapons retaining
-high membership counts, game-stat Object items carrying the Flags bit — now
-classifies correctly, and no known misclassifications remain.
+high membership counts, game-stat Object items carrying the Flags bit, a
+dual-wield pair losing to a stale greatsword (292), Phalar Aluve's stale bit
+beating the genuinely-wielded King's Knife and the Evasive Shoes vanishing
+behind a stale `WieldedComponent` marker (294) — now classifies correctly,
+and no known misclassifications remain. QuickSave_292 and 294 are bundled as
+test fixtures under their quicksave index.
 
 ### Exact equipment slot — derived from stats; order persists in the container
 The save stores no **explicit** `ItemSlot` value. Evidence: a byte-level sweep
@@ -125,11 +139,12 @@ re-derived from item stats on load — the parser does the same (the stat files'
 item in the report is annotated `[Slot]`.
 
 Assignments the stats cannot express — which of two rings sits in Ring vs
-Ring2 — survive save/load via the **ordering** preserved in
-`ContainerSlotData`: of two worn rings, the one with the earlier
-`ContainerSlotData` row sits in the first (upper) ring slot. This was
-ground-truth verified in-game against QuickSave_291, and the report labels
-the rings `[Ring]` / `[Ring 2]` accordingly.
+Ring2, which of two dual-wielded weapons is in the main hand — survive
+save/load via the **ordering** preserved in `ContainerSlotData`: the item
+with the earlier row sits in the first slot. Ground-truth verified in-game
+for rings (QuickSave_291) and dual-wielded weapons (QuickSave_292); the
+report labels `[Ring]` / `[Ring 2]` and `[Melee Main Weapon]` /
+`[Melee Offhand Weapon]` accordingly.
 
 ### Spell books — exact (decoded 2026-06)
 Spell data lives in the `NewAge` LSMF ECS blob and is now decoded exactly:
@@ -147,12 +162,6 @@ heuristic was retired once the exact chain proved reliable across saves.)
 
 ## Known limitations
 
-- **Dual-wield main/off-hand ordering is unverified.** Two worn rings are
-  ordered into Ring vs Ring 2 by `ContainerSlotData` row order (ground-truth
-  verified); the same rule probably orders two dual-wielded weapons into main
-  and off hand, but no test save contains a dual-wielding party member to
-  confirm it. The main-hand slot's capacity of 1 in conflict resolution would
-  also wrongly demote one of two genuinely dual-wielded weapons.
 - **Shared stats names** (~9% of stats names) resolve to the first/base
   display-name variant rather than the exact variant — see "How display names
   work" above.
