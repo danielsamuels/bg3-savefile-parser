@@ -2043,7 +2043,7 @@ STAT_ITEM_PAKS = ['Shared.pak', 'Gustav.pak', 'GustavX.pak']
 STAT_ITEM_FILE_RE = re.compile(r'/Stats/Generated/Data/(?:Armor|Weapon|Object)\.txt$')
 
 # Bump when the resolver logic changes so a stale cache is not silently reused.
-DISPLAYNAME_SCHEMA_VERSION = 6
+DISPLAYNAME_SCHEMA_VERSION = 7
 
 
 def find_game_data_dir() -> str | None:
@@ -2182,7 +2182,7 @@ def build_displayname_maps(
 
     guid_handle: dict[str, str] = {}   # template GUID -> own DisplayName handle ('' if none)
     guid_parent: dict[str, str] = {}   # template GUID -> ParentTemplateId
-    stats_handle: dict[str, str] = {}  # stats name -> DisplayName handle
+    stats_guids: dict[str, list[str]] = {}  # stats name -> template GUIDs, in file order
     for pak, name in ROOT_TEMPLATE_FILES:
         try:
             nodes = parse_lsof(lspk_extract(os.path.join(data_dir, pak), name))
@@ -2194,12 +2194,11 @@ def build_displayname_maps(
             key = nd['attrs'].get('MapKey')
             if not key:
                 continue
-            handle = nd['attrs'].get('DisplayName', '')
-            guid_handle[key] = handle
+            guid_handle[key] = nd['attrs'].get('DisplayName', '')
             guid_parent[key] = nd['attrs'].get('ParentTemplateId', '')
             stats = nd['attrs'].get('Stats', '')
-            if stats and handle:
-                stats_handle.setdefault(stats, handle)
+            if stats:
+                stats_guids.setdefault(stats, []).append(key)
 
     def resolve_guid_handle(guid: str) -> str:
         cur = guid
@@ -2220,11 +2219,17 @@ def build_displayname_maps(
         if txt:
             guid_name[guid] = txt
 
+    # Stats names resolve through the same ParentTemplateId chain: templates
+    # like UNI_SCL_MoonlanternWithPixie carry no DisplayName of their own and
+    # inherit it from their base template.
     stats_name: dict[str, str] = {}
-    for stats, h in stats_handle.items():
-        txt = handle_to_text.get(h)
-        if txt:
-            stats_name[stats] = txt
+    for stats, guids in stats_guids.items():
+        for g in guids:
+            h = resolve_guid_handle(g)
+            txt = handle_to_text.get(h) if h else None
+            if txt:
+                stats_name[stats] = txt
+                break
 
     # Spell stat files: Spell_*.txt from all item paks. Upcast variants and
     # item-granted spells inherit DisplayName through the `using` chain, so
