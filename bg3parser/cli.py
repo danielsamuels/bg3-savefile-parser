@@ -7,8 +7,7 @@ import sys
 from .discovery import find_latest_save, find_save_by_token
 from .lspk import extract_frames, extract_thumbnail
 from .model import gather_report
-from .render import render_json
-from .report import build_report
+from .render import render_json, render_text
 
 # ---------------------------------------------------------------------------
 # Entry point
@@ -77,10 +76,8 @@ def main():
             print(f'Thumbnail written to {opts.thumbnail} (dimensions unknown)', file=sys.stderr)
 
     print(f'Parsing {save_path} …', file=sys.stderr)
-    if opts.json:
-        report = render_json(gather_report(save_path, frames, opts))
-    else:
-        report = build_report(save_path, frames, opts)
+    model = gather_report(save_path, frames, opts)
+    report = render_json(model) if opts.json else render_text(model, opts)
 
     if opts.output:
         with open(opts.output, 'w', encoding='utf-8') as fh:

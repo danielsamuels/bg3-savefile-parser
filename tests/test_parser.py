@@ -35,6 +35,11 @@ QUICKSAVE_MAIA = str(FIXTURE_DIR / 'quicksave_maia.lsv')
 SHADOWHEART_TUTORIAL = str(FIXTURE_DIR / 'autosave_shadowheart_tutorial.lsv')
 
 
+def build_report(save_path, opts=None):
+    """Test convenience: gather the model and render it as text."""
+    return parser.render_text(parser.gather_report(save_path, opts=opts), opts)
+
+
 # ---------------------------------------------------------------------------
 # Helper: parse the text report into per-character equipped stats names
 # ---------------------------------------------------------------------------
@@ -96,7 +101,7 @@ def extract_equipped_from_report(report: str) -> dict[str, set[str]]:
 
 def test_smoke_build_report():
     """build_report() must complete without error and produce a plausible report."""
-    report = parser.build_report(QUICKSAVE_MAIA, opts=Namespace(verbose=True))
+    report = build_report(QUICKSAVE_MAIA, opts=Namespace(verbose=True))
     assert isinstance(report, str)
     assert len(report) > 1000
 
@@ -218,7 +223,7 @@ def test_equipped_items_ground_truth():
     as false positives.  The expected set is widened accordingly so the test
     remains exact-equality in both regimes.
     """
-    report = parser.build_report(QUICKSAVE_MAIA, opts=Namespace(verbose=True))
+    report = build_report(QUICKSAVE_MAIA, opts=Namespace(verbose=True))
     actual = extract_equipped_from_report(report)
     game_data_available = gamedata.DisplayNames.load().available
 
@@ -763,7 +768,7 @@ class TestBuildInstanceEntityMap:
 
 def test_save_info():
     """--save-info section must appear and contain recognisable fields."""
-    report = parser.build_report(QUICKSAVE_MAIA, opts=Namespace(save_info=True))
+    report = build_report(QUICKSAVE_MAIA, opts=Namespace(save_info=True))
     assert 'Save Name' in report
     assert 'Game Ver' in report
     assert 'Leader' in report
@@ -772,7 +777,7 @@ def test_save_info():
 
 def test_quests():
     """--quests must parse the Osiris story state and emit a quests section."""
-    report = parser.build_report(QUICKSAVE_MAIA, opts=Namespace(quests=True))
+    report = build_report(QUICKSAVE_MAIA, opts=Namespace(quests=True))
     assert 'QUEST & STORY STATE' in report
     # The Osiris version line proves the parser reached the binary format.
     assert 'Osiris version:' in report
@@ -798,7 +803,7 @@ def test_thumbnail(tmp_path):
 
 def test_carried():
     """--carried must emit a Carried / personal inventory section."""
-    report = parser.build_report(QUICKSAVE_MAIA, opts=Namespace(carried=True))
+    report = build_report(QUICKSAVE_MAIA, opts=Namespace(carried=True))
     assert 'Carried / personal inventory' in report
 
 
@@ -806,7 +811,7 @@ def test_carried():
 def test_exact_spellbooks():
     """Every party member's spells must come from the exact LSMF spell book
     (no heuristic fallback), and known class abilities must be present."""
-    report = parser.build_report(QUICKSAVE_MAIA, opts=Namespace(verbose=True))
+    report = build_report(QUICKSAVE_MAIA, opts=Namespace(verbose=True))
     assert 'heuristic' not in report
     assert 'basic actions' in report
     # Wyll is a Fiend warlock: Eldritch Blast must be in his exact book.
@@ -819,7 +824,7 @@ def test_exact_spellbooks():
 
 def test_all_spells_flag():
     """--all-spells must list everything: no folded sub-spell/basic-action counts."""
-    report = parser.build_report(QUICKSAVE_MAIA, opts=Namespace(all_spells=True))
+    report = build_report(QUICKSAVE_MAIA, opts=Namespace(all_spells=True))
     assert 'Spells/Abilities (' in report
     assert 'sub-spells' not in report
     assert 'basic actions' not in report
@@ -838,13 +843,6 @@ def test_gather_report_model_and_json():
     assert all('stats' in i and 'template_guid' in i for i in wyll['equipped'])
 
 
-def test_build_report_is_gather_plus_render():
-    """The facade must equal gather_report + render_text composed."""
-    opts = Namespace(verbose=True)
-    composed = parser.render_text(parser.gather_report(QUICKSAVE_MAIA, opts=opts), opts)
-    assert composed == parser.build_report(QUICKSAVE_MAIA, opts=opts)
-
-
 def test_parse_lsmf_spellbooks_direct():
     """parse_lsmf_spellbooks must return many non-trivial books from the blob."""
     frames = parser.extract_frames(QUICKSAVE_MAIA)
@@ -860,7 +858,7 @@ def test_parse_lsmf_spellbooks_direct():
 
 def test_all_items():
     """--all-items must emit the full level inventory section."""
-    report = parser.build_report(QUICKSAVE_MAIA, opts=Namespace(all_items=True))
+    report = build_report(QUICKSAVE_MAIA, opts=Namespace(all_items=True))
     assert 'ALL ITEMS ON CURRENT LEVEL' in report
     assert 'items total' in report
 
@@ -868,7 +866,7 @@ def test_all_items():
 
 def test_limits():
     """--limits must emit the known-limitations note."""
-    report = parser.build_report(QUICKSAVE_MAIA, opts=Namespace(limits=True))
+    report = build_report(QUICKSAVE_MAIA, opts=Namespace(limits=True))
     assert 'LIMITS' in report
     assert 'Spell attribution' in report
 
@@ -915,7 +913,7 @@ def test_shadowheart_tutorial_frames():
 
 def test_shadowheart_tutorial_report():
     """build_report() on the tutorial save must complete and mention Shadowheart."""
-    report = parser.build_report(SHADOWHEART_TUTORIAL)
+    report = build_report(SHADOWHEART_TUTORIAL)
     assert isinstance(report, str)
     assert len(report) > 500
     assert 'Shadowheart' in report
@@ -924,6 +922,6 @@ def test_shadowheart_tutorial_report():
 
 def test_shadowheart_quests():
     """Osiris parsing must work on the tutorial save's StorySave.bin."""
-    report = parser.build_report(SHADOWHEART_TUTORIAL, opts=Namespace(quests=True))
+    report = build_report(SHADOWHEART_TUTORIAL, opts=Namespace(quests=True))
     assert 'QUEST & STORY STATE' in report
     assert 'Osiris version:' in report

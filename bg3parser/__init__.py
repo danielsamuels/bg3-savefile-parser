@@ -1,7 +1,7 @@
 """bg3parser — a pure-Python reader for Baldur's Gate 3 .lsv save files.
 
 Public API: parse a save with gather_report() and render it with
-render_text() / render_json(), or use build_report() for text in one call.
+render_text() / render_json().
 Everything else lives in the layer modules and is importable from them:
 
   lsf        LSF/LSOF binary resource format (nodes, attributes, values)
@@ -22,7 +22,6 @@ from .gamedata import DisplayNames
 from .lspk import extract_frames
 from .model import CharacterReport, ItemRef, SaveReport, SpellRef, gather_report
 from .render import render_json, render_text
-from .report import build_report
 
 __all__ = [
     'CharacterReport',
@@ -30,7 +29,6 @@ __all__ = [
     'ItemRef',
     'SaveReport',
     'SpellRef',
-    'build_report',
     'extract_frames',
     'find_latest_save',
     'find_save_by_token',
