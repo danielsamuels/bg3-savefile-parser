@@ -56,14 +56,30 @@ def extract_equipped_from_report(report: str) -> dict[str, set[str]]:
     result: dict[str, set[str]] = {}
     current_char: str | None = None
     in_equipped = False
+    in_party_section = False
+    waiting_for_party_separator = False
 
     for line in report.splitlines():
-        # Detect character header lines (two leading spaces, no dash)
-        char_match = re.match(r'^  (\S.*\S|\S+)\s*$', line)
-        if char_match and not line.startswith('    ') and '─' not in line and '━' not in line:
-            current_char = char_match.group(1).strip()
-            in_equipped = False
+        # Track entry into the PARTY CHARACTERS section.
+        if line == 'PARTY CHARACTERS':
+            waiting_for_party_separator = True
             continue
+        if '━' in line:
+            if waiting_for_party_separator:
+                waiting_for_party_separator = False
+                in_party_section = True
+            else:
+                in_party_section = False
+                current_char = None
+            continue
+
+        # Detect character header lines (flush-left, inside the party section)
+        if in_party_section:
+            char_match = re.match(r'^(\S.*\S|\S+)\s*$', line)
+            if char_match and not line.startswith(' ') and '─' not in line:
+                current_char = char_match.group(1).strip()
+                in_equipped = False
+                continue
 
         # Detect "Equipped (N):" section start
         if re.match(r'\s+Equipped \(\d+\):', line):
@@ -815,10 +831,10 @@ def test_exact_spellbooks():
     assert 'heuristic' not in report
     assert 'basic actions' in report
     # Wyll is a Fiend warlock: Eldritch Blast must be in his exact book.
-    wyll = re.search(r'\n  Wyll\n(.*?)(?:\n  \S|\Z)', report, re.S).group(1)
+    wyll = re.search(r'\nWyll\n(.*?)(?:\n\S|\Z)', report, re.S).group(1)
     assert 'Projectile_EldritchBlast' in wyll
     # Karlach is a Totem barbarian.
-    karlach = re.search(r'\n  Karlach\n(.*?)(?:\n  \S|\Z)', report, re.S).group(1)
+    karlach = re.search(r'\nKarlach\n(.*?)(?:\n\S|\Z)', report, re.S).group(1)
     assert 'Shout_Rage' in karlach
 
 
