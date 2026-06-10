@@ -331,6 +331,88 @@ def invert_entity_template_map(
     return result
 
 
+def equipment_cluster(anchor_rows: list[int], *, margin: int = 8,
+                      trim: int = 24) -> tuple[int, int] | None:
+    """Estimate the ContainerSlotData row range holding a character's worn items.
+
+    A character's worn items occupy a near-contiguous block of
+    ContainerSlotData rows (their slots in the character's own containers),
+    while an item moved to a bag gets a fresh row far outside that block —
+    ground-truthed across QuickSave_286–294 for four party members. Anchors
+    are the rows of items whose worn status is already near-certain from LSF
+    signals. An anchor further than `trim` rows from the anchor median is a
+    stale outlier (an unequipped item keeps its Flags bit and its old row)
+    and is dropped; the surviving span widened by `margin` is the cluster.
+
+    Returns None with fewer than two surviving anchors — not enough evidence
+    to reclassify anything.
+    """
+    if len(anchor_rows) < 2:
+        return None
+    med = sorted(anchor_rows)[len(anchor_rows) // 2]
+    kept = [r for r in anchor_rows if abs(r - med) <= trim]
+    if len(kept) < 2:
+        return None
+    return (min(kept) - margin, max(kept) + margin)
+
+
+def cluster_anchor_rows(
+    flags_equipped: list[tuple],
+    stats_to_slot: dict[str, str],
+    stats_to_entity: dict[str, str],
+    guid_to_rows: dict[str, list[int]],
+    all_csd: dict[int, tuple[int, ...]],
+) -> list[int]:
+    """ContainerSlotData rows of items anchoring the equipment cluster.
+
+    An anchor is an LSF-signalled equipment item that is its slot's sole
+    claimant (two for rings), so its worn status needs no tiebreaking. Items
+    with several ContainerSlotData entries contribute the entry nearest the
+    median of the unambiguous (single-entry) anchors.
+    """
+    slot_counts: dict[str, int] = {}
+    for stats, _guid in flags_equipped:
+        slot = stats_to_slot.get(stats)
+        if slot:
+            slot_counts[slot] = slot_counts.get(slot, 0) + 1
+
+    row_sets: list[tuple[int, ...]] = []
+    for stats, _guid in flags_equipped:
+        slot = stats_to_slot.get(stats)
+        if not slot or slot_counts[slot] > SLOT_CAPACITY.get(slot, 1):
+            continue
+        eg = stats_to_entity.get(stats, '')
+        rows = sorted({r for er in guid_to_rows.get(eg, [])
+                       for r in all_csd.get(er, ())})
+        if rows:
+            row_sets.append(tuple(rows))
+    if not row_sets:
+        return []
+    singles = sorted(rs[0] for rs in row_sets if len(rs) == 1)
+    med = singles[len(singles) // 2] if singles else row_sets[0][0]
+    return [min(rs, key=lambda r: abs(r - med)) for rs in row_sets]
+
+
+def csd_cluster_membership(
+    stats: str,
+    cluster: tuple[int, int],
+    stats_to_entity: dict[str, str],
+    guid_to_rows: dict[str, list[int]],
+    all_csd: dict[int, tuple[int, ...]],
+) -> bool | None:
+    """Whether an item has a ContainerSlotData entry inside the cluster.
+
+    Returns None when the item has no ContainerSlotData entries at all
+    (no location evidence either way).
+    """
+    eg = stats_to_entity.get(stats, '')
+    rows = [r for er in guid_to_rows.get(eg, []) for r in all_csd.get(er, ())]
+    if not rows:
+        return None
+    lo, hi = cluster
+    return any(lo <= r <= hi for r in rows)
+
+
 def ecs_resolve_equipped(
     undetermined: list[tuple],
     template_to_instances: dict[str, list[str]],
@@ -340,18 +422,28 @@ def ecs_resolve_equipped(
     threshold: int = 15,
     stats_to_entity: dict[str, str] | None = None,
     wielded_rows: frozenset[int] | None = None,
+    csd_cluster: tuple[int, int] | None = None,
+    all_csd: dict[int, tuple[int, ...]] | None = None,
 ) -> tuple[list[tuple], list[tuple], list[tuple]]:
     """Classify undetermined items via ECS component membership counts.
 
     Equipped items (materialised in the ECS world) have ~35–41 component
     memberships; items moved to a backpack dematerialise to ~3–6.
-    A threshold of 15 sits cleanly between the two groups.
+    A threshold of 15 sits cleanly between the two groups — but it cannot
+    separate worn items from items lying loose in the main inventory, which
+    stay materialised too.
 
     When stats_to_entity is provided, the per-instance entity GUID is used
     directly instead of looking up all level instances of the template, which
     prevents MC contamination from unrelated instances of the same item type.
 
-    When wielded_rows is provided, items whose entity row is in
+    When csd_cluster (with all_csd) is available, an item's own
+    ContainerSlotData row decides: inside the character's equipment cluster →
+    equipped, outside → carried (see equipment_cluster). This also overrides
+    the WieldedComponent gate below, whose stale marker otherwise blocks
+    genuinely worn items (Evasive Shoes, QuickSave_294).
+
+    Without a cluster, items whose entity row is in
     game.inventory.v0.WieldedComponent are classified as carried rather than
     equipped: the WieldedComponent retains a stale marker for items that were
     previously in a weapon/equipment slot but have since been moved to the main
@@ -379,8 +471,19 @@ def ecs_resolve_equipped(
             still_undetermined.append((stats, tmpl_guid))
             continue
         max_mc = max(membership_count.get(row, 0) for row in rows)
-        in_wielded = wielded_rows is not None and any(r in wielded_rows for r in rows)
-        if max_mc >= threshold and not in_wielded:
+        in_cluster: bool | None = None
+        if csd_cluster is not None and all_csd is not None:
+            csd_rows = [r for er in rows for r in all_csd.get(er, ())]
+            if csd_rows:
+                lo, hi = csd_cluster
+                in_cluster = any(lo <= r <= hi for r in csd_rows)
+        if in_cluster is not None:
+            worn = in_cluster and max_mc >= threshold
+        else:
+            in_wielded = wielded_rows is not None and any(
+                r in wielded_rows for r in rows)
+            worn = max_mc >= threshold and not in_wielded
+        if worn:
             now_equipped.append((stats, tmpl_guid))
         else:
             now_carried.append((stats, tmpl_guid))
@@ -412,17 +515,27 @@ def resolve_slot_conflicts(
     status_equipped: frozenset[str] | None = None,
     wielded_rows: frozenset[int] | None = None,
     gravity_disabled_rows: frozenset[int] | None = None,
+    csd_cluster: tuple[int, int] | None = None,
+    all_csd: dict[int, tuple[int, ...]] | None = None,
 ) -> tuple[list[tuple], list[tuple], list[tuple]]:
     """Resolve cases where more items are signalled for a slot than it can hold.
 
-    Priority: Flags-signalled items beat ECS-only items for the same slot.
+    When the character's equipment cluster is known (csd_cluster + all_csd,
+    see equipment_cluster), an item's own ContainerSlotData row is decisive:
+    a Flags-signalled item located outside the cluster has a stale equip bit
+    and is demoted outright (unless an active on-equip status proves it worn),
+    and two one-handed Flags items both inside the cluster are a dual-wield
+    pair — "Melee Main Weapon" holds them both.
+
+    Beyond that, Flags-signalled items beat ECS-only items for the same slot.
     When multiple Flags items compete for the same slot, tiebreaker priority is:
       1. active on-equip status (status_equipped) — truly wielded item
-      2. WieldedComponent or GravityDisabledComponent — physically attached
+      2. a ContainerSlotData entry inside the equipment cluster
+      3. WieldedComponent or GravityDisabledComponent — physically attached
          to the character (in a weapon slot / worn-visual physics override)
-      3. OwnedAsLootComponent — direction is save-dependent, but when neither
+      4. OwnedAsLootComponent — direction is save-dependent, but when neither
          item has a physical-attachment signal the in-loot item is the worn one
-      4. per-instance membership count (higher MC wins)
+      5. per-instance membership count (higher MC wins)
     Ring slot has capacity 2; all others capacity 1.
 
     If a 2-handed weapon is flags-equipped in "Melee Main Weapon", all
@@ -444,11 +557,24 @@ def resolve_slot_conflicts(
             return False
         return any(r in rows for r in guid_to_rows.get(eg, []))
 
+    def in_cluster(stats: str) -> bool | None:
+        if csd_cluster is None or all_csd is None:
+            return None
+        return csd_cluster_membership(
+            stats, csd_cluster, stats_to_entity, guid_to_rows, all_csd)
+
     slot_candidates: dict[str, list[tuple]] = {}
     no_slot_flags: list[tuple] = []
     no_slot_ecs:   list[tuple] = []
+    demoted:       list[tuple] = []
 
     for stats, guid in flags_equipped:
+        # A Flags item whose ContainerSlotData entry lies outside the
+        # character's equipment cluster sits in a bag: the equip bit is stale.
+        if (in_cluster(stats) is False
+                and not (status_equipped and stats in status_equipped)):
+            demoted.append((stats, guid))
+            continue
         slot = stats_to_slot.get(stats)
         if slot:
             slot_candidates.setdefault(slot, []).append((stats, guid, 'flags'))
@@ -463,12 +589,12 @@ def resolve_slot_conflicts(
 
     kept_flags: list[tuple] = list(no_slot_flags)
     kept_ecs:   list[tuple] = list(no_slot_ecs)
-    demoted:    list[tuple] = []
 
     def flags_sort_key(sg: tuple) -> tuple:
         attached = in_rows(sg[0], wielded_rows) or in_rows(sg[0], gravity_disabled_rows)
         return (
             0 if (status_equipped and sg[0] in status_equipped) else 1,
+            0 if in_cluster(sg[0]) else 1,
             0 if attached else 1,
             0 if in_rows(sg[0], owned_as_loot_rows) else 1,
             -get_mc(sg[0]),
@@ -476,6 +602,14 @@ def resolve_slot_conflicts(
 
     for slot, candidates in slot_candidates.items():
         capacity = SLOT_CAPACITY.get(slot, 1)
+        if slot == 'Melee Main Weapon':
+            # Two one-handed Flags items both inside the equipment cluster can
+            # only be a dual-wield pair: main and off hand.
+            pair = [s for s, _g, sig in candidates
+                    if sig == 'flags' and in_cluster(s)
+                    and not (two_handed_stats and s in two_handed_stats)]
+            if len(pair) == 2:
+                capacity = 2
         if len(candidates) <= capacity:
             for stats, guid, signal in candidates:
                 (kept_flags if signal == 'flags' else kept_ecs).append((stats, guid))

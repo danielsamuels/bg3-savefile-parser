@@ -348,6 +348,19 @@ def parse_lsmf_container_positions(blob: bytes) -> dict[int, int]:
     earlier ContainerSlotData row sits in the first (upper) ring slot
     (ground-truth verified against QuickSave_291).
     """
+    out: dict[int, int] = {}
+    for ent, rows in parse_lsmf_all_container_positions(blob).items():
+        out[ent] = rows[0]
+    return out
+
+
+def parse_lsmf_all_container_positions(blob: bytes) -> dict[int, tuple[int, ...]]:
+    """Map entity row -> every ContainerSlotData row index referencing it.
+
+    An item that has moved between containers can retain stale entries from
+    earlier saves alongside its current one, so a single entity may appear in
+    several rows. Row indices are returned in ascending order.
+    """
     idx = lsmf_component_index(blob)
     csd = idx.get('game.inventory.v0.ContainerSlotData')
     eid = idx.get('core.v0.EntityId')
@@ -355,10 +368,10 @@ def parse_lsmf_container_positions(blob: bytes) -> dict[int, int]:
         return {}
     csd_elem, csd_rows, csd_off, _ = csd
     _eid_elem, eid_rows, eid_off, _ = eid
-    out: dict[int, int] = {}
+    out: dict[int, list[int]] = {}
     for r in range(csd_rows):
         ptr = struct.unpack_from('<Q', blob, csd_off + r * csd_elem)[0]
         rel = ptr - eid_off
         if ptr and rel >= 0 and rel % 16 == 0 and rel // 16 < eid_rows:
-            out.setdefault(rel // 16, r)
-    return out
+            out.setdefault(rel // 16, []).append(r)
+    return {ent: tuple(rows) for ent, rows in out.items()}

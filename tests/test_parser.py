@@ -36,6 +36,10 @@ from bg3parser import gamedata, lsf, lsmf, lspk, party, render  # noqa: E402
 FIXTURE_DIR = Path(__file__).parent / 'fixtures'
 QUICKSAVE_MAIA = str(FIXTURE_DIR / 'quicksave_maia.lsv')
 SHADOWHEART_TUTORIAL = str(FIXTURE_DIR / 'autosave_shadowheart_tutorial.lsv')
+# Saves bundled by their original quicksave index, so tests can refer to the
+# in-game ground truth for that specific save.
+QUICKSAVE_292 = str(FIXTURE_DIR / 'quicksave_292.lsv')   # Karlach dual-wields
+QUICKSAVE_294 = str(FIXTURE_DIR / 'quicksave_294.lsv')   # Wyll: stale Phalar Aluve
 
 
 def build_report(save_path, opts=None):
@@ -1004,3 +1008,60 @@ def test_shadowheart_quests():
     report = build_report(SHADOWHEART_TUTORIAL, opts=Namespace(quests=True))
     assert 'QUEST & STORY STATE' in report
     assert 'Osiris version:' in report
+
+
+# ---------------------------------------------------------------------------
+# Equipment-block (ContainerSlotData cluster) classification — saves 292/294
+# ---------------------------------------------------------------------------
+
+class TestEquipmentCluster:
+    """Unit tests for party.equipment_cluster()."""
+
+    def test_tight_block(self):
+        assert party.equipment_cluster([950, 952, 949, 956]) == (941, 964)
+
+    def test_outlier_trimmed(self):
+        # A single anchor far from the block (e.g. a stale-flagged item whose
+        # slot has no competitor) must not stretch the window.
+        lo, hi = party.equipment_cluster([174, 176, 179, 181, 183, 301])
+        assert lo <= 174 and hi >= 183
+        assert hi < 290
+
+    def test_too_few_anchors(self):
+        assert party.equipment_cluster([5]) is None
+        assert party.equipment_cluster([]) is None
+
+
+@pytest.mark.skipif(not GAME_DATA_AVAILABLE,
+                    reason='cluster anchors need stat-file slots')
+def test_quicksave_292_karlach_dual_wield():
+    """In-game ground truth for QuickSave_292: Karlach dual-wields the
+    Githyanki Shortsword (main hand) with a Dagger (off hand); Jorgoral's
+    Greatsword carries a stale equip bit but sits in a bag."""
+    model = gather_model(QUICKSAVE_292)
+    karlach = next(c for c in model.characters if c.name == 'Karlach')
+    slots = {it.stats: it.slot for it in karlach.equipped}
+    assert slots.get('WPN_Shortsword_Gith') == 'Melee Main Weapon'
+    assert slots.get('WPN_Dagger') == 'Melee Offhand Weapon'
+    assert 'MAG_Colossal_Greatsword' not in slots
+    carried = {it.stats for it in karlach.carried}
+    assert 'MAG_Colossal_Greatsword' in carried
+
+
+@pytest.mark.skipif(not GAME_DATA_AVAILABLE,
+                    reason='cluster anchors need stat-file slots')
+def test_quicksave_294_wyll_stale_phalar_and_shoes():
+    """In-game ground truth for QuickSave_294: Wyll wields the Knife of the
+    Undermountain King; Phalar Aluve has a stale equip bit but is in his
+    inventory; the Evasive Shoes (no LSF signal at all) are equipped."""
+    model = gather_model(QUICKSAVE_294)
+    wyll = next(c for c in model.characters if c.name == 'Wyll')
+    slots = {it.stats: it.slot for it in wyll.equipped}
+    assert slots.get('MAG_Duergar_Sword_KingsKnife') == 'Melee Main Weapon'
+    assert slots.get('MAG_Safeguard_Shield') == 'Melee Offhand Weapon'
+    assert slots.get('MAG_Evasive_Shoes') == 'Boots'
+    assert 'UND_SwordInStone' not in slots
+    carried = {it.stats for it in wyll.carried}
+    assert 'UND_SwordInStone' in carried
+    assert 'ARM_Boots_Leather' in carried
+    assert 'MAG_Fire_HeatOnTakingFireDamage_Amulet' in carried

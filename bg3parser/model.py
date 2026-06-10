@@ -14,6 +14,7 @@ from .lsmf import (
     GRAVITY_DISABLED_COMP,
     OWNED_AS_LOOT_COMP,
     WIELDED_COMP,
+    parse_lsmf_all_container_positions,
     parse_lsmf_classes,
     parse_lsmf_component_rows,
     parse_lsmf_container_positions,
@@ -28,11 +29,13 @@ from .party import (
     build_entity_template_map,
     build_instance_entity_map,
     build_template_stats_map,
+    cluster_anchor_rows,
     collect_character_positions,
     collect_inventory_items,
     collect_items_by_position,
     collect_status_equipped_items,
     ecs_resolve_equipped,
+    equipment_cluster,
     find_party_character_nodes,
     invert_entity_template_map,
     resolve_slot_conflicts,
@@ -264,6 +267,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None,
     lsmf_wielded = comp_rows.get(WIELDED_COMP)
     lsmf_gravity_off = comp_rows.get(GRAVITY_DISABLED_COMP)
     lsmf_csd_pos = parse_lsmf_container_positions(lsmf_blob) if lsmf_blob else {}
+    lsmf_all_csd = parse_lsmf_all_container_positions(lsmf_blob) if lsmf_blob else {}
 
     inspect_pat = (getattr(opts, 'inspect', None) or '') if opts is not None else ''
     report.inspect_pattern = inspect_pat
@@ -362,12 +366,24 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None,
             attributed, status_equipped,
             object_type_stats=dn.object_type_stats or None,
         )
+
+        # The cluster of ContainerSlotData rows holding this character's worn
+        # items, anchored on the uncontested LSF-signalled ones.
+        csd_cluster = None
+        if dn.stats_to_slot and lsmf_ecs is not None and lsmf_all_csd:
+            csd_cluster = equipment_cluster(cluster_anchor_rows(
+                flags_equipped, dn.stats_to_slot, char_stats_to_entity,
+                lsmf_ecs[0], lsmf_all_csd,
+            ))
+
         ecs_eq: list[tuple] = []
         if undetermined and lsmf_ecs is not None:
             ecs_eq, ecs_ca, undetermined = ecs_resolve_equipped(
                 undetermined, template_to_instances, *lsmf_ecs,
                 stats_to_entity=char_stats_to_entity,
                 wielded_rows=lsmf_wielded,
+                csd_cluster=csd_cluster,
+                all_csd=lsmf_all_csd or None,
             )
             carried = sorted(set(carried) | set(ecs_ca))
 
@@ -382,6 +398,8 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None,
                 status_equipped=frozenset(status_equipped) if status_equipped else None,
                 wielded_rows=lsmf_wielded,
                 gravity_disabled_rows=lsmf_gravity_off,
+                csd_cluster=csd_cluster,
+                all_csd=lsmf_all_csd or None,
             )
             carried = sorted(set(carried) | set(demoted))
 
@@ -402,8 +420,18 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None,
             for i, s in enumerate(sorted(rings, key=container_rank)):
                 ring_slot_no[s] = i + 1
 
+        # Two one-handed weapons in "Melee Main Weapon" are a dual-wield pair;
+        # as with rings, the earlier ContainerSlotData row is the main hand.
+        offhand_weapons: set[str] = set()
+        melee = [s for s, _g in equipped
+                 if dn.stats_to_slot.get(s) == 'Melee Main Weapon']
+        if len(melee) == 2:
+            offhand_weapons.add(max(melee, key=container_rank))
+
         for s, guid in equipped:
             slot = dn.stats_to_slot.get(s, '')
+            if s in offhand_weapons:
+                slot = 'Melee Offhand Weapon'
             rank = (SLOT_DISPLAY_ORDER.get(slot, 99), ring_slot_no.get(s, 0))
             if ring_slot_no.get(s, 0) == 2:
                 slot = 'Ring 2'
