@@ -1,0 +1,345 @@
+/* BG3 Save Parser — committed-dark, gold-led visual system.
+   Personality: arcane, trustworthy, precise (see PRODUCT.md). */
+
+@font-face {
+  font-family: 'EB Garamond';
+  src: url('/fonts/ebgaramond-latin-var.woff2') format('woff2');
+  font-weight: 400 800;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: dark;
+
+  /* Palette (verified ≥7:1 for text on bg/surface) */
+  --bg: oklch(0.17 0.012 80);
+  --surface: oklch(0.21 0.015 80);
+  --line: oklch(0.32 0.025 80);
+  --ink: oklch(0.91 0.025 85);
+  --mute: oklch(0.72 0.035 83);
+  --gold: oklch(0.8 0.1 85);
+  --gold-hi: oklch(0.86 0.105 88);
+  --error: oklch(0.74 0.13 28);
+
+  --serif: 'EB Garamond', Georgia, 'Times New Roman', serif;
+  --sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 1rem/1.55 var(--sans);
+  letter-spacing: 0.01em;
+}
+
+main {
+  max-width: 62rem;
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-lg) var(--space-2xl);
+}
+
+a { color: var(--gold); text-underline-offset: 3px; }
+a:hover { color: var(--gold-hi); }
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+code {
+  font-family: ui-monospace, 'Cascadia Mono', monospace;
+  font-size: 0.9em;
+}
+
+/* ---- Masthead ------------------------------------------------------- */
+
+.masthead { margin-bottom: var(--space-xl); }
+
+.masthead h1 {
+  font: 600 1.625rem/1.2 var(--serif);
+  color: var(--gold);
+  letter-spacing: 0.02em;
+  margin: 0 0 var(--space-xs);
+  text-wrap: balance;
+}
+
+.tagline {
+  color: var(--mute);
+  margin: 0;
+  max-width: 60ch;
+  text-wrap: pretty;
+}
+
+/* ---- Drop zone ------------------------------------------------------ */
+
+.drop {
+  display: block;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  padding: 3.25rem var(--space-lg);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.18s var(--ease-out), background-color 0.18s var(--ease-out);
+}
+
+.drop:hover,
+.drop.over,
+.drop:focus-within {
+  border-color: var(--gold);
+  background: var(--surface);
+}
+
+.drop:focus-within { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+/* Keep the input focusable for keyboard users (display:none would not be). */
+.drop input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.drop-label { display: block; font-size: 1.0625rem; }
+.drop-label strong { font-weight: 600; }
+.drop-or { color: var(--mute); }
+
+.drop-hint {
+  display: block;
+  margin-top: var(--space-sm);
+  color: var(--mute);
+  font-size: 0.875rem;
+}
+
+/* After the first parse the drop zone steps back to a quiet bar. */
+body.has-report .drop { padding: var(--space-md) var(--space-lg); }
+body.has-report .drop-hint { display: none; }
+
+/* ---- Status line ----------------------------------------------------- */
+
+#status {
+  min-height: 1.5em;
+  margin: var(--space-md) 0;
+  color: var(--mute);
+  font-size: 0.9375rem;
+}
+
+#status.error { color: var(--error); }
+
+/* ---- Save header ------------------------------------------------------ */
+
+.save-head { margin: var(--space-xl) 0 var(--space-lg); }
+
+.save-head h2 {
+  font: 600 2.125rem/1.15 var(--serif);
+  margin: 0 0 var(--space-sm);
+  letter-spacing: 0.01em;
+  text-wrap: balance;
+}
+
+.save-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-lg);
+  margin: 0;
+  font-size: 0.9375rem;
+}
+
+.save-meta div { display: flex; gap: 0.4em; }
+.save-meta dt { color: var(--mute); }
+.save-meta dt::after { content: ''; }
+.save-meta dd { margin: 0; }
+
+.save-mods { margin-top: var(--space-sm); font-size: 0.9375rem; }
+.save-mods summary { color: var(--mute); }
+.save-mods ul { margin: var(--space-xs) 0 0; padding-left: 1.4rem; }
+.unofficial { color: var(--mute); font-style: italic; }
+
+.names-note {
+  margin: var(--space-md) 0;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--mute);
+  font-size: 0.9375rem;
+}
+
+/* ---- Character sections ----------------------------------------------- */
+
+.char {
+  margin-top: var(--space-xl);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--line);
+}
+
+.char-name {
+  font: 600 1.5rem/1.2 var(--serif);
+  color: var(--gold);
+  margin: 0 0 var(--space-xs);
+  letter-spacing: 0.015em;
+}
+
+.char-name .who {
+  font: 500 0.9375rem/1 var(--sans);
+  color: var(--mute);
+  letter-spacing: 0.02em;
+  margin-left: 0.5em;
+}
+
+.char-meta {
+  color: var(--mute);
+  margin: 0 0 var(--space-md);
+  font-size: 0.9375rem;
+}
+
+.char-meta .loc { font-family: ui-monospace, 'Cascadia Mono', monospace; font-size: 0.875em; }
+
+.char-note { color: var(--mute); font-style: italic; margin: var(--space-sm) 0 0; }
+
+/* Section headers within a character: weight + gold count, no eyebrow caps. */
+.sect-head {
+  font: 600 0.9375rem/1.3 var(--sans);
+  color: var(--ink);
+  margin: var(--space-lg) 0 var(--space-sm);
+}
+
+.count { color: var(--gold); font-weight: 600; }
+
+.fold-note { color: var(--mute); font-weight: 400; font-size: 0.875rem; margin-left: 0.5em; }
+
+/* Equipped: slot-labelled grid, two columns when there is room. */
+.equip {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(24rem, 1fr));
+  gap: var(--space-xs) var(--space-xl);
+}
+
+.equip li {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr;
+  gap: var(--space-md);
+  padding: 0.2rem 0;
+}
+
+.slot { color: var(--mute); font-size: 0.875rem; padding-top: 0.1em; }
+
+/* Internal stats names can be long and unbroken. */
+.equip .item, .items li { overflow-wrap: anywhere; }
+
+/* Disclosure sections (carried, spells) */
+details.fold { margin-top: var(--space-lg); }
+
+details.fold > summary {
+  cursor: pointer;
+  list-style: none;
+  font: 600 0.9375rem/1.3 var(--sans);
+  padding: 0.2rem 0;
+}
+
+details.fold > summary::-webkit-details-marker,
+details.sub > summary::-webkit-details-marker,
+.save-mods > summary::-webkit-details-marker { display: none; }
+
+details.sub > summary,
+.save-mods > summary { list-style: none; }
+
+details.fold > summary::before,
+details.sub > summary::before,
+.save-mods > summary::before {
+  content: '';
+  display: inline-block;
+  width: 0.5em;
+  height: 0.5em;
+  margin-right: 0.55em;
+  border-right: 1.5px solid var(--gold);
+  border-bottom: 1.5px solid var(--gold);
+  transform: rotate(-45deg) translateY(-0.1em);
+  transition: transform 0.18s var(--ease-out);
+}
+
+details.fold[open] > summary::before,
+details.sub[open] > summary::before,
+.save-mods[open] > summary::before { transform: rotate(45deg); }
+
+details.fold > div { padding: var(--space-sm) 0 0 1.1rem; }
+
+.group-head {
+  font: 600 0.875rem/1.3 var(--sans);
+  color: var(--mute);
+  margin: var(--space-md) 0 var(--space-xs);
+}
+
+.group-head:first-child { margin-top: 0; }
+
+.items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+  gap: 0.15rem var(--space-xl);
+}
+
+details.sub { margin-top: var(--space-sm); font-size: 0.9375rem; }
+details.sub summary { cursor: pointer; color: var(--mute); }
+details.sub ul { margin: var(--space-xs) 0 0; }
+
+.undet-note { color: var(--mute); font-size: 0.875rem; margin: var(--space-xs) 0 0; }
+
+/* ---- Footer ------------------------------------------------------------ */
+
+.colophon {
+  margin-top: var(--space-2xl);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--line);
+  color: var(--mute);
+  font-size: 0.875rem;
+  max-width: 70ch;
+}
+
+.colophon p { margin: 0 0 var(--space-sm); text-wrap: pretty; }
+
+/* ---- Motion ------------------------------------------------------------ */
+
+.char, .save-head {
+  animation: rise 0.4s var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 50ms);
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .char, .save-head { animation: none; }
+  .drop, details.fold > summary::before { transition: none; }
+}
+
+/* ---- Small screens ------------------------------------------------------ */
+
+@media (max-width: 480px) {
+  main { padding: var(--space-lg) var(--space-md) var(--space-xl); }
+  .drop { padding: 2.25rem var(--space-md); }
+  .save-head h2 { font-size: 1.75rem; }
+  .equip li { grid-template-columns: 6.5rem 1fr; gap: var(--space-sm); }
+  .save-meta { flex-direction: column; gap: var(--space-xs); }
+}

@@ -3,59 +3,38 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>BG3 Save Parser</title>
-  <meta name="description" content="Inspect a Baldur's Gate 3 save entirely in your browser — the file never leaves your machine." />
-  <style>
-    :root { color-scheme: dark; }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; min-height: 100vh; background: #16130f; color: #e8ddc8;
-      font: 15px/1.5 system-ui, sans-serif;
-    }
-    main { max-width: 980px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
-    h1 { font-size: 1.5rem; letter-spacing: 0.02em; color: #d8b76a; margin: 0 0 0.25rem; }
-    .tagline { color: #9c8f76; margin: 0 0 1.5rem; }
-    #drop {
-      border: 2px dashed #5a4d36; border-radius: 12px; padding: 3rem 1rem;
-      text-align: center; cursor: pointer; transition: border-color 0.15s, background 0.15s;
-    }
-    #drop.over, #drop:hover { border-color: #d8b76a; background: #1d1913; }
-    #drop input { display: none; }
-    #status { margin: 1rem 0; color: #9c8f76; min-height: 1.5em; }
-    .char {
-      background: #1d1913; border: 1px solid #312a1e; border-radius: 12px;
-      padding: 1.25rem 1.5rem; margin: 1rem 0;
-    }
-    .char h2 { margin: 0 0 0.25rem; color: #d8b76a; font-size: 1.2rem; }
-    .meta { color: #9c8f76; font-size: 0.9rem; margin-bottom: 0.75rem; }
-    h3 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em;
-         color: #8d7f64; margin: 1rem 0 0.35rem; }
-    ul { margin: 0; padding-left: 1.2rem; }
-    li { margin: 0.1rem 0; }
-    .slot { color: #8d7f64; font-size: 0.85em; }
-    .count { color: #d8b76a; }
-    details summary { cursor: pointer; color: #9c8f76; }
-    .privacy { font-size: 0.85rem; color: #6f6450; margin-top: 2.5rem; border-top: 1px solid #312a1e; padding-top: 1rem; }
-    .privacy a { color: #9c8f76; }
-  </style>
+  <title>BG3 Save Parser — read a Baldur's Gate 3 save in your browser</title>
+  <meta name="description" content="Inspect a Baldur's Gate 3 save entirely in your browser — party, gear, and spell books. The file never leaves your machine." />
+  <meta name="theme-color" content="#120f0a" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 28 9v14L16 30 4 23V9z' fill='none' stroke='%23dbb970' stroke-width='2.5'/%3E%3Cpath d='M16 9.5 21.5 19h-11z' fill='%23dbb970'/%3E%3C/svg%3E" />
+  <link rel="preload" href="/fonts/ebgaramond-latin-var.woff2" as="font" type="font/woff2" crossorigin />
 </head>
 <body>
   <main>
-    <h1>BG3 Save Parser</h1>
-    <p class="tagline">Drop a Baldur's Gate 3 save — parsed entirely in your browser, never uploaded.</p>
-    <label id="drop">
+    <header class="masthead">
+      <h1>BG3 Save Parser</h1>
+      <p class="tagline">The party, their gear, and their spell books — read straight from a save, entirely in your browser.</p>
+    </header>
+
+    <label id="drop" class="drop">
       <input type="file" accept=".lsv" />
-      <strong>Drop a .lsv save file here</strong> or click to choose<br />
-      <span class="slot">(Larian Studios/Baldur's Gate 3/PlayerProfiles/…/Savegames/Story/…)</span>
+      <span class="drop-label"><strong>Drop a <code>.lsv</code> save here</strong> <span class="drop-or">or click to browse</span></span>
+      <span class="drop-hint">Larian Studios / Baldur's Gate 3 / PlayerProfiles / … / Savegames / Story</span>
     </label>
-    <div id="status"></div>
-    <div id="report"></div>
-    <p class="privacy">
-      Your save is parsed locally with WebAssembly-free TypeScript; nothing is sent anywhere
-      (check the network tab). Item and spell names come from a pre-built data file derived
-      from the game's own resources.
-      <a href="https://github.com/danielsamuels/bg3-savefile-parser">Source on GitHub</a>.
-    </p>
+
+    <p id="status" role="status" aria-live="polite"></p>
+    <article id="report"></article>
+
+    <footer class="colophon">
+      <p>
+        Your save is parsed locally by a TypeScript port of the format — nothing is uploaded,
+        and you can verify that in the network tab. Item and spell names come from a pre-built
+        table derived from the game's own resources.
+      </p>
+      <p>
+        <a href="https://github.com/danielsamuels/bg3-savefile-parser">Source &amp; format documentation on GitHub</a>
+      </p>
+    </footer>
   </main>
   <script type="module" src="/src/main.ts"></script>
 </body>
