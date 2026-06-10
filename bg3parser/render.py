@@ -153,69 +153,6 @@ def render_text(report: SaveReport, opts=None) -> str:
     return output
 
 
-def render_character(char: CharacterReport, w, *, verbose: bool,
-                     all_spells: bool, carried: bool,
-                     inspect_pattern: str = '') -> None:
-    cls_str = '; '.join(fmt_class(c) for c in char.classes) if char.classes else '?'
-    w('')
-    w(f'  {char.name}')
-    w(f'    Race      : {char.race}')
-    w(f'    Class     : {cls_str}')
-    w(f'    Level     : {char.level}')
-    if char.xp is not None:
-        w(f'    XP        : {char.xp}')
-    if char.location:
-        w(f'    Location  : {char.location}')
-
-    if char.spells is not None:
-        folded = {'sub-spell': [], 'basic-action': []}
-        shown_refs = []
-        for sp in char.spells:
-            if not all_spells and sp.category in folded:
-                folded[sp.category].append(sp)
-            else:
-                shown_refs.append(sp)
-        # Upcast variants share a display name; show each rendering once.
-        shown = sorted({fmt_spell(sp, verbose) for sp in shown_refs})
-        extras = [f'+{len(group)} {label}' for group, label in
-                  ((folded['sub-spell'], 'sub-spells'),
-                   (folded['basic-action'], 'basic actions')) if group]
-        suffix = ('; ' + ', '.join(extras)) if extras else ''
-        w(f'    Spells/Abilities ({len(shown)}{suffix}):')
-        for line in shown:
-            w(f'      – {line}')
-    else:
-        w(f'    Spells/Abilities : {SPELLS_NOTES.get(char.spells_note or "not-found")}')
-
-    if char.inspect:
-        w(f'    Inspect — items matching {inspect_pattern!r}:')
-        for entry in char.inspect:
-            w(f'      – {entry.stats}')
-            w(f'        eq_bit={entry.eq_bit} flags={entry.flags} '
-              f'mc={entry.membership_count} status={entry.has_status}')
-            w(f'        components ({len(entry.components)}):')
-            for c in entry.components:
-                w(f'          {c}')
-
-    if char.equipment_note:
-        w(f'    Equipment : {EQUIPMENT_NOTES[char.equipment_note]}')
-        return
-
-    w(f'    Equipped ({len(char.equipped)}):')
-    for item in sorted(char.equipped,
-                       key=lambda i: (i.slot_rank, fmt_item(i, verbose))):
-        suffix = f'  [{item.slot}]' if item.slot else ''
-        w(f'      – {fmt_item(item, verbose)}{suffix}')
-    if char.undetermined:
-        w(f'    Worn or carried — undetermined ({len(char.undetermined)}):')
-        for item in char.undetermined:
-            w(f'      – {fmt_item(item, verbose)}')
-    if carried:
-        w(f'    Carried / personal inventory ({len(char.carried)}):')
-        for item in char.carried:
-            w(f'      – {fmt_item(item, verbose)}')
-
-
 def render_json(report: SaveReport, indent: int = 2) -> str:
     """Render the model as JSON (everything gathered, no view-side folding)."""
     return json.dumps(dataclasses.asdict(report), indent=indent, ensure_ascii=False)
