@@ -9,6 +9,7 @@ export interface GamedataJson {
   stats_slots?: Record<string, string>;
   two_handed?: string[];
   sub_spells?: string[];
+  class_uuid_names?: Record<string, string>;
 }
 
 export class DisplayNames {
@@ -19,6 +20,7 @@ export class DisplayNames {
   readonly statsToSlot: Record<string, string>;
   readonly twoHandedStats: Set<string>;
   readonly subSpells: Set<string>;
+  readonly classUuidNames: Record<string, string>;
 
   constructor(data?: GamedataJson) {
     this.guid = data?.guid ?? {};
@@ -28,6 +30,7 @@ export class DisplayNames {
     this.statsToSlot = data?.stats_slots ?? {};
     this.twoHandedStats = new Set(data?.two_handed ?? []);
     this.subSpells = new Set(data?.sub_spells ?? []);
+    this.classUuidNames = data?.class_uuid_names ?? {};
   }
 
   get available(): boolean {

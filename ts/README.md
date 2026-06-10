@@ -31,8 +31,7 @@ New format discoveries land in Python first, get a fixture test, then port.
 3. ~~LSMF ECS blob: component directory + ownerlist scan, membership
    counts, ContainerSlotData positions, stack amounts (34ms)~~ ✅
    (spell books and classes land with milestone 4)
-4. Classification: party attribution, equipment cluster, slot conflicts,
-   per-instance duplicates — full report parity with `bg3save --json`
-   (gamedata JSON built by Python and consumed at runtime)
+4. ~~Classification and report model — full field-for-field parity with
+   `bg3save --json` across all eight fixtures (tests/parity/)~~ ✅
 5. The site: drag-drop + Web Worker parse, report views, IndexedDB history,
    File System Access live mode, PWA; deploy to Pages

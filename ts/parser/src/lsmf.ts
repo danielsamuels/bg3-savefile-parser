@@ -338,15 +338,17 @@ export function parseLsmfSpellbooks(blob: Uint8Array): Map<number, string[]> {
   const spellIdName = (row: number): string | null => {
     // Observed record shapes: {meta_ptr, str_ptr, len-packed} and
     // {str_ptr, len-packed, source_ptr}; try both (pointer, length) pairings.
+    // len-packed fields carry a generation counter in the high dword; read
+    // the low dword directly (a u64->Number round trip can corrupt low bits).
     const base = si.dataOffset + row * si.elemSize;
     const a = u64(dv, base);
     const b = u64(dv, base + 8);
-    const c = u64(dv, base + 16);
-    for (const [ptr, lnRaw] of [
-      [b, c],
-      [a, b],
+    const bLo = dv.getUint32(base + 8, true);
+    const cLo = dv.getUint32(base + 16, true);
+    for (const [ptr, ln] of [
+      [b, cLo],
+      [a, bLo],
     ] as const) {
-      const ln = lnRaw % 2 ** 32; // low dword
       const p0 = ptr + LSMF_HEAP_BASE;
       if (!(ln > 0 && ln <= 128 && p0 > 0 && p0 <= L - ln)) continue;
       const s = bytes.subarray(p0, p0 + ln);

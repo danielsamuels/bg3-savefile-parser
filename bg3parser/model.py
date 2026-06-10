@@ -508,7 +508,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         overlay_bagged: dict[str, list[str]] = {}
         if csd_cluster is not None and char_pos is not None and lsmf_ecs is not None:
             lo, hi = csd_cluster
-            for stats_name in {s for s, _f, _g in attributed}:
+            for stats_name in sorted({s for s, _f, _g in attributed}):
                 ents = instance_entity_lists.get((char_pos, stats_name), ())
                 if len(ents) < 2 or not is_equipment_type(stats_name):
                     continue

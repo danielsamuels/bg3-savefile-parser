@@ -525,87 +525,6 @@
      "template_guid": "8d175e5e-355e-4b27-9890-d35e36204487"
     },
     {
-     "category": "weapon",
-     "count": 1,
-     "name": "Lantern",
-     "slot": null,
-     "slot_rank": [],
-     "stats": "WPN_Lantern",
-     "template_guid": "81705db9-5b32-4ccd-91be-f8bad863ec48"
-    },
-    {
-     "category": "weapon",
-     "count": 1,
-     "name": "Lantern",
-     "slot": null,
-     "slot_rank": [],
-     "stats": "WPN_Lantern",
-     "template_guid": "81705db9-5b32-4ccd-91be-f8bad863ec48"
-    },
-    {
-     "category": "weapon",
-     "count": 1,
-     "name": "Torch",
-     "slot": null,
-     "slot_rank": [],
-     "stats": "WPN_Torch",
-     "template_guid": "50c43f27-a12e-412c-88f0-56e15eba692a"
-    },
-    {
-     "category": "weapon",
-     "count": 1,
-     "name": "Torch",
-     "slot": null,
-     "slot_rank": [],
-     "stats": "WPN_Torch",
-     "template_guid": "50c43f27-a12e-412c-88f0-56e15eba692a"
-    },
-    {
-     "category": "weapon",
-     "count": 1,
-     "name": "Torch",
-     "slot": null,
-     "slot_rank": [],
-     "stats": "WPN_Torch",
-     "template_guid": "50c43f27-a12e-412c-88f0-56e15eba692a"
-    },
-    {
-     "category": "weapon",
-     "count": 1,
-     "name": "Torch",
-     "slot": null,
-     "slot_rank": [],
-     "stats": "WPN_Torch",
-     "template_guid": "50c43f27-a12e-412c-88f0-56e15eba692a"
-    },
-    {
-     "category": "weapon",
-     "count": 1,
-     "name": "Torch",
-     "slot": null,
-     "slot_rank": [],
-     "stats": "WPN_Torch",
-     "template_guid": "50c43f27-a12e-412c-88f0-56e15eba692a"
-    },
-    {
-     "category": "weapon",
-     "count": 1,
-     "name": "Shortbow",
-     "slot": null,
-     "slot_rank": [],
-     "stats": "WPN_Shortbow",
-     "template_guid": "c5403c1d-f372-43e1-927a-9189e9e3545d"
-    },
-    {
-     "category": "weapon",
-     "count": 1,
-     "name": "Shortbow",
-     "slot": null,
-     "slot_rank": [],
-     "stats": "WPN_Shortbow",
-     "template_guid": "c5403c1d-f372-43e1-927a-9189e9e3545d"
-    },
-    {
      "category": "armour",
      "count": 1,
      "name": "Leather Armour",
@@ -622,6 +541,69 @@
      "slot_rank": [],
      "stats": "ARM_Leather_Body",
      "template_guid": "02ae5d88-8044-43df-8363-02a2900776db"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Scale Mail",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_ScaleMail_Body",
+     "template_guid": "ca0aafad-0f1e-4d76-8e3b-925397bb436b"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Scale Mail",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_ScaleMail_Body",
+     "template_guid": "ca0aafad-0f1e-4d76-8e3b-925397bb436b"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Scale Mail",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_ScaleMail_Body",
+     "template_guid": "ca0aafad-0f1e-4d76-8e3b-925397bb436b"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Karabasan's Gift",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "UNI_LOW_KarabasansGift_Grenade",
+     "template_guid": "ac9e04d9-c43c-45f2-9922-a17675ef98b5"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Karabasan's Gift",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "UNI_LOW_KarabasansGift_Grenade",
+     "template_guid": "ac9e04d9-c43c-45f2-9922-a17675ef98b5"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Karabasan's Gift",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "UNI_LOW_KarabasansGift_Grenade",
+     "template_guid": "ac9e04d9-c43c-45f2-9922-a17675ef98b5"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Karabasan's Gift",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "UNI_LOW_KarabasansGift_Grenade",
+     "template_guid": "ac9e04d9-c43c-45f2-9922-a17675ef98b5"
     },
     {
      "category": "weapon",
@@ -642,69 +624,6 @@
      "template_guid": "569b0f3d-abcd-4b01-aaf0-979091288163"
     },
     {
-     "category": "armour",
-     "count": 1,
-     "name": "Karabasan's Gift",
-     "slot": null,
-     "slot_rank": [],
-     "stats": "UNI_LOW_KarabasansGift_Grenade",
-     "template_guid": "ac9e04d9-c43c-45f2-9922-a17675ef98b5"
-    },
-    {
-     "category": "armour",
-     "count": 1,
-     "name": "Karabasan's Gift",
-     "slot": null,
-     "slot_rank": [],
-     "stats": "UNI_LOW_KarabasansGift_Grenade",
-     "template_guid": "ac9e04d9-c43c-45f2-9922-a17675ef98b5"
-    },
-    {
-     "category": "armour",
-     "count": 1,
-     "name": "Karabasan's Gift",
-     "slot": null,
-     "slot_rank": [],
-     "stats": "UNI_LOW_KarabasansGift_Grenade",
-     "template_guid": "ac9e04d9-c43c-45f2-9922-a17675ef98b5"
-    },
-    {
-     "category": "armour",
-     "count": 1,
-     "name": "Karabasan's Gift",
-     "slot": null,
-     "slot_rank": [],
-     "stats": "UNI_LOW_KarabasansGift_Grenade",
-     "template_guid": "ac9e04d9-c43c-45f2-9922-a17675ef98b5"
-    },
-    {
-     "category": "armour",
-     "count": 1,
-     "name": "Scale Mail",
-     "slot": null,
-     "slot_rank": [],
-     "stats": "ARM_ScaleMail_Body",
-     "template_guid": "ca0aafad-0f1e-4d76-8e3b-925397bb436b"
-    },
-    {
-     "category": "armour",
-     "count": 1,
-     "name": "Scale Mail",
-     "slot": null,
-     "slot_rank": [],
-     "stats": "ARM_ScaleMail_Body",
-     "template_guid": "ca0aafad-0f1e-4d76-8e3b-925397bb436b"
-    },
-    {
-     "category": "armour",
-     "count": 1,
-     "name": "Scale Mail",
-     "slot": null,
-     "slot_rank": [],
-     "stats": "ARM_ScaleMail_Body",
-     "template_guid": "ca0aafad-0f1e-4d76-8e3b-925397bb436b"
-    },
-    {
      "category": "weapon",
      "count": 1,
      "name": "Goblin Scimitar",
@@ -721,6 +640,87 @@
      "slot_rank": [],
      "stats": "WPN_Goblin_Scimitar",
      "template_guid": "288356cc-0c6b-43c1-b049-dde418faf1f2"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Lantern",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "WPN_Lantern",
+     "template_guid": "81705db9-5b32-4ccd-91be-f8bad863ec48"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Lantern",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "WPN_Lantern",
+     "template_guid": "81705db9-5b32-4ccd-91be-f8bad863ec48"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Shortbow",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "WPN_Shortbow",
+     "template_guid": "c5403c1d-f372-43e1-927a-9189e9e3545d"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Shortbow",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "WPN_Shortbow",
+     "template_guid": "c5403c1d-f372-43e1-927a-9189e9e3545d"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Torch",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "WPN_Torch",
+     "template_guid": "50c43f27-a12e-412c-88f0-56e15eba692a"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Torch",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "WPN_Torch",
+     "template_guid": "50c43f27-a12e-412c-88f0-56e15eba692a"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Torch",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "WPN_Torch",
+     "template_guid": "50c43f27-a12e-412c-88f0-56e15eba692a"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Torch",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "WPN_Torch",
+     "template_guid": "50c43f27-a12e-412c-88f0-56e15eba692a"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Torch",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "WPN_Torch",
+     "template_guid": "50c43f27-a12e-412c-88f0-56e15eba692a"
     }
    ],
    "classes": [
