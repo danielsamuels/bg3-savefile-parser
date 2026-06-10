@@ -937,7 +937,11 @@ PREFIX_RE = re.compile(
     r'(?=' + '|'.join(re.escape(p) for p in SPELL_PREFIXES) + r')'
 )
 
-# Spell IDs exclusive to each class/subclass (used for attribution)
+# Hand-observed spell IDs exclusive to each class (heuristic attribution).
+# FALLBACK ONLY: with an installed game, the canonical per-class spell pools
+# are derived from Progressions.lsx + SpellLists.lsx (see
+# build_displayname_maps) and this table is not consulted. It is kept for
+# no-game-data runs and is intentionally not exhaustive.
 CLASS_EXCLUSIVE = {
     # Fighter / Battle Master
     'Fighter': {
@@ -1049,10 +1053,16 @@ def extract_spells_by_character(
     lsmf_blob: bytes,
     party_info: list[dict],
     player_name: str = 'Player',
+    class_spells: dict[str, list[str]] | None = None,
 ) -> dict[str, list[str]]:
     """
     Extract spells from the LSMF blob and attribute them to party members
     using class-based rules.
+
+    With class_spells (the canonical per-class pools from Progressions.lsx +
+    SpellLists.lsx), a spell is attributed to the party member whose
+    class/subclass pool is the only one in the party containing it. Without
+    game data, the hand-observed CLASS_EXCLUSIVE table is used instead.
 
     Returns a dict mapping display_name → list of spell IDs.
     """
@@ -1064,30 +1074,33 @@ def extract_spells_by_character(
         for sid in split_spell_string(s):
             all_spell_ids.add(sid)
 
-    # Build per-character exclusive attribution
-    result: dict[str, list[str]] = {}
-    assigned: set[str] = set()
-
-    # Map party character display names to their class keys
-    char_class_map: dict[str, str] = {}
+    # Per-member candidate pools
+    pools: dict[str, set[str]] = {}
     for char_info in party_info:
         origin = char_info.get('Origin', 'Generic')
         display_name = origin if origin != 'Generic' else player_name
         classes = char_info.get('Classes', [])
-        if classes:
+        if not classes:
+            continue
+        if class_spells:
+            pool: set[str] = set()
+            for c in classes:
+                pool.update(class_spells.get(c.get('Main', ''), []))
+                pool.update(class_spells.get(c.get('Sub', ''), []))
+        else:
             main_class = classes[0].get('Main', '')
             class_key = CLASS_MAIN_TO_KEY.get(main_class, main_class)
-            char_class_map[display_name] = class_key
+            pool = set(CLASS_EXCLUSIVE.get(class_key, set()))
+        pools[display_name] = pool
 
-    # First pass: attribute exclusively owned spells
-    for name, class_key in char_class_map.items():
-        exclusive = CLASS_EXCLUSIVE.get(class_key, set())
-        owned = sorted(all_spell_ids & exclusive)
-        result[name] = owned
-        assigned |= exclusive
-
-    # Second pass: non-universal spells with no exclusive owner go to a shared/
-    # generic bucket (omitted for brevity; future work).
+    # Attribute spells whose pool membership is unique within the party
+    result: dict[str, list[str]] = {}
+    for name, pool in pools.items():
+        others: set[str] = set()
+        for other_name, other_pool in pools.items():
+            if other_name != name:
+                others |= other_pool
+        result[name] = sorted((all_spell_ids & pool) - others)
 
     return result
 
@@ -2070,7 +2083,7 @@ STAT_ITEM_PAKS = ['Shared.pak', 'Gustav.pak', 'GustavX.pak']
 STAT_ITEM_FILE_RE = re.compile(r'/Stats/Generated/Data/(?:Armor|Weapon|Object)\.txt$')
 
 # Bump when the resolver logic changes so a stale cache is not silently reused.
-DISPLAYNAME_SCHEMA_VERSION = 8
+DISPLAYNAME_SCHEMA_VERSION = 9
 
 
 def find_game_data_dir() -> str | None:
@@ -2181,11 +2194,12 @@ def build_displayname_maps(
 ) -> tuple[
     dict[str, str], dict[str, str], dict[str, str],
     frozenset[str], dict[str, str], frozenset[str], frozenset[str],
+    dict[str, list[str]],
 ]:
     """Build display-name and item-stat maps from installed game data.
 
     Returns (guid->name, stats->name, spell_id->name, object_type_stats, stats_to_slot,
-    two_handed_stats, sub_spells).
+    two_handed_stats, sub_spells, class_spells).
 
     Results are cached under XDG_CACHE_HOME keyed on the source paks' mtime/size,
     so the ~1 s parse only happens after a game update.
@@ -2202,6 +2216,7 @@ def build_displayname_maps(
             data.get('stats_slots', {}),
             frozenset(data.get('two_handed', [])),
             frozenset(data.get('sub_spells', [])),
+            data.get('class_spells', {}),
         )
     except (OSError, ValueError, KeyError):
         pass
@@ -2335,6 +2350,75 @@ def build_displayname_maps(
                 break
             cur = info['using']
 
+    # Canonical per-class spell pools from Progressions.lsx + SpellLists.lsx:
+    # each Progression node names a class/subclass and selects spell lists by
+    # UUID; the lists map UUID -> spell IDs. Used by the heuristic spell
+    # attribution in place of the hand-observed CLASS_EXCLUSIVE table.
+    spell_lists: dict[str, list[str]] = {}
+    class_spells: dict[str, list[str]] = {}
+    list_re = re.compile(r'(?:SelectSpells|AddSpells)\(([0-9a-f-]{36})')
+
+    def pak_files(suffix: str):
+        for pak_name in STAT_ITEM_PAKS:
+            pak_path = os.path.join(data_dir, pak_name)
+            try:
+                with open(pak_path, 'rb') as fh:
+                    flist = lspk_filelist(fh)
+            except (OSError, ValueError):
+                continue
+            for fname in sorted(flist):
+                if fname.endswith(suffix):
+                    try:
+                        yield lspk_extract(pak_path, fname).decode('utf-8', 'replace')
+                    except (OSError, KeyError, ValueError):
+                        continue
+
+    for xml in pak_files('Lists/SpellLists.lsx'):
+        for nm in re.finditer(r'<node id="SpellList">(.*?)</node>', xml, re.S):
+            u = re.search(r'id="UUID" type="guid" value="([0-9a-f-]+)"', nm.group(1))
+            sp = re.search(r'id="Spells" type="LSString" value="([^"]*)"', nm.group(1))
+            if u and sp:
+                spell_lists.setdefault(u.group(1), [s for s in sp.group(1).split(';') if s])
+    # Martial abilities (maneuvers, Rage, …) are granted indirectly: the
+    # progression adds or selects a passive whose Boosts contain
+    # UnlockSpell(...). Selected passives come from PassiveLists.lsx.
+    passive_spells: dict[str, list[str]] = {}
+    for text in pak_files('Stats/Generated/Data/Passive.txt'):
+        for bm in re.finditer(r'^new entry "([^"]+)"', text, re.MULTILINE):
+            start = bm.end()
+            nb = re.search(r'^new entry', text[start:], re.MULTILINE)
+            block = text[start: start + (nb.start() if nb else len(text))]
+            unlocked = re.findall(r'UnlockSpell\((\w+)', block)
+            if unlocked:
+                passive_spells.setdefault(bm.group(1), []).extend(unlocked)
+    passive_lists: dict[str, list[str]] = {}
+    for xml in pak_files('Lists/PassiveLists.lsx'):
+        for nm in re.finditer(r'<node id="PassiveList">(.*?)</node>', xml, re.S):
+            u = re.search(r'id="UUID" type="guid" value="([0-9a-f-]+)"', nm.group(1))
+            pv = re.search(r'id="Passives" type="LSString" value="([^"]*)"', nm.group(1))
+            if u and pv:
+                passive_lists.setdefault(
+                    u.group(1),
+                    [s.strip() for s in re.split(r'[,;]', pv.group(1)) if s.strip()])
+    passive_list_re = re.compile(r'SelectPassives\(([0-9a-f-]{36})')
+    for xml in pak_files('Progressions/Progressions.lsx'):
+        for nm in re.finditer(r'<node id="Progression">(.*?)</node>', xml, re.S):
+            body = nm.group(1)
+            name_m = re.search(r'id="Name" type="LSString" value="([^"]+)"', body)
+            if not name_m:
+                continue
+            pool = class_spells.setdefault(name_m.group(1), [])
+            for sel in re.finditer(r'id="(?:Selectors|Boosts)"[^>]*value="([^"]*)"', body):
+                for lm in list_re.finditer(sel.group(1)):
+                    pool.extend(spell_lists.get(lm.group(1), []))
+                pool.extend(re.findall(r'UnlockSpell\((\w+)', sel.group(1)))
+                for plm in passive_list_re.finditer(sel.group(1)):
+                    for pname in passive_lists.get(plm.group(1), []):
+                        pool.extend(passive_spells.get(pname, []))
+            for pl in re.finditer(r'id="PassivesAdded"[^>]*value="([^"]*)"', body):
+                for pname in pl.group(1).split(';'):
+                    pool.extend(passive_spells.get(pname.strip(), []))
+
     # Item stat files: Armor.txt / Weapon.txt / Object.txt from item paks.
     # Used to (a) identify Object-type items that cannot be equipped, and
     # (b) resolve the equipment slot for each item (following the `using` chain).
@@ -2428,6 +2512,7 @@ def build_displayname_maps(
                 'stats_slots': stats_to_slot,
                 'two_handed': two_handed_stats_list,
                 'sub_spells': sub_spell_list,
+                'class_spells': {k: sorted(set(v)) for k, v in class_spells.items()},
             }, fh)
     except OSError:
         pass
@@ -2435,6 +2520,7 @@ def build_displayname_maps(
         guid_name, stats_name, spell_name,
         frozenset(object_type_stats_list), stats_to_slot,
         frozenset(two_handed_stats_list), frozenset(sub_spell_list),
+        {k: sorted(set(v)) for k, v in class_spells.items()},
     )
 
 
@@ -2450,6 +2536,7 @@ class DisplayNames:
         stats_to_slot:     dict[str, str]   | None = None,
         two_handed_stats:  frozenset[str]   | None = None,
         sub_spells:        frozenset[str]   | None = None,
+        class_spells:      dict[str, list[str]] | None = None,
     ):
         self._guid   = guid_name
         self._stats  = stats_name
@@ -2458,6 +2545,7 @@ class DisplayNames:
         self.stats_to_slot:     dict[str, str] = stats_to_slot     or {}
         self.two_handed_stats:  frozenset[str] = two_handed_stats  or frozenset()
         self.sub_spells:        frozenset[str] = sub_spells        or frozenset()
+        self.class_spells:      dict[str, list[str]] = class_spells or {}
         self.verbose = False  # set to True to append (INTERNAL_NAME) after display names
 
     @classmethod
@@ -2598,7 +2686,8 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
     spellbooks: dict[int, list[str]] = {}
     entity_classes: dict[int, tuple] = {}
     if lsmf_blob:
-        spell_map = extract_spells_by_character(lsmf_blob, party_info, player_display_name)
+        spell_map = extract_spells_by_character(
+            lsmf_blob, party_info, player_display_name, dn.class_spells or None)
         spellbooks = parse_lsmf_spellbooks(lsmf_blob)
         entity_classes = parse_lsmf_classes(lsmf_blob)
 
