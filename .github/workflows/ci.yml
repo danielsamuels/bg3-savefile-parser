@@ -30,6 +30,10 @@ jobs:
         run: uv run ty check bg3parser
 
       - name: Test (pytest)
+        env:
+          # The committed name table; makes the gamedata-dependent tests run
+          # (and pass deterministically) without a game install.
+          BG3_GAMEDATA_JSON: ${{ github.workspace }}/data/gamedata.json
         run: uv run pytest tests/ -v
 
   typescript:
@@ -42,8 +46,53 @@ jobs:
       - name: Install
         run: bun install --frozen-lockfile
 
-      - name: Type check
+      - name: Type check (parser)
         run: bun run --filter '@bg3save/parser' typecheck
 
-      - name: Test
+      - name: Test (parser)
         run: bun run --filter '@bg3save/parser' test
+
+      - name: Type check (site)
+        run: bun run --filter '@bg3save/site' typecheck
+
+      - name: Build (site)
+        run: bun run --filter '@bg3save/site' build
+
+  deploy:
+    needs: [lint-and-test, typescript]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://bg3.danielfinch.co.uk
+    steps:
+      - uses: actions/checkout@v6.0.3
+
+      - name: Check deploy secret
+        id: secret
+        run: |
+          if [ -n "${{ secrets.CLOUDFLARE_API_TOKEN }}" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::CLOUDFLARE_API_TOKEN not set — skipping deploy"
+            echo "available=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: oven-sh/setup-bun@v2
+        if: steps.secret.outputs.available == 'true'
+
+      - name: Install
+        if: steps.secret.outputs.available == 'true'
+        run: bun install --frozen-lockfile
+
+      - name: Build
+        if: steps.secret.outputs.available == 'true'
+        run: bun run --filter '@bg3save/site' build
+
+      - name: Deploy
+        if: steps.secret.outputs.available == 'true'
+        working-directory: ts/site
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: 53653d6594744b58c2d1414d40062f8c
+        run: bunx wrangler deploy
