@@ -1210,3 +1210,31 @@ def test_quicksave_296_stack_amounts():
     assert counts('Maia', 'OBJ_GoldCoin') == [766]
     assert counts('Wyll', 'OBJ_GoldPile') == [2017]
     assert counts('Karlach', 'GLO_SoulCoin') == [1, 1, 1]
+
+
+@pytest.mark.skipif(not GAME_DATA_AVAILABLE, reason='slot labels need stat-file slots')
+def test_quicksave_286_physical_attachment_ground_truth():
+    """In-game ground truth for QuickSave_286: Maia wields the Halberd of
+    Vigilance (the flagged moonlantern stays carried) and Wyll wields the
+    Knife of the Undermountain King (Phalar Aluve's equip bit is stale)."""
+    model = gather_model(str(FIXTURE_DIR / 'quicksave_286.lsv'))
+    maia = next(c for c in model.characters if c.name.startswith('Maia'))
+    slots = {it.stats: it.slot for it in maia.equipped}
+    assert slots.get('MAG_PoR_OfVigilance_Halberd') == 'Melee Main Weapon'
+    assert 'Quest_SCL_MoonlanternWithPixie' not in slots
+    wyll = next(c for c in model.characters if c.name == 'Wyll')
+    slots = {it.stats: it.slot for it in wyll.equipped}
+    assert slots.get('MAG_Duergar_Sword_KingsKnife') == 'Melee Main Weapon'
+    assert 'UND_SwordInStone' not in slots
+
+
+@pytest.mark.skipif(not GAME_DATA_AVAILABLE, reason='slot labels need stat-file slots')
+def test_quicksave_291_ring_order_ground_truth():
+    """In-game ground truth for QuickSave_291 (checked on Karlach's panel):
+    of her two rings, the one with the earlier ContainerSlotData row sits in
+    the first (upper) ring slot."""
+    model = gather_model(str(FIXTURE_DIR / 'quicksave_291.lsv'))
+    karlach = next(c for c in model.characters if c.name == 'Karlach')
+    slots = {it.stats: it.slot for it in karlach.equipped}
+    assert slots.get('MAG_Harpers_RingOfProjection') == 'Ring'
+    assert slots.get('MAG_FlamingFist_ScoutRing') == 'Ring 2'
