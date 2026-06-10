@@ -9,6 +9,7 @@ dependencies = ["zstandard", "lz4", "jinja2"]
 
 [project.scripts]
 bg3save = "bg3parser.cli:main"
+bg3save-mcp = "bg3parser.mcp_server:main"
 
 [project.urls]
 Homepage = "https://github.com/danielsamuels/bg3-savefile-parser"
@@ -24,6 +25,7 @@ packages = ["bg3parser"]
 
 [project.optional-dependencies]
 dev = ["pytest", "ruff", "ty"]
+mcp = ["mcp>=1.2"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

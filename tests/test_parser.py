@@ -1259,3 +1259,15 @@ def test_quicksave_302_multi_member_stacks():
     karlach = next(c for c in model.characters if c.name == 'Karlach')
     coins = [it.count for it in karlach.carried if it.stats == 'GLO_SoulCoin']
     assert coins == [1, 1, 1]
+
+
+def test_mcp_server_tools():
+    """The MCP tools resolve fixtures and return the report shape."""
+    pytest.importorskip('mcp')
+    from bg3parser import mcp_server
+
+    report = mcp_server.parse_save(QUICKSAVE_MAIA, quests=False)
+    assert report['save_info']['save_name'] == 'QuickSave_242'
+    assert any(c['at_camp'] for c in report['characters'])
+    with pytest.raises(FileNotFoundError):
+        mcp_server.parse_save('no-such-save-xyz')
