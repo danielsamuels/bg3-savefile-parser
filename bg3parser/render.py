@@ -150,9 +150,9 @@ def render_text(report: SaveReport, opts=None) -> str:
         inspect_pattern=report.inspect_pattern,
         quests_version=quests_version,
     )
-    # Jinja2 for-loop lines produce a trailing '\n' that '\n'.join() does not.
-    # Strip exactly one trailing newline unless the --limits note legitimately
-    # ends the output with one (LIMITS_NOTE itself ends with '\n').
+    # Jinja2 produces a trailing '\n' that the original '\n'.join() did not.
+    # Strip it, except when --limits is active: limits.txt.j2 ends with a
+    # newline, matching the original Python behaviour for that case.
     if not opts_dict['limits'] and output.endswith('\n'):
         output = output[:-1]
     return output
