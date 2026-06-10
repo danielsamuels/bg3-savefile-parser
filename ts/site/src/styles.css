@@ -132,6 +132,15 @@ body.has-report .drop-hint { display: none; }
 
 /* ---- Status line ----------------------------------------------------- */
 
+.statusbar {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+#download { font-size: 0.9375rem; white-space: nowrap; }
+
 #status {
   min-height: 1.5em;
   margin: var(--space-md) 0;

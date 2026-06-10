@@ -1,6 +1,7 @@
 import type { CharacterReport, ItemRef, SaveInfo, SaveReport, SpellRef } from '@bg3save/parser/src/model.ts';
 
 import './styles.css';
+import { renderTextReport } from './textReport.ts';
 
 const worker = new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' });
 const statusEl = document.querySelector('#status') as HTMLElement;
@@ -304,4 +305,10 @@ worker.onmessage = (ev: MessageEvent) => {
 
   document.body.classList.add('has-report');
   dropLabel.innerHTML = '<strong>Drop another save</strong> <span class="drop-or">or click to browse</span>';
+
+  const dl = document.querySelector('#download') as HTMLAnchorElement;
+  if (dl.href) URL.revokeObjectURL(dl.href);
+  dl.href = URL.createObjectURL(new Blob([renderTextReport(r)], { type: 'text/plain' }));
+  dl.download = `${r.save_info.save_name !== '?' ? r.save_info.save_name : r.source.replace(/\.lsv$/i, '')}.txt`;
+  dl.hidden = false;
 };
