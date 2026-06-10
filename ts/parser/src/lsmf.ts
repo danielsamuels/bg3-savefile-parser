@@ -84,7 +84,9 @@ function scanLsmfBlobUncached(blob: Uint8Array): ScannedBlob | null {
       const dataOffset = u64(dv, base + 40);
       rowsByComp.set(i, rowCount);
       const name =
-        nameLen > 0 && nameLen < 200 ? dec.decode(namesSec.subarray(nameOff, nameOff + nameLen)) : '';
+        nameLen > 0 && nameLen < 200
+          ? dec.decode(namesSec.subarray(nameOff, nameOff + nameLen))
+          : '';
       compDescs.push({ name, elemSize, rowCount, dataOffset });
     }
 
@@ -309,7 +311,11 @@ export function parseLsmfStackAmounts(blob: Uint8Array): Map<string, number> {
     const members: string[] = [];
     for (let i = 0; i < n; i++) {
       const a = u64(dv, memLo + LSMF_HEAP_BASE + i * 8) + LSMF_HEAP_BASE;
-      if (a >= eid.dataOffset && a < eid.dataOffset + eid.rowCount * 16 && (a - eid.dataOffset) % 16 === 0) {
+      if (
+        a >= eid.dataOffset &&
+        a < eid.dataOffset + eid.rowCount * 16 &&
+        (a - eid.dataOffset) % 16 === 0
+      ) {
         members.push(guidLeStr(bytes, a));
       }
     }
@@ -391,7 +397,7 @@ export function parseLsmfClasses(blob: Uint8Array): Map<number, ClassEntry[]> {
   const out = new Map<number, ClassEntry[]>();
   const idx = lsmfComponentIndex(blob);
   const cc = idx.get('game.stats.v0.ClassesComponent');
-  if (!cc || cc.elemSize !== 16) return out;
+  if (cc?.elemSize !== 16) return out;
   const { bytes, dv } = align(blob);
   const L = bytes.length;
   for (let k = 0; k < Math.min(cc.ownerRows.length, cc.rowCount); k++) {

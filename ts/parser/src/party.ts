@@ -142,12 +142,29 @@ export function buildTemplateStatsMap(nodes: LsofNode[]): Map<string, string> {
 
 // Item stats-name prefixes / substrings that are never worn equipment.
 const NON_EQUIP_PREFIXES = [
-  'OBJ_', 'CONS_', 'ALCH_', 'FOOD_', 'SCR_', 'SCROLL_', 'BOOK_',
-  'LOOT_', 'KEY_', 'PUZ_', 'PLT_', 'TItem_', 'GOLD_',
+  'OBJ_',
+  'CONS_',
+  'ALCH_',
+  'FOOD_',
+  'SCR_',
+  'SCROLL_',
+  'BOOK_',
+  'LOOT_',
+  'KEY_',
+  'PUZ_',
+  'PLT_',
+  'TItem_',
+  'GOLD_',
 ];
 
 const NON_EQUIP_SUBSTR = [
-  '_Camp_', 'Underwear', 'Keychain', 'GoldPile', 'Backpack', 'AlchemyPouch', 'CampSupplies',
+  '_Camp_',
+  'Underwear',
+  'Keychain',
+  'GoldPile',
+  'Backpack',
+  'AlchemyPouch',
+  'CampSupplies',
 ];
 
 export function isEquipmentType(stats: string): boolean {
@@ -204,7 +221,11 @@ export function collectItemsByPosition(
     }
   }
   const out = new Map<string, AttributedItem[]>();
-  for (const [n, d] of acc) out.set(n, [...d.entries()].map(([s, [f, g]]) => [s, f, g]));
+  for (const [n, d] of acc)
+    out.set(
+      n,
+      [...d.entries()].map(([s, [f, g]]) => [s, f, g]),
+    );
   return out;
 }
 
@@ -295,7 +316,10 @@ export function clusterAnchorRows(
     if (rows.size) rowSets.push([...rows].sort((a, b) => a - b));
   }
   if (!rowSets.length) return [];
-  const singles = rowSets.filter((rs) => rs.length === 1).map((rs) => rs[0]!).sort((a, b) => a - b);
+  const singles = rowSets
+    .filter((rs) => rs.length === 1)
+    .map((rs) => rs[0]!)
+    .sort((a, b) => a - b);
   const med = singles.length ? singles[singles.length >> 1]! : rowSets[0]![0]!;
   return rowSets.map((rs) =>
     rs.reduce((best, r) => (Math.abs(r - med) < Math.abs(best - med) ? r : best)),
@@ -366,7 +390,8 @@ export function ecsResolveEquipped(
     if (inCluster !== null) {
       worn = inCluster && maxMc >= threshold;
     } else {
-      const inWielded = opts.wieldedRows !== undefined && rows.some((r) => opts.wieldedRows!.has(r));
+      const inWielded =
+        opts.wieldedRows !== undefined && rows.some((r) => opts.wieldedRows!.has(r));
       worn = maxMc >= threshold && !inWielded;
     }
     (worn ? nowEquipped : nowCarried).push([stats, tmplGuid]);
@@ -472,10 +497,16 @@ export function resolveSlotConflicts(
       }
       continue;
     }
-    const flagsCands: ItemPair[] = candidates.filter(([, , s]) => s === 'flags').map(([a, b]) => [a, b]);
-    const ecsCands: ItemPair[] = candidates.filter(([, , s]) => s === 'ecs').map(([a, b]) => [a, b]);
+    const flagsCands: ItemPair[] = candidates
+      .filter(([, , s]) => s === 'flags')
+      .map(([a, b]) => [a, b]);
+    const ecsCands: ItemPair[] = candidates
+      .filter(([, , s]) => s === 'ecs')
+      .map(([a, b]) => [a, b]);
     if (flagsCands.length) {
-      const sorted = [...flagsCands].sort((a, b) => cmpKeys(flagsSortKey(a[0]), flagsSortKey(b[0])));
+      const sorted = [...flagsCands].sort((a, b) =>
+        cmpKeys(flagsSortKey(a[0]), flagsSortKey(b[0])),
+      );
       const winners = sorted.slice(0, capacity);
       keptFlags.push(...winners);
       demoted.push(...flagsCands.filter((sg) => !winners.includes(sg)));

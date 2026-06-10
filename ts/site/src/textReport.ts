@@ -92,7 +92,9 @@ function characterLines(char: CharacterReport): string[] {
     }
     if (!counts.size) continue;
     out.push(`    ${label}:`);
-    for (const [name, n] of [...counts.entries()].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) {
+    for (const [name, n] of [...counts.entries()].sort(([a], [b]) =>
+      a < b ? -1 : a > b ? 1 : 0,
+    )) {
       out.push(`      – ${n > 1 ? `${name} x${n}` : name}`);
     }
   }

@@ -1,6 +1,4 @@
 /** LSF / LSOF binary resource format. Mirrors bg3parser/lsf.py. */
-import { decompress as zstdDecompress } from 'fzstd';
-
 import { lz4BlockDecompress, lz4FrameDecompress } from './lz4.js';
 
 export type AttrValue = string | number | boolean | [number, number, number] | Uint8Array;
@@ -133,7 +131,16 @@ export function parseLsof(data: Uint8Array): LsofNode[] {
 
   const u = (i: number) => dv.getUint32(16 + i * 4, true);
   const [strUnc, strDisk, , , nodUnc, nodDisk, attUnc, attDisk, valUnc, valDisk] = [
-    u(0), u(1), u(2), u(3), u(4), u(5), u(6), u(7), u(8), u(9),
+    u(0),
+    u(1),
+    u(2),
+    u(3),
+    u(4),
+    u(5),
+    u(6),
+    u(7),
+    u(8),
+    u(9),
   ] as const;
 
   const cflags = dv.getUint8(56);

@@ -8,7 +8,7 @@ export function lz4BlockInto(src: Uint8Array, dst: Uint8Array, dstOff: number): 
     const token = src[s++]!;
     let litLen = token >> 4;
     if (litLen === 15) {
-      let b;
+      let b: number;
       do {
         b = src[s++]!;
         litLen += b;
@@ -22,7 +22,7 @@ export function lz4BlockInto(src: Uint8Array, dst: Uint8Array, dstOff: number): 
     s += 2;
     let matchLen = (token & 0x0f) + 4;
     if ((token & 0x0f) === 15) {
-      let b;
+      let b: number;
       do {
         b = src[s++]!;
         matchLen += b;

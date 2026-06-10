@@ -31,7 +31,10 @@ function openDb(): Promise<IDBDatabase> {
   return dbPromise;
 }
 
-function tx<T>(mode: IDBTransactionMode, run: (store: IDBObjectStore) => IDBRequest<T>): Promise<T> {
+function tx<T>(
+  mode: IDBTransactionMode,
+  run: (store: IDBObjectStore) => IDBRequest<T>,
+): Promise<T> {
   return openDb().then(
     (db) =>
       new Promise<T>((resolve, reject) => {
@@ -74,8 +77,7 @@ export const recordSave = (report: SaveReport): Promise<unknown> =>
 export const allSaves = (): Promise<HistoryRecord[]> =>
   tx<HistoryRecord[]>('readonly', (s) => s.getAll() as IDBRequest<HistoryRecord[]>);
 
-export const deleteSave = (id: string): Promise<unknown> =>
-  tx('readwrite', (s) => s.delete(id));
+export const deleteSave = (id: string): Promise<unknown> => tx('readwrite', (s) => s.delete(id));
 
 export const clearSaves = (): Promise<unknown> => tx('readwrite', (s) => s.clear());
 
@@ -83,7 +85,10 @@ export const clearSaves = (): Promise<unknown> => tx('readwrite', (s) => s.clear
 
 // Coerces: a malformed stored record must degrade, not kill the whole view.
 const esc = (s: unknown): string =>
-  String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+  String(s ?? '').replace(
+    /[&<>"]/g,
+    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!,
+  );
 
 /** Minimal sparkline: a gold polyline with end-value labels. */
 function sparkline(label: string, points: { x: string; y: number }[]): string {
@@ -121,7 +126,10 @@ export interface HistoryView {
 
 // GameID is regenerated on every save, so the leader name is the only stable
 // campaign grouping the save offers (two campaigns sharing a leader merge).
-export function groupHistory(records: HistoryRecord[], preferredCampaign?: string): HistoryView | null {
+export function groupHistory(
+  records: HistoryRecord[],
+  preferredCampaign?: string,
+): HistoryView | null {
   if (!records.length) return null;
   const byCampaign = new Map<string, HistoryRecord[]>();
   for (const r of records) {
@@ -147,16 +155,24 @@ export function renderHistoryHtml(view: HistoryView): string {
     campaigns.length > 1
       ? `<label class="hist-campaign">Campaign
            <select id="hist-campaign">${campaigns
-             .map((c) => `<option value="${esc(c.id)}"${c.id === campaign ? ' selected' : ''}>${esc(c.label)}</option>`)
+             .map(
+               (c) =>
+                 `<option value="${esc(c.id)}"${c.id === campaign ? ' selected' : ''}>${esc(c.label)}</option>`,
+             )
              .join('')}</select></label>`
       : '';
   const charts =
     records.length > 1
       ? `<div class="hist-charts">
-           ${sparkline('Party gold', records.map((r) => ({ x: `${r.saveName} (${r.savedAt})`, y: r.gold })))}
+           ${sparkline(
+             'Party gold',
+             records.map((r) => ({ x: `${r.saveName} (${r.savedAt})`, y: r.gold })),
+           )}
            ${sparkline(
              'Leader XP',
-             records.filter((r) => r.leaderXp !== null).map((r) => ({ x: `${r.saveName} (${r.savedAt})`, y: r.leaderXp! })),
+             records
+               .filter((r) => r.leaderXp !== null)
+               .map((r) => ({ x: `${r.saveName} (${r.savedAt})`, y: r.leaderXp! })),
            )}
          </div>`
       : '';

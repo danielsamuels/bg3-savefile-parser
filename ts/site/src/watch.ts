@@ -55,9 +55,9 @@ async function findSaves(
 
 /** Returns false if the user cancelled the picker. */
 export async function startWatching(cb: WatchCallbacks): Promise<boolean> {
-  const dir = await window
-    .showDirectoryPicker!({ id: 'bg3-saves', mode: 'read' })
-    .catch(() => null);
+  const dir = await window.showDirectoryPicker!({ id: 'bg3-saves', mode: 'read' }).catch(
+    () => null,
+  );
   if (!dir) return false;
   stopWatching();
 

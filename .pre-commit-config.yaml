@@ -16,3 +16,21 @@ repos:
         entry: uv run ty check bg3parser
         language: system
         pass_filenames: false
+      - id: biome
+        name: biome lint + format (ts)
+        entry: bash -c 'PATH="$HOME/.bun/bin:$PATH" bunx biome ci ts'
+        language: system
+        pass_filenames: false
+        files: ^(ts/|biome\.json)
+      - id: tsc-parser
+        name: tsc @bg3save/parser
+        entry: bash -c 'PATH="$HOME/.bun/bin:$PATH" bun run --filter @bg3save/parser typecheck'
+        language: system
+        pass_filenames: false
+        files: ^ts/
+      - id: tsc-site
+        name: tsc @bg3save/site
+        entry: bash -c 'PATH="$HOME/.bun/bin:$PATH" bun run --filter @bg3save/site typecheck'
+        language: system
+        pass_filenames: false
+        files: ^ts/

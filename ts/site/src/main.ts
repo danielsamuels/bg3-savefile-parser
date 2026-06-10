@@ -1,7 +1,20 @@
-import type { CharacterReport, ItemRef, SaveInfo, SaveReport, SpellRef } from '@bg3save/parser/src/model.ts';
+import type {
+  CharacterReport,
+  ItemRef,
+  SaveInfo,
+  SaveReport,
+  SpellRef,
+} from '@bg3save/parser/src/model.ts';
 
 import './styles.css';
-import { allSaves, clearSaves, deleteSave, groupHistory, recordSave, renderHistoryHtml } from './history.ts';
+import {
+  allSaves,
+  clearSaves,
+  deleteSave,
+  groupHistory,
+  recordSave,
+  renderHistoryHtml,
+} from './history.ts';
 import { renderTextReport } from './textReport.ts';
 import { isWatching, startWatching, stopWatching, watchSupported } from './watch.ts';
 
@@ -168,7 +181,9 @@ function renderSaveHead(si: SaveInfo, sourceName: string): string {
     value ? `<div><dt>${label}</dt><dd>${value}</dd></div>` : '';
   const mods = si.mods.length
     ? `<details class="save-mods"><summary>${si.mods.length} mod${si.mods.length > 1 ? 's' : ''} installed${
-        si.has_unofficial_mods ? ' <span class="unofficial">(flagged modded by the game)</span>' : ''
+        si.has_unofficial_mods
+          ? ' <span class="unofficial">(flagged modded by the game)</span>'
+          : ''
       }</summary><ul>${si.mods.map((m) => `<li>${esc(m)}</li>`).join('')}</ul></details>`
     : '';
   return `<header class="save-head" style="--i:0">
@@ -242,7 +257,9 @@ function renderCharacter(c: CharacterReport, index: number): string {
   const equipped = [...c.equipped].sort((a, b) => {
     const ka = a.slot_rank.concat([0, 0]);
     const kb = b.slot_rank.concat([0, 0]);
-    return ka[0]! - kb[0]! || ka[1]! - kb[1]! || (a.name ?? a.stats).localeCompare(b.name ?? b.stats);
+    return (
+      ka[0]! - kb[0]! || ka[1]! - kb[1]! || (a.name ?? a.stats).localeCompare(b.name ?? b.stats)
+    );
   });
   const equippedList = equipped.length
     ? `<h4 class="sect-head">Equipped <span class="count">${equipped.length}</span></h4>
@@ -282,7 +299,9 @@ function renderCharacter(c: CharacterReport, index: number): string {
 
   const spells = c.spells ? renderSpells(c.spells) : '';
   const spellsNote =
-    !spells && c.spells_note ? `<p class="char-note">${esc(SPELLS_NOTES[c.spells_note] ?? c.spells_note)}</p>` : '';
+    !spells && c.spells_note
+      ? `<p class="char-note">${esc(SPELLS_NOTES[c.spells_note] ?? c.spells_note)}</p>`
+      : '';
 
   return `<section class="char" style="--i:${index}">${head}
     ${equippedList}${undetermined}${carried}${spells}${spellsNote}
@@ -302,7 +321,8 @@ function showReport(r: SaveReport, statusText: string): void {
     r.characters.map((c, i) => renderCharacter(c, i + 1)).join('');
 
   document.body.classList.add('has-report');
-  dropLabel.innerHTML = '<strong>Drop another save</strong> <span class="drop-or">or click to browse</span>';
+  dropLabel.innerHTML =
+    '<strong>Drop another save</strong> <span class="drop-or">or click to browse</span>';
 
   const dl = document.querySelector('#download') as HTMLAnchorElement;
   if (dl.href) URL.revokeObjectURL(dl.href);

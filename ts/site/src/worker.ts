@@ -14,7 +14,11 @@ self.onmessage = (ev: MessageEvent) => {
   }
   try {
     const t0 = performance.now();
-    const report = gatherReport(new Uint8Array(msg.buffer), gamedata ?? new DisplayNames(), msg.name);
+    const report = gatherReport(
+      new Uint8Array(msg.buffer),
+      gamedata ?? new DisplayNames(),
+      msg.name,
+    );
     self.postMessage({ kind: 'report', report, ms: Math.round(performance.now() - t0) });
   } catch (err) {
     self.postMessage({ kind: 'error', message: String(err) });

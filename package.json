@@ -1,5 +1,14 @@
 {
   "name": "bg3-savefile-parser-workspace",
   "private": true,
-  "workspaces": ["ts/*"]
+  "workspaces": [
+    "ts/*"
+  ],
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.16"
+  },
+  "scripts": {
+    "lint": "biome ci ts",
+    "lint:fix": "biome check --write ts"
+  }
 }

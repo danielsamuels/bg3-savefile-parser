@@ -2,9 +2,8 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
-
-import { decompFrame, extractFrames } from '../src/lspk.js';
 import { parseLsof } from '../src/lsf.js';
+import { decompFrame, extractFrames } from '../src/lspk.js';
 
 const FIXTURES = join(__dirname, '..', '..', '..', 'tests', 'fixtures');
 

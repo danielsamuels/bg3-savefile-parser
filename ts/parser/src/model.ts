@@ -1,14 +1,12 @@
 /** Report model: gather everything the views need from a parsed save.
  *  Mirrors bg3parser/model.py; the output object matches `bg3save --json`
  *  field-for-field (the TS-parity contract). */
-import { DisplayNames } from './gamedata.js';
+import type { DisplayNames } from './gamedata.js';
 import type { LsofNode } from './lsf.js';
-import { decompFrame, extractFrames, parseInfoJson } from './lspk.js';
 import { parseLsof } from './lsf.js';
 import {
   GRAVITY_DISABLED_COMP,
   OWNED_AS_LOOT_COMP,
-  WIELDED_COMP,
   parseLsmfAllContainerPositions,
   parseLsmfClasses,
   parseLsmfComponentRows,
@@ -16,12 +14,11 @@ import {
   parseLsmfMembership,
   parseLsmfSpellbooks,
   parseLsmfStackAmounts,
+  WIELDED_COMP,
 } from './lsmf.js';
+import { decompFrame, extractFrames, parseInfoJson } from './lspk.js';
 import {
   type AttributedItem,
-  type ItemPair,
-  EQUIPPED_FLAG_BIT,
-  NULL_UUID,
   buildEntityTemplateMap,
   buildInstanceEntityLists,
   buildTemplateStatsMap,
@@ -32,18 +29,30 @@ import {
   ecsResolveEquipped,
   equipmentCluster,
   findPartyCharacterNodes,
+  type ItemPair,
   invertEntityTemplateMap,
   isEquipmentType,
+  NULL_UUID,
   resolveSlotConflicts,
   splitEquippedCarried,
 } from './party.js';
 
 export const COMMON_ACTION_SPELLS = new Set([
-  'Shout_Dash', 'Shout_Dash_NPC', 'Shout_Disengage', 'Shout_Hide',
-  'Target_Shove', 'Target_Help', 'Target_Dip', 'Throw_Throw',
-  'Throw_ImprovisedWeapon', 'Projectile_Jump',
-  'Target_MainHandAttack', 'Projectile_MainHandAttack',
-  'Target_OffhandAttack', 'Projectile_OffhandAttack', 'Target_UnarmedAttack',
+  'Shout_Dash',
+  'Shout_Dash_NPC',
+  'Shout_Disengage',
+  'Shout_Hide',
+  'Target_Shove',
+  'Target_Help',
+  'Target_Dip',
+  'Throw_Throw',
+  'Throw_ImprovisedWeapon',
+  'Projectile_Jump',
+  'Target_MainHandAttack',
+  'Projectile_MainHandAttack',
+  'Target_OffhandAttack',
+  'Projectile_OffhandAttack',
+  'Target_UnarmedAttack',
 ]);
 
 export interface ItemRef {
@@ -103,16 +112,33 @@ export interface SaveReport {
 
 // Base-game modules excluded from the user-mod list (mirrors lspk.py).
 const BASE_MODULES = new Set([
-  'GustavX', 'Shared', 'SharedDev', 'Gustav', 'Halflings', 'Origins', 'Honour',
-  'DiceSet01', 'DiceSet02', 'DiceSet03', 'DiceSet04', 'DiceSet05', 'DiceSet06', 'DiceSet07',
+  'GustavX',
+  'Shared',
+  'SharedDev',
+  'Gustav',
+  'Halflings',
+  'Origins',
+  'Honour',
+  'DiceSet01',
+  'DiceSet02',
+  'DiceSet03',
+  'DiceSet04',
+  'DiceSet05',
+  'DiceSet06',
+  'DiceSet07',
 ]);
 
 // Fallback when an item has no stat-file slot (or no game data present).
 const ITEM_GROUP_BY_PREFIX: Record<string, string> = {
-  WPN: 'weapon', MAG: 'weapon',
-  ARM: 'armour', UNI: 'armour',
-  ALCH: 'consumable', CONS: 'consumable', FOOD: 'consumable',
-  BOOK: 'book', SCR: 'book',
+  WPN: 'weapon',
+  MAG: 'weapon',
+  ARM: 'armour',
+  UNI: 'armour',
+  ALCH: 'consumable',
+  CONS: 'consumable',
+  FOOD: 'consumable',
+  BOOK: 'book',
+  SCR: 'book',
 };
 
 export function itemCategory(stats: string, dn: DisplayNames): string {
@@ -129,10 +155,21 @@ export function itemCategory(stats: string, dn: DisplayNames): string {
 // Display order for equipped items, mirroring the in-game panel.
 export const SLOT_DISPLAY_ORDER = new Map<string, number>(
   [
-    'Helmet', 'Cloak', 'Breast', 'Gloves', 'Boots', 'Amulet', 'Ring',
-    'Melee Main Weapon', 'Melee Offhand Weapon',
-    'Ranged Main Weapon', 'Ranged Offhand Weapon',
-    'MusicalInstrument', 'Underwear', 'VanityBody', 'VanityBoots',
+    'Helmet',
+    'Cloak',
+    'Breast',
+    'Gloves',
+    'Boots',
+    'Amulet',
+    'Ring',
+    'Melee Main Weapon',
+    'Melee Offhand Weapon',
+    'Ranged Main Weapon',
+    'Ranged Offhand Weapon',
+    'MusicalInstrument',
+    'Underwear',
+    'VanityBody',
+    'VanityBoots',
   ].map((n, i) => [n, i]),
 );
 
@@ -141,9 +178,7 @@ const pairKey = (p: ItemPair) => `${p[0]}\x00${p[1]}`;
 function sortedUnion(...lists: ItemPair[][]): ItemPair[] {
   const seen = new Map<string, ItemPair>();
   for (const list of lists) for (const p of list) seen.set(pairKey(p), p);
-  return [...seen.entries()]
-    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-    .map(([, p]) => p);
+  return [...seen.entries()].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)).map(([, p]) => p);
 }
 
 interface InfoCharacter {
@@ -227,7 +262,9 @@ export function gatherReport(data: Uint8Array, dn: DisplayNames, source = ''): S
     return `${want.join('\x01')}|${ci.Level}`;
   };
   const partyBuilds = partyInfo.map(buildKey).filter((k): k is string => k !== null);
-  const ambiguousBuilds = new Set(partyBuilds.filter((k, _i, a) => a.filter((x) => x === k).length > 1));
+  const ambiguousBuilds = new Set(
+    partyBuilds.filter((k, _i, a) => a.filter((x) => x === k).length > 1),
+  );
 
   const exactSpellbook = (ci: InfoCharacter): string[] | null => {
     const key = buildKey(ci);
@@ -243,8 +280,15 @@ export function gatherReport(data: Uint8Array, dn: DisplayNames, source = ''): S
             `${classNames[cg] ?? ''}\x00${sg !== NULL_UUID ? (classNames[sg] ?? '') : ''}`,
         )
         .sort();
-      const total = classes.reduce((acc: number, [, , lvl]: [string, string, number]) => acc + lvl, 0);
-      if (got.length === want.length && got.every((g: string, i: number) => g === want[i]) && total === level) {
+      const total = classes.reduce(
+        (acc: number, [, , lvl]: [string, string, number]) => acc + lvl,
+        0,
+      );
+      if (
+        got.length === want.length &&
+        got.every((g: string, i: number) => g === want[i]) &&
+        total === level
+      ) {
         candidates.push(ent);
       }
     }
@@ -263,7 +307,9 @@ export function gatherReport(data: Uint8Array, dn: DisplayNames, source = ''): S
   const lsmfWielded = compRows.get(WIELDED_COMP);
   const lsmfGravityOff = compRows.get(GRAVITY_DISABLED_COMP);
   const lsmfCsdPos = lsmfBlob ? parseLsmfContainerPositions(lsmfBlob) : new Map<number, number>();
-  const lsmfAllCsd = lsmfBlob ? parseLsmfAllContainerPositions(lsmfBlob) : new Map<number, number[]>();
+  const lsmfAllCsd = lsmfBlob
+    ? parseLsmfAllContainerPositions(lsmfBlob)
+    : new Map<number, number[]>();
   const lsmfStackAmounts = lsmfBlob ? parseLsmfStackAmounts(lsmfBlob) : new Map<string, number>();
 
   const templateToInstances = invertEntityTemplateMap(entityToTemplate0);
@@ -382,18 +428,30 @@ export function gatherReport(data: Uint8Array, dn: DisplayNames, source = ''): S
     let csdCluster: [number, number] | null = null;
     if (Object.keys(dn.statsToSlot).length && lsmfEcs && lsmfAllCsd.size) {
       csdCluster = equipmentCluster(
-        clusterAnchorRows(flagsEquipped, dn.statsToSlot, charStatsToEntity, lsmfEcs.guidToRows, lsmfAllCsd),
+        clusterAnchorRows(
+          flagsEquipped,
+          dn.statsToSlot,
+          charStatsToEntity,
+          lsmfEcs.guidToRows,
+          lsmfAllCsd,
+        ),
       );
     }
 
     let ecsEq: ItemPair[] = [];
     if (undetermined.length && lsmfEcs) {
-      const r = ecsResolveEquipped(undetermined, templateToInstances, lsmfEcs.guidToRows, lsmfEcs.membershipCount, {
-        statsToEntity: charStatsToEntity,
-        wieldedRows: lsmfWielded,
-        csdCluster,
-        allCsd: lsmfAllCsd.size ? lsmfAllCsd : undefined,
-      });
+      const r = ecsResolveEquipped(
+        undetermined,
+        templateToInstances,
+        lsmfEcs.guidToRows,
+        lsmfEcs.membershipCount,
+        {
+          statsToEntity: charStatsToEntity,
+          wieldedRows: lsmfWielded,
+          csdCluster,
+          allCsd: lsmfAllCsd.size ? lsmfAllCsd : undefined,
+        },
+      );
       ecsEq = r.equipped;
       undetermined = r.undetermined;
       carried = sortedUnion(carried, r.carried);
@@ -401,8 +459,12 @@ export function gatherReport(data: Uint8Array, dn: DisplayNames, source = ''): S
 
     if (Object.keys(dn.statsToSlot).length && lsmfEcs) {
       const r = resolveSlotConflicts(
-        flagsEquipped, ecsEq, dn.statsToSlot, charStatsToEntity,
-        lsmfEcs.guidToRows, lsmfEcs.membershipCount,
+        flagsEquipped,
+        ecsEq,
+        dn.statsToSlot,
+        charStatsToEntity,
+        lsmfEcs.guidToRows,
+        lsmfEcs.membershipCount,
         {
           ownedAsLootRows: lsmfOwnedLoot,
           twoHandedStats: dn.twoHandedStats.size ? dn.twoHandedStats : undefined,
@@ -442,7 +504,10 @@ export function gatherReport(data: Uint8Array, dn: DisplayNames, source = ''): S
         equipped = equipped.filter(([s]) => s !== statsName);
         carried = carried.filter(([s]) => s !== statsName);
         undetermined = undetermined.filter(([s]) => s !== statsName);
-        instanceWornRows.set(statsName, wornRows.sort((a, b) => a - b));
+        instanceWornRows.set(
+          statsName,
+          wornRows.sort((a, b) => a - b),
+        );
         overlayBagged.set(statsName, baggedEnts);
         for (let i = 0; i < wornRows.length; i++) equipped.push([statsName, tmpl]);
         for (let i = 0; i < baggedEnts.length; i++) carried.push([statsName, tmpl]);
@@ -463,9 +528,11 @@ export function gatherReport(data: Uint8Array, dn: DisplayNames, source = ''): S
     const ringSlotNo = new Map<string, number>();
     const rings = equipped.map(([s]) => s).filter((s) => dn.statsToSlot[s] === 'Ring');
     if (rings.length > 1) {
-      [...rings].sort((a, b) => containerRank(a) - containerRank(b)).forEach((s, i) => {
-        ringSlotNo.set(s, i + 1);
-      });
+      [...rings]
+        .sort((a, b) => containerRank(a) - containerRank(b))
+        .forEach((s, i) => {
+          ringSlotNo.set(s, i + 1);
+        });
     }
 
     // Per-entry display rank; a duplicate group's k-th entry takes its k-th
@@ -487,7 +554,9 @@ export function gatherReport(data: Uint8Array, dn: DisplayNames, source = ''): S
       .filter(([e]) => dn.statsToSlot[e[0]] === 'Melee Main Weapon')
       .map(([, i]) => i);
     if (meleeIdx.length === 2) {
-      offhandIdx.add(entryRows[meleeIdx[0]!]![2] > entryRows[meleeIdx[1]!]![2] ? meleeIdx[0]! : meleeIdx[1]!);
+      offhandIdx.add(
+        entryRows[meleeIdx[0]!]![2] > entryRows[meleeIdx[1]!]![2] ? meleeIdx[0]! : meleeIdx[1]!,
+      );
     }
 
     entryRows.forEach(([s, guid], i) => {
