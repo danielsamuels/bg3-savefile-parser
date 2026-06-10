@@ -356,6 +356,12 @@ def equipment_cluster(anchor_rows: list[int], *, margin: int = 8,
     return (min(kept) - margin, max(kept) + margin)
 
 
+# Slots whose items stay in the backpack grid while equipped — the slot is
+# virtual, so the item's ContainerSlotData row says nothing about worn status
+# (Maia's lute sat mid-backpack while genuinely equipped, QuickSave_294).
+CLUSTER_EXEMPT_SLOTS = frozenset(('MusicalInstrument',))
+
+
 def cluster_anchor_rows(
     flags_equipped: list[tuple],
     stats_to_slot: dict[str, str],
@@ -379,7 +385,8 @@ def cluster_anchor_rows(
     row_sets: list[tuple[int, ...]] = []
     for stats, _guid in flags_equipped:
         slot = stats_to_slot.get(stats)
-        if not slot or slot_counts[slot] > SLOT_CAPACITY.get(slot, 1):
+        if (not slot or slot in CLUSTER_EXEMPT_SLOTS
+                or slot_counts[slot] > SLOT_CAPACITY.get(slot, 1)):
             continue
         eg = stats_to_entity.get(stats, '')
         rows = sorted({r for er in guid_to_rows.get(eg, [])
@@ -571,7 +578,9 @@ def resolve_slot_conflicts(
     for stats, guid in flags_equipped:
         # A Flags item whose ContainerSlotData entry lies outside the
         # character's equipment cluster sits in a bag: the equip bit is stale.
+        # Virtual slots are exempt — their items stay in the grid while worn.
         if (in_cluster(stats) is False
+                and stats_to_slot.get(stats) not in CLUSTER_EXEMPT_SLOTS
                 and not (status_equipped and stats in status_equipped)):
             demoted.append((stats, guid))
             continue

@@ -1056,6 +1056,13 @@ def test_quicksave_294_wyll_stale_phalar_and_shoes():
     inventory; the Evasive Shoes (no LSF signal at all) are equipped."""
     model = gather_model(QUICKSAVE_294)
     wyll = next(c for c in model.characters if c.name == 'Wyll')
+
+    # Maia's lute is equipped (in-game verified) although its
+    # ContainerSlotData row sits mid-backpack: an equipped instrument stays
+    # in the grid, so the cluster rule must not demote virtual slots.
+    maia = next(c for c in model.characters if c.name.startswith('Maia'))
+    assert 'ARM_Instrument_Lute' in {it.stats for it in maia.equipped}
+
     slots = {it.stats: it.slot for it in wyll.equipped}
     assert slots.get('MAG_Duergar_Sword_KingsKnife') == 'Melee Main Weapon'
     assert slots.get('MAG_Safeguard_Shield') == 'Melee Offhand Weapon'
