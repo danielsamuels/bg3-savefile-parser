@@ -1,0 +1,13 @@
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ALL ITEMS ON CURRENT LEVEL  (per-character gear listed above)
+Note: items carried by party members are attributed to each character
+above, by shared world position. The list below is the full level pool
+(world loot, containers, vendor stock) for reference.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  {{ report.level_items.total }} items total  ({{ report.level_items.unique }} unique types)
+
+{% for e in level_items_entries %}
+  {{ e.qty_str }} {{ e.label_str }} {{ e.category }}
+{% endfor %}
