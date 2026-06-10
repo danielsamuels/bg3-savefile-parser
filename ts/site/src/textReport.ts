@@ -146,6 +146,7 @@ export function renderTextReport(report: SaveReport): string {
     `Difficulty : ${si.difficulty}`,
     `Leader     : ${si.leader}`,
   ];
+  if (si.camp_supplies) lines.push(`Supplies   : ${si.camp_supplies}`);
   if (si.mods.length) {
     lines.push(
       `Mods       : ${si.mods.length} user mod(s)${si.has_unofficial_mods ? '  (flagged unofficial by game)' : ''}`,

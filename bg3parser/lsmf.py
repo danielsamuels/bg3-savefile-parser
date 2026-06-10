@@ -348,6 +348,23 @@ def parse_lsmf_classes(blob: bytes) -> dict[int, tuple]:
     return out
 
 
+def parse_lsmf_camp_supplies(blob: bytes) -> int | None:
+    """The camp-supply total shown next to the Long Rest button, or None.
+
+    game.camp.v0.TotalSuppliesComponent holds one u32 — but it is a cache the
+    engine zeroes and only recomputes when the camp/rest system runs, so 0
+    means "not cached", not "no supplies"; callers should treat 0 as absent.
+    """
+    idx = lsmf_component_index(blob)
+    ts = idx.get('game.camp.v0.TotalSuppliesComponent')
+    if not ts:
+        return None
+    elem, rows, off, _owners = ts
+    if elem != 4 or rows != 1 or off + 4 > len(blob):
+        return None
+    return struct.unpack_from('<I', blob, off)[0]
+
+
 def parse_lsmf_prepared_spells(blob: bytes) -> dict[int, list[tuple[str, int, str]]]:
     """Extract prepared spells: entity row -> [(spell ID, source type, source GUID), ...].
 

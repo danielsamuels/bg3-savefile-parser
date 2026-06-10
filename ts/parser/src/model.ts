@@ -8,6 +8,7 @@ import {
   GRAVITY_DISABLED_COMP,
   OWNED_AS_LOOT_COMP,
   parseLsmfAllContainerPositions,
+  parseLsmfCampSupplies,
   parseLsmfClasses,
   parseLsmfComponentRows,
   parseLsmfContainerPositions,
@@ -98,6 +99,7 @@ export interface CharacterReport {
 
 export interface SaveInfo {
   save_name: string;
+  camp_supplies: number | null;
   save_id: number | null;
   saved_at: string;
   game_version: string;
@@ -264,6 +266,7 @@ export function gatherReport(
   }
   const saveInfo: SaveInfo = {
     save_name: info['Save Name'] ?? '?',
+    camp_supplies: null,
     save_id: (metaAttrs.SaveGameID as number | undefined) ?? null,
     saved_at: savedAt,
     game_version: info['Game Version'] ?? '?',
@@ -295,6 +298,9 @@ export function gatherReport(
   const preparedSpells = lsmfBlob
     ? parseLsmfPreparedSpells(lsmfBlob)
     : new Map<number, [string, number, string][]>();
+  // The engine zeroes this cache between camp visits; 0 is "unknown".
+  const supplies = lsmfBlob ? parseLsmfCampSupplies(lsmfBlob) : null;
+  saveInfo.camp_supplies = supplies || null;
   const classNames = dn.classUuidNames;
 
   const buildKey = (ci: InfoCharacter): string | null => {

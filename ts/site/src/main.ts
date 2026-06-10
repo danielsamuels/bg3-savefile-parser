@@ -217,6 +217,7 @@ function renderSaveHead(si: SaveInfo, sourceName: string, thumbUrl: string | nul
         ${metaRow('Save', si.save_id === null ? '' : `#${si.save_id}`)}
         ${metaRow('Region', si.level === '?' ? '' : labelled(si.level, REGION_LABELS))}
         ${metaRow('Difficulty', friendlyDifficulty(si.difficulty))}
+        ${metaRow('Supplies', si.camp_supplies ? String(si.camp_supplies) : '')}
         ${metaRow('Saved', si.saved_at === '?' ? '' : esc(si.saved_at))}
         ${metaRow('Game version', si.game_version === '?' ? '' : esc(si.game_version))}
       </dl>

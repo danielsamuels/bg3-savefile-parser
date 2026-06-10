@@ -16,6 +16,7 @@ from .lsmf import (
     OWNED_AS_LOOT_COMP,
     WIELDED_COMP,
     parse_lsmf_all_container_positions,
+    parse_lsmf_camp_supplies,
     parse_lsmf_classes,
     parse_lsmf_component_rows,
     parse_lsmf_container_positions,
@@ -324,6 +325,9 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         spellbooks = parse_lsmf_spellbooks(lsmf_blob)
         entity_classes = parse_lsmf_classes(lsmf_blob)
         prepared_spells = parse_lsmf_prepared_spells(lsmf_blob)
+        supplies = parse_lsmf_camp_supplies(lsmf_blob)
+        # The engine zeroes this cache between camp visits; 0 is "unknown".
+        report.save_info['camp_supplies'] = supplies if supplies else None
 
     def build_key(char_info: dict) -> tuple | None:
         want = sorted((c.get('Main', ''), c.get('Sub', '')) for c in char_info.get('Classes', []))

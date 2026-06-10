@@ -285,6 +285,21 @@ export function parseLsmfAllContainerPositions(blob: Uint8Array): Map<number, nu
  *  delta between each prepares row and the unique spell book containing its
  *  spell names. Mirrors bg3parser/lsmf.py parse_lsmf_prepared_spells.
  */
+/** The camp-supply total shown next to the Long Rest button, or null.
+ *
+ *  game.camp.v0.TotalSuppliesComponent holds one u32 — but it is a cache the
+ *  engine zeroes and only recomputes when the camp/rest system runs, so 0
+ *  means "not cached", not "no supplies"; callers should treat 0 as absent.
+ */
+export function parseLsmfCampSupplies(blob: Uint8Array): number | null {
+  const idx = lsmfComponentIndex(blob);
+  const ts = idx.get('game.camp.v0.TotalSuppliesComponent');
+  if (!ts || ts.elemSize !== 4 || ts.rowCount !== 1) return null;
+  const { bytes, dv } = align(blob);
+  if (ts.dataOffset + 4 > bytes.length) return null;
+  return dv.getUint32(ts.dataOffset, true);
+}
+
 export function parseLsmfPreparedSpells(blob: Uint8Array): Map<number, [string, number, string][]> {
   const idx = lsmfComponentIndex(blob);
   const sp = idx.get('game.spell.v0.SpellBookPrepares');

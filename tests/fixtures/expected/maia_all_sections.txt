@@ -9,6 +9,7 @@ Game Ver   : 4.1.1.7209685
 Level      : SCL_Main_A
 Difficulty : DifficultyMedium, RulesetLarian
 Leader     : Maia
+Supplies   : 852
 Mods       : 3 user mod(s)
              ImpUI (ImprovedUI)
              Show Camp Night Notification
