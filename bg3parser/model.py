@@ -27,7 +27,7 @@ from .party import (
     EQUIPPED_FLAG_BIT,
     NULL_UUID,
     build_entity_template_map,
-    build_instance_entity_map,
+    build_instance_entity_lists,
     build_template_stats_map,
     cluster_anchor_rows,
     collect_character_positions,
@@ -38,6 +38,7 @@ from .party import (
     equipment_cluster,
     find_party_character_nodes,
     invert_entity_template_map,
+    is_equipment_type,
     resolve_slot_conflicts,
     split_equipped_carried,
 )
@@ -353,7 +354,8 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         all_comp_rows = parse_lsmf_component_rows(lsmf_blob)
 
     template_to_instances = invert_entity_template_map(entity_to_template0)
-    instance_entity_map = build_instance_entity_map(nodes0)
+    instance_entity_lists = build_instance_entity_lists(nodes0)
+    instance_entity_map = {key: ents[0] for key, ents in instance_entity_lists.items()}
 
     # ---- Level caches -----------------------------------------------------
     all_lc_node_lists: list[list[dict]] = []
@@ -494,6 +496,36 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
 
         equipped = sorted(set(flags_equipped) | set(ecs_eq))
 
+        # Several physical copies of one item type on a character share the
+        # (translate, stats) key the pipeline runs on, collapsing them into one
+        # entry (e.g. four identical shortswords: two dual-wielded, two in a
+        # bag). Reclassify such groups per instance: each copy's own
+        # ContainerSlotData rows decide, against the equipment cluster.
+        instance_worn_rows: dict[str, list[int]] = {}
+        if csd_cluster is not None and char_pos is not None and lsmf_ecs is not None:
+            lo, hi = csd_cluster
+            for stats_name in {s for s, _f, _g in attributed}:
+                ents = instance_entity_lists.get((char_pos, stats_name), ())
+                if len(ents) < 2 or not is_equipment_type(stats_name):
+                    continue
+                worn_rows = []
+                for eg in ents:
+                    rows = [
+                        r
+                        for er in lsmf_ecs[0].get(eg, [])
+                        for r in lsmf_all_csd.get(er, ())
+                        if lo <= r <= hi
+                    ]
+                    if rows:
+                        worn_rows.append(min(rows))
+                tmpl = next(g for s, _f, g in attributed if s == stats_name)
+                equipped = [(s, g) for s, g in equipped if s != stats_name]
+                carried = [(s, g) for s, g in carried if s != stats_name]
+                undetermined = [(s, g) for s, g in undetermined if s != stats_name]
+                instance_worn_rows[stats_name] = sorted(worn_rows)
+                equipped.extend((stats_name, tmpl) for _ in worn_rows)
+                carried.extend((stats_name, tmpl) for _ in range(len(ents) - len(worn_rows)))
+
         # Slot is derived from game stat files (the save does not serialise
         # ItemSlot). Of two worn rings, the earlier ContainerSlotData row is
         # the first (upper) ring slot — verified in-game (QuickSave_291).
@@ -508,16 +540,33 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
             for i, s in enumerate(sorted(rings, key=container_rank)):
                 ring_slot_no[s] = i + 1
 
+        # Per-entry display rank: a duplicate group's k-th equipped entry takes
+        # its k-th worn instance's ContainerSlotData row.
+        entry_rows: list[tuple[str, str, int]] = []
+        dupe_seen: dict[str, int] = {}
+        for s, guid in equipped:
+            if s in instance_worn_rows:
+                k = dupe_seen.get(s, 0)
+                dupe_seen[s] = k + 1
+                row = instance_worn_rows[s][k]
+            else:
+                row = container_rank(s)
+            entry_rows.append((s, guid, row))
+
         # Two one-handed weapons in "Melee Main Weapon" are a dual-wield pair;
         # as with rings, the earlier ContainerSlotData row is the main hand.
-        offhand_weapons: set[str] = set()
-        melee = [s for s, _g in equipped if dn.stats_to_slot.get(s) == 'Melee Main Weapon']
-        if len(melee) == 2:
-            offhand_weapons.add(max(melee, key=container_rank))
+        offhand_idx: set[int] = set()
+        melee_idx = [
+            i
+            for i, (s, _g, _r) in enumerate(entry_rows)
+            if dn.stats_to_slot.get(s) == 'Melee Main Weapon'
+        ]
+        if len(melee_idx) == 2:
+            offhand_idx.add(max(melee_idx, key=lambda i: entry_rows[i][2]))
 
-        for s, guid in equipped:
+        for i, (s, guid, _row) in enumerate(entry_rows):
             slot = dn.stats_to_slot.get(s, '')
-            if s in offhand_weapons:
+            if i in offhand_idx:
                 slot = 'Melee Offhand Weapon'
             rank = (SLOT_DISPLAY_ORDER.get(slot, 99), ring_slot_no.get(s, 0))
             if ring_slot_no.get(s, 0) == 2:

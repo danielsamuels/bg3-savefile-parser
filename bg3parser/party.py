@@ -107,7 +107,30 @@ def build_instance_entity_map(nodes: list[dict]) -> dict[tuple, str]:
     items_ni = next((ci for ci in factory_children if nodes[ci]['name'] == 'Items'), None)
     if creators_ni is None or items_ni is None:
         return {}
-    result: dict[tuple, str] = {}
+    return {key: ents[0] for key, ents in build_instance_entity_lists(nodes).items()}
+
+
+def build_instance_entity_lists(nodes: list[dict]) -> dict[tuple, tuple[str, ...]]:
+    """Return {(translate, stats): (entity_guid, …)} from parallel Creators/Items arrays.
+
+    Several physical copies of the same item type on the same character share
+    the (translate, stats) key but are distinct entities; the list keeps one
+    GUID per copy, in array order.
+    """
+    items_root = next(
+        (i for i, nd in enumerate(nodes) if nd['name'] == 'Items' and nd['parent'] == -1), None
+    )
+    if items_root is None:
+        return {}
+    factory_ni = nodes[items_root]['children'][0] if nodes[items_root]['children'] else None
+    if factory_ni is None:
+        return {}
+    factory_children = nodes[factory_ni]['children']
+    creators_ni = next((ci for ci in factory_children if nodes[ci]['name'] == 'Creators'), None)
+    items_ni = next((ci for ci in factory_children if nodes[ci]['name'] == 'Items'), None)
+    if creators_ni is None or items_ni is None:
+        return {}
+    result: dict[tuple, list[str]] = {}
     # The format keeps Creators and Items parallel; tolerate a corrupt tail.
     for creator_ci, item_ci in zip(
         nodes[creators_ni]['children'],
@@ -118,8 +141,8 @@ def build_instance_entity_map(nodes: list[dict]) -> dict[tuple, str]:
         translate = nodes[item_ci]['attrs'].get('Translate')
         stats = nodes[item_ci]['attrs'].get('Stats', '')
         if entity and translate and stats:
-            result[(translate, stats)] = entity
-    return result
+            result.setdefault((translate, stats), []).append(entity)
+    return {key: tuple(ents) for key, ents in result.items()}
 
 
 def build_template_stats_map(nodes: list[dict]) -> dict[str, str]:

@@ -1179,3 +1179,20 @@ def test_quicksave_294_wyll_stale_phalar_and_shoes():
     assert 'UND_SwordInStone' in carried
     assert 'ARM_Boots_Leather' in carried
     assert 'MAG_Fire_HeatOnTakingFireDamage_Amulet' in carried
+
+
+@pytest.mark.skipif(not GAME_DATA_AVAILABLE, reason='cluster anchors need stat-file slots')
+def test_quicksave_296_duplicate_shortswords():
+    """In-game ground truth for QuickSave_296: Karlach dual-wields two plain
+    Shortswords while two more (identical stats name and template) sit in her
+    inventory — per-instance classification via each copy's own
+    ContainerSlotData rows."""
+    model = gather_model(str(FIXTURE_DIR / 'quicksave_296.lsv'))
+    karlach = next(c for c in model.characters if c.name == 'Karlach')
+    swords = [it for it in karlach.equipped if it.stats == 'WPN_Shortsword']
+    assert sorted(it.slot for it in swords) == [
+        'Melee Main Weapon',
+        'Melee Offhand Weapon',
+    ]
+    carried_swords = [it for it in karlach.carried if it.stats == 'WPN_Shortsword']
+    assert len(carried_swords) == 2

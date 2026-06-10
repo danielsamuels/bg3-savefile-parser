@@ -43,10 +43,10 @@
 {% endif %}
 {% if opts.carried %}
   Carried / personal inventory ({{ char.carried | length }}):
-{% for label, items in char_data.carried_groups %}
+{% for label, lines in char_data.carried_groups %}
     {{ label }}:
-{% for item in items %}
-      – {{ item | fmt_item(verbose) }}
+{% for line in lines %}
+      – {{ line }}
 {% endfor %}
 {% endfor %}
 {% endif %}
