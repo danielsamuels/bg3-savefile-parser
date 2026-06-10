@@ -18,6 +18,55 @@ export const PARTY_ORIGINS: Record<string, string> = {
 };
 
 export const NULL_UUID = '00000000-0000-0000-0000-000000000000';
+
+// The camp chest ("Traveller's Chest") root templates, one per act/variant.
+export const CAMP_CHEST_TEMPLATES = new Set([
+  '65ad4dbc-74b2-47b6-bad4-1a109cfc9639',
+  '96eab9d1-74b1-42f7-b1ad-061a9fcea8c4',
+  '9b293d36-29f0-460c-bc81-2bdd4610a478',
+  'b1487efd-4ae8-4747-866d-717df74169cd',
+  'b5de2260-8e6b-4c2f-91eb-6f3133682a2f',
+  'f68b5862-887c-4adf-b9f8-bb29e4d73b0f',
+]);
+
+// Characters within this distance of the camp chest count as "at camp".
+export const CAMP_RADIUS = 100.0;
+
+// Origin companions' fixed race and base class (static game facts).
+export const ORIGIN_INFO: Record<string, [string, string]> = {
+  Astarion: ['Elf_HighElf', 'Rogue'],
+  Gale: ['Human', 'Wizard'],
+  Halsin: ['Elf_WoodElf', 'Druid'],
+  Jaheira: ['HalfElf_High', 'Druid'],
+  Karlach: ['Tiefling_Zariel', 'Barbarian'],
+  "Lae'zel": ['Githyanki', 'Fighter'],
+  Minsc: ['Human', 'Ranger'],
+  Minthara: ['Drow_LolthSworn', 'Paladin'],
+  Shadowheart: ['HalfElf_High', 'Cleric'],
+  Wyll: ['Human', 'Warlock'],
+};
+
+/** The camp chest's exact position key, or null ('0,0,0' = no camp yet). */
+export function findCampChest(nodes: LsofNode[]): string | null {
+  for (const nd of nodes) {
+    if (
+      nd.name === 'Item' &&
+      CAMP_CHEST_TEMPLATES.has((nd.attrs.CurrentTemplate as string) ?? '')
+    ) {
+      const k = posKey(nd.attrs.Translate);
+      if (k !== null) return k;
+    }
+  }
+  return null;
+}
+
+export function campDistance(a: string, b: string): number {
+  const pa = a.split(',').map(Number);
+  const pb = b.split(',').map(Number);
+  let sum = 0;
+  for (let i = 0; i < Math.min(pa.length, pb.length); i++) sum += (pa[i]! - pb[i]!) ** 2;
+  return Math.sqrt(sum);
+}
 export const EQUIPPED_FLAG_BIT = 0x04000000;
 
 /** Translate tuples are dict keys in Python; use a string key in TS. */

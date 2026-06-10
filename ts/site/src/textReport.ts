@@ -157,8 +157,33 @@ export function renderTextReport(report: SaveReport): string {
   if (report.quests) lines.push(...questsLines(report.quests));
   lines.push(BAR_HEAVY, 'PARTY CHARACTERS', BAR_HEAVY);
   for (const char of report.characters) {
+    if (char.at_camp) continue;
     lines.push('');
     lines.push(...characterLines(char));
+  }
+  const campChars = report.characters.filter((c) => c.at_camp);
+  if (campChars.length) {
+    lines.push(BAR_HEAVY, 'CAMP COMPANIONS', BAR_HEAVY);
+    for (const char of campChars) {
+      lines.push('');
+      lines.push(...characterLines(char));
+    }
+  }
+  if (report.camp_chest !== null) {
+    lines.push(BAR_HEAVY, `CAMP CHEST  (${report.camp_chest.length} item types)`, BAR_HEAVY);
+    for (const [key, label] of CARRIED_GROUP_LABELS) {
+      const counts = new Map<string, number>();
+      for (const it of report.camp_chest) {
+        if (it.category === key) counts.set(fmtItem(it), (counts.get(fmtItem(it)) ?? 0) + it.count);
+      }
+      if (!counts.size) continue;
+      lines.push(`  ${label}:`);
+      for (const [name, n] of [...counts.entries()].sort(([a], [b]) =>
+        a < b ? -1 : a > b ? 1 : 0,
+      )) {
+        lines.push(`    – ${n > 1 ? `${name} x${n}` : name}`);
+      }
+    }
   }
   lines.push('');
   return lines.join('\n');

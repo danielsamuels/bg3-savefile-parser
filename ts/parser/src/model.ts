@@ -23,17 +23,21 @@ import {
   buildEntityTemplateMap,
   buildInstanceEntityLists,
   buildTemplateStatsMap,
+  CAMP_RADIUS,
+  campDistance,
   clusterAnchorRows,
   collectCharacterPositions,
   collectItemsByPosition,
   collectStatusEquippedItems,
   ecsResolveEquipped,
   equipmentCluster,
+  findCampChest,
   findPartyCharacterNodes,
   type ItemPair,
   invertEntityTemplateMap,
   isEquipmentType,
   NULL_UUID,
+  ORIGIN_INFO,
   resolveSlotConflicts,
   splitEquippedCarried,
 } from './party.js';
@@ -86,6 +90,7 @@ export interface CharacterReport {
   carried: ItemRef[];
   equipment_note: string | null;
   inspect: null;
+  at_camp: boolean;
 }
 
 export interface SaveInfo {
@@ -127,6 +132,7 @@ export interface SaveReport {
   source: string;
   characters: CharacterReport[];
   save_info: SaveInfo;
+  camp_chest: ItemRef[] | null;
   quests: QuestsReport | null;
   level_items: null;
   inspect_pattern: string;
@@ -358,84 +364,8 @@ export function gatherReport(
   for (const [t, s] of templateToStats0) templateToStats.set(t, s); // frame 0 wins
   const itemsByChar = collectItemsByPosition([nodes0, ...allLcNodeLists], charPositions);
 
-  const itemRef = (
-    stats: string,
-    guid: string,
-    extra?: Partial<Pick<ItemRef, 'slot' | 'slot_rank' | 'count'>>,
-  ): ItemRef => ({
-    stats,
-    template_guid: guid,
-    name: dn.nameFor(stats, guid),
-    slot: extra?.slot ?? null,
-    slot_rank: extra?.slot_rank ?? [],
-    category: itemCategory(stats, dn),
-    count: extra?.count ?? 1,
-  });
-
-  const report: SaveReport = {
-    source,
-    characters: [],
-    save_info: saveInfo,
-    quests: null,
-    level_items: null,
-    inspect_pattern: '',
-    names_resolved: dn.available,
-  };
-
-  if (opts?.quests) {
-    const osiris = parseOsiris(frames);
-    const questRef = (qid: string): QuestRef => ({ id: qid, name: dn.questNameFor(qid) });
-    report.quests =
-      osiris === null
-        ? { failed: true }
-        : {
-            failed: false,
-            version: osiris.version,
-            active: osiris.quests_active.map(questRef),
-            closed: osiris.quests_closed.map(questRef),
-            goals_finalized: osiris.goals_finalized,
-            global_flags: osiris.global_flags,
-            global_flags_total: osiris.global_flags_total,
-          };
-  }
-
-  for (const charInfo of partyInfo) {
-    const origin = charInfo.Origin ?? 'Generic';
-    const displayName = origin !== 'Generic' ? origin : playerDisplayName;
-    const char: CharacterReport = {
-      name: displayName,
-      race: charInfo.Race ?? '?',
-      classes: charInfo.Classes ?? [],
-      level: charInfo.Level ?? '?',
-      xp: charInfo['Experience Points (Total)'] ?? null,
-      location: charInfo.Subregion ?? '',
-      spells: null,
-      spells_note: null,
-      equipped: [],
-      undetermined: [],
-      carried: [],
-      equipment_note: null,
-      inspect: null,
-    };
-    report.characters.push(char);
-
-    const book = exactSpellbook(charInfo);
-    if (book !== null) {
-      char.spells = [...new Set(book)].sort().map((sid) => ({
-        id: sid,
-        name: dn.spellNameFor(sid),
-        category: COMMON_ACTION_SPELLS.has(sid)
-          ? 'basic-action'
-          : dn.subSpells.has(sid)
-            ? 'sub-spell'
-            : 'spell',
-      }));
-    } else if (buildKey(charInfo) !== null && ambiguousBuilds.has(buildKey(charInfo)!)) {
-      char.spells_note = 'ambiguous-build';
-    } else {
-      char.spells_note = 'not-found';
-    }
-
+  /** Attribute and classify the items at a character's position. */
+  function attachItems(char: CharacterReport, displayName: string): void {
     const charNi = partyNodes.get(displayName);
     const statusEquipped = new Set<string>();
     if (charNi !== undefined) {
@@ -458,7 +388,7 @@ export function gatherReport(
     const attributed: AttributedItem[] = itemsByChar.get(displayName) ?? [];
     if (!attributed.length) {
       char.equipment_note = charNi === undefined ? 'no-character-node' : 'no-items';
-      continue;
+      return;
     }
 
     const split = splitEquippedCarried(
@@ -630,6 +560,210 @@ export function gatherReport(
       return 1;
     };
     char.carried = carried.map(([s, g]) => itemRef(s, g, { count: carriedCount(s, g) }));
+  }
+
+  const itemRef = (
+    stats: string,
+    guid: string,
+    extra?: Partial<Pick<ItemRef, 'slot' | 'slot_rank' | 'count'>>,
+  ): ItemRef => ({
+    stats,
+    template_guid: guid,
+    name: dn.nameFor(stats, guid),
+    slot: extra?.slot ?? null,
+    slot_rank: extra?.slot_rank ?? [],
+    category: itemCategory(stats, dn),
+    count: extra?.count ?? 1,
+  });
+
+  const report: SaveReport = {
+    source,
+    characters: [],
+    save_info: saveInfo,
+    camp_chest: null,
+    quests: null,
+    level_items: null,
+    inspect_pattern: '',
+    names_resolved: dn.available,
+  };
+
+  if (opts?.quests) {
+    const osiris = parseOsiris(frames);
+    const questRef = (qid: string): QuestRef => ({ id: qid, name: dn.questNameFor(qid) });
+    report.quests =
+      osiris === null
+        ? { failed: true }
+        : {
+            failed: false,
+            version: osiris.version,
+            active: osiris.quests_active.map(questRef),
+            closed: osiris.quests_closed.map(questRef),
+            goals_finalized: osiris.goals_finalized,
+            global_flags: osiris.global_flags,
+            global_flags_total: osiris.global_flags_total,
+          };
+  }
+
+  for (const charInfo of partyInfo) {
+    const origin = charInfo.Origin ?? 'Generic';
+    const displayName = origin !== 'Generic' ? origin : playerDisplayName;
+    const char: CharacterReport = {
+      name: displayName,
+      race: charInfo.Race ?? '?',
+      classes: charInfo.Classes ?? [],
+      level: charInfo.Level ?? '?',
+      xp: charInfo['Experience Points (Total)'] ?? null,
+      location: charInfo.Subregion ?? '',
+      spells: null,
+      spells_note: null,
+      equipped: [],
+      undetermined: [],
+      carried: [],
+      equipment_note: null,
+      inspect: null,
+      at_camp: false,
+    };
+    report.characters.push(char);
+
+    const book = exactSpellbook(charInfo);
+    if (book !== null) {
+      char.spells = [...new Set(book)].sort().map((sid) => ({
+        id: sid,
+        name: dn.spellNameFor(sid),
+        category: COMMON_ACTION_SPELLS.has(sid)
+          ? 'basic-action'
+          : dn.subSpells.has(sid)
+            ? 'sub-spell'
+            : 'spell',
+      }));
+    } else if (buildKey(charInfo) !== null && ambiguousBuilds.has(buildKey(charInfo)!)) {
+      char.spells_note = 'ambiguous-build';
+    } else {
+      char.spells_note = 'not-found';
+    }
+
+    attachItems(char, displayName);
+  }
+
+  // ---- Camp companions & camp chest ---------------------------------------
+  // Mirrors the Python camp section: companions outside the active party are
+  // recognised by proximity to the camp chest; class/level/spells come from
+  // the ECS blob matched on the origin's fixed base class.
+  const chestPos = findCampChest(nodes0);
+  if (chestPos !== null && chestPos !== '0,0,0') {
+    const activeNames = new Set(report.characters.map((c) => c.name));
+    const campNames = [...charPositions.entries()]
+      .filter(([name, pos]) => !activeNames.has(name) && campDistance(pos, chestPos) <= CAMP_RADIUS)
+      .map(([name]) => name)
+      .sort();
+    const campBaseClasses = campNames.map((n) => ORIGIN_INFO[n]?.[1] ?? null);
+    const activeBuildKeys = new Set(partyInfo.map(buildKey).filter((k): k is string => k !== null));
+
+    const campSpellEntity = (baseClass: string): number | null => {
+      const candidates: number[] = [];
+      for (const [ent, classes] of entityClasses) {
+        if (!spellbooks.has(ent)) continue;
+        const names = classes.map(([cg]: [string, string, number]) => classNames[cg] ?? '');
+        if (!names.includes(baseClass)) continue;
+        const got = classes
+          .map(
+            ([cg, sg]: [string, string, number]) =>
+              `${classNames[cg] ?? ''}\x00${sg !== NULL_UUID ? (classNames[sg] ?? '') : ''}`,
+          )
+          .sort();
+        const total = classes.reduce(
+          (acc: number, [, , lvl]: [string, string, number]) => acc + lvl,
+          0,
+        );
+        if (activeBuildKeys.has(`${got.join('\x01')}|${total}`)) continue;
+        candidates.push(ent);
+      }
+      if (!candidates.length) return null;
+      return candidates.reduce((a, b) =>
+        (spellbooks.get(b)?.length ?? 0) > (spellbooks.get(a)?.length ?? 0) ? b : a,
+      );
+    };
+
+    for (const name of campNames) {
+      const [race, baseClass] = ORIGIN_INFO[name] ?? ['?', null];
+      const char: CharacterReport = {
+        name,
+        race,
+        classes: [],
+        level: '?',
+        xp: null,
+        location: 'camp',
+        spells: null,
+        spells_note: null,
+        equipped: [],
+        undetermined: [],
+        carried: [],
+        equipment_note: null,
+        inspect: null,
+        at_camp: true,
+      };
+      report.characters.push(char);
+
+      const sameClass = campBaseClasses.filter((c) => c === baseClass).length;
+      const ent = baseClass && sameClass === 1 ? campSpellEntity(baseClass) : null;
+      if (ent !== null) {
+        const classes = entityClasses.get(ent)!;
+        char.classes = classes.map(([cg, sg]: [string, string, number]) =>
+          sg !== NULL_UUID
+            ? { Main: classNames[cg] ?? '?', Sub: classNames[sg] ?? '?' }
+            : { Main: classNames[cg] ?? '?' },
+        );
+        char.level = classes.reduce(
+          (acc: number, [, , lvl]: [string, string, number]) => acc + lvl,
+          0,
+        );
+        char.spells = [...new Set(spellbooks.get(ent)!)].sort().map((sid) => ({
+          id: sid,
+          name: dn.spellNameFor(sid),
+          category: COMMON_ACTION_SPELLS.has(sid)
+            ? 'basic-action'
+            : dn.subSpells.has(sid)
+              ? 'sub-spell'
+              : 'spell',
+        }));
+      } else if (baseClass && sameClass > 1) {
+        char.spells_note = 'ambiguous-build';
+      } else {
+        char.spells_note = 'not-found';
+      }
+
+      attachItems(char, name);
+    }
+
+    // Chest contents: every item at the chest's exact position.
+    const chestItems =
+      collectItemsByPosition(
+        [nodes0, ...allLcNodeLists],
+        new Map([['__camp_chest__', chestPos]]),
+      ).get('__camp_chest__') ?? [];
+
+    const chestCount = (stats: string): number => {
+      const ents = instanceEntityLists.get(`${chestPos}|${stats}`) ?? [];
+      if (ents.length === 1) return lsmfStackAmounts.get(ents[0]!) ?? 1;
+      let total = 0;
+      for (const eg of ents) total += lsmfStackAmounts.get(eg) ?? 1;
+      return total || 1;
+    };
+
+    report.camp_chest = [...chestItems]
+      .sort((a, b) =>
+        a[0] < b[0]
+          ? -1
+          : a[0] > b[0]
+            ? 1
+            : a[1] !== b[1]
+              ? Number(a[1]) - Number(b[1])
+              : a[2] < b[2]
+                ? -1
+                : 1,
+      )
+      .filter(([stats]) => stats)
+      .map(([stats, , guid]) => itemRef(stats, guid, { count: chestCount(stats) }));
   }
 
   return report;

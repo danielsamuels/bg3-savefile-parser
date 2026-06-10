@@ -179,6 +179,23 @@ const CARRIED_GROUPS: [string, string][] = [
   ['misc', 'Everything else'],
 ];
 
+/** Items grouped by coarse category, stacks collapsed to one ×N line. */
+function itemGroups(items: ItemRef[]): string {
+  return CARRIED_GROUPS.map(([key, label]) => {
+    const counts = new Map<string, number>();
+    for (const it of items.filter((i) => i.category === key)) {
+      const name = it.name ?? it.stats;
+      counts.set(name, (counts.get(name) ?? 0) + it.count);
+    }
+    if (!counts.size) return '';
+    const lines = [...counts.entries()]
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([n, ct]) => `<li>${esc(n)}${ct > 1 ? ` <span class="count">×${ct}</span>` : ''}</li>`)
+      .join('');
+    return `<h5 class="group-head">${esc(label)}</h5><ul class="items">${lines}</ul>`;
+  }).join('');
+}
+
 function renderSaveHead(si: SaveInfo, sourceName: string, thumbUrl: string | null): string {
   const metaRow = (label: string, value: string): string =>
     value ? `<div><dt>${label}</dt><dd>${value}</dd></div>` : '';
@@ -252,10 +269,14 @@ function renderCharacter(c: CharacterReport, index: number): string {
     })
     .join('; ');
   const xp = c.xp !== null ? ` · ${c.xp.toLocaleString('en-GB')} XP` : '';
-  const loc = c.location ? ` · <span class="loc" title="subregion">${esc(c.location)}</span>` : '';
+  const loc =
+    c.location && !c.at_camp
+      ? ` · <span class="loc" title="subregion">${esc(c.location)}</span>`
+      : '';
   const meta = `${labelled(c.race, RACE_LABELS)} · ${esc(classes)} · Level ${esc(String(c.level))}${xp}${loc}`;
 
-  const head = `<h3 class="char-name">${esc(displayName)}${isPlayer ? '<span class="who">player</span>' : ''}</h3>
+  const tag = isPlayer ? 'player' : c.at_camp ? 'at camp' : '';
+  const head = `<h3 class="char-name">${esc(displayName)}${tag ? `<span class="who">${tag}</span>` : ''}</h3>
     <p class="char-meta">${meta}</p>`;
 
   if (c.equipment_note && !c.equipped.length && !c.carried.length && !c.undetermined.length) {
@@ -296,19 +317,7 @@ function renderCharacter(c: CharacterReport, index: number): string {
   const carriedItems = c.carried
     .filter((i) => !GOLD_STATS.has(i.stats))
     .reduce((n, i) => n + i.count, 0);
-  const carriedGroups = CARRIED_GROUPS.map(([key, label]) => {
-    const counts = new Map<string, number>();
-    for (const it of c.carried.filter((i) => i.category === key)) {
-      const name = it.name ?? it.stats;
-      counts.set(name, (counts.get(name) ?? 0) + it.count);
-    }
-    if (!counts.size) return '';
-    const lines = [...counts.entries()]
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([n, ct]) => `<li>${esc(n)}${ct > 1 ? ` <span class="count">×${ct}</span>` : ''}</li>`)
-      .join('');
-    return `<h5 class="group-head">${esc(label)}</h5><ul class="items">${lines}</ul>`;
-  }).join('');
+  const carriedGroups = itemGroups(c.carried);
   const goldNote = carriedGold
     ? `<span class="fold-note">${carriedGold.toLocaleString('en-GB')} gold</span>`
     : '';
@@ -382,6 +391,22 @@ function questList(tree: Map<string, Set<string>>): string {
   return `<ul class="items quests">${rows}</ul>`;
 }
 
+function renderCampChest(items: ItemRef[], index: number): string {
+  if (!items.length) return '';
+  const gold = items.filter((i) => GOLD_STATS.has(i.stats)).reduce((n, i) => n + i.count, 0);
+  const total = items.filter((i) => !GOLD_STATS.has(i.stats)).reduce((n, i) => n + i.count, 0);
+  const goldNote = gold
+    ? `<span class="fold-note">${gold.toLocaleString('en-GB')} gold</span>`
+    : '';
+  return `<section class="char" style="--i:${index}">
+    <h3 class="char-name">Camp Chest</h3>
+    <details class="fold">
+      <summary>Stored <span class="count">${total}</span>${goldNote}</summary>
+      <div>${itemGroups(items)}</div>
+    </details>
+  </section>`;
+}
+
 function renderQuests(q: QuestsReport, index: number): string {
   if (q.failed) return '';
   const active = questTree(q.active);
@@ -416,7 +441,8 @@ function showReport(r: SaveReport, statusText: string, thumbnail?: ArrayBuffer |
     renderSaveHead(r.save_info, r.source, thumbUrl) +
     namesNote +
     r.characters.map((c, i) => renderCharacter(c, i + 1)).join('') +
-    (r.quests ? renderQuests(r.quests, r.characters.length + 1) : '');
+    (r.camp_chest ? renderCampChest(r.camp_chest, r.characters.length + 1) : '') +
+    (r.quests ? renderQuests(r.quests, r.characters.length + 2) : '');
 
   document.body.classList.add('has-report');
   dropLabel.innerHTML =
