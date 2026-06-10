@@ -1,11 +1,11 @@
-__pycache__/
-*.pyc
 
-# Generated reports
-report.txt
-*.report.txt
-
-# Coverage artefacts
+.claude/
 .coverage
+# Coverage artefacts
 coverage.json
+# Generated reports
 htmlcov/
+*.pyc
+__pycache__/
+*.report.txt
+report.txt
