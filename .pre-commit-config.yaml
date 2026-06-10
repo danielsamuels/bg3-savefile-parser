@@ -6,6 +6,11 @@ repos:
         entry: uvx ruff check bg3parser/ explore_lsmf.py tests/
         language: system
         pass_filenames: false
+      - id: ruff-format
+        name: ruff format
+        entry: uvx ruff format bg3parser/ explore_lsmf.py tests/
+        language: system
+        pass_filenames: false
       - id: ty
         name: ty type check
         entry: uv run ty check bg3parser

@@ -23,6 +23,9 @@ jobs:
       - name: Lint (ruff)
         run: uvx ruff check bg3parser/ explore_lsmf.py tests/
 
+      - name: Format check (ruff)
+        run: uvx ruff format --check bg3parser/ explore_lsmf.py tests/
+
       - name: Type check (ty)
         run: uv run ty check bg3parser
 

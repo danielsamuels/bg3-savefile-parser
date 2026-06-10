@@ -222,6 +222,9 @@ Run all checks with:
 # Lint
 uvx ruff check bg3parser/ explore_lsmf.py tests/
 
+# Format
+uvx ruff format bg3parser/ explore_lsmf.py tests/
+
 # Type check
 uv run ty check bg3parser
 

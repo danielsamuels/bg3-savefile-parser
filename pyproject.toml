@@ -36,8 +36,7 @@ line-length = 100
 select = ["E", "F", "I", "W", "B", "SIM", "UP", "PERF"]
 
 [tool.ruff.format]
-# The existing source file uses single quotes throughout; skip whole-file
-# reformatting to avoid polluting git history with cosmetic changes.
+# Enforced via pre-commit and CI (`ruff format --check`).
 quote-style = "single"
 
 [tool.ty.environment]
