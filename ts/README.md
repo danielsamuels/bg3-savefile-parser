@@ -33,5 +33,7 @@ New format discoveries land in Python first, get a fixture test, then port.
    (spell books and classes land with milestone 4)
 4. ~~Classification and report model — full field-for-field parity with
    `bg3save --json` across all eight fixtures (tests/parity/)~~ ✅
-5. The site: drag-drop + Web Worker parse, report views, IndexedDB history,
-   File System Access live mode, PWA; deploy to Pages
+5. The site — live at https://bg3.danielfinch.co.uk (Workers static
+   assets, `bunx wrangler deploy` from ts/site). Drag-drop + Web Worker
+   parse + report views shipped; still to come: IndexedDB history,
+   File System Access live mode, PWA packaging.
