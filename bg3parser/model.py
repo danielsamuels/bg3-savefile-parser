@@ -15,11 +15,13 @@ from .lsmf import (
     GRAVITY_DISABLED_COMP,
     OWNED_AS_LOOT_COMP,
     WIELDED_COMP,
+    parse_lsmf_ability_scores,
     parse_lsmf_all_container_positions,
     parse_lsmf_camp_supplies,
     parse_lsmf_classes,
     parse_lsmf_component_rows,
     parse_lsmf_container_positions,
+    parse_lsmf_health,
     parse_lsmf_membership,
     parse_lsmf_prepared_spells,
     parse_lsmf_spellbooks,
@@ -122,6 +124,8 @@ class CharacterReport:
     equipment_note: str | None = None  # 'no-character-node' | 'no-items'
     inspect: list[InspectEntry] | None = None
     at_camp: bool = False  # companion waiting at the campsite
+    abilities: dict | None = None  # {str,dex,con,int,wis,cha} — effective scores
+    hp: dict | None = None  # {current,max,temp,temp_max}
 
 
 @dataclass
@@ -321,11 +325,15 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
     spellbooks: dict[int, list[str]] = {}
     entity_classes: dict[int, tuple] = {}
     prepared_spells: dict[int, list[tuple]] = {}
+    ability_scores: dict[int, tuple] = {}
+    health: dict[int, tuple] = {}
     if lsmf_blob:
         spellbooks = parse_lsmf_spellbooks(lsmf_blob)
         entity_classes = parse_lsmf_classes(lsmf_blob)
         prepared_spells = parse_lsmf_prepared_spells(lsmf_blob)
         supplies = parse_lsmf_camp_supplies(lsmf_blob)
+        ability_scores = parse_lsmf_ability_scores(lsmf_blob)
+        health = parse_lsmf_health(lsmf_blob, ability_scores, CLASS_UUID_NAMES)
         # The engine zeroes this cache between camp visits; 0 is "unknown".
         report.save_info['camp_supplies'] = supplies if supplies else None
 
@@ -362,6 +370,15 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         if not candidates:
             return None
         return max(candidates, key=lambda e: len(spellbooks[e]))
+
+    def attach_sheet(char: CharacterReport, ent: int) -> None:
+        """Attach ability scores and hit points from the entity's ECS rows."""
+        ab = ability_scores.get(ent)
+        if ab is not None:
+            char.abilities = dict(zip(('str', 'dex', 'con', 'int', 'wis', 'cha'), ab, strict=False))
+        h = health.get(ent)
+        if h is not None:
+            char.hp = {'current': h[0], 'max': h[1], 'temp': h[2], 'temp_max': h[3]}
 
     def spell_refs(ent: int) -> list[SpellRef]:
         """Build the SpellRef list for an entity's book, marking prepared spells.
@@ -647,6 +664,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         ent = exact_spell_entity(char_info)
         if ent is not None:
             char.spells = spell_refs(ent)
+            attach_sheet(char, ent)
         elif build_key(char_info) in ambiguous_builds:
             char.spells_note = 'ambiguous-build'
         else:
@@ -719,6 +737,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
                 ]
                 char.level = sum(lvl for _, _, lvl in entity_classes[ent])
                 char.spells = spell_refs(ent)
+                attach_sheet(char, ent)
             elif base_class and camp_base_classes.count(base_class) > 1:
                 char.spells_note = 'ambiguous-build'
             else:

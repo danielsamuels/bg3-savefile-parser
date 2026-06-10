@@ -76,6 +76,8 @@ Shadowheart
   Class     : Cleric / TrickeryDomain
   Level     : 1
   XP        : 70
+  Abilities : STR 13  DEX 13  CON 14  INT 10  WIS 17  CHA 8
+  HP        : 10/10
   Spells/Abilities (57; +11 basic actions):
     – Projectile_FireBolt
     – Projectile_GuidingBolt
@@ -151,6 +153,8 @@ Laezel
   Class     : Fighter
   Level     : 1
   XP        : 70
+  Abilities : STR 17  DEX 13  CON 15  INT 10  WIS 12  CHA 8
+  HP        : 12/12
   Spells/Abilities (11; +11 basic actions):
     – Projectile_PiercingShot
     – Shout_AstralKnowledge

@@ -9,6 +9,12 @@
 {% if char.location %}
   Location  : {{ char.location }}
 {% endif %}
+{% if char.abilities %}
+  Abilities : STR {{ char.abilities.str }}  DEX {{ char.abilities.dex }}  CON {{ char.abilities.con }}  INT {{ char.abilities.int }}  WIS {{ char.abilities.wis }}  CHA {{ char.abilities.cha }}
+{% endif %}
+{% if char.hp %}
+  HP        : {{ char.hp.current }}/{{ char.hp.max }}{{ ' (+' ~ char.hp.temp ~ ' temp)' if char.hp.temp else '' }}
+{% endif %}
 {% if not opts.no_spells and char.spells is not none %}
   Spells/Abilities ({{ char_data.spells_shown | length }}{{ char_data.spells_header_suffix }}):
 {% for line in char_data.spells_shown %}

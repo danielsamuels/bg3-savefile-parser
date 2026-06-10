@@ -2,6 +2,14 @@
  "camp_chest": null,
  "characters": [
   {
+   "abilities": {
+    "cha": 8,
+    "con": 14,
+    "dex": 13,
+    "int": 10,
+    "str": 13,
+    "wis": 17
+   },
    "at_camp": false,
    "carried": [
     {
@@ -236,6 +244,12 @@
      "template_guid": "3186796d-3ab3-4d49-bfc2-cba1aff0cf5a"
     }
    ],
+   "hp": {
+    "current": 10,
+    "max": 10,
+    "temp": 0,
+    "temp_max": 0
+   },
    "inspect": null,
    "level": 1,
    "location": "",
@@ -656,6 +670,14 @@
    "xp": 70
   },
   {
+   "abilities": {
+    "cha": 8,
+    "con": 15,
+    "dex": 13,
+    "int": 10,
+    "str": 17,
+    "wis": 12
+   },
    "at_camp": false,
    "carried": [],
    "classes": [
@@ -666,6 +688,12 @@
    ],
    "equipment_note": "no-character-node",
    "equipped": [],
+   "hp": {
+    "current": 12,
+    "max": 12,
+    "temp": 0,
+    "temp_max": 0
+   },
    "inspect": null,
    "level": 1,
    "location": "",

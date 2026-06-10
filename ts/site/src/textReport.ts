@@ -51,6 +51,17 @@ function characterLines(char: CharacterReport): string[] {
   out.push(`  Level     : ${char.level}`);
   if (char.xp !== null) out.push(`  XP        : ${char.xp}`);
   if (char.location) out.push(`  Location  : ${char.location}`);
+  if (char.abilities) {
+    const a = char.abilities;
+    out.push(
+      `  Abilities : STR ${a.str}  DEX ${a.dex}  CON ${a.con}  INT ${a.int}  WIS ${a.wis}  CHA ${a.cha}`,
+    );
+  }
+  if (char.hp) {
+    out.push(
+      `  HP        : ${char.hp.current}/${char.hp.max}${char.hp.temp ? ` (+${char.hp.temp} temp)` : ''}`,
+    );
+  }
 
   if (char.spells !== null) {
     const folded: Record<string, number> = { 'sub-spell': 0, 'basic-action': 0 };

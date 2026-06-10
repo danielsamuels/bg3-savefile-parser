@@ -291,6 +291,183 @@ export function parseLsmfAllContainerPositions(blob: Uint8Array): Map<number, nu
  *  engine zeroes and only recomputes when the camp/rest system runs, so 0
  *  means "not cached", not "no supplies"; callers should treat 0 as absent.
  */
+export const HIT_DIE: Record<string, [number, number]> = {
+  Barbarian: [12, 7],
+  Fighter: [10, 6],
+  Paladin: [10, 6],
+  Ranger: [10, 6],
+  Bard: [8, 5],
+  Cleric: [8, 5],
+  Druid: [8, 5],
+  Monk: [8, 5],
+  Rogue: [8, 5],
+  Warlock: [8, 5],
+  Sorcerer: [6, 4],
+  Wizard: [6, 4],
+};
+
+/** Map owner index k -> data record index j for stream-serialized components.
+ *
+ *  Some LSMF components serialize their rows as one packed stream (with a
+ *  small stream header), and the ownerlist can contain a few entries with no
+ *  data record ("phantoms"). The data record for owner k is then
+ *  j = k - (phantoms before k): a monotone, non-decreasing shift, found by a
+ *  small dynamic program maximizing validated owners. Ties prefer the higher
+ *  shift (phantoms cluster early in the ownerlist).
+ */
+export function solveOwnerShifts(
+  ownerCount: number,
+  validAt: (k: number, j: number) => boolean,
+  maxShift = 3,
+): Map<number, number> {
+  const NEG = -(1 << 30);
+  let dp = [0, ...Array.from({ length: maxShift }, () => NEG)];
+  const choice: number[][] = [];
+  for (let k = 0; k < ownerCount; k++) {
+    const gains = Array.from({ length: maxShift + 1 }, (_, sh) => (validAt(k, k - sh) ? 1 : 0));
+    const ndp = Array.from({ length: maxShift + 1 }, () => NEG);
+    const pred = Array.from({ length: maxShift + 1 }, () => 0);
+    let best = NEG;
+    let bestS = 0;
+    for (let sh = 0; sh <= maxShift; sh++) {
+      if (dp[sh]! >= best) {
+        best = dp[sh]!;
+        bestS = sh;
+      }
+      if (best > NEG) {
+        ndp[sh] = best + gains[sh]!;
+        pred[sh] = bestS;
+      }
+    }
+    dp = ndp;
+    choice.push(pred);
+  }
+  let sh = 0;
+  for (let x = 0; x <= maxShift; x++) if (dp[x]! >= dp[sh]!) sh = x;
+  const out = new Map<number, number>();
+  for (let k = ownerCount - 1; k >= 0; k--) {
+    out.set(k, k - sh);
+    sh = choice[k]![sh]!;
+  }
+  return out;
+}
+
+/** Effective ability scores: entity row -> [STR,DEX,CON,INT,WIS,CHA].
+ *  Mirrors bg3parser/lsmf.py parse_lsmf_ability_scores (packed stream with a
+ *  20-byte header; 36-byte records straddling the nominal row grid). */
+export function parseLsmfAbilityScores(blob: Uint8Array): Map<number, number[]> {
+  const idx = lsmfComponentIndex(blob);
+  const st = idx.get('game.stats.v3.StatsComponent');
+  if (!st || st.elemSize !== 36) return new Map();
+  const { dv } = align(blob);
+  const L = blob.length;
+  const levels = new Map<number, number>();
+  for (const [ent, cls] of parseLsmfClasses(blob)) {
+    levels.set(
+      ent,
+      cls.reduce((a: number, [, , lvl]: [string, string, number]) => a + lvl, 0),
+    );
+  }
+
+  const rec = (j: number): number[] | null => {
+    const p = st.dataOffset + 20 + j * st.elemSize;
+    if (j < 0 || p + 36 > L) return null;
+    return Array.from({ length: 9 }, (_, i) => dv.getInt32(p + i * 4, true));
+  };
+
+  const validAt = (k: number, j: number): boolean => {
+    const v = rec(j);
+    if (v === null) return false;
+    const prof = v[6]!;
+    if (v[8] !== 0 || !v.slice(0, 6).every((x) => x >= 1 && x <= 40) || prof < 0 || prof > 10) {
+      return false;
+    }
+    const lvl = levels.get(st.ownerRows[k]!);
+    if (lvl && lvl >= 1 && lvl <= 20) return prof === 2 + Math.floor((lvl - 1) / 4);
+    return true;
+  };
+
+  const mapping = solveOwnerShifts(st.rowCount, validAt);
+  const out = new Map<number, number[]>();
+  for (let k = 0; k < st.rowCount; k++) {
+    const ent = st.ownerRows[k]!;
+    const j = mapping.get(k)!;
+    if (validAt(k, j) && !out.has(ent)) out.set(ent, rec(j)!.slice(0, 6));
+  }
+  return out;
+}
+
+/** Hit points: entity row -> [current, max, temp, temp_max].
+ *  Mirrors bg3parser/lsmf.py parse_lsmf_health (16-byte stream header,
+ *  32-byte records, phantom shift validated by the class/CON HP formula). */
+export function parseLsmfHealth(
+  blob: Uint8Array,
+  abilities: Map<number, number[]>,
+  classNames: Record<string, string>,
+): Map<number, number[]> {
+  const idx = lsmfComponentIndex(blob);
+  const hl = idx.get('game.stats.v0.HealthComponent');
+  if (!hl || hl.elemSize !== 32) return new Map();
+  const { dv } = align(blob);
+  const L = blob.length;
+
+  const expected = new Map<number, number>();
+  for (const [ent, cls] of parseLsmfClasses(blob)) {
+    const ab = abilities.get(ent);
+    if (!ab) continue;
+    const conmod = Math.floor((ab[2]! - 10) / 2);
+    let total = 0;
+    let lvls = 0;
+    for (const [cguid, , lvl] of cls as [string, string, number][]) {
+      const die = HIT_DIE[classNames[cguid] ?? ''];
+      if (!die) {
+        total = 0;
+        break;
+      }
+      total += (lvls === 0 ? die[0] : die[1]) + (lvl - (lvls === 0 ? 1 : 0)) * die[1];
+      lvls += lvl;
+    }
+    if (total && lvls) expected.set(ent, total + conmod * lvls);
+  }
+
+  const rec = (j: number): number[] | null => {
+    const p = hl.dataOffset + 16 + j * hl.elemSize;
+    if (j < 0 || p + 16 > L) return null;
+    return Array.from({ length: 4 }, (_, i) => dv.getInt32(p + i * 4, true));
+  };
+
+  const plausible = (j: number): boolean => {
+    const v = rec(j);
+    if (v === null) return false;
+    const [cur, mx, temp, tempMax] = v as [number, number, number, number];
+    return (
+      mx > 0 &&
+      mx <= 4000 &&
+      cur >= 0 &&
+      cur <= mx &&
+      temp >= 0 &&
+      temp <= 200 &&
+      tempMax >= 0 &&
+      tempMax <= 200
+    );
+  };
+
+  const validAt = (k: number, j: number): boolean => {
+    if (!plausible(j)) return false;
+    const exp = expected.get(hl.ownerRows[k]!);
+    return exp !== undefined && rec(j)![1] === exp;
+  };
+
+  const mapping = solveOwnerShifts(hl.rowCount, validAt);
+  const out = new Map<number, number[]>();
+  for (let k = 0; k < hl.rowCount; k++) {
+    const ent = hl.ownerRows[k]!;
+    const j = mapping.get(k)!;
+    if (plausible(j) && !out.has(ent)) out.set(ent, rec(j)!);
+  }
+  return out;
+}
+
 export function parseLsmfCampSupplies(blob: Uint8Array): number | null {
   const idx = lsmfComponentIndex(blob);
   const ts = idx.get('game.camp.v0.TotalSuppliesComponent');

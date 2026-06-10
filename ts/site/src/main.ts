@@ -288,11 +288,17 @@ function renderCharacter(c: CharacterReport, index: number): string {
     c.location && !c.at_camp
       ? ` · <span class="loc" title="subregion">${esc(c.location)}</span>`
       : '';
-  const meta = `${labelled(c.race, RACE_LABELS)} · ${esc(classes)} · Level ${esc(String(c.level))}${xp}${loc}`;
+  const hp = c.hp ? ` · ${c.hp.current}/${c.hp.max} HP${c.hp.temp ? ` (+${c.hp.temp})` : ''}` : '';
+  const meta = `${labelled(c.race, RACE_LABELS)} · ${esc(classes)} · Level ${esc(String(c.level))}${xp}${hp}${loc}`;
+  const stats = c.abilities
+    ? `<p class="char-stats">${(['str', 'dex', 'con', 'int', 'wis', 'cha'] as const)
+        .map((k) => `<span><b>${k.toUpperCase()}</b> ${c.abilities![k]}</span>`)
+        .join('')}</p>`
+    : '';
 
   const tag = isPlayer ? 'player' : c.at_camp ? 'at camp' : '';
   const head = `<h3 class="char-name">${esc(displayName)}${tag ? `<span class="who">${tag}</span>` : ''}</h3>
-    <p class="char-meta">${meta}</p>`;
+    <p class="char-meta">${meta}</p>${stats}`;
 
   if (c.equipment_note && !c.equipped.length && !c.carried.length && !c.undetermined.length) {
     return `<section class="char" style="--i:${index}">${head}

@@ -1965,6 +1965,14 @@
  ],
  "characters": [
   {
+   "abilities": {
+    "cha": 10,
+    "con": 16,
+    "dex": 14,
+    "int": 8,
+    "str": 18,
+    "wis": 10
+   },
    "at_camp": false,
    "carried": [
     {
@@ -2598,6 +2606,12 @@
      "template_guid": "1001f28b-5ea3-4257-864c-f60c812aecf0"
     }
    ],
+   "hp": {
+    "current": 67,
+    "max": 67,
+    "temp": 0,
+    "temp_max": 0
+   },
    "inspect": null,
    "level": 7,
    "location": "TWN_Hospital_SUB",
@@ -2868,6 +2882,14 @@
    "xp": 26266
   },
   {
+   "abilities": {
+    "cha": 10,
+    "con": 16,
+    "dex": 13,
+    "int": 8,
+    "str": 19,
+    "wis": 12
+   },
    "at_camp": false,
    "carried": [
     {
@@ -3105,6 +3127,12 @@
      "template_guid": "8ee5bdde-c22f-452f-add9-2d82ec3dc390"
     }
    ],
+   "hp": {
+    "current": 75,
+    "max": 75,
+    "temp": 0,
+    "temp_max": 0
+   },
    "inspect": null,
    "level": 7,
    "location": "TWN_Hospital_SUB",
@@ -3303,6 +3331,14 @@
    "xp": 26191
   },
   {
+   "abilities": {
+    "cha": 8,
+    "con": 14,
+    "dex": 18,
+    "int": 10,
+    "str": 13,
+    "wis": 18
+   },
    "at_camp": false,
    "carried": [
     {
@@ -3561,6 +3597,12 @@
      "template_guid": "4aef9bb0-38a8-428e-8b87-6e462d612dd6"
     }
    ],
+   "hp": {
+    "current": 42,
+    "max": 52,
+    "temp": 0,
+    "temp_max": 0
+   },
    "inspect": null,
    "level": 7,
    "location": "TWN_Hospital_SUB",
@@ -5307,6 +5349,14 @@
    "xp": 26106
   },
   {
+   "abilities": {
+    "cha": 18,
+    "con": 14,
+    "dex": 13,
+    "int": 13,
+    "str": 8,
+    "wis": 10
+   },
    "at_camp": false,
    "carried": [
     {
@@ -5580,6 +5630,12 @@
      "template_guid": "674bef93-9008-45ce-85b5-9632f9f92ed2"
     }
    ],
+   "hp": {
+    "current": 52,
+    "max": 52,
+    "temp": 0,
+    "temp_max": 0
+   },
    "inspect": null,
    "level": 7,
    "location": "TWN_Hospital_SUB",
@@ -5838,11 +5894,13 @@
    "xp": 26291
   },
   {
+   "abilities": null,
    "at_camp": false,
    "carried": [],
    "classes": [],
    "equipment_note": "no-character-node",
    "equipped": [],
+   "hp": null,
    "inspect": null,
    "level": 1,
    "location": "TWN_Hospital_SUB",
@@ -5854,6 +5912,14 @@
    "xp": 0
   },
   {
+   "abilities": {
+    "cha": 10,
+    "con": 14,
+    "dex": 18,
+    "int": 13,
+    "str": 8,
+    "wis": 14
+   },
    "at_camp": true,
    "carried": [
     {
@@ -6016,6 +6082,12 @@
      "template_guid": "467ddb4f-6791-41fa-99f7-ee8620d63bbe"
     }
    ],
+   "hp": {
+    "current": 45,
+    "max": 45,
+    "temp": 0,
+    "temp_max": 0
+   },
    "inspect": null,
    "level": 6,
    "location": "camp",
@@ -6154,6 +6226,14 @@
    "xp": null
   },
   {
+   "abilities": {
+    "cha": 12,
+    "con": 16,
+    "dex": 13,
+    "int": 18,
+    "str": 8,
+    "wis": 10
+   },
    "at_camp": true,
    "carried": [
     {
@@ -6250,6 +6330,12 @@
      "template_guid": "97f37571-35e8-4cc8-8b0d-ff92d20ae0bb"
     }
    ],
+   "hp": {
+    "current": 44,
+    "max": 44,
+    "temp": 0,
+    "temp_max": 0
+   },
    "inspect": null,
    "level": 6,
    "location": "camp",
@@ -6814,6 +6900,14 @@
    "xp": null
   },
   {
+   "abilities": {
+    "cha": 13,
+    "con": 14,
+    "dex": 11,
+    "int": 10,
+    "str": 16,
+    "wis": 17
+   },
    "at_camp": true,
    "carried": [
     {
@@ -6936,6 +7030,12 @@
      "template_guid": "b5c85eb7-ed4f-4e90-a317-5547ddaf3650"
     }
    ],
+   "hp": {
+    "current": 27,
+    "max": 38,
+    "temp": 0,
+    "temp_max": 0
+   },
    "inspect": null,
    "level": 5,
    "location": "camp",

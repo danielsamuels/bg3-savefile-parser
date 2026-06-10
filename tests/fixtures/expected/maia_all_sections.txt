@@ -219,6 +219,8 @@ Maia (player)
   Level     : 7
   XP        : 22756
   Location  : HAV_IsobelRoom_SUB
+  Abilities : STR 18  DEX 14  CON 16  INT 8  WIS 10  CHA 10
+  HP        : 67/67
   Spells/Abilities (36; +11 basic actions):
     – Projectile_DisarmingAttack
     – Projectile_FireBolt
@@ -283,6 +285,8 @@ Wyll
   Level     : 7
   XP        : 22841
   Location  : HAV_IsobelRoom_SUB
+  Abilities : STR 8  DEX 13  CON 14  INT 13  WIS 10  CHA 18
+  HP        : 52/52
   Spells/Abilities (30; +11 basic actions):
     – Projectile_EldritchBlast
     – Projectile_Fireball_4
@@ -347,6 +351,8 @@ Karlach
   Level     : 7
   XP        : 22731
   Location  : HAV_IsobelRoom_SUB
+  Abilities : STR 19  DEX 13  CON 16  INT 8  WIS 12  CHA 10
+  HP        : 75/75
   Spells/Abilities (16; +13 basic actions):
     – Projectile_PiercingShot
     – Projectile_Smite_Branding_ZarielTiefling
@@ -392,6 +398,8 @@ Shadowheart
   Level     : 7
   XP        : 22706
   Location  : HAV_IsobelRoom_SUB
+  Abilities : STR 13  DEX 18  CON 14  INT 10  WIS 18  CHA 8
+  HP        : 62/62
   Spells/Abilities (278; +11 basic actions):
     – Projectile_FireBolt
     – Projectile_GuidingBolt
@@ -719,6 +727,8 @@ Astarion
   Class     : Rogue / Thief
   Level     : 6
   Location  : camp
+  Abilities : STR 8  DEX 18  CON 14  INT 13  WIS 14  CHA 10
+  HP        : 45/45
   Spells/Abilities (8; +12 basic actions):
     – Projectile_FireBolt
     – Projectile_PiercingShot
@@ -755,6 +765,8 @@ Gale
   Class     : Wizard / EvocationSchool
   Level     : 6
   Location  : camp
+  Abilities : STR 8  DEX 13  CON 16  INT 18  WIS 10  CHA 12
+  HP        : 44/44
   Spells/Abilities (83; +11 basic actions):
     – Projectile_FireBolt
     – Projectile_Fireball
@@ -859,6 +871,8 @@ Halsin
   Class     : Druid
   Level     : 5
   Location  : camp
+  Abilities : STR 16  DEX 11  CON 14  INT 10  WIS 17  CHA 13
+  HP        : 27/38
   Spells/Abilities (9; +11 basic actions):
     – Shout_DEN_Halsin_WildShape_Bear
     – Target_CallLightning

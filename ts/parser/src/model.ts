@@ -7,11 +7,13 @@ import { parseLsof } from './lsf.js';
 import {
   GRAVITY_DISABLED_COMP,
   OWNED_AS_LOOT_COMP,
+  parseLsmfAbilityScores,
   parseLsmfAllContainerPositions,
   parseLsmfCampSupplies,
   parseLsmfClasses,
   parseLsmfComponentRows,
   parseLsmfContainerPositions,
+  parseLsmfHealth,
   parseLsmfMembership,
   parseLsmfPreparedSpells,
   parseLsmfSpellbooks,
@@ -95,6 +97,8 @@ export interface CharacterReport {
   equipment_note: string | null;
   inspect: null;
   at_camp: boolean;
+  abilities: Record<string, number> | null;
+  hp: Record<string, number> | null;
 }
 
 export interface SaveInfo {
@@ -301,6 +305,29 @@ export function gatherReport(
   // The engine zeroes this cache between camp visits; 0 is "unknown".
   const supplies = lsmfBlob ? parseLsmfCampSupplies(lsmfBlob) : null;
   saveInfo.camp_supplies = supplies || null;
+  const abilityScores = lsmfBlob ? parseLsmfAbilityScores(lsmfBlob) : new Map<number, number[]>();
+  const health = lsmfBlob
+    ? parseLsmfHealth(lsmfBlob, abilityScores, dn.classUuidNames)
+    : new Map<number, number[]>();
+
+  /** Attach ability scores and hit points from the entity's ECS rows. */
+  const attachSheet = (char: CharacterReport, ent: number): void => {
+    const ab = abilityScores.get(ent);
+    if (ab !== undefined) {
+      char.abilities = {
+        str: ab[0]!,
+        dex: ab[1]!,
+        con: ab[2]!,
+        int: ab[3]!,
+        wis: ab[4]!,
+        cha: ab[5]!,
+      };
+    }
+    const h = health.get(ent);
+    if (h !== undefined) {
+      char.hp = { current: h[0]!, max: h[1]!, temp: h[2]!, temp_max: h[3]! };
+    }
+  };
   const classNames = dn.classUuidNames;
 
   const buildKey = (ci: InfoCharacter): string | null => {
@@ -661,12 +688,15 @@ export function gatherReport(
       equipment_note: null,
       inspect: null,
       at_camp: false,
+      abilities: null,
+      hp: null,
     };
     report.characters.push(char);
 
     const spellEnt = exactSpellEntity(charInfo);
     if (spellEnt !== null) {
       char.spells = spellRefs(spellEnt);
+      attachSheet(char, spellEnt);
     } else if (buildKey(charInfo) !== null && ambiguousBuilds.has(buildKey(charInfo)!)) {
       char.spells_note = 'ambiguous-build';
     } else {
@@ -732,6 +762,8 @@ export function gatherReport(
         equipment_note: null,
         inspect: null,
         at_camp: true,
+        abilities: null,
+        hp: null,
       };
       report.characters.push(char);
 
@@ -749,6 +781,7 @@ export function gatherReport(
           0,
         );
         char.spells = spellRefs(ent);
+        attachSheet(char, ent);
       } else if (baseClass && sameClass > 1) {
         char.spells_note = 'ambiguous-build';
       } else {

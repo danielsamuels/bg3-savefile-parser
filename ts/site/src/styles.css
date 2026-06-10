@@ -336,6 +336,27 @@ body.has-report .drop-hint {
   font-size: 0.875em;
 }
 
+.char-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.1rem;
+  margin: -0.5rem 0 var(--space-md);
+  font-size: 0.875rem;
+  color: var(--mute);
+}
+
+.char-stats b {
+  color: var(--mute);
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  margin-right: 0.3em;
+}
+
+.char-stats span {
+  color: var(--ink);
+}
+
 .char-note {
   color: var(--mute);
   font-style: italic;

@@ -348,6 +348,179 @@ def parse_lsmf_classes(blob: bytes) -> dict[int, tuple]:
     return out
 
 
+HIT_DIE = {
+    'Barbarian': (12, 7),
+    'Fighter': (10, 6),
+    'Paladin': (10, 6),
+    'Ranger': (10, 6),
+    'Bard': (8, 5),
+    'Cleric': (8, 5),
+    'Druid': (8, 5),
+    'Monk': (8, 5),
+    'Rogue': (8, 5),
+    'Warlock': (8, 5),
+    'Sorcerer': (6, 4),
+    'Wizard': (6, 4),
+}
+
+
+def solve_owner_shifts(owners, valid_at, max_shift: int = 3) -> dict[int, int]:
+    """Map owner index k -> data record index j for stream-serialized components.
+
+    Some LSMF components serialize their rows as one packed stream (with a
+    small stream header), and the ownerlist can contain a few entries with no
+    data record ("phantoms", e.g. destroyed entities). The data record for
+    owner k is then j = k - (number of phantoms before k): a monotone,
+    non-decreasing shift. valid_at(k, j) reports whether record j is
+    consistent with owner k (e.g. proficiency bonus matches the class level);
+    the shift step function maximizing validated owners is found by a small
+    dynamic program over the shift value.
+    """
+    n = len(owners)
+    NEG = -(1 << 30)
+    dp = [0] + [NEG] * max_shift  # dp[s] = best score so far ending at shift s
+    choice: list[list[int]] = []  # choice[k][s] = predecessor shift
+    for k in range(n):
+        gains = [1 if valid_at(k, k - sh) else 0 for sh in range(max_shift + 1)]
+        ndp = [NEG] * (max_shift + 1)
+        pred = [0] * (max_shift + 1)
+        best, best_s = NEG, 0
+        for sh in range(max_shift + 1):
+            # ties prefer the higher shift: phantoms cluster early in the
+            # ownerlist, so ambiguous stretches upgrade as soon as possible
+            if dp[sh] >= best:
+                best, best_s = dp[sh], sh
+            if best > NEG:
+                ndp[sh] = best + gains[sh]
+                pred[sh] = best_s
+        dp = ndp
+        choice.append(pred)
+    # backtrack the chosen shift per index (ties prefer the higher shift)
+    sh = max(range(max_shift + 1), key=lambda x: (dp[x], x))
+    shifts = [0] * n
+    for k in range(n - 1, -1, -1):
+        shifts[k] = sh
+        sh = choice[k][sh]
+    return {k: k - shifts[k] for k in range(n)}
+
+
+def parse_lsmf_ability_scores(blob: bytes) -> dict[int, tuple]:
+    """Extract effective ability scores: entity row -> (STR,DEX,CON,INT,WIS,CHA).
+
+    game.stats.v3.StatsComponent data is a packed stream: a 20-byte header,
+    then one 36-byte record per (non-phantom) owner:
+      [0:24)  six i32 ability scores STR,DEX,CON,INT,WIS,CHA (effective:
+              includes item effects such as Gloves of Dexterity)
+      [24:28) i32 proficiency bonus
+      [28:30) u16 small enum, [30:32) u16 per-save handle, [32:36) i32 zero
+    Records do NOT align with the 36-byte row grid implied by the descriptor
+    (they straddle row boundaries), and the ownerlist may hold a few entries
+    with no record; both are handled by solve_owner_shifts with the
+    proficiency-vs-class-level check as the validator.
+    """
+    idx = lsmf_component_index(blob)
+    st = idx.get('game.stats.v3.StatsComponent')
+    if not st or st[0] != 36:
+        return {}
+    elem, _rows, off, owners = st
+    L = len(blob)
+    levels = {ent: sum(lvl for _, _, lvl in cls) for ent, cls in parse_lsmf_classes(blob).items()}
+
+    def rec(j: int):
+        p = off + 20 + j * elem
+        if not (j >= 0 and p + 36 <= L):
+            return None
+        return struct.unpack_from('<9i', blob, p)
+
+    def valid_at(k: int, j: int) -> bool:
+        v = rec(j)
+        if v is None:
+            return False
+        ab, prof, zero = v[:6], v[6], v[8]
+        if zero != 0 or not all(1 <= x <= 40 for x in ab) or not (0 <= prof <= 10):
+            return False
+        lvl = levels.get(owners[k])
+        if lvl and 1 <= lvl <= 20:
+            return prof == 2 + (lvl - 1) // 4
+        return True
+
+    mapping = solve_owner_shifts(owners, valid_at)
+    out: dict[int, tuple] = {}
+    for k, ent in enumerate(owners):
+        j = mapping[k]
+        if valid_at(k, j):
+            out.setdefault(ent, rec(j)[:6])
+    return out
+
+
+def parse_lsmf_health(
+    blob: bytes,
+    abilities: dict[int, tuple] | None = None,
+    class_names: dict[str, str] | None = None,
+) -> dict[int, tuple]:
+    """Extract hit points: entity row -> (current, max, temp, temp_max).
+
+    game.stats.v0.HealthComponent data is a packed stream: a 16-byte header,
+    then one 32-byte record per owner {i32 current, i32 max, i32 temp,
+    i32 temp_max, 16-byte GUID}. The same phantom-owner shift as the stats
+    stream applies (validated by the class/CON max-HP formula); entities can
+    appear in two epochs, current state first, so the first occurrence wins.
+    """
+    idx = lsmf_component_index(blob)
+    hl = idx.get('game.stats.v0.HealthComponent')
+    if not hl or hl[0] != 32:
+        return {}
+    elem, _rows, off, owners = hl
+    L = len(blob)
+    if abilities is None:
+        abilities = parse_lsmf_ability_scores(blob)
+    class_names = class_names or {}
+
+    expected: dict[int, int] = {}
+    for ent, cls in parse_lsmf_classes(blob).items():
+        ab = abilities.get(ent)
+        if not ab:
+            continue
+        conmod = (ab[2] - 10) // 2
+        total, lvls = 0, 0
+        for cguid, _s, lvl in cls:
+            die = HIT_DIE.get(class_names.get(cguid, ''))
+            if not die:
+                total = 0
+                break
+            total += (die[0] if lvls == 0 else die[1]) + (lvl - (1 if lvls == 0 else 0)) * die[1]
+            lvls += lvl
+        if total and lvls:
+            expected[ent] = total + conmod * lvls
+
+    def rec(j: int):
+        p = off + 16 + j * elem
+        if not (j >= 0 and p + 16 <= L):
+            return None
+        return struct.unpack_from('<4i', blob, p)
+
+    def plausible(j: int) -> bool:
+        v = rec(j)
+        if v is None:
+            return False
+        cur, mx, temp, temp_max = v
+        return 0 < mx <= 4000 and 0 <= cur <= mx and 0 <= temp <= 200 and 0 <= temp_max <= 200
+
+    def valid_at(k: int, j: int) -> bool:
+        if not plausible(j):
+            return False
+        exp = expected.get(owners[k])
+        return exp is not None and rec(j)[1] == exp
+
+    mapping = solve_owner_shifts(owners, valid_at)
+    out: dict[int, tuple] = {}
+    for k, ent in enumerate(owners):
+        j = mapping[k]
+        if plausible(j) and ent not in out:
+            out[ent] = rec(j)
+    return out
+
+
 def parse_lsmf_camp_supplies(blob: bytes) -> int | None:
     """The camp-supply total shown next to the Long Rest button, or None.
 
