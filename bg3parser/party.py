@@ -25,6 +25,58 @@ PARTY_ORIGINS = {
 NULL_UUID = '00000000-0000-0000-0000-000000000000'
 
 
+# The camp chest ("Traveller's Chest") root templates, one per act/variant —
+# static shipped GUIDs, so the chest is findable without a game install.
+CAMP_CHEST_TEMPLATES = frozenset(
+    (
+        '65ad4dbc-74b2-47b6-bad4-1a109cfc9639',
+        '96eab9d1-74b1-42f7-b1ad-061a9fcea8c4',
+        '9b293d36-29f0-460c-bc81-2bdd4610a478',
+        'b1487efd-4ae8-4747-866d-717df74169cd',
+        'b5de2260-8e6b-4c2f-91eb-6f3133682a2f',
+        'f68b5862-887c-4adf-b9f8-bb29e4d73b0f',
+    )
+)
+
+# Characters within this distance of the camp chest count as "at camp".
+# Observed campsite spread is ~60 units; the nearest non-camp NPC cluster
+# in the fixtures is >900 units away.
+CAMP_RADIUS = 100.0
+
+# Origin companions' fixed race and base class (not serialised in the save;
+# these are static game facts, used for companions outside the active party).
+ORIGIN_INFO = {
+    'Astarion': ('Elf_HighElf', 'Rogue'),
+    'Gale': ('Human', 'Wizard'),
+    'Halsin': ('Elf_WoodElf', 'Druid'),
+    'Jaheira': ('HalfElf_High', 'Druid'),
+    'Karlach': ('Tiefling_Zariel', 'Barbarian'),
+    "Lae'zel": ('Githyanki', 'Fighter'),
+    'Minsc': ('Human', 'Ranger'),
+    'Minthara': ('Drow_LolthSworn', 'Paladin'),
+    'Shadowheart': ('HalfElf_High', 'Cleric'),
+    'Wyll': ('Human', 'Warlock'),
+}
+
+
+def find_camp_chest(nodes: list[dict]) -> tuple | None:
+    """Return the camp chest's exact Translate tuple, or None.
+
+    The chest sits at (0,0,0) before the first camp is established; that
+    position is returned as-is (callers treat it as 'no usable camp').
+    """
+    for nd in nodes:
+        if nd['name'] == 'Item' and nd['attrs'].get('CurrentTemplate', '') in CAMP_CHEST_TEMPLATES:
+            t = nd['attrs'].get('Translate')
+            if isinstance(t, tuple):
+                return t
+    return None
+
+
+def camp_distance(a: tuple, b: tuple) -> float:
+    return sum((x - y) ** 2 for x, y in zip(a, b, strict=False)) ** 0.5
+
+
 def find_party_character_nodes(nodes: list[dict], player_name: str = 'Player') -> dict[str, int]:
     chars_root = next(
         (i for i, nd in enumerate(nodes) if nd['name'] == 'Characters' and nd['parent'] == -1),

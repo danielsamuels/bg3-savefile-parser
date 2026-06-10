@@ -25,11 +25,14 @@ from .lsmf import (
 from .lspk import extract_frames, parse_info_json, parse_metadata
 from .osiris import parse_osiris
 from .party import (
+    CAMP_RADIUS,
     EQUIPPED_FLAG_BIT,
     NULL_UUID,
+    ORIGIN_INFO,
     build_entity_template_map,
     build_instance_entity_lists,
     build_template_stats_map,
+    camp_distance,
     cluster_anchor_rows,
     collect_character_positions,
     collect_inventory_items,
@@ -37,6 +40,7 @@ from .party import (
     collect_status_equipped_items,
     ecs_resolve_equipped,
     equipment_cluster,
+    find_camp_chest,
     find_party_character_nodes,
     invert_entity_template_map,
     is_equipment_type,
@@ -112,6 +116,7 @@ class CharacterReport:
     carried: list[ItemRef] = field(default_factory=list)
     equipment_note: str | None = None  # 'no-character-node' | 'no-items'
     inspect: list[InspectEntry] | None = None
+    at_camp: bool = False  # companion waiting at the campsite
 
 
 @dataclass
@@ -128,6 +133,7 @@ class SaveReport:
     source: str
     characters: list[CharacterReport] = field(default_factory=list)
     save_info: dict | None = None
+    camp_chest: list[ItemRef] | None = None
     quests: dict | None = None
     level_items: dict | None = None
     inspect_pattern: str = ''
@@ -373,37 +379,8 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
     template_to_stats = {**template_to_stats_lc, **template_to_stats0}
     items_by_char = collect_items_by_position([nodes0] + all_lc_node_lists, char_positions)
 
-    # ---- Characters -------------------------------------------------------
-    for char_info in party_info:
-        origin = char_info.get('Origin', 'Generic')
-        display_name = origin if origin != 'Generic' else player_display_name
-        char = CharacterReport(
-            name=display_name,
-            race=char_info.get('Race', '?'),
-            classes=char_info.get('Classes', []),
-            level=char_info.get('Level', '?'),
-            xp=char_info.get('Experience Points (Total)', None),
-            location=char_info.get('Subregion', ''),
-        )
-        report.characters.append(char)
-
-        # Spells — exact book from the ECS blob
-        book = exact_spellbook(char_info)
-        if book is not None:
-            char.spells = []
-            for sid in sorted(set(book)):
-                if sid in COMMON_ACTION_SPELLS:
-                    cat = 'basic-action'
-                elif sid in dn.sub_spells:
-                    cat = 'sub-spell'
-                else:
-                    cat = 'spell'
-                char.spells.append(SpellRef(id=sid, name=dn.spell_name_for(sid), category=cat))
-        elif build_key(char_info) in ambiguous_builds:
-            char.spells_note = 'ambiguous-build'
-        else:
-            char.spells_note = 'not-found'
-
+    def attach_items(char: CharacterReport, display_name: str) -> None:
+        """Attribute and classify the items at a character's position."""
         # Items attributed by shared world position
         char_ni = party_nodes.get(display_name)
         status_equipped: set[str] = set()
@@ -445,7 +422,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
 
         if not attributed:
             char.equipment_note = 'no-character-node' if char_ni is None else 'no-items'
-            continue
+            return
 
         flags_equipped, carried, undetermined = split_equipped_carried(
             attributed,
@@ -601,6 +578,139 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
             return 1
 
         char.carried = [item_ref(s, g, count=carried_count(s, g)) for s, g in carried]
+
+    # ---- Characters -------------------------------------------------------
+    for char_info in party_info:
+        origin = char_info.get('Origin', 'Generic')
+        display_name = origin if origin != 'Generic' else player_display_name
+        char = CharacterReport(
+            name=display_name,
+            race=char_info.get('Race', '?'),
+            classes=char_info.get('Classes', []),
+            level=char_info.get('Level', '?'),
+            xp=char_info.get('Experience Points (Total)', None),
+            location=char_info.get('Subregion', ''),
+        )
+        report.characters.append(char)
+
+        # Spells — exact book from the ECS blob
+        book = exact_spellbook(char_info)
+        if book is not None:
+            char.spells = []
+            for sid in sorted(set(book)):
+                if sid in COMMON_ACTION_SPELLS:
+                    cat = 'basic-action'
+                elif sid in dn.sub_spells:
+                    cat = 'sub-spell'
+                else:
+                    cat = 'spell'
+                char.spells.append(SpellRef(id=sid, name=dn.spell_name_for(sid), category=cat))
+        elif build_key(char_info) in ambiguous_builds:
+            char.spells_note = 'ambiguous-build'
+        else:
+            char.spells_note = 'not-found'
+
+        attach_items(char, display_name)
+
+    # ---- Camp companions & camp chest ---------------------------------------
+    # Companions outside the active party are recognised by proximity to the
+    # camp chest (the campsite anchor). Their class/level/spells come from the
+    # ECS blob, matched on the origin's fixed base class; when two companions
+    # at camp share a base class the books cannot be told apart.
+    chest_pos = find_camp_chest(nodes0)
+    if chest_pos is not None and chest_pos != (0.0, 0.0, 0.0):
+        active_names = {c.name for c in report.characters}
+        camp_names = [
+            name
+            for name, pos in sorted(char_positions.items())
+            if name not in active_names and camp_distance(pos, chest_pos) <= CAMP_RADIUS
+        ]
+        camp_base_classes = [ORIGIN_INFO.get(n, ('?', None))[1] for n in camp_names]
+        active_build_keys = {k for ci in party_info if (k := build_key(ci)) is not None}
+
+        def camp_spell_entity(base_class: str) -> int | None:
+            candidates = []
+            for ent, classes in entity_classes.items():
+                if ent not in spellbooks:
+                    continue
+                names = [CLASS_UUID_NAMES.get(cg, '') for cg, _sg, _lvl in classes]
+                if base_class not in names:
+                    continue
+                got = sorted(
+                    (
+                        CLASS_UUID_NAMES.get(cg, ''),
+                        CLASS_UUID_NAMES.get(sg, '') if sg != NULL_UUID else '',
+                    )
+                    for cg, sg, _lvl in classes
+                )
+                total = sum(lvl for _, _, lvl in classes)
+                if (tuple(got), total) in active_build_keys:
+                    continue  # that entity is an active party member's
+                candidates.append(ent)
+            if not candidates:
+                return None
+            return max(candidates, key=lambda e: len(spellbooks[e]))
+
+        for name in camp_names:
+            race, base_class = ORIGIN_INFO.get(name, ('?', None))
+            char = CharacterReport(
+                name=name,
+                race=race,
+                classes=[],
+                level='?',
+                xp=None,
+                location='camp',
+                at_camp=True,
+            )
+            report.characters.append(char)
+
+            ent = (
+                camp_spell_entity(base_class)
+                if base_class and camp_base_classes.count(base_class) == 1
+                else None
+            )
+            if ent is not None:
+                char.classes = [
+                    {'Main': CLASS_UUID_NAMES.get(cg, '?')}
+                    | ({'Sub': CLASS_UUID_NAMES.get(sg, '?')} if sg != NULL_UUID else {})
+                    for cg, sg, _lvl in entity_classes[ent]
+                ]
+                char.level = sum(lvl for _, _, lvl in entity_classes[ent])
+                char.spells = []
+                for sid in sorted(set(spellbooks[ent])):
+                    if sid in COMMON_ACTION_SPELLS:
+                        cat = 'basic-action'
+                    elif sid in dn.sub_spells:
+                        cat = 'sub-spell'
+                    else:
+                        cat = 'spell'
+                    char.spells.append(SpellRef(id=sid, name=dn.spell_name_for(sid), category=cat))
+            elif base_class and camp_base_classes.count(base_class) > 1:
+                char.spells_note = 'ambiguous-build'
+            else:
+                char.spells_note = 'not-found'
+
+            attach_items(char, name)
+
+        # Chest contents: every item at the chest's exact position.
+        chest_items = collect_items_by_position(
+            [nodes0] + all_lc_node_lists, {'__camp_chest__': chest_pos}
+        ).get('__camp_chest__', [])
+
+        def chest_count(stats: str, guid: str) -> int:
+            ents = instance_entity_lists.get((chest_pos, stats), ())
+            if len(ents) == 1:
+                return lsmf_stack_amounts.get(ents[0], 1)
+            total = 0
+            for eg in ents:
+                total += lsmf_stack_amounts.get(eg, 1)
+            return total or 1
+
+        report.camp_chest = [
+            item_ref(stats, guid, count=chest_count(stats, guid))
+            for stats, _flags, guid in sorted(chest_items)
+            if stats
+        ]
 
     # ---- Full level item pool (--all-items) --------------------------------
     if opt('all-items'):

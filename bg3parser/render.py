@@ -153,6 +153,18 @@ def render_text(report: SaveReport, opts=None) -> str:
     ]
     level_items_entries = prepare_level_items(report, verbose=verbose)
 
+    # Camp chest contents, grouped like a carried inventory.
+    camp_chest_groups: list[tuple[str, list[str]]] = []
+    if report.camp_chest:
+        for key, label in CARRIED_GROUP_LABELS:
+            counts: Counter = Counter()
+            for i in report.camp_chest:
+                if i.category == key:
+                    counts[fmt_item(i, verbose)] += i.count
+            lines = [f'{lbl} x{n}' if n > 1 else lbl for lbl, n in sorted(counts.items())]
+            if lines:
+                camp_chest_groups.append((label, lines))
+
     opts_dict = {
         'verbose': verbose,
         'all_spells': all_spells,
@@ -175,6 +187,7 @@ def render_text(report: SaveReport, opts=None) -> str:
         report=report,
         opts=opts_dict,
         chars_data=chars_data,
+        camp_chest_groups=camp_chest_groups,
         level_items_entries=level_items_entries,
         spells_notes=SPELLS_NOTES,
         equipment_notes=EQUIPMENT_NOTES,

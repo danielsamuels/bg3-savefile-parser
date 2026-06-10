@@ -1,6 +1,8 @@
 {
+ "camp_chest": null,
  "characters": [
   {
+   "at_camp": false,
    "carried": [
     {
      "category": "armour",
@@ -586,6 +588,7 @@
    "xp": 70
   },
   {
+   "at_camp": false,
    "carried": [],
    "classes": [
     {

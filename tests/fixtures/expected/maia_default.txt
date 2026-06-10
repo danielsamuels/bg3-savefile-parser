@@ -454,3 +454,371 @@ Imp_Summon
   Location  : HAV_IsobelRoom_SUB
   Spells/Abilities : (spell book not found)
   Equipment : character node not found
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CAMP COMPANIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Astarion
+  Race      : Elf_HighElf
+  Class     : Rogue / Thief
+  Level     : 6
+  Location  : camp
+  Spells/Abilities (8; +12 basic actions):
+    – Projectile_FireBolt
+    – Projectile_PiercingShot
+    – Shout_Dash_CunningAction
+    – Shout_Disengage_CunningAction
+    – Shout_Hide_BonusAction
+    – Target_OpeningAttack
+    – Target_PiercingThrust
+    – Target_VampireBite_Astarion
+  Equipped (5):
+    – ARM_Boots_Leather
+    – ARM_StuddedLeather_Body_Drow
+    – MAG_PHB_OfThievery_Gloves
+    – WPN_LightCrossbow
+    – WPN_Shortsword
+
+Gale
+  Race      : Human
+  Class     : Wizard / EvocationSchool
+  Level     : 6
+  Location  : camp
+  Spells/Abilities (83; +11 basic actions):
+    – Projectile_FireBolt
+    – Projectile_Fireball
+    – Projectile_IceKnife
+    – Projectile_IceKnife_2
+    – Projectile_IceKnife_3
+    – Projectile_MagicMissile
+    – Projectile_MagicMissile_2
+    – Projectile_MagicMissile_3
+    – Projectile_RayOfEnfeeblement
+    – Projectile_RayOfEnfeeblement_3
+    – Projectile_RayOfFrost
+    – Projectile_RayOfSickness
+    – Projectile_RayOfSickness_2
+    – Projectile_RayOfSickness_3
+    – Projectile_ScorchingRay
+    – Projectile_ScorchingRay_3
+    – Projectile_WitchBolt
+    – Projectile_WitchBolt_2
+    – Projectile_WitchBolt_3
+    – Shout_ArcaneRecovery
+    – Shout_ArcaneRecovery_1
+    – Shout_ArcaneRecovery_2
+    – Shout_ArcaneRecovery_3
+    – Shout_Blink
+    – Shout_Blur
+    – Shout_Blur_3
+    – Shout_DetectThoughts
+    – Shout_DetectThoughts_3
+    – Shout_FeatherFall
+    – Shout_FeatherFall_2
+    – Shout_FeatherFall_3
+    – Shout_MirrorImage
+    – Shout_MirrorImage_3
+    – Shout_Shield_Wizard
+    – Shout_Shield_Wizard_2
+    – Shout_Shield_Wizard_3
+    – Target_AnimateDead
+    – Target_AnimateDead_Skeleton
+    – Target_AnimateDead_Zombie
+    – Target_CloudOfDaggers
+    – Target_CloudOfDaggers_3
+    – Target_Counterspell
+    – Target_Darkness
+    – Target_Darkness_3
+    – Target_END_Gale_ActivateNethereseOrb
+    – Target_FOR_ThayanCellar_SummonQuasit
+    – Target_Fly
+    – Target_FogCloud
+    – Target_FogCloud_2
+    – Target_FogCloud_3
+    – Target_Grease
+    – Target_Grease_2
+    – Target_Grease_3
+    – Target_Haste
+    – Target_HoldPerson
+    – Target_HoldPerson_3
+    – Target_Invisibility
+    – Target_Invisibility_3
+    – Target_MageArmor
+    – Target_MageArmor_2
+    – Target_MageArmor_3
+    – Target_MageHand
+    – Target_MagicWeapon
+    – Target_MagicWeapon_3
+    – Target_MinorIllusion
+    – Target_ProtectionFromEvilAndGood
+    – Target_ProtectionFromEvilAndGood_2
+    – Target_ProtectionFromEvilAndGood_3
+    – Target_Shatter
+    – Target_Shatter_3
+    – Target_Sleep
+    – Target_Sleep_2
+    – Target_Sleep_3
+    – Target_SleetStorm
+    – Target_Slow
+    – Target_Topple
+    – Zone_BurningHands
+    – Zone_BurningHands_2
+    – Zone_BurningHands_3
+    – Zone_Fear
+    – Zone_Thunderwave
+    – Zone_Thunderwave_2
+    – Zone_Thunderwave_3
+  Equipped (1):
+    – ARM_Shoes
+
+Halsin
+  Race      : Elf_WoodElf
+  Class     : Druid
+  Level     : 5
+  Location  : camp
+  Spells/Abilities (9; +11 basic actions):
+    – Shout_DEN_Halsin_WildShape_Bear
+    – Target_CallLightning
+    – Target_HealingWord
+    – Target_MistyStep
+    – Target_MistyStep_3
+    – Target_Topple
+    – Zone_Thunderwave
+    – Zone_Thunderwave_2
+    – Zone_Thunderwave_3
+  Equipped (4):
+    – ARM_Boots_Leather_Druid
+    – UNI_Halsin_Gloves
+    – UNI_Leather_Halsin
+    – WPN_Quarterstaff_Druid
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CAMP CHEST  (223 item types)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Weapons & magic items:
+    – MAG_BG_OfEasthaven_Defender_Flail
+    – MAG_BarbMonk_Defensive_Cloth
+    – MAG_CKM_SerpenScale_Armor
+    – MAG_ChargedLightning_Quarterstaff
+    – MAG_ChargedLightning_Resistance_Ring
+    – MAG_ElementalGish_CantripBooster_Amulet
+    – MAG_ElementalGish_ElementalInfusion_Ring
+    – MAG_MeleeDebuff_AttackDebuff1_OnDamage_ScaleMail
+    – MAG_Paladin_LayOnHandsSupport_Gloves
+    – MAG_Thunder_ThunderClap_Quarterstaff
+    – MAG_WoodWoad_Nature_Shield
+    – WPN_Club x2
+    – WPN_Dagger x3
+    – WPN_Dagger_1
+    – WPN_Goblin_Quarterstaff
+    – WPN_Goblin_Scimitar x2
+    – WPN_Goblin_Shortbow x3
+    – WPN_Greatsword_Gith
+    – WPN_HandCrossbow_1
+    – WPN_Handaxe x2
+    – WPN_Javelin x2
+    – WPN_Longsword x2
+    – WPN_Longsword_Gith
+    – WPN_Mace
+    – WPN_MeatCleaver
+    – WPN_Pitchfork
+    – WPN_Rapier
+    – WPN_Shortbow
+    – WPN_Shortsword x13
+    – WPN_Shortsword_Gith x5
+  Armour & accessories:
+    – ARM_Amulet_Necklace_B_Silver_A
+    – ARM_Boots_Leather
+    – ARM_Boots_Leather_F
+    – ARM_Breastplate_Body
+    – ARM_Camp_Body_Laezel
+    – ARM_Camp_Body_Minthara
+    – ARM_Camp_Sandals_B
+    – ARM_Camp_Sandals_B_Red
+    – ARM_Camp_Shoes_C
+    – ARM_Camp_Shoes_Minthara
+    – ARM_Camp_Shoes_Wyll
+    – ARM_Goblin_Shield_C x3
+    – ARM_HAG_Phylactery
+    – ARM_Hat
+    – ARM_Hat_MuffinHat_B
+    – ARM_Helmet_Metal
+    – ARM_Leather_Body x3
+    – ARM_Padded_Body
+    – ARM_Ring_E_Silver_A
+    – ARM_Ring_G_Silver_A
+    – ARM_Robe_Body x7
+    – ARM_ScaleMail_Body
+    – ARM_Vanity_Body_Citizen x2
+    – ARM_Vanity_Body_Citizen_C_Blue
+    – ARM_Vanity_Body_Citizen_C_Green
+    – ARM_Vanity_Body_Refugee_Gray
+    – ARM_Vanity_Body_Shirt_Red
+    – UNI_ARM_OfMissileSnaring_Gloves
+    – UNI_Astarion_StarterArmor
+    – UNI_GOB_SeluneAmulet
+    – UNI_Karlach_StarterArmor
+    – UNI_LOOT_AdamantineForge_MaceMold
+    – UNI_LOOT_AdamantineForge_ScimitarMold
+    – UNI_LOOT_AdamantineForge_SplintMold
+    – UNI_UND_RingOfMindShielding
+  Potions & consumables:
+    – ALCH_Ingredient_Loot_HillGiantFinger
+    – ALCH_Ingredient_Loot_PegasusFeather x3
+    – ALCH_Ingredient_Mushroom_ShadowrootSac x2
+    – ALCH_Ingredient_Part_GremishkaTail x2
+    – ALCH_Ingredient_Part_HyenaEar x2
+    – ALCH_Ingredient_Part_MagmaMephitHeart x6
+    – ALCH_Ingredient_Part_MudMephitWing x4
+    – ALCH_Ingredient_Part_MyconidSpore_Haste
+    – ALCH_Ingredient_Part_MyconidSpore_Poison x2
+    – ALCH_Ingredient_Part_OchreJellySlime
+    – ALCH_Ingredient_Part_ScryingEye
+    – ALCH_Ingredient_Part_SpiderGland
+    – ALCH_Ingredient_Part_WoodBark x6
+    – ALCH_Ingredient_Part_WorgFang x2
+    – ALCH_Solution_Elixir_Alertness
+    – ALCH_Solution_Elixir_Bloodlust
+    – ALCH_Solution_Elixir_Concentration
+    – ALCH_Solution_Elixir_Enlarge
+    – ALCH_Solution_Elixir_Meditation x2
+    – ALCH_Solution_Oil_AttackBuff x2
+    – ALCH_Solution_Oil_Reduce
+    – ALCH_Solution_Potion_DetectThoughts x2
+    – ALCH_Solution_Potion_FeatherFall
+    – ALCH_Solution_Potion_Jump x4
+    – ALCH_Solution_Potion_Rest_Greater
+    – CONS_DRINK_Oil
+    – CONS_DRINK_Rum
+    – CONS_DRINK_Wine_Bottle
+    – CONS_FOOD_Cheese_Piece
+    – CONS_FOOD_Fruit_Lemon_A_Rotten
+    – CONS_FOOD_Fruit_Melon
+    – CONS_FOOD_RoastedPig
+    – CONS_GEN_Alcohol_Bottle_Cheap_B
+    – CONS_Herbs_Autumncrocus x2
+    – CONS_Herbs_Balsam
+    – CONS_Herbs_Belladonna x2
+    – CONS_Herbs_Daggeroot x2
+    – CONS_Herbs_Mergrass x3
+    – CONS_Herbs_Mugwort x2
+    – CONS_Herbs_Weavemoss x3
+    – CONS_Herbs_Wispweed x2
+    – CONS_Mushrooms_Bonecap x2
+    – CONS_Mushrooms_BullywugTrumpet x4
+    – CONS_Mushrooms_DragonEggMushroom
+    – CONS_Mushrooms_Nightlight_Piece x2
+    – CONS_Mushrooms_RoguesMorsel x3
+    – CONS_Mushrooms_SporeTimmask x2
+    – CONS_Mushrooms_SwarmingToadstool x2
+    – CONS_Mushrooms_TongueOfMadness x4
+    – OBJ_Potion_Healing x2
+    – OBJ_Potion_Healing_Greater x7
+    – OBJ_Potion_Of_Animal_Speaking
+    – OBJ_Potion_Of_Fire_Resistance x3
+    – OBJ_Potion_Of_Heroism
+    – OBJ_Potion_Of_Hill_Giant_Strength
+    – OBJ_Potion_Of_Invisibility
+    – OBJ_Potion_Of_Lightning_Resistance x2
+    – OBJ_Potion_Of_Poison_Resistance
+    – OBJ_Potion_Of_Speed x4
+    – OBJ_Potion_Sleep
+  Books & scrolls:
+    – BOOK_GEN_World_BGPeacockLetter
+    – BOOK_GEN_World_JourneyThroughChult
+    – OBJ_Book x6
+    – OBJ_Scroll x10
+    – OBJ_Scroll_AnimalFriendship
+    – OBJ_Scroll_Cloudkill
+    – OBJ_Scroll_CrownOfMadness
+    – OBJ_Scroll_FireBolt
+    – OBJ_Scroll_FlamingSphere
+    – OBJ_Scroll_Grease
+    – OBJ_Scroll_MageArmor x2
+    – OBJ_Scroll_ProtectionFromEnergy
+    – OBJ_Scroll_RayOfFrost
+    – OBJ_Scroll_Revivify x3
+    – OBJ_Scroll_Shatter
+    – OBJ_Scroll_SpeakWithDead
+    – OBJ_Scroll_WitchBolt
+  Everything else:
+    – COL_BrainJar_Memory x2
+    – CRE_MAG_Githborn_Amulet
+    – Cup_Silver_G
+    – DLC_OBJ_Dye_Larian x5
+    – DiningPlate_Silver_G
+    – FOR_OgresForHire_HeadbandOfIntellect
+    – FOR_SchoolOgres_Horn
+    – Food_Beholder_Eyes
+    – Food_Giant_Hamster
+    – Food_Neogi_Rolls
+    – GLO_SoulCoin x2
+    – GOB_DrowCommander_Leather_Gloves
+    – GOB_DrowCommander_Mace
+    – GOB_Pens_BeastmasterAmulet
+    – HAG_EyeballNecklace
+    – HAG_PoisonApple x8
+    – HAG_SwampedHero_OldFancyHelmet
+    – LOOT_Underdark_HookHorrorClaw
+    – OBJ_AcidBottle x2
+    – OBJ_Agate
+    – OBJ_Amethyst
+    – OBJ_Antitoxin x2
+    – OBJ_ArrowOfAcid x4
+    – OBJ_ArrowOfDarkness
+    – OBJ_ArrowOfLightning x2
+    – OBJ_ArrowOfRicochet
+    – OBJ_ArrowOfWraithsEmbrace
+    – OBJ_Backpack
+    – OBJ_Backpack_CampSupplies x5
+    – OBJ_Bag_AlchemyPouch x3
+    – OBJ_BasicPoison x2
+    – OBJ_Bloodstone
+    – OBJ_Bomb
+    – OBJ_Bone x3
+    – OBJ_Bottle x2
+    – OBJ_Bowl
+    – OBJ_Bucket
+    – OBJ_Camp_Pack x3
+    – OBJ_Candle_Gold
+    – OBJ_Chest_Wood
+    – OBJ_Crystal_ChasmCreeper x2
+    – OBJ_Crystal_Laculite
+    – OBJ_Crystal_LolthsCandle
+    – OBJ_Crystal_Viridian x4
+    – OBJ_Dye_Golden x2
+    – OBJ_Dye_RichRed x3
+    – OBJ_Feather x2
+    – OBJ_GenericLootItem x2
+    – OBJ_Generic_Light
+    – OBJ_GithyankiEgg
+    – OBJ_Goblet_Rich_Silver
+    – OBJ_GreaseBottle x2
+    – OBJ_ImmutableContainer
+    – OBJ_Indestructible_Light x3
+    – OBJ_InkPot x3
+    – OBJ_Jade
+    – OBJ_Keychain x2
+    – OBJ_Kit_ThievesTools x3
+    – OBJ_Kit_TrapDisarm x3
+    – OBJ_Laboratory_Glass
+    – OBJ_Malachite x2
+    – OBJ_Metalbar_Bronze x6
+    – OBJ_Metalbar_Silver x2
+    – OBJ_Oil_Of_The_Basilisk
+    – OBJ_Onyx x2
+    – OBJ_Painting
+    – OBJ_Rag_Stacked_B
+    – OBJ_Rag_Stacked_F
+    – OBJ_SerpentVenom
+    – OBJ_Skull x4
+    – OBJ_ThrowingRock x2
+    – OBJ_Tool_Hammer x2
+    – OBJ_Tool_Shovel x3
+    – OBJ_Tool_Tong
+    – OBJ_WyvernPoison
+    – PLA_WPN_SwordOfJustice
+    – PUZ_Key x14
+    – QUEST_HAG_GrenadeFire x2
+    – Quest_UND_Moonlantern_Broken
+    – SCL_SpidersLyre x2
+    – UND_DrowDisguiseCowl

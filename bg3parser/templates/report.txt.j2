@@ -13,8 +13,32 @@ PARTY CHARACTERS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 {% for char in report.characters %}
 {% set char_data = chars_data[loop.index0] %}
+{% if not char.at_camp %}
 {% include 'character.txt.j2' %}
+{% endif %}
 {% endfor %}
+{% if report.characters | selectattr('at_camp') | list %}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CAMP COMPANIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{% for char in report.characters %}
+{% set char_data = chars_data[loop.index0] %}
+{% if char.at_camp %}
+{% include 'character.txt.j2' %}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% if report.camp_chest is not none %}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CAMP CHEST  ({{ report.camp_chest | length }} item types)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{% for label, lines in camp_chest_groups %}
+  {{ label }}:
+{% for line in lines %}
+    – {{ line }}
+{% endfor %}
+{% endfor %}
+{% endif %}
 {% if report.level_items is not none %}
 {% include 'level_items.txt.j2' %}
 {% endif %}
