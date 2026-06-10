@@ -49,7 +49,10 @@ Known limitations
   See LIMITS.md for full details.
 """
 
+import argparse
 import datetime
+import glob
+import hashlib
 import io
 import json
 import os
@@ -103,7 +106,7 @@ def normalize_named_frames(raw_frames: list[bytes], names: list[str]) -> dict[st
     Everything else is stored under its actual LSPK name.
     """
     result: dict[str, bytes] = {}
-    for name, frame in zip(names, raw_frames):
+    for name, frame in zip(names, raw_frames, strict=True):
         if name.lower().endswith('.webp'):
             result['thumbnail'] = frame
         else:
@@ -886,12 +889,11 @@ def parse_osiris(frames: dict[str, bytes]) -> dict | None:
 
         def get_single_col_strings(db_name: str) -> list[str]:
             """Return all non-None string values from a single-column database."""
-            facts = name_to_facts.get(db_name, [])
-            result = []
-            for row in facts:
-                if row and row[0].get('is_valid') and row[0].get('value') is not None:
-                    result.append(str(row[0]['value']))
-            return result
+            return [
+                str(row[0]['value'])
+                for row in name_to_facts.get(db_name, [])
+                if row and row[0].get('is_valid') and row[0].get('value') is not None
+            ]
 
         accepted = set(get_single_col_strings('DB_QuestIsAccepted'))
         closed   = set(get_single_col_strings('DB_QuestIsClosed'))
@@ -1192,7 +1194,10 @@ def build_instance_entity_map(nodes: list[dict]) -> dict[tuple, str]:
     if creators_ni is None or items_ni is None:
         return {}
     result: dict[tuple, str] = {}
-    for creator_ci, item_ci in zip(nodes[creators_ni]['children'], nodes[items_ni]['children']):
+    # The format keeps Creators and Items parallel; tolerate a corrupt tail.
+    for creator_ci, item_ci in zip(
+        nodes[creators_ni]['children'], nodes[items_ni]['children'], strict=False,
+    ):
         entity    = nodes[creator_ci]['attrs'].get('Entity', '')
         translate = nodes[item_ci]['attrs'].get('Translate')
         stats     = nodes[item_ci]['attrs'].get('Stats', '')
@@ -1310,9 +1315,7 @@ def is_equipment_type(stats: str) -> bool:
         return False
     if stats.startswith(NON_EQUIP_PREFIXES):
         return False
-    if any(sub in stats for sub in NON_EQUIP_SUBSTR):
-        return False
-    return True
+    return not any(sub in stats for sub in NON_EQUIP_SUBSTR)
 
 
 def collect_character_positions(
@@ -1355,10 +1358,10 @@ def collect_items_by_position(node_lists: list[list[dict]],
             flags = nd['attrs'].get('Flags', 0)
             guid = nd['attrs'].get('CurrentTemplate', '')
             prev = acc[name].get(stats)
-            if prev is None:
-                acc[name][stats] = (flags, guid)
-            elif isinstance(flags, int) and (flags & EQUIPPED_FLAG_BIT) \
-                    and not (isinstance(prev[0], int) and (prev[0] & EQUIPPED_FLAG_BIT)):
+            if prev is None or (
+                isinstance(flags, int) and (flags & EQUIPPED_FLAG_BIT)
+                and not (isinstance(prev[0], int) and (prev[0] & EQUIPPED_FLAG_BIT))
+            ):
                 acc[name][stats] = (flags, guid)
     return {n: [(s, f, g) for s, (f, g) in d.items()] for n, d in acc.items()}
 
@@ -1922,7 +1925,6 @@ def cache_path(data_dir: str) -> str:
             sig_parts.append(f'{pak}:{st.st_mtime_ns}:{st.st_size}')
         except OSError:
             pass
-    import hashlib
     sig_parts.append(f'schema:{DISPLAYNAME_SCHEMA_VERSION}')
     sig = hashlib.md5('|'.join(sorted(sig_parts)).encode()).hexdigest()[:16]
     cdir = os.path.join(
@@ -2235,7 +2237,7 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
         save_time_str = '?'
         if meta.get('save_time') is not None:
             try:
-                dt = datetime.datetime.fromtimestamp(meta['save_time'], tz=datetime.timezone.utc)
+                dt = datetime.datetime.fromtimestamp(meta['save_time'], tz=datetime.UTC)
                 save_time_str = dt.strftime('%Y-%m-%d %H:%M:%S UTC')
             except (OSError, OverflowError, ValueError):
                 save_time_str = str(meta['save_time'])
@@ -2367,7 +2369,7 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
     w('PARTY CHARACTERS')
     w('━' * 72)
 
-    for i, char_info in enumerate(party_info):
+    for char_info in party_info:
         classes   = char_info.get('Classes', [])
         level     = char_info.get('Level', '?')
         origin    = char_info.get('Origin', 'Generic')
@@ -2573,8 +2575,8 @@ def candidate_profile_dirs() -> list[str]:
     return dirs
 
 
-def _glob_saves(roots: list[str], patterns: tuple[str, ...]) -> set[str]:
-    import glob
+def glob_saves(roots: list[str], patterns: tuple[str, ...]) -> set[str]:
+    """Return every .lsv path matching any pattern under any existing root."""
     found: set[str] = set()
     for root in roots:
         if not os.path.isdir(root):
@@ -2594,7 +2596,7 @@ def find_latest_save() -> str | None:
         '*/Savegames/Story/*/*.lsv', 'Savegames/Story/*/*.lsv',
         'Story/*/*.lsv', '*/*.lsv', '*.lsv',
     )
-    found = _glob_saves(roots, patterns)
+    found = glob_saves(roots, patterns)
     if not found:
         return None
     return max(found, key=os.path.getmtime)
@@ -2615,7 +2617,7 @@ def find_save_by_token(token: str) -> str | None:
         f'*_{token}/*_{token}.lsv',
         f'*_{token}.lsv',
     )
-    found = _glob_saves(roots, patterns)
+    found = glob_saves(roots, patterns)
     if not found:
         return None
     return max(found, key=os.path.getmtime)
@@ -2626,7 +2628,6 @@ def find_save_by_token(token: str) -> str | None:
 # ---------------------------------------------------------------------------
 
 def main():
-    import argparse
     ap = argparse.ArgumentParser(
         description='Extract character info from a BG3 .lsv save file.',
         formatter_class=argparse.RawDescriptionHelpFormatter,
