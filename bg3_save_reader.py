@@ -167,17 +167,21 @@ def guid_le_str(x: bytes) -> str:
 
 
 S_I = struct.Struct('<i')
-S_U16 = struct.Struct('<H')
-S_I16 = struct.Struct('<h')
-S_U32 = struct.Struct('<I')
-S_F32 = struct.Struct('<f')
-S_I64 = struct.Struct('<q')
-S_U64 = struct.Struct('<Q')
-S_VEC3 = struct.Struct('<fff')
 
 # LSF attribute type IDs that hold strings:
 # String/WString/LSString/LSWString/Path/FixedString
 STRING_TIDS = frozenset((20, 21, 22, 23, 29, 30))
+
+# Fixed-size scalar type IDs → precompiled Struct.
+# 2/3: uint16/int16  4/5: int32/uint32  6: float  24: uint64
+# 26/32: int64 (32 is an alias used in some versions)
+SCALAR_STRUCTS = {
+    2: struct.Struct('<H'), 3: struct.Struct('<h'),
+    4: S_I, 5: struct.Struct('<I'),
+    6: struct.Struct('<f'),
+    24: struct.Struct('<Q'), 26: struct.Struct('<q'), 32: struct.Struct('<q'),
+}
+S_VEC3 = struct.Struct('<fff')
 
 
 def read_val(val_data: bytes, off: int, tid: int, length: int):
@@ -185,6 +189,9 @@ def read_val(val_data: bytes, off: int, tid: int, length: int):
     try:
         if tid in STRING_TIDS:
             return val_data[off:off + length - 1].decode('utf-8', 'replace').rstrip('\x00')
+        sc = SCALAR_STRUCTS.get(tid)
+        if sc is not None:
+            return sc.unpack_from(val_data, off)[0]
         if tid == 28:  # TranslatedString: 2-byte version + 4-byte string length prefix
             hlen = S_I.unpack_from(val_data, off + 2)[0]
             return val_data[off + 6:off + 6 + hlen - 1].decode('utf-8', 'replace').rstrip('\x00')
@@ -192,22 +199,8 @@ def read_val(val_data: bytes, off: int, tid: int, length: int):
             return guid_le_str(val_data[off:off + 16])
         if tid == 1:   # uint8
             return val_data[off]
-        if tid == 2:   # uint16
-            return S_U16.unpack_from(val_data, off)[0]
-        if tid == 3:   # int16
-            return S_I16.unpack_from(val_data, off)[0]
-        if tid == 4:   # int32
-            return S_I.unpack_from(val_data, off)[0]
-        if tid == 5:   # uint32
-            return S_U32.unpack_from(val_data, off)[0]
-        if tid == 6:   # float
-            return S_F32.unpack_from(val_data, off)[0]
         if tid == 19:  # bool
             return bool(val_data[off])
-        if tid in (26, 32):  # int64, int64_2 (alias used in some versions)
-            return S_I64.unpack_from(val_data, off)[0]
-        if tid == 24:  # uint64
-            return S_U64.unpack_from(val_data, off)[0]
         if tid == 12:  # vec3 (three packed floats: x, y, z world position)
             return S_VEC3.unpack_from(val_data, off)
         if tid == 25:  # ScratchBuffer (opaque byte blob, e.g. LSMF ECS data)
@@ -1487,13 +1480,20 @@ def scan_lsmf_blob(blob: bytes) -> tuple | None:
             return None
 
         # 4-byte scan to find candidate positions (captures all valid records plus
-        # some false positives at non-32-aligned offsets).
+        # some false positives at non-32-aligned offsets).  Viewed as uint32
+        # words, a record at word i has its comp/ec high dwords at i+5 / i+7;
+        # entry_count < 2000, so both must be zero — that single-compare
+        # prefilter rejects almost every offset before the full validation.
         valid_pos: list[int] = []
-        p = 0
-        while p + 32 <= L:
-            if valid_record(p) is not None:
-                valid_pos.append(p)
-            p += 4
+        words = memoryview(blob)[:L - L % 4].cast('I')
+        rows_for = rows_by_comp.get
+        for i in range((L - 32) // 4 + 1):
+            if words[i + 5] == 0 and words[i + 7] == 0:
+                comp = words[i + 4]
+                ec = words[i + 6]
+                if (comp < entry_count and ec > 0 and rows_for(comp, -1) == ec
+                        and valid_record(i * 4) is not None):
+                    valid_pos.append(i * 4)
 
         # Identify the real ownerlist table as the densest chain of valid positions
         # spaced by a multiple of 32 (non-32-aligned entries are false positives from
