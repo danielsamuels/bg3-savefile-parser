@@ -43,8 +43,9 @@ Display names
 
 Known limitations
 -----------------
-  Equipment slot is derived from item stats (the save does not serialise it);
-  which of two rings sits in which ring slot cannot be distinguished.
+  Equipment slot is derived from item stats (the save stores no explicit
+  ItemSlot field; same-type assignment such as Ring vs Ring2 persists via
+  container ordering, whose UI mapping is not yet ground-truth verified).
   Spell books are read exactly from the save's ECS blob; if two party members
   share an identical class/subclass/level build, their books cannot be told
   apart and a class-based heuristic is used for those members.
@@ -2849,8 +2850,9 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
   attributed item is *worn* is determined by layered signals: a STATUS
   on-equip effect; the 0x04000000 Flags bit; ECS component membership; and
   physical-attachment components, with per-slot conflict resolution.  The
-  displayed [Slot] is derived from item stats — the save does not serialise
-  ItemSlot; the game itself re-derives it the same way.  See LIMITS.md.
+  displayed [Slot] is derived from item stats — the save stores no explicit
+  ItemSlot field (same-type assignment like Ring vs Ring2 persists via
+  container ordering).  See LIMITS.md.
 
   Display names are resolved from the installed game data (root templates +
   english.loca, following ParentTemplateId/using inheritance).  Without a

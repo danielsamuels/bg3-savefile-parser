@@ -103,18 +103,22 @@ experiments across saves 242/248/249 and 242/243).
 not in an equipment slot. The ECS signal would separately classify it by actual
 slot status — this is not yet cross-validated.
 
-### Exact equipment slot — derived, because the save does not store it
-Which slot an item occupies (Helmet / Boots / Amulet / Ring / …) is **not
-serialised in the save at all**. Evidence: a byte-level sweep over every LSMF
-component owned by 12 simultaneously-worn items with known slots found no byte
-position matching the `ItemSlot` enum; `ContainerSlotData.slot` is the
-position within its container (insertion order), and
-`EquipmentVisualComponent` serialises as a null pointer. The engine re-derives
-the slot from item stats on load, and the parser does the same (the stat
-files' `Slot` field, following the `using` inheritance chain) — every equipped
-item in the report is annotated `[Slot]`. Residual ambiguity is limited to
-distinctions the stats cannot make (which of two rings sits in Ring vs Ring2,
-melee vs ranged weapon-set assignment for weapons usable in both).
+### Exact equipment slot — derived from stats; order persists in the container
+The save stores no **explicit** `ItemSlot` value. Evidence: a byte-level sweep
+over every LSMF component owned by 12 simultaneously-worn items with known
+slots found no byte position matching the `ItemSlot` enum, and
+`EquipmentVisualComponent` serialises as a null pointer. The slot *type* is
+re-derived from item stats on load — the parser does the same (the stat files'
+`Slot` field, following the `using` inheritance chain), and every equipped
+item in the report is annotated `[Slot]`.
+
+Assignments the stats cannot express — which of two rings sits in Ring vs
+Ring2, which hand holds which dual-wielded weapon — survive save/load via the
+**ordering** preserved in the equipment container's `ContainerSlotData`
+entries (each worn item has a stable per-container position). Mapping that
+order to the two on-screen ring slots needs one in-game ground-truth
+observation and is the remaining open detail; until then the report labels
+both rings `[Ring]`.
 
 ### Spell books — exact (decoded 2026-06)
 Spell data lives in the `NewAge` LSMF ECS blob and is now decoded exactly:

@@ -785,16 +785,21 @@ What remains genuinely blocked:
    in the on-disk LSF tree** (confirmed by exhaustive whole-tree search). Any
    information gated behind a live `EntityHandle` is unresolvable from the save
    file alone.
-2. **Exact equipment slot** (Helmet / Boots / Amulet / …). The save does not
-   serialise the `ItemSlot` value at all — established by a byte-level sweep:
-   for 12 simultaneously-equipped items whose slots were known, no byte
-   position in any LSMF component owned by those items consistently equalled
-   the expected `ItemSlot` enum value; `ContainerSlotData.slot` is the
-   position within its container (insertion order), and
-   `EquipmentVisualComponent` serialises as a null pointer. The engine
-   re-derives the slot from item stats on load, and the parser does the same
-   (stat-file `Slot` field via the `using` chain) — so slots in the report are
-   derived, not read, with the same result.
+2. **Exact equipment slot** (Helmet / Boots / Amulet / …). The save stores no
+   *explicit* `ItemSlot` value — established by a byte-level sweep: for 12
+   simultaneously-equipped items whose slots were known, no byte position in
+   any LSMF component owned by those items consistently equalled the expected
+   `ItemSlot` enum value, and `EquipmentVisualComponent` serialises as a null
+   pointer. The slot *type* is re-derived from item stats on load (the parser
+   does the same: stat-file `Slot` via the `using` chain). What the save does
+   preserve is **ordering**: each worn item has a `ContainerSlotData` entry
+   with a stable per-container position, which is how assignments the stats
+   cannot express — which of two rings sits in Ring vs Ring2, main- vs
+   off-hand for dual-wielded weapons — survive a save/load round trip. (For
+   Karlach's two worn rings in the test save: ScoutRing at container position
+   2, RingOfProjection at 19, and only one of the two carries
+   `game.inventory.v0.WieldingComponent` — candidate order/hand signals;
+   which ordering drives the UI slots is not yet ground-truth verified.)
 3. The blob contains no slot-name or full-component-name strings to anchor on
    beyond the directory.
 
@@ -870,7 +875,7 @@ handle indexes straight into this table.
 | Display names | ✅ (root templates + `.loca`; stats and spells resolve through `ParentTemplateId` / `using` inheritance chains) |
 | **Spell lists** | ✅ exact per-character books (`SpellBookComponent → SpellData → SpellId → string pool`; characters matched by `ClassesComponent`) |
 | **Worn-vs-carried** | ✅ union of `Flags` bit, STATUS signal, ECS membership count, and physical-attachment components (`WieldedComponent` / `GravityDisabledComponent`), with slot-conflict resolution |
-| Exact equipment slot (Boots / Amulet / Cloak / …) | ✅ derived from item stats (`Slot` via `using` chain) — the save itself does not serialise `ItemSlot` (verified by byte sweep); the engine re-derives it the same way |
+| Exact equipment slot (Boots / Amulet / Cloak / …) | ✅ derived from item stats (`Slot` via `using` chain) — no explicit `ItemSlot` field exists in the save (byte-sweep verified); same-type assignment (Ring vs Ring2, dual-wield hands) persists via container ordering, not yet ground-truth mapped |
 | LSMF component-type directory | ✅ decoded (≈350 entries: name → elem\_size / row\_count / data\_offset) |
 | LSMF ownerlist region (equipped/carried signal) | ✅ decoded (membership count per entity; threshold 15) |
 | LSMF heap arrays + string pool | ✅ decoded (`{begin,end}` ranges; pointers stored as absolute−48) |
