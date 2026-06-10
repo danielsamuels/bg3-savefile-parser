@@ -697,6 +697,23 @@ stat files cannot: Ring vs Ring 2 (QuickSave_291) and main- vs off-hand for
 a dual-wield pair (QuickSave_292: Githyanki Shortsword row 954 = main hand,
 Dagger row 957 = off hand) — earlier row = first/upper slot in both cases.
 
+Two refinements, both in-game verified:
+
+- **Virtual slots.** An equipped instrument stays in the backpack grid — the
+  MusicalInstrument slot is a UI view, so the item's row sits mid-backpack
+  while genuinely worn (QuickSave_294/295). Such slots are exempt from
+  cluster demotion. The **light-source slot** (a torch on the paper doll) is
+  the same phenomenon taken further: it is a view of an inventory item with
+  *no* equip bit and no save-side slot at all — dropping the inventory item
+  clears the slot (QuickSave_296). The parser reports such torches as
+  carried.
+- **Per-instance classification.** Several copies of one item type on a
+  character share `(Translate, stats)` *and* often one local template
+  (QuickSave_296: four identical Shortswords — two dual-wielded, two in a
+  bag). The Creators/Items parallel arrays still give one entity per copy,
+  and each copy's own ContainerSlotData rows against the cluster classify it
+  individually.
+
 ### Entity-GUID bridge — corrects an earlier "no link exists" claim (✅ found)
 
 A prior pass concluded that LSF item/character GUIDs never appear in the LSMF
