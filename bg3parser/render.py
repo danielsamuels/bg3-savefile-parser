@@ -88,10 +88,13 @@ def prepare_char_data(char: CharacterReport, verbose: bool, all_spells: bool) ->
     )
 
     # Carried inventory grouped by coarse category, empty groups omitted;
-    # several copies of one item collapse to a single "… x2" line.
+    # stacks and several copies of one item collapse to a single "… x766" line.
     groups: list[tuple[str, list[str]]] = []
     for key, label in CARRIED_GROUP_LABELS:
-        counts = Counter(fmt_item(i, verbose) for i in char.carried if i.category == key)
+        counts: Counter = Counter()
+        for i in char.carried:
+            if i.category == key:
+                counts[fmt_item(i, verbose)] += i.count
         lines = [f'{lbl} x{n}' if n > 1 else lbl for lbl, n in sorted(counts.items())]
         if lines:
             groups.append((label, lines))

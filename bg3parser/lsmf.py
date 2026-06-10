@@ -384,3 +384,46 @@ def parse_lsmf_all_container_positions(blob: bytes) -> dict[int, tuple[int, ...]
         if ptr and rel >= 0 and rel % 16 == 0 and rel // 16 < eid_rows:
             out.setdefault(rel // 16, []).append(r)
     return {ent: tuple(rows) for ent, rows in out.items()}
+
+
+def parse_lsmf_stack_amounts(blob: bytes) -> dict[str, int]:
+    """Map item entity GUID -> stack amount from the Stack component records.
+
+    Each game.inventory.v0.NewStackComponent row points at a stack record:
+    a {begin, end} heap range of member-item EntityId pointers at the target,
+    followed by a {begin, end} range of StackEntry rows, whose 8-byte entries
+    are {u32 id, u32 amount} inline — the record's amount is their sum.
+    Verified against in-game gold piles of 766 and 2017 (QuickSave_297).
+    Items without a record are single (amount 1) and are not returned.
+    """
+    idx = lsmf_component_index(blob)
+    ns = idx.get('game.inventory.v0.NewStackComponent')
+    se = idx.get('game.inventory.v0.StackEntry')
+    eid = idx.get('core.v0.EntityId')
+    if not (ns and se and eid):
+        return {}
+    ns_elem, ns_rows, ns_off, _ns_owners = ns
+    se_elem, se_rows, se_off, _se_owners = se
+    _eid_elem, eid_rows, eid_off, _eid_owners = eid
+    se_b0, se_b1 = se_off, se_off + se_rows * se_elem
+    L = len(blob)
+    out: dict[str, int] = {}
+    for k in range(ns_rows):
+        ptr = struct.unpack_from('<Q', blob, ns_off + k * ns_elem)[0] + LSMF_HEAP_BASE
+        if not (0 <= ptr <= L - 32):
+            continue
+        mem_lo, mem_hi, sl, sh = struct.unpack_from('<QQQQ', blob, ptr)
+        n = (mem_hi - mem_lo) // 8 if mem_hi > mem_lo else 0
+        if not (0 < n <= 256) or (mem_hi - mem_lo) % 8 or mem_lo + LSMF_HEAP_BASE + n * 8 > L:
+            continue
+        a0, a1 = sl + LSMF_HEAP_BASE, sh + LSMF_HEAP_BASE
+        if not (se_b0 <= a0 < a1 <= se_b1) or (a1 - a0) % 8:
+            continue
+        total = sum(w >> 32 for w in struct.unpack_from(f'<{(a1 - a0) // 8}Q', blob, a0))
+        if total <= 0:
+            continue
+        for w in struct.unpack_from(f'<{n}Q', blob, mem_lo + LSMF_HEAP_BASE):
+            a = w + LSMF_HEAP_BASE
+            if eid_off <= a < eid_off + eid_rows * 16 and (a - eid_off) % 16 == 0:
+                out[guid_le_str(blob[a : a + 16])] = total
+    return out

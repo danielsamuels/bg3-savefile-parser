@@ -1196,3 +1196,17 @@ def test_quicksave_296_duplicate_shortswords():
     ]
     carried_swords = [it for it in karlach.carried if it.stats == 'WPN_Shortsword']
     assert len(carried_swords) == 2
+
+
+def test_quicksave_296_stack_amounts():
+    """In-game ground truth: Maia carries 766 gold, Wyll 2017, and Karlach's
+    three Soul Coins are three single (unstacked) copies."""
+    model = gather_model(str(FIXTURE_DIR / 'quicksave_296.lsv'))
+
+    def counts(char_name, stats):
+        char = next(c for c in model.characters if c.name.startswith(char_name))
+        return [it.count for it in char.carried if it.stats == stats]
+
+    assert counts('Maia', 'OBJ_GoldCoin') == [766]
+    assert counts('Wyll', 'OBJ_GoldPile') == [2017]
+    assert counts('Karlach', 'GLO_SoulCoin') == [1, 1, 1]

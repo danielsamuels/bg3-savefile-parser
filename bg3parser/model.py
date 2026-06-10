@@ -20,6 +20,7 @@ from .lsmf import (
     parse_lsmf_container_positions,
     parse_lsmf_membership,
     parse_lsmf_spellbooks,
+    parse_lsmf_stack_amounts,
 )
 from .lspk import extract_frames, parse_info_json, parse_metadata
 from .osiris import parse_osiris
@@ -76,6 +77,7 @@ class ItemRef:
     slot: str | None = None  # equipment slot incl. 'Ring 2'; equipped only
     slot_rank: tuple = ()  # view ordering: (panel position, ring number)
     category: str = 'misc'  # weapon | armour | consumable | book | misc
+    count: int = 1  # stack amount (766 gold = one ItemRef, count 766)
 
 
 @dataclass
@@ -346,6 +348,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
     lsmf_gravity_off = comp_rows.get(GRAVITY_DISABLED_COMP)
     lsmf_csd_pos = parse_lsmf_container_positions(lsmf_blob) if lsmf_blob else {}
     lsmf_all_csd = parse_lsmf_all_container_positions(lsmf_blob) if lsmf_blob else {}
+    lsmf_stack_amounts = parse_lsmf_stack_amounts(lsmf_blob) if lsmf_blob else {}
 
     inspect_pat = (getattr(opts, 'inspect', None) or '') if opts is not None else ''
     report.inspect_pattern = inspect_pat
@@ -502,6 +505,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         # bag). Reclassify such groups per instance: each copy's own
         # ContainerSlotData rows decide, against the equipment cluster.
         instance_worn_rows: dict[str, list[int]] = {}
+        overlay_bagged: dict[str, list[str]] = {}
         if csd_cluster is not None and char_pos is not None and lsmf_ecs is not None:
             lo, hi = csd_cluster
             for stats_name in {s for s, _f, _g in attributed}:
@@ -509,6 +513,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
                 if len(ents) < 2 or not is_equipment_type(stats_name):
                     continue
                 worn_rows = []
+                bagged_ents = []
                 for eg in ents:
                     rows = [
                         r
@@ -518,13 +523,16 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
                     ]
                     if rows:
                         worn_rows.append(min(rows))
+                    else:
+                        bagged_ents.append(eg)
                 tmpl = next(g for s, _f, g in attributed if s == stats_name)
                 equipped = [(s, g) for s, g in equipped if s != stats_name]
                 carried = [(s, g) for s, g in carried if s != stats_name]
                 undetermined = [(s, g) for s, g in undetermined if s != stats_name]
                 instance_worn_rows[stats_name] = sorted(worn_rows)
+                overlay_bagged[stats_name] = bagged_ents
                 equipped.extend((stats_name, tmpl) for _ in worn_rows)
-                carried.extend((stats_name, tmpl) for _ in range(len(ents) - len(worn_rows)))
+                carried.extend((stats_name, tmpl) for _ in bagged_ents)
 
         # Slot is derived from game stat files (the save does not serialise
         # ItemSlot). Of two worn rings, the earlier ContainerSlotData row is
@@ -573,7 +581,24 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
                 slot = 'Ring 2'
             char.equipped.append(item_ref(s, guid, slot=slot or None, slot_rank=rank))
         char.undetermined = [item_ref(s, g) for s, g in undetermined]
-        char.carried = [item_ref(s, g) for s, g in carried]
+        # Stack amounts: a carried ItemRef's count is its instance's stack
+        # total (one gold pile of 766 = one ref, count 766).
+        bagged_iters = {s: iter(ents) for s, ents in overlay_bagged.items()}
+
+        def carried_count(s: str, g: str, _iters=bagged_iters, _pos=char_pos) -> int:
+            it = _iters.get(s)
+            if it is not None:
+                eg = next(it, None)
+                return lsmf_stack_amounts.get(eg, 1) if eg else 1
+            ents = instance_entity_lists.get((_pos, s), ()) if _pos is not None else ()
+            if len(ents) == 1:
+                return lsmf_stack_amounts.get(ents[0], 1)
+            for eg in ents:
+                if entity_to_template0.get(eg) == g:
+                    return lsmf_stack_amounts.get(eg, 1)
+            return 1
+
+        char.carried = [item_ref(s, g, count=carried_count(s, g)) for s, g in carried]
 
     # ---- Full level item pool (--all-items) --------------------------------
     if opt('all-items'):

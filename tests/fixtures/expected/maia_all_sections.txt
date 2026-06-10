@@ -336,7 +336,7 @@ Wyll
     Everything else:
       – OBJ_Bag_AlchemyPouch
       – OBJ_Crystal_SylvanStone
-      – OBJ_GoldPile
+      – OBJ_GoldPile x2102
       – OBJ_Keychain
       – PUZ_Key
 
