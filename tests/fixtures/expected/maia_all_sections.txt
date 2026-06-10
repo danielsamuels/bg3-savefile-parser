@@ -269,10 +269,12 @@ Maia (player)
     – UND_SwordInStone
     – UNI_CONT_DEVIL_PuzzleBox_A
   Carried / personal inventory (4):
-    – ARM_Camp_Body
-    – ARM_Camp_Shoes
-    – ARM_Underwear_Elves
-    – WPN_Greatclub_1
+    Weapons & magic items:
+      – WPN_Greatclub_1
+    Armour & accessories:
+      – ARM_Camp_Body
+      – ARM_Camp_Shoes
+      – ARM_Underwear_Elves
 
 Wyll
   Race      : Human
@@ -324,16 +326,19 @@ Wyll
     – UND_ShadowOfMenzoberranzan
     – WPN_Torch
   Carried / personal inventory (10):
-    – ARM_Boots_Leather
-    – ARM_Camp_Body_Wyll
-    – ARM_Camp_Shoes_Wyll
-    – ARM_Underwear_Wyll
-    – CONS_Mushrooms_Bonecap
-    – OBJ_Bag_AlchemyPouch
-    – OBJ_Crystal_SylvanStone
-    – OBJ_GoldPile
-    – OBJ_Keychain
-    – PUZ_Key
+    Armour & accessories:
+      – ARM_Boots_Leather
+      – ARM_Camp_Body_Wyll
+      – ARM_Camp_Shoes_Wyll
+      – ARM_Underwear_Wyll
+    Potions & consumables:
+      – CONS_Mushrooms_Bonecap
+    Everything else:
+      – OBJ_Bag_AlchemyPouch
+      – OBJ_Crystal_SylvanStone
+      – OBJ_GoldPile
+      – OBJ_Keychain
+      – PUZ_Key
 
 Karlach
   Race      : Tiefling_Zariel
@@ -370,12 +375,15 @@ Karlach
     – UNI_Karlach_Gloves
     – WPN_Torch
   Carried / personal inventory (6):
-    – ARM_Camp_Body_Karlach
-    – ARM_Camp_Shoes_Karlach
-    – ARM_Underwear_Karlach
-    – CONS_Mushrooms_DragonEggMushroom
-    – OBJ_Bag_AlchemyPouch
-    – OBJ_Keychain
+    Armour & accessories:
+      – ARM_Camp_Body_Karlach
+      – ARM_Camp_Shoes_Karlach
+      – ARM_Underwear_Karlach
+    Potions & consumables:
+      – CONS_Mushrooms_DragonEggMushroom
+    Everything else:
+      – OBJ_Bag_AlchemyPouch
+      – OBJ_Keychain
 
 Shadowheart
   Race      : HalfElf_High
@@ -675,19 +683,23 @@ Shadowheart
     – MAG_Radiant_RadiatingOrb_Armor
     – UNI_MassHealRing
   Carried / personal inventory (13):
-    – ALCH_Ingredient_Part_OchreJellySlime
-    – ARM_Camp_Body_Shadowheart
-    – ARM_Camp_Shoes_Shadowheart
-    – ARM_Underwear_Shadowheart
-    – CONS_Herbs_Balsam
-    – CONS_Mushrooms_RoguesMorsel
-    – OBJ_Backpack_CampSupplies
-    – OBJ_Bag_AlchemyPouch
-    – OBJ_Keychain
-    – OBJ_Kit_ThievesTools
-    – OBJ_Potion_Healing
-    – OBJ_Rope
-    – OBJ_Scroll_Revivify
+    Armour & accessories:
+      – ARM_Camp_Body_Shadowheart
+      – ARM_Camp_Shoes_Shadowheart
+      – ARM_Underwear_Shadowheart
+    Potions & consumables:
+      – ALCH_Ingredient_Part_OchreJellySlime
+      – CONS_Herbs_Balsam
+      – CONS_Mushrooms_RoguesMorsel
+      – OBJ_Potion_Healing
+    Books & scrolls:
+      – OBJ_Scroll_Revivify
+    Everything else:
+      – OBJ_Backpack_CampSupplies
+      – OBJ_Bag_AlchemyPouch
+      – OBJ_Keychain
+      – OBJ_Kit_ThievesTools
+      – OBJ_Rope
 
 Imp_Summon
   Race      : Imp

@@ -37,6 +37,15 @@ EQUIPMENT_NOTES = {
     'no-items': 'no items attributed (character off current level?)',
 }
 
+# Carried-inventory group headers, in display order.
+CARRIED_GROUP_LABELS = (
+    ('weapon', 'Weapons & magic items'),
+    ('armour', 'Armour & accessories'),
+    ('consumable', 'Potions & consumables'),
+    ('book', 'Books & scrolls'),
+    ('misc', 'Everything else'),
+)
+
 
 def prepare_char_data(char: CharacterReport, verbose: bool, all_spells: bool) -> dict:
     """Pre-process per-character spell and item data for the template.
@@ -71,6 +80,15 @@ def prepare_char_data(char: CharacterReport, verbose: bool, all_spells: bool) ->
         char.equipped,
         key=lambda i: (i.slot_rank, fmt_item(i, verbose)),
     )
+
+    # Carried inventory grouped by coarse category, empty groups omitted.
+    groups: list[tuple[str, list]] = []
+    for key, label in CARRIED_GROUP_LABELS:
+        items = sorted((i for i in char.carried if i.category == key),
+                       key=lambda i: fmt_item(i, verbose))
+        if items:
+            groups.append((label, items))
+    data['carried_groups'] = groups
 
     return data
 

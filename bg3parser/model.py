@@ -62,6 +62,7 @@ class ItemRef:
     name: str | None = None
     slot: str | None = None        # equipment slot incl. 'Ring 2'; equipped only
     slot_rank: tuple = ()          # view ordering: (panel position, ring number)
+    category: str = 'misc'         # weapon | armour | consumable | book | misc
 
 
 @dataclass
@@ -128,6 +129,33 @@ ITEM_CATEGORY_BY_PREFIX = {
     'KEY': '[misc/loot]',
 }
 
+# Fallback when an item has no stat-file slot (or no game data is installed).
+ITEM_GROUP_BY_PREFIX = {
+    'WPN': 'weapon', 'MAG': 'weapon',
+    'ARM': 'armour', 'UNI': 'armour',
+    'ALCH': 'consumable', 'CONS': 'consumable', 'FOOD': 'consumable',
+    'BOOK': 'book', 'SCR': 'book',
+}
+
+
+def item_category(stats: str, dn: DisplayNames) -> str:
+    """Coarse inventory grouping: weapon | armour | consumable | book | misc.
+
+    Equipment is recognised by its stat-file slot (covers region-prefixed
+    names like GOB_DrowCommander_Amulet); everything else falls back to the
+    stats-name prefix.
+    """
+    slot = dn.stats_to_slot.get(stats)
+    if slot:
+        return 'weapon' if 'Weapon' in slot else 'armour'
+    parts = stats.split('_')
+    if parts[0] == 'OBJ' and len(parts) > 1:
+        if parts[1] in ('Potion', 'Drink'):
+            return 'consumable'
+        if parts[1] in ('Scroll', 'Book'):
+            return 'book'
+    return ITEM_GROUP_BY_PREFIX.get(parts[0], 'misc')
+
 # Display order for equipped items, mirroring the in-game panel.
 SLOT_DISPLAY_ORDER: dict[str, int] = {name: i for i, name in enumerate((
     'Helmet', 'Cloak', 'Breast', 'Gloves', 'Boots', 'Amulet', 'Ring',
@@ -155,7 +183,8 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None,
 
     def item_ref(stats: str, guid: str, **kw) -> ItemRef:
         return ItemRef(stats=stats, template_guid=guid,
-                       name=dn.name_for(stats, guid), **kw)
+                       name=dn.name_for(stats, guid),
+                       category=item_category(stats, dn), **kw)
 
     report = SaveReport(source=save_path, names_resolved=dn.available)
 
