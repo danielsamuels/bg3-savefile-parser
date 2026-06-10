@@ -1111,6 +1111,82 @@ PARTY_ORIGINS = {
 
 NULL_UUID = '00000000-0000-0000-0000-000000000000'
 
+# Class / subclass UUIDs from the game's ClassDescriptions.lsx (Shared.pak).
+# These are static shipped constants; embedded so exact spell-book attribution
+# works without a game install. Used to match LSMF ClassesComponent entries
+# against the (Main, Sub) class names in the save's Info.json.
+CLASS_UUID_NAMES = {
+    'e6a0eb75-7a01-4f40-8563-24ba2615e99b': 'AbjurationSchool',
+    'b36d247e-d39f-4ae9-9476-3ec315c55789': 'Ancients',
+    'ede4778e-7602-440f-9075-b4bc8dc31cea': 'ArcaneTrickster',
+    '733ddf8c-9ec4-4c5a-85e3-c70fd3df3c24': 'Archfey',
+    'b53a8061-f31d-4985-adfe-d4d691a918d9': 'Assassin',
+    'd8cadb42-0ff9-4049-afaf-e5d78d06a399': 'Barbarian',
+    '92cd50b6-eb1b-4824-8adb-853e90c34c90': 'Bard',
+    'e668c6f1-5149-4b10-ab7e-3637ed444066': 'BattleMaster',
+    '6fd9547d-cc28-400e-bfa9-3a85baa70f24': 'BeastMaster',
+    '32eee7d8-1b2f-4de5-b9ee-78fbd286c6ef': 'BerserkerPath',
+    '0a01dc6b-ab1a-4c0e-8a5e-4787fe1f2caf': 'Champion',
+    '7458da78-34b7-4150-a42f-37197ab04510': 'CircleOfTheLand',
+    '3eab0689-e51b-4634-a690-0375d3cb2716': 'CircleOfTheMoon',
+    '4b61af6c-4a44-436e-aa0a-0d11a2d6b8ee': 'CircleOfTheSpores',
+    '114e7aee-d1d4-4371-8d90-8a2080592faf': 'Cleric',
+    '7a3feb8d-dda7-46ec-9029-1f302f537432': 'ConjurationSchool',
+    '1c761ad0-6f5f-409e-ac1d-ddf6f85c1fc4': 'Devotion',
+    '7577b0e1-a517-4f82-8f72-05a227dc5e88': 'DivinationSchool',
+    '36286b0a-26f9-4b4e-9311-fd1404301d20': 'DraconicBloodline',
+    '457d0a6e-9da8-4f95-a225-18382f0e94b5': 'Druid',
+    'b722614a-303f-411a-bb19-a1882ad1f4cc': 'EldritchKnight',
+    '46d31950-6917-444e-ac87-706702825215': 'EnchantmentSchool',
+    'c059dca1-c17d-4dce-8260-83ede5070eac': 'EvocationSchool',
+    '8866db28-7dda-4fd6-93ed-20eca16314f0': 'Fiend',
+    '721dfac3-92d4-41f5-b773-b7072a86232f': 'Fighter',
+    '22894c32-54cf-49ea-b366-44bfcf01bb2a': 'FourElements',
+    'd5f10e55-84e3-409b-aa64-2098c9550319': 'GloomStalker',
+    'e1e4a21f-9405-46ec-81a0-ccc8d58d9736': 'GreatOldOne',
+    '0aa1cff9-c45f-4d00-a95b-99a7aa96dd06': 'Hunter',
+    '436c9e1a-3a39-48dd-b753-7cee1bd19c00': 'IllusionSchool',
+    'ebe18794-b5e1-41c4-befa-4b9d6922b0ec': 'KnowledgeDomain',
+    '4b5da2f5-b999-4623-8bff-a63df5560fb3': 'LifeDomain',
+    'c54d7591-b305-4f22-b2a7-1bf5c4a3470a': 'LightDomain',
+    'd21368ac-c776-465c-9dcf-6123dd52734f': 'LoreCollege',
+    'c4598bdb-fc07-40dd-a62c-90cc138bd76f': 'Monk',
+    '6dec76d0-df22-411c-8a78-3d6fb843ae50': 'NatureDomain',
+    'fbb8347b-20e3-4846-ba91-0552cd12fc5f': 'NecromancySchool',
+    '6fb3831e-45d8-4b30-9714-6fe73988921b': 'Oathbreaker',
+    '2a5e3097-384c-4d29-8d6e-054fdfd26b80': 'OpenHand',
+    'ff4d9497-023c-434a-bd14-82fc367e991c': 'Paladin',
+    '36be18ba-23db-4dff-bfa6-ae105ce43144': 'Ranger',
+    'e8b1eab0-ef11-40a2-8a0b-cee8d062bf2a': 'Rogue',
+    'bf46d73f-d406-4cb8-9a1d-e6e758ca02c7': 'Shadow',
+    '784001e2-c96d-4153-beb6-2adbef5abc92': 'Sorcerer',
+    'd379fdae-b401-4731-8d50-277c73919ae3': 'StormSorcery',
+    'c4bd5252-d68a-4330-9431-5e8ab24c5f29': 'SwordsCollege',
+    '89bacf1b-8f15-4972-ada7-bf59c7c78441': 'TempestDomain',
+    '32c7b8df-a6ec-4848-a9db-c0dce781beb9': 'Thief',
+    '2e585948-d775-451d-b58b-15b75321d11e': 'TotemWarriorPath',
+    'a12f2924-30b4-4185-9db9-2c5b383ff449': 'TransmutationSchool',
+    'f013d01b-3310-43f7-81bf-a51130442b5e': 'TrickeryDomain',
+    '2b46330d-0ada-4eb5-a131-3d250a41ca6a': 'ValorCollege',
+    '3cc3d397-c47d-4966-87ae-88827f73f645': 'Vengeance',
+    'b9ccf90e-b35b-4b73-b896-8ed2d32ae8c6': 'WarDomain',
+    'b4225a4b-4bbe-4d97-9e3c-4719dbd1487c': 'Warlock',
+    '14374d37-a70e-41a8-9dc5-85a23f8b5dd2': 'WildMagic',
+    'd6bf00fc-3518-4d63-ba8b-03532c1abc4d': 'WildMagicPath',
+    'a865965f-501b-46e9-9eaa-7748e8c04d09': 'Wizard',
+}
+
+# Basic actions present in every character's spell book; filtered from the
+# per-character spell report to keep it readable.
+COMMON_ACTION_SPELLS = frozenset((
+    'Shout_Dash', 'Shout_Dash_NPC', 'Shout_Disengage', 'Shout_Hide',
+    'Target_Shove', 'Target_Help', 'Target_Dip', 'Throw_Throw',
+    'Throw_ImprovisedWeapon', 'Projectile_Jump',
+    'Target_MainHandAttack', 'Projectile_MainHandAttack',
+    'Target_OffhandAttack', 'Projectile_OffhandAttack',
+    'Target_UnarmedAttack',
+))
+
 
 def find_party_character_nodes(nodes: list[dict], player_name: str = 'Player') -> dict[str, int]:
     chars_root = next(
@@ -1419,9 +1495,9 @@ GRAVITY_DISABLED_COMP = 'game.gravity.v0.GravityDisabledComponent'
 def scan_lsmf_blob(blob: bytes) -> tuple | None:
     """Parse the LSMF header, component descriptors, and ownerlist table.
 
-    Returns (comp_descs, records) where comp_descs[i] = (name, row_count,
-    data_offset) for component descriptor i, and records is a tuple of
-    (comp_idx, start, entity_count) for every valid ownerlist record found.
+    Returns (comp_descs, records) where comp_descs[i] = (name, elem_size,
+    row_count, data_offset) for component descriptor i, and records is a tuple
+    of (comp_idx, start, entity_count) for every valid ownerlist record found.
     Returns None on any parse failure.
 
     The ownerlist scan walks the whole blob and dominates LSMF parse time, so
@@ -1455,19 +1531,20 @@ def scan_lsmf_blob(blob: bytes) -> tuple | None:
         names_sec = blob[names_off:names_off + names_size]
         desc_base = names_off + desc_table_rel
 
-        comp_descs: list[tuple[str, int, int]] = []
+        comp_descs: list[tuple[str, int, int, int]] = []
         rows_by_comp: dict[int, int] = {}
         for i in range(entry_count):
             base = desc_base + i * 48
             if base + 48 > L:
                 break
             name_off, name_len, _ = struct.unpack_from('<QQQ', blob, base)
+            elem_size = struct.unpack_from('<I', blob, base + 24)[0]
             row_count, data_offset = struct.unpack_from('<QQ', blob, base + 32)
             rows_by_comp[i] = row_count
             name = ''
             if 0 < name_len < 200:
                 name = names_sec[name_off:name_off + name_len].decode('utf-8', 'replace')
-            comp_descs.append((name, row_count, data_offset))
+            comp_descs.append((name, elem_size, row_count, data_offset))
 
         # Ownerlist region: each 32-byte record is {start, end, comp_idx, entity_count}.
         # Records sit in a contiguous table; sentinel entries have comp=0xFFFF…FFFF
@@ -1553,7 +1630,7 @@ def parse_lsmf_membership(
     comp_descs, records = scanned
 
     eid_off = eid_rows = 0
-    for name, row_count, data_offset in comp_descs:
+    for name, _elem, row_count, data_offset in comp_descs:
         if name == 'core.v0.EntityId':
             eid_off, eid_rows = data_offset, row_count
     if not eid_rows or eid_off + eid_rows * 16 > len(blob):
@@ -1603,6 +1680,134 @@ def parse_lsmf_component_rows(
         return {name: frozenset() for name in comp_names or ()}
 
     return {name: frozenset(rows) for name, rows in result.items()}
+
+
+# Heap/string-pool pointers inside LSMF component rows are stored as
+# (absolute blob offset - 48), the same convention as the header offsets.
+LSMF_HEAP_BASE = 48
+
+
+def lsmf_component_index(blob: bytes) -> dict[str, tuple]:
+    """Map component name -> (elem_size, row_count, data_offset, owner_rows).
+
+    owner_rows is the component's ownerlist as a tuple of entity-row indices,
+    in data-row order (the k-th data row belongs to owner_rows[k]); empty for
+    components without an ownerlist.
+    """
+    scanned = scan_lsmf_blob(blob)
+    if scanned is None:
+        return {}
+    comp_descs, records = scanned
+    owners: dict[int, tuple] = {}
+    for comp, start, ec in records:
+        try:
+            owners[comp] = struct.unpack_from(f'<{ec}I', blob, start)
+        except struct.error:
+            continue
+    out: dict[str, tuple] = {}
+    for i, (name, elem, rows, off) in enumerate(comp_descs):
+        if name and name not in out:
+            out[name] = (elem, rows, off, owners.get(i, ()))
+    return out
+
+
+def parse_lsmf_spellbooks(blob: bytes) -> dict[int, list[str]]:
+    """Extract every spell book: entity row -> ordered list of spell IDs.
+
+    game.spell.v3.SpellBookComponent rows are {begin, end} byte ranges into
+    game.spell.v3.SpellData (72-byte rows). SpellData field 6 points at a
+    game.spell.v0.SpellId row, which carries (string pointer, length) into the
+    blob's concatenated spell-ID pool. When an entity appears in multiple
+    ownerlist epochs, the largest book wins.
+    """
+    idx = lsmf_component_index(blob)
+    sb = idx.get('game.spell.v3.SpellBookComponent')
+    sd = idx.get('game.spell.v3.SpellData')
+    si = idx.get('game.spell.v0.SpellId')
+    if not (sb and sd and si):
+        return {}
+    sb_elem, sb_rows, sb_off, sb_owners = sb
+    sd_elem, sd_rows, sd_off, _ = sd
+    si_elem, si_rows, si_off, _ = si
+    if sb_elem != 16 or sd_elem < 56 or si_elem != 24:
+        return {}
+    L = len(blob)
+    sd_lo, sd_hi = sd_off, sd_off + sd_rows * sd_elem
+    si_lo, si_hi = si_off, si_off + si_rows * si_elem
+
+    def spell_id_name(row: int) -> str | None:
+        # Observed record shapes: {meta_ptr, str_ptr, len-packed} and
+        # {str_ptr, len-packed, source_ptr}, where len-packed may carry a
+        # generation counter in its high dword. Try both (pointer, length)
+        # pairings and accept the first that yields printable ASCII.
+        a, b, c = struct.unpack_from('<QQQ', blob, si_off + row * si_elem)
+        for ptr, ln in ((b, c & 0xFFFFFFFF), (a, b & 0xFFFFFFFF)):
+            p0 = ptr + LSMF_HEAP_BASE
+            if not (0 < ln <= 128 and 0 < p0 <= L - ln):
+                continue
+            s = blob[p0:p0 + ln]
+            if all(0x20 <= ch < 0x7F for ch in s):
+                return s.decode('ascii')
+        return None
+
+    books: dict[int, list[str]] = {}
+    for k, ent in enumerate(sb_owners):
+        if k >= sb_rows:
+            break
+        begin, end = struct.unpack_from('<QQ', blob, sb_off + k * sb_elem)
+        if not (sd_lo <= begin <= end <= sd_hi):
+            continue
+        names = []
+        for r in range((begin - sd_lo) // sd_elem, (end - sd_lo) // sd_elem):
+            v = struct.unpack_from('<Q', blob, sd_off + r * sd_elem + 48)[0]
+            if si_lo <= v < si_hi:
+                nm = spell_id_name((v - si_lo) // si_elem)
+                if nm:
+                    names.append(nm)
+        if names and len(names) > len(books.get(ent, ())):
+            books[ent] = names
+    return books
+
+
+def parse_lsmf_classes(blob: bytes) -> dict[int, tuple]:
+    """Extract class progressions: entity row -> ((class, subclass, level), …).
+
+    game.stats.v0.ClassesComponent rows are {begin, end} byte ranges into the
+    auxiliary heap, holding 40-byte entries {class GUID, subclass GUID, u64
+    level}. GUIDs are returned in canonical string form.
+    """
+    idx = lsmf_component_index(blob)
+    cc = idx.get('game.stats.v0.ClassesComponent')
+    if not cc:
+        return {}
+    elem, rows, off, owners = cc
+    if elem != 16:
+        return {}
+    L = len(blob)
+    out: dict[int, tuple] = {}
+    for k, ent in enumerate(owners):
+        if k >= rows:
+            break
+        begin, end = struct.unpack_from('<QQ', blob, off + k * elem)
+        size = end - begin
+        if not (0 < size <= 40 * 16 and size % 40 == 0):
+            continue
+        p0 = begin + LSMF_HEAP_BASE
+        if p0 + size > L:
+            continue
+        entries = []
+        for i in range(size // 40):
+            base = p0 + i * 40
+            cls = guid_le_str(blob[base:base + 16])
+            sub = guid_le_str(blob[base + 16:base + 32])
+            lvl = struct.unpack_from('<Q', blob, base + 32)[0]
+            if lvl > 30:
+                entries = []
+                break
+            entries.append((cls, sub, lvl))
+        if entries:
+            out[ent] = tuple(entries)
+    return out
 
 
 def invert_entity_template_map(
@@ -2296,10 +2501,42 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
                 lsmf_blob = raw
             break
 
-    # Extract spells from LSMF
+    # Exact per-character spell books from the ECS blob: each party member is
+    # matched to its spell-book entity by (class, subclass, level) from
+    # Info.json; multiple entities can match (origin-pool stand-ins exist for
+    # each companion), so the largest book — the live character — wins.
+    # The heuristic string-pool attribution remains as a fallback.
     spell_map: dict[str, list[str]] = {}
+    spellbooks: dict[int, list[str]] = {}
+    entity_classes: dict[int, tuple] = {}
     if lsmf_blob:
         spell_map = extract_spells_by_character(lsmf_blob, party_info, player_display_name)
+        spellbooks = parse_lsmf_spellbooks(lsmf_blob)
+        entity_classes = parse_lsmf_classes(lsmf_blob)
+
+    def exact_spellbook(char_info: dict) -> list[str] | None:
+        """The character's spell book, matched by class/subclass/level."""
+        want = sorted(
+            (c.get('Main', ''), c.get('Sub', '')) for c in char_info.get('Classes', [])
+        )
+        level = char_info.get('Level')
+        if not want or level is None:
+            return None
+        candidates = []
+        for ent, classes in entity_classes.items():
+            if ent not in spellbooks:
+                continue
+            got = sorted(
+                (CLASS_UUID_NAMES.get(cg, ''),
+                 CLASS_UUID_NAMES.get(sg, '') if sg != NULL_UUID else '')
+                for cg, sg, _lvl in classes
+            )
+            if got == want and sum(lvl for _, _, lvl in classes) == level:
+                candidates.append(ent)
+        if not candidates:
+            return None
+        best = max(candidates, key=lambda e: len(spellbooks[e]))
+        return spellbooks[best]
 
     # Parse LSMF once; also build the reverse map used by ecs_resolve_equipped
     lsmf_ecs = parse_lsmf_membership(lsmf_blob) if lsmf_blob else None
@@ -2399,10 +2636,18 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
         if subregion:
             w(f'    Location  : {subregion}')
 
-        # Spells
-        spells = spell_map.get(display_name, [])
-        if spells:
-            w(f'    Spells/Abilities ({len(spells)}):')
+        # Spells — exact book when the entity match succeeds, else heuristic
+        book = exact_spellbook(char_info)
+        if book is not None:
+            distinct = set(book) - COMMON_ACTION_SPELLS
+            # Upcast variants share a display name; show each rendering once.
+            shown = sorted({dn.fmt_spell(sid) for sid in distinct})
+            hidden = len(set(book)) - len(distinct)
+            w(f'    Spells/Abilities ({len(shown)}; +{hidden} basic actions):')
+            for line in shown:
+                w(f'      – {line}')
+        elif (spells := spell_map.get(display_name, [])):
+            w(f'    Spells/Abilities ({len(spells)}, heuristic):')
             for sid in sorted(spells):
                 w(f'      – {dn.fmt_spell(sid)}')
         else:

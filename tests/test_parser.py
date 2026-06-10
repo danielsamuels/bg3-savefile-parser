@@ -843,6 +843,33 @@ def test_carried():
 
 
 
+def test_exact_spellbooks():
+    """Every party member's spells must come from the exact LSMF spell book
+    (no heuristic fallback), and known class abilities must be present."""
+    report = parser.build_report(QUICKSAVE_MAIA, opts=Namespace(verbose=True))
+    assert 'heuristic' not in report
+    assert 'basic actions' in report
+    # Wyll is a Fiend warlock: Eldritch Blast must be in his exact book.
+    wyll = re.search(r'\n  Wyll\n(.*?)(?:\n  \S|\Z)', report, re.S).group(1)
+    assert 'Projectile_EldritchBlast' in wyll
+    # Karlach is a Totem barbarian.
+    karlach = re.search(r'\n  Karlach\n(.*?)(?:\n  \S|\Z)', report, re.S).group(1)
+    assert 'Shout_Rage' in karlach
+
+
+def test_parse_lsmf_spellbooks_direct():
+    """parse_lsmf_spellbooks must return many non-trivial books from the blob."""
+    frames = parser.extract_frames(QUICKSAVE_MAIA)
+    nodes0 = parser.parse_lsof(parser.decomp_frame(frames['Globals.lsf']))
+    blob = next(nd['attrs']['NewAge'] for nd in nodes0
+                if nd['name'] == 'NewAge' and nd['parent'] == -1)
+    books = parser.parse_lsmf_spellbooks(blob)
+    assert len(books) > 100  # party + NPCs all carry spell books
+    classes = parser.parse_lsmf_classes(blob)
+    named = {parser.CLASS_UUID_NAMES.get(c) for cls in classes.values() for c, _s, _l in cls}
+    assert {'Warlock', 'Barbarian', 'Cleric', 'Fighter'} <= named
+
+
 def test_all_items():
     """--all-items must emit the full level inventory section."""
     report = parser.build_report(QUICKSAVE_MAIA, opts=Namespace(all_items=True))
