@@ -7,7 +7,7 @@
 Run it to dump a save's complete component directory (name, element size,
 row count, ownerlist length, data offset):
 
-    uv run explore_lsmf.py 286            # save number, like bg3_save_reader
+    uv run explore_lsmf.py 286            # save number, like bg3save
     uv run explore_lsmf.py path/to.lsv
 
 Or import it for spelunking (see FORMAT.md §6 for the structures):
@@ -23,7 +23,7 @@ Or import it for spelunking (see FORMAT.md §6 for the structures):
 import struct
 import sys
 
-import bg3_save_reader as p
+import bg3parser as p
 
 
 class Lsmf:

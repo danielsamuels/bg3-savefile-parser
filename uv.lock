@@ -7,9 +7,9 @@ resolution-markers = [
 ]
 
 [[package]]
-name = "bg3-save-reader"
+name = "bg3-savefile-parser"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "lz4" },
     { name = "zstandard" },

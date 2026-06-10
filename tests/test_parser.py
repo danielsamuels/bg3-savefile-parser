@@ -1,5 +1,5 @@
 """
-Tests for bg3_save_reader.py.
+Tests for the bg3parser package.
 
 Two save files are bundled in tests/fixtures/:
   quicksave_maia.lsv                — full party, mid-campaign (primary fixture)
@@ -22,7 +22,7 @@ from unittest import mock
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-import bg3_save_reader as parser  # noqa: E402
+import bg3parser as parser  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Save-file fixture paths
@@ -854,7 +854,7 @@ def test_limits():
 
 def test_main_stdout(capsys):
     """main() with a save path must print the report to stdout."""
-    with mock.patch('sys.argv', ['bg3_save_reader', QUICKSAVE_MAIA]):
+    with mock.patch('sys.argv', ['bg3save', QUICKSAVE_MAIA]):
         parser.main()
     captured = capsys.readouterr()
     assert 'BG3 Save File Report' in captured.out
@@ -865,7 +865,7 @@ def test_main_stdout(capsys):
 def test_main_output_file(tmp_path):
     """main() with an output path must write the report to the file."""
     out = tmp_path / 'report.txt'
-    with mock.patch('sys.argv', ['bg3_save_reader', QUICKSAVE_MAIA, str(out)]):
+    with mock.patch('sys.argv', ['bg3save', QUICKSAVE_MAIA, str(out)]):
         parser.main()
     assert out.exists()
     content = out.read_text(encoding='utf-8')

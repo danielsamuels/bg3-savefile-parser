@@ -3,11 +3,11 @@ repos:
     hooks:
       - id: ruff
         name: ruff lint
-        entry: uvx ruff check bg3_save_reader.py explore_lsmf.py tests/
+        entry: uvx ruff check bg3parser/ explore_lsmf.py tests/
         language: system
         pass_filenames: false
       - id: ty
         name: ty type check
-        entry: uv run ty check bg3_save_reader.py
+        entry: uv run ty check bg3parser
         language: system
         pass_filenames: false

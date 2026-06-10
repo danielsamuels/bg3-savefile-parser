@@ -21,10 +21,10 @@ jobs:
         run: uv sync --extra dev
 
       - name: Lint (ruff)
-        run: uvx ruff check bg3_save_reader.py explore_lsmf.py tests/
+        run: uvx ruff check bg3parser/ explore_lsmf.py tests/
 
       - name: Type check (ty)
-        run: uv run ty check bg3_save_reader.py
+        run: uv run ty check bg3parser
 
       - name: Test (pytest)
         run: uv run pytest tests/ -v
