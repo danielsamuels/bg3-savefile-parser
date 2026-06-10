@@ -2043,7 +2043,7 @@ STAT_ITEM_PAKS = ['Shared.pak', 'Gustav.pak', 'GustavX.pak']
 STAT_ITEM_FILE_RE = re.compile(r'/Stats/Generated/Data/(?:Armor|Weapon|Object)\.txt$')
 
 # Bump when the resolver logic changes so a stale cache is not silently reused.
-DISPLAYNAME_SCHEMA_VERSION = 5
+DISPLAYNAME_SCHEMA_VERSION = 6
 
 
 def find_game_data_dir() -> str | None:
@@ -2226,29 +2226,60 @@ def build_displayname_maps(
         if txt:
             stats_name[stats] = txt
 
-    # Spell stat files: Spell_*.txt inside Shared.pak
-    spell_name: dict[str, str] = {}
-    shared_pak = os.path.join(data_dir, 'Shared.pak')
-    try:
-        with open(shared_pak, 'rb') as fh:
-            flist = lspk_filelist(fh)
-        spell_files = sorted(
-            k for k in flist if re.search(r'/Stats/Generated/Data/Spell_.*\.txt$', k)
-        )
+    # Spell stat files: Spell_*.txt from all item paks. Upcast variants and
+    # item-granted spells inherit DisplayName through the `using` chain, so
+    # entries without their own handle resolve via their parents.
+    spell_raw: dict[str, dict] = {}
+    for pak_name in STAT_ITEM_PAKS:
+        pak_path = os.path.join(data_dir, pak_name)
+        try:
+            with open(pak_path, 'rb') as fh:
+                flist = lspk_filelist(fh)
+            spell_files = sorted(
+                k for k in flist if re.search(r'/Stats/Generated/Data/Spell_.*\.txt$', k)
+            )
+        except (OSError, ValueError):
+            continue
         for sf in spell_files:
-            text = lspk_extract(shared_pak, sf).decode('utf-8', errors='replace')
+            try:
+                text = lspk_extract(pak_path, sf).decode('utf-8', errors='replace')
+            except (OSError, KeyError, ValueError):
+                continue
             for block_match in re.finditer(r'^new entry "([^"]+)"', text, re.MULTILINE):
                 entry_name = block_match.group(1)
                 start = block_match.end()
                 next_block = re.search(r'^new entry', text[start:], re.MULTILINE)
                 block_text = text[start : start + (next_block.start() if next_block else len(text))]
                 dn_m = re.search(r'data "DisplayName" "([^";]+)', block_text)
-                if dn_m:
-                    txt = handle_to_text.get(dn_m.group(1))
-                    if txt:
-                        spell_name.setdefault(entry_name, txt)
-    except (OSError, KeyError, ValueError):
-        pass
+                using_m = re.search(r'^using "([^"]+)"', block_text, re.MULTILINE)
+                using = using_m.group(1) if using_m and using_m.group(1) != entry_name else None
+                prev = spell_raw.get(entry_name)
+                if prev is None:
+                    spell_raw[entry_name] = {
+                        'display': dn_m.group(1) if dn_m else None,
+                        'using': using,
+                    }
+                else:
+                    if prev['display'] is None and dn_m:
+                        prev['display'] = dn_m.group(1)
+                    if using:
+                        prev['using'] = using
+
+    spell_name: dict[str, str] = {}
+    for entry_name in spell_raw:
+        cur: str | None = entry_name
+        seen: set[str] = set()
+        while cur and cur not in seen:
+            seen.add(cur)
+            info = spell_raw.get(cur)
+            if info is None:
+                break
+            if info['display']:
+                txt = handle_to_text.get(info['display'])
+                if txt:
+                    spell_name[entry_name] = txt
+                break
+            cur = info['using']
 
     # Item stat files: Armor.txt / Weapon.txt / Object.txt from item paks.
     # Used to (a) identify Object-type items that cannot be equipped, and
