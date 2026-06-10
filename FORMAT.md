@@ -667,6 +667,17 @@ smaller).
   `MemberComponent`/`MemberData` as a "has been in an inventory" signal, not
   a live container assignment.
 
+**Stack amounts** (✅ decoded): each `game.inventory.v0.NewStackComponent`
+row points at a stack record — a `{begin, end}` heap range of member-item
+`EntityId` pointers, followed at +16 by a `{begin, end}` range of
+`game.inventory.v0.StackEntry` rows, whose 8-byte entries are
+`{u32 id, u32 amount}` inline; the record's total is their sum. Verified
+against in-game gold piles of 766 and 2017 and a 2-potion stack
+(QuickSave_296/297). Items without a record are single. Note the records sit
+in the `Stack` component's data region but are **not aligned to its 32-byte
+rows** — row-aligned reads produce chimeras; always navigate from the
+`NewStackComponent` pointer.
+
 Containers are inventory **grid pages** (~13–16 slots for characters), and a
 character's containers freely mix worn and carried items — container identity
 alone does **not** mark equipment. The camp **Traveller's Chest** is simply
