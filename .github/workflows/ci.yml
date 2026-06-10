@@ -37,15 +37,13 @@ jobs:
     steps:
       - uses: actions/checkout@v6.0.3
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
+      - uses: oven-sh/setup-bun@v2
 
       - name: Install
-        run: npm ci
+        run: bun install --frozen-lockfile
 
       - name: Type check
-        run: npm run typecheck --workspace=@bg3save/parser
+        run: bun run --filter '@bg3save/parser' typecheck
 
       - name: Test
-        run: npm test --workspace=@bg3save/parser
+        run: bun run --filter '@bg3save/parser' test
