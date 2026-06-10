@@ -28,7 +28,9 @@ self.onmessage = (ev: MessageEvent) => {
   try {
     const t0 = performance.now();
     const bytes = new Uint8Array(msg.buffer);
-    const report = gatherReport(bytes, gamedata ?? new DisplayNames(), msg.name);
+    const report = gatherReport(bytes, gamedata ?? new DisplayNames(), msg.name, {
+      quests: true,
+    });
     const thumbnail = thumbnailBytes(bytes);
     self.postMessage(
       { kind: 'report', report, ms: Math.round(performance.now() - t0), thumbnail },

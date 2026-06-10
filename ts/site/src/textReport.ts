@@ -101,6 +101,33 @@ function characterLines(char: CharacterReport): string[] {
   return out;
 }
 
+function questsLines(q: NonNullable<SaveReport['quests']>): string[] {
+  const out = [BAR_HEAVY, 'QUEST & STORY STATE  (Osiris / StorySave.bin)', BAR_HEAVY, ''];
+  if (q.failed) {
+    out.push('  (Osiris parse failed or frame not present)', '', '');
+    return out;
+  }
+  out.push(`  Osiris version: ${q.version >> 8}.${q.version & 0xff}`, '');
+  out.push(`  Quests in progress (${q.active.length}):`);
+  for (const n of q.active) out.push(`    ${n}`);
+  out.push('');
+  out.push(`  Quests closed / resolved (${q.closed.length}):`);
+  out.push('  (closed covers completed and failed; no separate failed-quest DB)');
+  for (const n of q.closed) out.push(`    ${n}`);
+  out.push('');
+  out.push(`  Finalized goals — flags=0x07 (${q.goals_finalized.length}):`);
+  out.push('  (orchestration goals finalize when the act/phase is *entered*, not finished;');
+  out.push('   the presence of "Act2" here means Act 2 was started, not completed)');
+  for (const n of q.goals_finalized) out.push(`    ${n}`);
+  out.push('');
+  out.push(
+    `  Story flags — DB_GlobalFlag (first ${q.global_flags.length} of ${q.global_flags_total} shown):`,
+  );
+  for (const n of q.global_flags) out.push(`    ${n}`);
+  out.push('', '');
+  return out;
+}
+
 export function renderTextReport(report: SaveReport): string {
   const si = report.save_info;
   const lines: string[] = [
@@ -127,6 +154,7 @@ export function renderTextReport(report: SaveReport): string {
   lines.push(
     `Item names : ${report.names_resolved ? 'resolved from game data' : 'internal only (name table not loaded)'}`,
   );
+  if (report.quests) lines.push(...questsLines(report.quests));
   lines.push(BAR_HEAVY, 'PARTY CHARACTERS', BAR_HEAVY);
   for (const char of report.characters) {
     lines.push('');

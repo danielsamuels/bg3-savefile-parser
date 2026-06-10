@@ -474,6 +474,19 @@ details.sub ul {
   margin: var(--space-xs) 0 0;
 }
 
+/* Quest log: nested sub-quests under their parent */
+.quests > li {
+  margin: 0.15rem 0;
+}
+
+.quests ul {
+  list-style: none;
+  margin: 0.1rem 0 0.35rem;
+  padding-left: 1.1rem;
+  color: var(--mute);
+  font-size: 0.9375rem;
+}
+
 /* ---- Campaign history ---------------------------------------------------- */
 
 #history {

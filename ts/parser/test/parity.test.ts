@@ -21,7 +21,7 @@ describe('full report parity with bg3save --json', () => {
       readFileSync(join(ROOT, 'tests', 'parity', `${stem}.expected.json`), 'utf-8'),
     );
     const save = new Uint8Array(readFileSync(join(ROOT, 'tests', 'fixtures', `${stem}.lsv`)));
-    const actual = gatherReport(save, gamedata, `${stem}.lsv`);
+    const actual = gatherReport(save, gamedata, `${stem}.lsv`, { quests: true });
     expect(JSON.parse(JSON.stringify(actual))).toEqual(expected);
   });
 });

@@ -1,6 +1,7 @@
 import type {
   CharacterReport,
   ItemRef,
+  QuestsReport,
   SaveInfo,
   SaveReport,
   SpellRef,
@@ -326,6 +327,53 @@ function renderCharacter(c: CharacterReport, index: number): string {
   </section>`;
 }
 
+/** 'GLO_Moonrise_SUB_Shadowcurse' → top-level quest + nested sub-quests;
+ *  labels drop the short all-caps prefixes and split camel case. */
+function questLabel(id: string): string {
+  const pretty = id
+    .split('_')
+    .filter((s) => !(s.length <= 6 && s === s.toUpperCase()))
+    .map(camelSplit)
+    .join(' ');
+  return pretty || id;
+}
+
+function questList(ids: string[]): string {
+  const parents = new Map<string, string[]>();
+  for (const id of ids) {
+    const [parent, sub] = id.split('_SUB_') as [string, string?];
+    if (!parents.has(parent)) parents.set(parent, []);
+    if (sub) parents.get(parent)!.push(sub);
+  }
+  const rows = [...parents.entries()]
+    .map(
+      ([p, subs]) =>
+        `<li><span title="${esc(p)}">${esc(questLabel(p))}</span>${
+          subs.length
+            ? `<ul>${subs.map((s) => `<li>${esc(questLabel(s))}</li>`).join('')}</ul>`
+            : ''
+        }</li>`,
+    )
+    .join('');
+  return `<ul class="items quests">${rows}</ul>`;
+}
+
+function renderQuests(q: QuestsReport, index: number): string {
+  if (q.failed) return '';
+  const topCount = (ids: string[]): number => new Set(ids.map((i) => i.split('_SUB_')[0])).size;
+  return `<section class="char" style="--i:${index}">
+    <h3 class="char-name">Quest Log</h3>
+    <details class="fold" open>
+      <summary>In progress <span class="count">${topCount(q.active)}</span></summary>
+      <div>${questList(q.active)}</div>
+    </details>
+    <details class="fold">
+      <summary>Completed or closed <span class="count">${topCount(q.closed)}</span><span class="fold-note">the save does not distinguish completed from failed</span></summary>
+      <div>${questList(q.closed)}</div>
+    </details>
+  </section>`;
+}
+
 let thumbUrl: string | null = null;
 
 function showReport(r: SaveReport, statusText: string, thumbnail?: ArrayBuffer | null): void {
@@ -341,7 +389,8 @@ function showReport(r: SaveReport, statusText: string, thumbnail?: ArrayBuffer |
   reportEl.innerHTML =
     renderSaveHead(r.save_info, r.source, thumbUrl) +
     namesNote +
-    r.characters.map((c, i) => renderCharacter(c, i + 1)).join('');
+    r.characters.map((c, i) => renderCharacter(c, i + 1)).join('') +
+    (r.quests ? renderQuests(r.quests, r.characters.length + 1) : '');
 
   document.body.classList.add('has-report');
   dropLabel.innerHTML =

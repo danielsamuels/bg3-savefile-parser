@@ -17,6 +17,7 @@ import {
   WIELDED_COMP,
 } from './lsmf.js';
 import { decompFrame, extractFrames, parseInfoJson } from './lspk.js';
+import { parseOsiris } from './osiris.js';
 import {
   type AttributedItem,
   buildEntityTemplateMap,
@@ -100,11 +101,28 @@ export interface SaveInfo {
   has_unofficial_mods: boolean;
 }
 
+/** Mirrors the Python quests dict: the failed shape carries only `failed`. */
+export type QuestsReport =
+  | { failed: true }
+  | {
+      failed: false;
+      version: number;
+      active: string[];
+      closed: string[];
+      goals_finalized: string[];
+      global_flags: string[];
+      global_flags_total: number;
+    };
+
+export interface GatherOpts {
+  quests?: boolean;
+}
+
 export interface SaveReport {
   source: string;
   characters: CharacterReport[];
   save_info: SaveInfo;
-  quests: null;
+  quests: QuestsReport | null;
   level_items: null;
   inspect_pattern: string;
   names_resolved: boolean;
@@ -191,7 +209,12 @@ interface InfoCharacter {
 }
 
 /** Run the extraction pipeline and return the structured report model. */
-export function gatherReport(data: Uint8Array, dn: DisplayNames, source = ''): SaveReport {
+export function gatherReport(
+  data: Uint8Array,
+  dn: DisplayNames,
+  source = '',
+  opts?: GatherOpts,
+): SaveReport {
   const frames = extractFrames(data);
   const info = parseInfoJson(frames) as {
     'Active Party'?: { Characters?: InfoCharacter[] };
@@ -353,6 +376,22 @@ export function gatherReport(data: Uint8Array, dn: DisplayNames, source = ''): S
     inspect_pattern: '',
     names_resolved: dn.available,
   };
+
+  if (opts?.quests) {
+    const osiris = parseOsiris(frames);
+    report.quests =
+      osiris === null
+        ? { failed: true }
+        : {
+            failed: false,
+            version: osiris.version,
+            active: osiris.quests_active,
+            closed: osiris.quests_closed,
+            goals_finalized: osiris.goals_finalized,
+            global_flags: osiris.global_flags,
+            global_flags_total: osiris.global_flags_total,
+          };
+  }
 
   for (const charInfo of partyInfo) {
     const origin = charInfo.Origin ?? 'Generic';

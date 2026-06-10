@@ -18,9 +18,13 @@ ROOT = Path(__file__).parent.parent
 os.environ['BG3_GAMEDATA_JSON'] = str(ROOT / 'data' / 'gamedata.json')
 sys.path.insert(0, str(ROOT))
 
+import argparse  # noqa: E402
 import dataclasses  # noqa: E402
 
 from bg3parser.model import gather_report  # noqa: E402
+
+# Quests are gathered so the TS Osiris port is parity-tested too.
+OPTS = argparse.Namespace(quests=True)
 
 FIXTURES = ROOT / 'tests' / 'fixtures'
 PARITY = ROOT / 'tests' / 'parity'
@@ -29,7 +33,7 @@ PARITY = ROOT / 'tests' / 'parity'
 def main() -> None:
     PARITY.mkdir(exist_ok=True)
     for save in sorted(FIXTURES.glob('*.lsv')):
-        report = gather_report(str(save))
+        report = gather_report(str(save), opts=OPTS)
         data = dataclasses.asdict(report)
         data['source'] = save.name  # absolute paths differ per machine
         out = PARITY / f'{save.stem}.expected.json'
