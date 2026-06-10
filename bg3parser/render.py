@@ -2,6 +2,9 @@
 
 import dataclasses
 import json
+from pathlib import Path
+
+from jinja2 import Environment, FileSystemLoader
 
 from .model import CharacterReport, ItemRef, SaveReport, SpellRef
 
@@ -57,8 +60,12 @@ EQUIPMENT_NOTES = {
 }
 
 
-def render_text(report: SaveReport, opts=None) -> str:
-    """Render the model as the classic plain-text report."""
+def build_render_context(report: SaveReport, opts=None) -> dict:
+    """Build a fully render-ready context dict for the plain-text template.
+
+    All formatting is done here; the template receives only plain strings and
+    lists of plain strings with no further logic required.
+    """
     def opt(name: str) -> bool:
         return bool(getattr(opts, name.replace('-', '_'), False)) if opts is not None else False
 
@@ -127,9 +134,9 @@ def render_text(report: SaveReport, opts=None) -> str:
     w('PARTY CHARACTERS')
     w('━' * 72)
     for char in report.characters:
-        render_character(char, w, verbose=verbose,
-                         all_spells=opt('all-spells'), carried=opt('carried'),
-                         inspect_pattern=report.inspect_pattern)
+        build_character_lines(char, w, verbose=verbose,
+                              all_spells=opt('all-spells'), carried=opt('carried'),
+                              inspect_pattern=report.inspect_pattern)
 
     if report.level_items is not None:
         li = report.level_items
@@ -153,12 +160,12 @@ def render_text(report: SaveReport, opts=None) -> str:
         w('━' * 72)
         w(LIMITS_NOTE)
 
-    return '\n'.join(lines)
+    return {'lines': lines}
 
 
-def render_character(char: CharacterReport, w, *, verbose: bool,
-                     all_spells: bool, carried: bool,
-                     inspect_pattern: str = '') -> None:
+def build_character_lines(char: CharacterReport, w, *, verbose: bool,
+                          all_spells: bool, carried: bool,
+                          inspect_pattern: str = '') -> None:
     cls_str = '; '.join(fmt_class(c) for c in char.classes) if char.classes else '?'
     w('')
     w(f'  {char.name}')
@@ -217,6 +224,19 @@ def render_character(char: CharacterReport, w, *, verbose: bool,
         w(f'    Carried / personal inventory ({len(char.carried)}):')
         for item in char.carried:
             w(f'      – {fmt_item(item, verbose)}')
+
+
+def render_text(report: SaveReport, opts=None) -> str:
+    """Render the model as the classic plain-text report."""
+    env = Environment(
+        loader=FileSystemLoader(Path(__file__).parent / 'templates'),
+        autoescape=False,
+        trim_blocks=True,
+        lstrip_blocks=True,
+    )
+    template = env.get_template('report.txt.j2')
+    ctx = build_render_context(report, opts)
+    return template.render(ctx)
 
 
 def render_json(report: SaveReport, indent: int = 2) -> str:

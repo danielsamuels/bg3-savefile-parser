@@ -1,0 +1,6 @@
+{# BG3 Save File Report — plain text view
+   All formatting and logic lives in Python (build_render_context in render.py).
+   This template assembles the pre-built line list; it contains no formatting
+   logic.  Each element of `lines` is an already-formatted string (some contain
+   embedded newlines for blank-line spacing). #}
+{{ lines | join('\n') }}
