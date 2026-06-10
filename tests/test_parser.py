@@ -1238,3 +1238,16 @@ def test_quicksave_291_ring_order_ground_truth():
     slots = {it.stats: it.slot for it in karlach.equipped}
     assert slots.get('MAG_Harpers_RingOfProjection') == 'Ring'
     assert slots.get('MAG_FlamingFist_ScoutRing') == 'Ring 2'
+
+
+def test_quicksave_302_multi_member_stacks():
+    """In-game ground truth for QuickSave_302: Maia has 4 Karabasan's Gifts
+    and Karlach 3 Soul Coins — multi-member stack records must not multiply
+    each copy by a group total (4 copies were rendering as x16)."""
+    model = gather_model(str(FIXTURE_DIR / 'quicksave_302.lsv'))
+    maia = next(c for c in model.characters if c.name.startswith('Maia'))
+    gifts = [it.count for it in maia.carried if it.stats == 'UNI_LOW_KarabasansGift_Grenade']
+    assert gifts == [1, 1, 1, 1]
+    karlach = next(c for c in model.characters if c.name == 'Karlach')
+    coins = [it.count for it in karlach.carried if it.stats == 'GLO_SoulCoin']
+    assert coins == [1, 1, 1]

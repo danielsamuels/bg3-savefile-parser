@@ -395,6 +395,12 @@ def parse_lsmf_stack_amounts(blob: bytes) -> dict[str, int]:
     are {u32 id, u32 amount} inline — the record's amount is their sum.
     Verified against in-game gold piles of 766 and 2017 (QuickSave_297).
     Items without a record are single (amount 1) and are not returned.
+
+    Only single-member records carry a usable amount (one entity holding a
+    stack of N). Records grouping several member entities have no reliable
+    per-member alignment with their entries (QuickSave_302: four grenades
+    share one entry, three soul coins have four) — each member there is one
+    physical copy, so they are skipped and default to 1.
     """
     idx = lsmf_component_index(blob)
     ns = idx.get('game.inventory.v0.NewStackComponent')
@@ -422,8 +428,11 @@ def parse_lsmf_stack_amounts(blob: bytes) -> dict[str, int]:
         total = sum(w >> 32 for w in struct.unpack_from(f'<{(a1 - a0) // 8}Q', blob, a0))
         if total <= 0:
             continue
+        member_guids = []
         for w in struct.unpack_from(f'<{n}Q', blob, mem_lo + LSMF_HEAP_BASE):
             a = w + LSMF_HEAP_BASE
             if eid_off <= a < eid_off + eid_rows * 16 and (a - eid_off) % 16 == 0:
-                out[guid_le_str(blob[a : a + 16])] = total
+                member_guids.append(guid_le_str(blob[a : a + 16]))
+        if len(member_guids) == 1:
+            out[member_guids[0]] = total
     return out
