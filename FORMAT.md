@@ -795,11 +795,11 @@ What remains genuinely blocked:
    preserve is **ordering**: each worn item has a `ContainerSlotData` entry
    with a stable per-container position, which is how assignments the stats
    cannot express — which of two rings sits in Ring vs Ring2, main- vs
-   off-hand for dual-wielded weapons — survive a save/load round trip. (For
-   Karlach's two worn rings in the test save: ScoutRing at container position
-   2, RingOfProjection at 19, and only one of the two carries
-   `game.inventory.v0.WieldingComponent` — candidate order/hand signals;
-   which ordering drives the UI slots is not yet ground-truth verified.)
+   off-hand for dual-wielded weapons — survive a save/load round trip.
+   **Ground-truth verified** (QuickSave_291, two rings worn by one
+   character): the ring with the earlier `ContainerSlotData` **row** sits in
+   the first (upper) UI ring slot; the `position` field within the entry is
+   insertion bookkeeping and does *not* track the UI order.
 3. The blob contains no slot-name or full-component-name strings to anchor on
    beyond the directory.
 
@@ -875,7 +875,7 @@ handle indexes straight into this table.
 | Display names | ✅ (root templates + `.loca`; stats and spells resolve through `ParentTemplateId` / `using` inheritance chains) |
 | **Spell lists** | ✅ exact per-character books (`SpellBookComponent → SpellData → SpellId → string pool`; characters matched by `ClassesComponent`) |
 | **Worn-vs-carried** | ✅ union of `Flags` bit, STATUS signal, ECS membership count, and physical-attachment components (`WieldedComponent` / `GravityDisabledComponent`), with slot-conflict resolution |
-| Exact equipment slot (Boots / Amulet / Cloak / …) | ✅ derived from item stats (`Slot` via `using` chain) — no explicit `ItemSlot` field exists in the save (byte-sweep verified); same-type assignment (Ring vs Ring2, dual-wield hands) persists via container ordering, not yet ground-truth mapped |
+| Exact equipment slot (Boots / Amulet / Cloak / …) | ✅ derived from item stats (`Slot` via `using` chain) — no explicit `ItemSlot` field exists in the save (byte-sweep verified); Ring vs Ring2 recovered from `ContainerSlotData` row order (ground-truth verified) |
 | LSMF component-type directory | ✅ decoded (≈350 entries: name → elem\_size / row\_count / data\_offset) |
 | LSMF ownerlist region (equipped/carried signal) | ✅ decoded (membership count per entity; threshold 15) |
 | LSMF heap arrays + string pool | ✅ decoded (`{begin,end}` ranges; pointers stored as absolute−48) |

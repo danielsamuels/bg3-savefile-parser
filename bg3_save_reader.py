@@ -44,8 +44,7 @@ Display names
 Known limitations
 -----------------
   Equipment slot is derived from item stats (the save stores no explicit
-  ItemSlot field; same-type assignment such as Ring vs Ring2 persists via
-  container ordering, whose UI mapping is not yet ground-truth verified).
+  ItemSlot field); Ring vs Ring 2 is recovered from container ordering.
   Spell books are read exactly from the save's ECS blob; if two party members
   share an identical class/subclass/level build, their books cannot be told
   apart and a class-based heuristic is used for those members.
@@ -1813,6 +1812,31 @@ def parse_lsmf_classes(blob: bytes) -> dict[int, tuple]:
     return out
 
 
+def parse_lsmf_container_positions(blob: bytes) -> dict[int, int]:
+    """Map entity row -> its game.inventory.v0.ContainerSlotData row index.
+
+    Each contained/worn item has one ContainerSlotData entry {ptr -> item
+    EntityId row, u32 position, u32 generation}. The row order mirrors the
+    in-game ordering of same-slot items: of two worn rings, the one with the
+    earlier ContainerSlotData row sits in the first (upper) ring slot
+    (ground-truth verified against QuickSave_291).
+    """
+    idx = lsmf_component_index(blob)
+    csd = idx.get('game.inventory.v0.ContainerSlotData')
+    eid = idx.get('core.v0.EntityId')
+    if not (csd and eid):
+        return {}
+    csd_elem, csd_rows, csd_off, _ = csd
+    _eid_elem, eid_rows, eid_off, _ = eid
+    out: dict[int, int] = {}
+    for r in range(csd_rows):
+        ptr = struct.unpack_from('<Q', blob, csd_off + r * csd_elem)[0]
+        rel = ptr - eid_off
+        if ptr and rel >= 0 and rel % 16 == 0 and rel // 16 < eid_rows:
+            out.setdefault(rel // 16, r)
+    return out
+
+
 def invert_entity_template_map(
     entity_to_template: dict[str, str],
 ) -> dict[str, list[str]]:
@@ -2597,6 +2621,7 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
     lsmf_owned_loot = comp_rows.get(OWNED_AS_LOOT_COMP)
     lsmf_wielded = comp_rows.get(WIELDED_COMP)
     lsmf_gravity_off = comp_rows.get(GRAVITY_DISABLED_COMP)
+    lsmf_csd_pos = parse_lsmf_container_positions(lsmf_blob) if lsmf_blob else {}
 
     # --inspect: map every LSMF component's rows so items can be looked up
     inspect_pat = (getattr(opts, 'inspect', None) or '') if opts is not None else ''
@@ -2773,11 +2798,27 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
             w(f'    Equipped ({len(equipped)}):')
             # Slot is derived from game stat files: the save itself does not
             # serialise ItemSlot (the game re-derives it from stats on load).
-            def slot_order(sg: tuple) -> tuple:
+            # Of two worn rings, the earlier ContainerSlotData row is the
+            # first (upper) ring slot — verified in-game (QuickSave_291).
+            def container_rank(stats: str, s2e=char_stats_to_entity) -> int:
+                eg = s2e.get(stats, '')
+                rows = lsmf_ecs[0].get(eg, []) if lsmf_ecs else []
+                return min((lsmf_csd_pos[r] for r in rows if r in lsmf_csd_pos),
+                           default=1 << 30)
+            ring_slot_no: dict[str, int] = {}
+            rings = [s for s, _g in equipped if dn.stats_to_slot.get(s) == 'Ring']
+            if len(rings) > 1:
+                for i, s in enumerate(sorted(rings, key=container_rank)):
+                    ring_slot_no[s] = i + 1
+
+            def slot_order(sg: tuple, ranks=ring_slot_no) -> tuple:
                 slot = dn.stats_to_slot.get(sg[0], '')
-                return (SLOT_DISPLAY_ORDER.get(slot, 99), dn.fmt(sg[0], sg[1]))
+                return (SLOT_DISPLAY_ORDER.get(slot, 99),
+                        ranks.get(sg[0], 0), dn.fmt(sg[0], sg[1]))
             for s, guid in sorted(equipped, key=slot_order):
                 slot = dn.stats_to_slot.get(s, '')
+                if ring_slot_no.get(s, 0) == 2:
+                    slot = 'Ring 2'
                 suffix = f'  [{slot}]' if slot else ''
                 w(f'      – {dn.fmt(s, guid)}{suffix}')
             if undetermined:

@@ -113,12 +113,11 @@ re-derived from item stats on load — the parser does the same (the stat files'
 item in the report is annotated `[Slot]`.
 
 Assignments the stats cannot express — which of two rings sits in Ring vs
-Ring2, which hand holds which dual-wielded weapon — survive save/load via the
-**ordering** preserved in the equipment container's `ContainerSlotData`
-entries (each worn item has a stable per-container position). Mapping that
-order to the two on-screen ring slots needs one in-game ground-truth
-observation and is the remaining open detail; until then the report labels
-both rings `[Ring]`.
+Ring2 — survive save/load via the **ordering** preserved in
+`ContainerSlotData`: of two worn rings, the one with the earlier
+`ContainerSlotData` row sits in the first (upper) ring slot. This was
+ground-truth verified in-game against QuickSave_291, and the report labels
+the rings `[Ring]` / `[Ring 2]` accordingly.
 
 ### Spell books — exact (decoded 2026-06)
 Spell data lives in the `NewAge` LSMF ECS blob and is now decoded exactly:
