@@ -43,9 +43,11 @@ Display names
 
 Known limitations
 -----------------
-  Exact equipment slot (Helmet/Boots/Amulet/Ring/…) is not recovered.
-  Spell attribution uses class-based heuristics; spells with no DisplayName
-  in the stat files (passive features, etc.) are shown as internal IDs.
+  Equipment slot is derived from item stats (the save does not serialise it);
+  which of two rings sits in which ring slot cannot be distinguished.
+  Spell books are read exactly from the save's ECS blob; if two party members
+  share an identical class/subclass/level build, their books cannot be told
+  apart and a class-based heuristic is used for those members.
   See LIMITS.md for full details.
 """
 
@@ -2550,14 +2552,26 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
         spellbooks = parse_lsmf_spellbooks(lsmf_blob)
         entity_classes = parse_lsmf_classes(lsmf_blob)
 
-    def exact_spellbook(char_info: dict) -> list[str] | None:
-        """The character's spell book, matched by class/subclass/level."""
+    def build_key(char_info: dict) -> tuple | None:
         want = sorted(
             (c.get('Main', ''), c.get('Sub', '')) for c in char_info.get('Classes', [])
         )
         level = char_info.get('Level')
         if not want or level is None:
             return None
+        return (tuple(want), level)
+
+    # Class matching cannot tell two members with identical class, subclass,
+    # AND level apart; those members fall back to the heuristic.
+    party_builds = [k for ci in party_info if (k := build_key(ci)) is not None]
+    ambiguous_builds = {k for k in party_builds if party_builds.count(k) > 1}
+
+    def exact_spellbook(char_info: dict) -> list[str] | None:
+        """The character's spell book, matched by class/subclass/level."""
+        key = build_key(char_info)
+        if key is None or key in ambiguous_builds:
+            return None
+        want, level = list(key[0]), key[1]
         candidates = []
         for ent, classes in entity_classes.items():
             if ent not in spellbooks:
@@ -2824,25 +2838,24 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
         w('LIMITS')
         w('━' * 72)
         w('''
-  Spell attribution uses class-based heuristics: each spell ID is matched
-  against a hard-coded set of abilities exclusive to that character's class.
-  Generic abilities (Jump, Help, Shove, etc.) are omitted to reduce noise.
-  Higher-level or multiclass spells may appear under the wrong character.
+  Spell attribution reads each character's exact spell book from the save's
+  ECS blob (SpellBookComponent -> SpellData -> SpellId -> string pool),
+  matching party members by class/subclass/level.  If two members share an
+  identical build, their books cannot be told apart; those members fall back
+  to a class-based heuristic (marked "heuristic" in the report).
 
   Per-character item ownership is recovered from shared world position
   (each carried/worn item copies its holder's Translate).  Whether an
-  attributed item is *worn* is determined by: a STATUS on-equip effect; the
-  0x04000000 Flags bit; or high ECS component membership (≥15 ownerlists —
-  equipped items are materialised in the ECS world with ~35–41 memberships,
-  backpack items dematerialise to ~3–6).  Exact slot
-  (MemberComponent.EquipmentSlot) is not recovered.  See LIMITS.md.
+  attributed item is *worn* is determined by layered signals: a STATUS
+  on-equip effect; the 0x04000000 Flags bit; ECS component membership; and
+  physical-attachment components, with per-slot conflict resolution.  The
+  displayed [Slot] is derived from item stats — the save does not serialise
+  ItemSlot; the game itself re-derives it the same way.  See LIMITS.md.
 
   Display names are resolved from the installed game data (root templates +
-  english.loca).  Carried items use a per-save local template GUID, so they
-  resolve by Stats name rather than GUID; a few camp/cosmetic/container items
-  whose templates live in other paks stay as internal names.  Without a game
-  install (or with BG3_DATA_DIR unset and auto-detect failing) every item is
-  shown by its internal name only.
+  english.loca, following ParentTemplateId/using inheritance).  Without a
+  game install (or with BG3_DATA_DIR unset and auto-detect failing) items
+  are shown by their internal names.
 ''')
 
     return '\n'.join(lines)

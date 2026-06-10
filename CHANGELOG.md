@@ -46,6 +46,26 @@ All notable changes to this project will be documented here.
   Undermountain King in save 286), `OwnedAsLootComponent` (fixes
   `DEN_HellridersPride` in save 246), then per-instance membership count.
 
+### Format decode (LSMF ECS blob)
+- **Exact per-character spell books**: `game.spell.v3.SpellBookComponent`
+  `{begin,end}` slices into `SpellData` (72-byte rows) whose field 6 points at
+  `SpellId` `{pointer, length}` references into the blob's spell-ID string
+  pool. Party members are matched by `game.stats.v0.ClassesComponent`
+  (class/subclass/level, UUIDs from `ClassDescriptions.lsx`). Replaces the
+  class-rule heuristic, which remains only as a fallback.
+- **Equipment slot per worn item** displayed in the report, derived from item
+  stats. Established (byte-sweep over 12 known-slot items) that the save does
+  not serialise `ItemSlot` at all — the engine re-derives it from stats.
+- **Heap/string-pool conventions**: variable-length component fields are
+  `{begin,end}` ranges; heap and pool pointers are stored as (absolute − 48).
+- **Inventory container web decoded**: `OwnerComponent` (primary inventory),
+  `IsOwnedComponent`, `ContainerComponent`, `ContainerSlotData`
+  (slot-within-container + generation); `MemberData` identified as
+  historical-ownership bookkeeping.
+- **Display-name inheritance**: stats names resolve through `ParentTemplateId`
+  chains and spell names through the stats `using` chain across all item paks
+  — every item and all but mod-only spells in the test saves now resolve.
+
 ### Performance
 Full-report time on a representative quicksave dropped from ~4.1s to ~1.9s
 (the test suite from ~39s to ~26s):

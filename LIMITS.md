@@ -9,9 +9,11 @@
 |------|----------------|
 | Character name, race, class/subclass, level, XP | `Info.json` (frame 8 of the LSPK) |
 | **Per-character item ownership (equipped + carried)** | **`Item.Translate` matched to the character's `Translate`** (frames 0 + 3) |
-| Equipped vs carried split (best-effort) | union of `STATUS.SourceEquippedItem` + the equipped `Flags` bit `0x04000000` |
+| Equipped vs carried split | layered signals: `STATUS.SourceEquippedItem`, the equipped `Flags` bit `0x04000000`, ECS membership count, and physical-attachment components, with per-slot conflict resolution |
+| Equipment slot per worn item | derived from game stat files (`Slot` via the `using` chain) — the save does not serialise `ItemSlot`; the engine re-derives it the same way |
+| **Exact per-character spell books** | LSMF `SpellBookComponent → SpellData → SpellId → string pool`, matched to party members by `ClassesComponent` (class/subclass/level) |
 | Full level item pool (internal names) | `Item` nodes in frame 0 + level-cache frame |
-| **Human-readable item names** | **resolved from the installed game data** (root-template `_merged.lsf` → `DisplayName` handle → `english.loca`) |
+| **Human-readable item names** | **resolved from the installed game data** (root-template `_merged.lsf` → `DisplayName` handle → `english.loca`, following `ParentTemplateId` inheritance) |
 
 ### How display names work
 
@@ -101,34 +103,32 @@ experiments across saves 242/248/249 and 242/243).
 not in an equipment slot. The ECS signal would separately classify it by actual
 slot status — this is not yet cross-validated.
 
-### Exact equipment slot
-Which slot an item occupies (Helmet / Boots / Amulet / Ring / …) is not
-recovered. The bg3se C++ struct has `eoc::inventory::MemberComponent.EquipmentSlot`
-(`int16`), but the on-disk `MemberComponent` is serialised as only 8 bytes (a
-pointer into `MemberData`) — the slot field is absent from the on-disk form.
-`MemberData`'s second field is a live `EntityHandle` with no on-disk translation
-table, also blocking any handle-based reconstruction. The slot indices follow
-bg3se's `ItemSlot` enum: Helmet=0, Breast=1, Cloak=2, Boots=9, Gloves=10,
-Amulet=11, Ring=7/12. For most item types there is a 1:1 relationship between
-the item and its slot, so the practical impact is limited.
+### Exact equipment slot — derived, because the save does not store it
+Which slot an item occupies (Helmet / Boots / Amulet / Ring / …) is **not
+serialised in the save at all**. Evidence: a byte-level sweep over every LSMF
+component owned by 12 simultaneously-worn items with known slots found no byte
+position matching the `ItemSlot` enum; `ContainerSlotData.slot` is the
+position within its container (insertion order), and
+`EquipmentVisualComponent` serialises as a null pointer. The engine re-derives
+the slot from item stats on load, and the parser does the same (the stat
+files' `Slot` field, following the `using` inheritance chain) — every equipped
+item in the report is annotated `[Slot]`. Residual ambiguity is limited to
+distinctions the stats cannot make (which of two rings sits in Ring vs Ring2,
+melee vs ranged weapon-set assignment for weapons usable in both).
 
-### One item with an unresolved display name
-`GOB_DrowCommander_Leather_Armor` (Wyll's chest piece, confirmed worn) has a
-full frame-0 Item node and the equip bit, but its stats name is not present in
-the root-template files scanned, so it shows without a display name. Context
-suggests it is Spidersilk Armour: the GOB_DrowCommander item family maps to
-Minthara's gear set, and the related template `GOB_DrowCommander_Armor_Leather`
-uses stats `ARM_StuddedLeather_Body_Drow` → "Spidersilk Armour". A previous note
-claimed Shifting Corpus Ring and Spidersilk Armour had no LSF Item records — this
-was incorrect. Both `MAG_FlamingFist_ScoutRing` (Shifting Corpus Ring) and
-`GOB_DrowCommander_Leather_Armor` have frame-0 Item nodes and are attributed
-correctly.
-
-### Spell selections
-Spell book data lives in the `NewAge` attribute (LSF attribute type 25 =
-`ScratchBuffer`), an opaque LSMF-format ECS blob. Spell attribution here uses
-class-based heuristics on the LSMF string pool; multiclass/high-level spells may
-be attributed to the wrong character.
+### Spell books — exact (decoded 2026-06)
+Spell data lives in the `NewAge` LSMF ECS blob and is now decoded exactly:
+`game.spell.v3.SpellBookComponent` rows are `{begin, end}` slices into
+`game.spell.v3.SpellData`, whose rows point at `game.spell.v0.SpellId`
+entries carrying `{pointer, length}` references into the blob's spell-ID
+string pool (see FORMAT.md §6). Party members are matched to their spell-book
+entity by class/subclass/level from `game.stats.v0.ClassesComponent`. The
+resulting lists are complete and current — class abilities, racial and
+illithid powers, item-granted spells, and mod-added spells all attribute to
+the right character. The old string-pool + class-rule heuristic remains only
+as a fallback (labelled "heuristic" in the report) for blobs where the chain
+fails. If two party members have identical class, subclass, *and* level, their
+books cannot be told apart by this method and the heuristic is used.
 
 ## The ECS blob (NewAge / LSMF)
 
@@ -156,37 +156,40 @@ The parser reads the following from the ECS blob:
   maps template GUID → instance GUID, linking the LSF item tree to the ECS rows.
   Spell strings are also read directly from the blob's printable-ASCII runs.
 
+### Also decoded from the blob (see FORMAT.md §6 for structures)
+
+- **Spell books, classes, templates, origins** — exact per-character spell
+  lists; class/subclass/level per entity; template GUIDs as pool strings;
+  origin UUIDs.
+- **The inventory container web** — `OwnerComponent` (primary inventory per
+  character), `IsOwnedComponent`, `ContainerComponent`, `ContainerSlotData`
+  (slot-within-container + generation). Used as documentation and
+  cross-checks; per-character ownership in the report still comes from the
+  simpler and equally exact `Translate` matching.
+
 ### What is not decoded
 
-- **Exact equipment slot** (Helmet / Boots / Amulet / Ring / …): the on-disk
-  `MemberComponent` element is 8 bytes (a pointer into `MemberData`); the
-  `EquipmentSlot` field from the C++ struct is absent. `MemberData`'s second
-  field is a live `EntityHandle` (Salt≈852, no on-disk translation table). The
-  slot number is not recovered.
-- **Per-character inventory ownership** via ECS: same blocker. The
-  `Translate`-matching heuristic (see above) is used instead.
+- **`ItemSlot` per worn item**: not present in the save (byte-sweep verified)
+  — derived from item stats instead, exactly as the engine does on load.
+- **Live `EntityHandle` values** (`MemberData.handle_b` and friends): indices
+  into the running game's global entity pool with no on-disk translation
+  table; anything gated exclusively behind one is unreachable from the save.
 
 ## Development
 
-Install dev dependencies and run all checks with:
+Run all checks with:
 
 ```sh
 # Lint
-uvx ruff check bg3_save_reader.py
-
-# Format check (reports would-be changes without applying them)
-uvx ruff format --check bg3_save_reader.py
-
-# Tests (requires QuickSave_242.lsv; save-dependent tests skip when absent)
-uv run --extra dev pytest
+uvx ruff check bg3_save_reader.py tests/
 
 # Type check
-uv run --extra dev mypy bg3_save_reader.py
+uv run ty check bg3_save_reader.py
+
+# Tests (fixture saves live in tests/fixtures/)
+uv run pytest
 ```
 
-The save file path defaults to the standard Steam/Proton location; override it
-with the `BG3_SAVE_FILE` environment variable:
-
-```sh
-BG3_SAVE_FILE=/path/to/QuickSave_242.lsv uv run --extra dev pytest
-```
+Test saves are bundled under `tests/fixtures/`; tests that exercise an
+installed game's data (display names, slots) adapt automatically when no
+install is found (`BG3_DATA_DIR` unset and auto-detection failing).

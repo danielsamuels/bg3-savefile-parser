@@ -55,10 +55,13 @@ the usual Steam locations); without one, items are shown by their internal name.
 
 ## Status
 
-Characters, ownership, display names, and the item pool are reliable. Spell
-attribution is heuristic. The worn-vs-carried distinction is resolved by a
-layered set of signals (the `0x04000000` Flags bit, active on-equip STATUS
-effects, and several `LSMF` ECS components), validated against in-game ground
-truth across many saves. The exact equipment slot is inferred from game stat
-files for conflict resolution but is not recovered from the save itself — see
-the status table in [FORMAT.md](FORMAT.md#8-status--open-problems).
+Characters, ownership, display names, spell books, and the item pool are all
+read exactly. Per-character spells come from the save's ECS blob
+(`SpellBookComponent → SpellData → SpellId → string pool`), including
+item-granted and mod-added spells. The worn-vs-carried distinction is resolved
+by a layered set of signals (the `0x04000000` Flags bit, active on-equip
+STATUS effects, and several `LSMF` ECS components), validated against in-game
+ground truth across many saves, and every worn item is annotated with its
+equipment slot (derived from item stats — the save does not serialise the
+slot; the game re-derives it the same way). See the status table in
+[FORMAT.md](FORMAT.md#8-status--open-problems).

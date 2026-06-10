@@ -562,6 +562,101 @@ value to `(component_name, row_index, byte_in_row)`. Every
 `core.v0.EntityId` — i.e. it points at the start of an entity's 16-byte GUID
 record, the closest thing to a stable cross-reference the on-disk format has.
 
+### Heap arrays and the string pool (✅ decoded)
+
+Variable-length component fields (arrays, hash maps, strings) live in two
+regions outside the fixed-size column data:
+
+- An **auxiliary heap** after the column data (~`0x37e000–0x38b000` in the
+  test saves) holding serialized arrays. A component row stores such an array
+  as a `{u64 begin, u64 end}` byte range; `0xFFFFFFFFFFFFFFFF` marks an empty
+  slot.
+- A **string pool** of concatenated ASCII (no separators, no NULs between
+  entries): spell IDs, template GUID strings, origin names. Entries are
+  referenced as `{pointer, length}` pairs.
+
+**Pointer base quirk:** pointers into the heap and string pool are stored as
+`(absolute offset − 48)` — the same convention as the header's `dir_off` —
+while pointers into component column data are plain absolute offsets (they
+resolve against descriptor `data_offset` values with `byte_in_row == 0`).
+Add 48 before dereferencing a heap/pool pointer.
+
+### Spell books (✅ decoded — exact per-character spell lists)
+
+The complete chain from a character to its spells:
+
+```
+game.spell.v3.SpellBookComponent   row = {u64 begin, u64 end}
+        │ byte range into…
+game.spell.v3.SpellData            72-byte rows; field 6 (offset 48) = u64 ptr to…
+game.spell.v0.SpellId              24-byte rows = {ptr_meta|ptr_str, ptr_str|len, len|ptr_src}
+        │ {string ptr (+48), length} into…
+the concatenated spell-ID string pool   →  "Shout_ActionSurge", …
+```
+
+Each character's `SpellData` rows are contiguous, so books are `{begin, end}`
+slices. `SpellId` records appear in (at least) three shapes across save
+versions — `{meta_ptr, str_ptr, len}`, `{str_ptr, len|flags, src_ptr}`, and
+`{meta_ptr, str_ptr, len|generation}` — so a robust reader tries both
+`(pointer, length)` pairings and accepts the one yielding printable ASCII.
+Other `SpellData` fields: `[1]`/`[3]` point at enum singletons
+(`ECooldownType`, `EAbility`), `[4]`/`[5]` are a `{begin, end}` slice into
+`game.spell.v2.CastRequirements`, `[7..8]` hold a 16-byte GUID.
+
+The decoded books are **complete and current**: class abilities, racial and
+illithid powers, item-granted spells (they appear when the item is equipped
+and disappear when it is removed), and mod-added spells all show up.
+
+### Character classes, templates, and origins (✅ decoded)
+
+- **`game.stats.v0.ClassesComponent`** (elem=16): `{begin, end}` heap range of
+  40-byte entries `{16B class GUID, 16B subclass GUID, u64 level}` — one entry
+  per class in a multiclass build. The GUIDs are the static UUIDs from the
+  game's `ClassDescriptions.lsx`, so a save-side entity can be matched to
+  `Info.json`'s per-member `(Main, Sub, Level)` without heuristics.
+- **`game.templates.v0.TemplateComponent`** (elem=24):
+  `{u64 ptr, u32 len=36, u32 idx, u64 ptr2}` — the entity's template GUID
+  stored as a 36-char ASCII string in the pool (pointer needs +48).
+- **`game.character_creation.v0.OriginComponent`** (elem=16): the character's
+  origin, stored either as a `{ptr, len}` pool string (`"Lae'zel"`) or as the
+  inline 16-byte origin UUID from `Origins.lsx` (e.g.
+  `efc9d114-0296-4a30-b701-365fc07d44fb` = Wyll).
+
+**One character is many entities.** A party member exists as several distinct
+ECS entities: the world/body entity (whose GUID the LSF `Creators` table maps
+to the character's `CurrentTemplate`), a spell-state entity (owning
+`SpellBookComponent` / `ClassesComponent` / `LearnedSpells`), a party-slot
+entity (`game.party.v0.MemberComponent`), a player entity
+(`game.v0.PlayerComponent`), and origin-pool stand-ins (small NPC-grade spell
+books, one per recruitable companion). Some `core.v0.EntityId` rows for these
+special entities hold handle-like values, not GUIDs. The reliable link from a
+party member to its spell-state entity is **class matching**: the entity whose
+`ClassesComponent` equals the member's class/subclass/level set, taking the
+largest book among candidates (the origin-pool stand-ins are strictly
+smaller).
+
+### Inventory containers (✅ decoded — ownership web)
+
+- **`game.inventory.v0.OwnerComponent`** (elem=24, on characters):
+  `{begin, end, u64 primary}` — an Inventories array in the heap plus
+  `primary` pointing at the `core.v0.EntityId` row of the character's
+  **primary inventory** pseudo-entity. Confirmed: the party leader's primary
+  inventory is the container holding their carried items.
+- **`game.inventory.v1.IsOwnedComponent`** (elem=8, on inventory entities):
+  pointer to the owner's `EntityId` row.
+- **`game.inventory.v1.ContainerComponent`** (elem=32, on inventory entities
+  and containers): two `{begin, end}` heap ranges (empty = `FF…FF`).
+- **`game.inventory.v0.ContainerSlotData`** (elem=16, no ownerlist —
+  referenced by pointer): `{u64 ptr → item EntityId row, u32 slot,
+  u32 generation}`. `slot` is the position **within that container**
+  (insertion-order/grid index, *not* the `ItemSlot` enum); `generation` is a
+  save-epoch counter (664 across all containers in the test save).
+- **`game.inventory.v0.MemberData.ptr_a`** points at single-item shadow
+  inventories whose `IsOwnedComponent` names *other characters* — historical
+  ownership bookkeeping (loot source), not current location. Treat
+  `MemberComponent`/`MemberData` as a "has been in an inventory" signal, not
+  a live container assignment.
+
 ### Entity-GUID bridge — corrects an earlier "no link exists" claim (✅ found)
 
 A prior pass concluded that LSF item/character GUIDs never appear in the LSMF
@@ -684,13 +779,16 @@ What remains genuinely blocked:
    in the on-disk LSF tree** (confirmed by exhaustive whole-tree search). Any
    information gated behind a live `EntityHandle` is unresolvable from the save
    file alone.
-2. **Exact equipment slot** (Helmet / Boots / Amulet / …). The equipped/carried
-   split is recoverable via membership count (see ownerlist region and LIMITS.md).
-   What is not recovered is *which* slot an item occupies. The `EquipmentSlot`
-   field from the C++ `MemberComponent` struct is absent from the 8-byte on-disk
-   element, and the `EntityHandle` wall above blocks any handle-based
-   reconstruction. For most equipment types there is a 1:1 relationship between
-   item type and slot, so the practical impact is limited.
+2. **Exact equipment slot** (Helmet / Boots / Amulet / …). The save does not
+   serialise the `ItemSlot` value at all — established by a byte-level sweep:
+   for 12 simultaneously-equipped items whose slots were known, no byte
+   position in any LSMF component owned by those items consistently equalled
+   the expected `ItemSlot` enum value; `ContainerSlotData.slot` is the
+   position within its container (insertion order), and
+   `EquipmentVisualComponent` serialises as a null pointer. The engine
+   re-derives the slot from item stats on load, and the parser does the same
+   (stat-file `Slot` field via the `using` chain) — so slots in the report are
+   derived, not read, with the same result.
 3. The blob contains no slot-name or full-component-name strings to anchor on
    beyond the directory.
 
@@ -712,10 +810,10 @@ What remains genuinely blocked:
 
 ### Also in the blob
 
-- Spell / ability IDs as a large pool of NUL/concatenated ASCII (e.g.
-  `Projectile_EldritchBlast`, `Shout_SecondWind`). This parser extracts these by
-  known spell-ID prefixes and attributes them to characters by class heuristics
-  (imperfect for multiclass/shared abilities).
+- Spell / ability IDs as a large pool of concatenated ASCII (e.g.
+  `Projectile_EldritchBlast`, `Shout_SecondWind`). These are now read exactly
+  via the spell-book chain above; a prefix-scan heuristic remains only as a
+  fallback for blobs where that chain fails.
 - Earlier analysis suggested some unique items (Shifting Corpus Ring, Spidersilk
   Armour) had no LSF `Item` node — this was incorrect. Ground-truth verification
   shows both `MAG_FlamingFist_ScoutRing` (Shifting Corpus Ring) and
@@ -762,14 +860,17 @@ handle indexes straight into this table.
 | V3 (`KeysAndAdjacency`) LSF layout | not exercised by these files; format documented above |
 | Character / class / level / XP | ✅ (Info.json) |
 | **Frame 6 MetaData** | ✅ `parse_metadata`: wall-clock save time, save number, campaign/session UUIDs, leader name, RNG seed, mod list |
-| Per-character item ownership | ✅ (Translate matching) |
-| Display names | ✅ (root templates + `.loca`) |
-| Spell lists | ⚠️ heuristic (string pool + class rules) |
-| **Worn-vs-carried** | ✅ 34/34 correct: union of `Flags` bit, STATUS signal, and ECS membership count ≥ 15 (`MemberComponent` ownerlist is one of the 35 equipped-only signals; controlled diff, saves 242/243) |
-| Exact equipment slot (Boots / Amulet / Cloak / …) | ❌ `EntityHandle`-gated; absent from on-disk serialisation |
-| LSMF component-type directory | ✅ decoded (355 entries: name → elem\_size / row\_count / data\_offset) |
+| Per-character item ownership | ✅ (Translate matching; ECS container web decoded as cross-check) |
+| Display names | ✅ (root templates + `.loca`; stats and spells resolve through `ParentTemplateId` / `using` inheritance chains) |
+| **Spell lists** | ✅ exact per-character books (`SpellBookComponent → SpellData → SpellId → string pool`; characters matched by `ClassesComponent`) |
+| **Worn-vs-carried** | ✅ union of `Flags` bit, STATUS signal, ECS membership count, and physical-attachment components (`WieldedComponent` / `GravityDisabledComponent`), with slot-conflict resolution |
+| Exact equipment slot (Boots / Amulet / Cloak / …) | ✅ derived from item stats (`Slot` via `using` chain) — the save itself does not serialise `ItemSlot` (verified by byte sweep); the engine re-derives it the same way |
+| LSMF component-type directory | ✅ decoded (≈350 entries: name → elem\_size / row\_count / data\_offset) |
 | LSMF ownerlist region (equipped/carried signal) | ✅ decoded (membership count per entity; threshold 15) |
-| LSMF `MemberComponent` / `MemberData` structure | ✅ traced (8-byte pointer + 16-byte {ptr\_a, EntityHandle}) |
+| LSMF heap arrays + string pool | ✅ decoded (`{begin,end}` ranges; pointers stored as absolute−48) |
+| LSMF spell books / classes / templates / origins | ✅ decoded (see §6) |
+| LSMF inventory container web | ✅ decoded (`OwnerComponent`, `IsOwnedComponent`, `ContainerComponent`, `ContainerSlotData`) |
+| LSMF `MemberComponent` / `MemberData` structure | ✅ traced (8-byte pointer + 16-byte {ptr\_a, EntityHandle}); historical-ownership bookkeeping, not live location |
 | LSMF `EntityHandle` → GUID translation | ❌ no on-disk table; requires live game state |
 | Osiris story (frame 9) | ✅ (`parse_osiris`): quest state, goal flags, story flags |
 
