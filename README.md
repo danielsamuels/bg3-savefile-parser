@@ -4,30 +4,30 @@ Readers for **Baldur's Gate 3** `.lsv` save files, twice over: a TypeScript
 parser powering a fully client-side website, and the pure-Python reference
 implementation it was ported from. Both read the binary formats directly
 (LSPK packages, LSF resources, the LSMF ECS blob, the Osiris story state, the
-`.loca` localisation table) — no [LSLib](https://github.com/Norbyte/lslib)/
-`divine` required.
+`.loca` localisation table), so no [LSLib](https://github.com/Norbyte/lslib)/
+`divine` install is needed.
 
 ## The website
 
-**<https://bg3.danielfinch.co.uk>** — drop a save, read your campaign.
+Drop a save on <https://bg3.danielfinch.co.uk> and read your campaign.
 Parsing happens in a Web Worker in your browser; the file is never uploaded
 (verifiably: check the network tab). It shows:
 
-- **The save** — name, slot, region, difficulty, version, installed mods, and
+- The save: name, slot, region, difficulty, version, installed mods, and
   the load-screen thumbnail
-- **The party** — race, class/subclass, level, XP; equipped gear in game-panel
+- The party: race, class/subclass, level, XP; equipped gear in game-panel
   slot order; carried inventory grouped by category ("14 items · 2,102 gold")
-- **Camp** — companions waiting at the campsite with their gear and spell
+- Camp: companions waiting at the campsite with their gear and spell
   books, plus the full contents of the camp chest
-- **Spell books** — exact per-character spells from the ECS blob, with
+- Spell books: exact per-character spells from the ECS blob, with
   sub-spells and basic actions folded away like the in-game UI
-- **The quest log** — in-progress and closed quests with their real journal
+- The quest log: in-progress and closed quests with their real journal
   titles, mirroring what the in-game journal shows
-- **Campaign history** — parsed saves persist in your browser (IndexedDB
+- Campaign history: parsed saves persist in your browser (IndexedDB
   only), with gold and XP progression charts across a playthrough
-- **Live mode** (Chromium) — point it at the save folder and every quicksave
+- Live mode (Chromium): point it at the save folder and every quicksave
   re-parses automatically
-- **Text download** — the report as plain text, byte-identical to the CLI's
+- A text download of the report, byte-identical to the CLI's output
 - Installable as a PWA; works fully offline after the first visit
 
 ## The CLI (Python)
@@ -72,26 +72,26 @@ name table; without either, internal names are shown.
 
 ```
 bg3parser/      Python reference implementation + CLI (discoveries land here)
-ts/parser/      @bg3save/parser — the TypeScript port (the product runtime)
+ts/parser/      @bg3save/parser: the TypeScript port (the product runtime)
 ts/site/        the website (Vite, vanilla TS, Cloudflare Workers assets)
-data/           gamedata.json — derived name/slot/quest tables (committed)
+data/           gamedata.json: derived name/slot/quest tables (committed)
 tests/          pytest suite, golden text fixtures, and the parity oracle
 ```
 
-The two implementations are held together by a **parity contract**: the
+A parity contract holds the two implementations together: the
 `tests/parity/*.expected.json` fixtures are generated from the Python model
 (`uv run python tests/generate_parity.py`) and the TypeScript test suite
 compares its output against them field-for-field across real saves. Any
-classification change regenerates parity, and both suites must pass — that's
-enforced by pre-commit hooks (ruff, ty, Biome, tsc) and CI, which also
+classification change regenerates parity, and both suites must pass.
+Pre-commit hooks (ruff, ty, Biome, tsc) and CI enforce this; CI also
 deploys the site on green master builds.
 
 ## Documentation
 
-- **[FORMAT.md](FORMAT.md)** — a reference for the binary file formats: LSPK
+- [FORMAT.md](FORMAT.md): a reference for the binary file formats. LSPK
   packages, the LSF/LSOF resource format, the `LSMF` ECS blob, the Osiris
   story save, and `.loca`.
-- **[LIMITS.md](LIMITS.md)** — what the parser can and cannot recover, and why.
+- [LIMITS.md](LIMITS.md): what the parser can and cannot recover, and why.
 
 ## Status
 
@@ -102,8 +102,8 @@ pool`), including item-granted and mod-added spells. The worn-vs-carried
 distinction is resolved by a layered set of signals (the `0x04000000` Flags
 bit, active on-equip STATUS effects, and several `LSMF` ECS components),
 validated against in-game ground truth across many saves, and every worn item
-is annotated with its equipment slot (derived from item stats — the save does
-not serialise the slot; the game re-derives it the same way). Camp companions
+is annotated with its equipment slot (derived from item stats, since the save
+does not serialise the slot; the game re-derives it the same way). Camp companions
 are recognised by proximity to the camp chest; their class, level, and spell
 book come from ECS class matching on the origin's fixed base class. See the
 status table in [FORMAT.md](FORMAT.md#8-status--open-problems).
