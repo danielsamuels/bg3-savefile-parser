@@ -46,6 +46,20 @@ All notable changes to this project will be documented here.
   Undermountain King in save 286), `OwnedAsLootComponent` (fixes
   `DEN_HellridersPride` in save 246), then per-instance membership count.
 
+### Performance
+Full-report time on a representative quicksave dropped from ~4.1s to ~1.9s
+(the test suite from ~39s to ~26s):
+- LSF node/attribute tables parse via precompiled `Struct.iter_unpack`;
+  attribute-name lookups are memoized; GUIDs render by direct hex slicing
+  instead of `uuid.UUID` construction; scalar values dispatch through a
+  type-ID→Struct table.
+- Spell strings are found with one C-speed regex over the ECS blob instead
+  of a per-byte Python loop.
+- The LSMF ownerlist scan runs once and is shared (`scan_lsmf_blob`,
+  lru_cache) by membership counting, component-row extraction, and
+  `--inspect`; its candidate scan prefilters offsets with a single
+  uint32 compare via `memoryview.cast`.
+
 ### Fixed
 - Honour-mode stat file patches that use `using "SameName"` (self-referential
   `using` fields) are now ignored, preventing infinite loops in slot resolution.
