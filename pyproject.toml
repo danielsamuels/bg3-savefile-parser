@@ -25,7 +25,7 @@ target-version = "py311"
 line-length = 100
 
 [tool.ruff.lint]
-select = ["E", "F", "I"]
+select = ["E", "F", "I", "W", "B", "SIM", "UP", "PERF"]
 
 [tool.ruff.format]
 # The existing source file uses single quotes throughout; skip whole-file

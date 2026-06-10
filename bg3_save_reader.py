@@ -410,12 +410,12 @@ def extract_thumbnail(frames: dict[str, bytes], output_path: str) -> tuple[int, 
             if pos + 13 <= len(data) and data[pos + 8] == 0x2F:
                 v = struct.unpack_from('<I', data, pos + 9)[0]
                 return ((v & 0x3FFF) + 1, ((v >> 14) & 0x3FFF) + 1)
-        elif chunk_id == b'VP8 ':
+        elif (chunk_id == b'VP8 ' and pos + 17 <= len(data)
+                and data[pos + 11:pos + 14] == b'\x9d\x01\x2a'):
             # Lossy WebP: start code 9d 01 2a at byte 11 of chunk data
-            if pos + 17 <= len(data) and data[pos + 11:pos + 14] == b'\x9d\x01\x2a':
-                w = struct.unpack_from('<H', data, pos + 14)[0] & 0x3FFF
-                h = struct.unpack_from('<H', data, pos + 16)[0] & 0x3FFF
-                return (w, h)
+            w = struct.unpack_from('<H', data, pos + 14)[0] & 0x3FFF
+            h = struct.unpack_from('<H', data, pos + 16)[0] & 0x3FFF
+            return (w, h)
         pos += 8 + chunk_sz + (chunk_sz % 2)
 
     return None

@@ -76,13 +76,10 @@ def extract_equipped_from_report(report: str) -> dict[str, set[str]]:
             item_match = re.match(r'\s+–\s+(.+)', line)
             if item_match:
                 item_text = item_match.group(1).strip()
-                # Try to extract the (STATS_NAME) parenthetical
+                # The (STATS_NAME) parenthetical when a display name was
+                # resolved; otherwise the whole token is the stats name.
                 paren_match = re.search(r'\(([^)]+)\)\s*$', item_text)
-                if paren_match:
-                    stats = paren_match.group(1).strip()
-                else:
-                    # No display name was resolved — the whole token is the stats name
-                    stats = item_text.strip()
+                stats = paren_match.group(1).strip() if paren_match else item_text.strip()
                 result[current_char].add(stats)
 
     return result
@@ -759,22 +756,20 @@ class TestBuildInstanceEntityMap:
         item_indices = list(range(4 + len(items_data), 4 + 2 * len(items_data)))
         nodes.append({'name': 'Items', 'parent': 1, 'children': item_indices, 'attrs': {}})
 
-        for d in items_data:
-            nodes.append({'name': 'Creator', 'parent': 2, 'children': [], 'attrs': {
+        nodes.extend(
+            {'name': 'Creator', 'parent': 2, 'children': [], 'attrs': {
                 'Entity': d['entity'],
                 'TemplateID': d.get('template', ''),
-            }})
-        for d in items_data:
-            nodes.append({'name': 'Item', 'parent': 3, 'children': [], 'attrs': {
+            }}
+            for d in items_data
+        )
+        nodes.extend(
+            {'name': 'Item', 'parent': 3, 'children': [], 'attrs': {
                 'Translate': d['translate'],
                 'Stats': d['stats'],
-            }})
-
-        # Fix parent indices in creator/item nodes
-        for i, d in enumerate(items_data):
-            nodes[4 + i]['parent'] = 2
-            nodes[4 + len(items_data) + i]['parent'] = 3
-
+            }}
+            for d in items_data
+        )
         return nodes
 
     def test_basic_mapping(self):
