@@ -3527,6 +3527,20 @@
  "level_items": null,
  "names_resolved": true,
  "quests": null,
- "save_info": null,
+ "save_info": {
+  "difficulty": "DifficultyMedium, RulesetLarian",
+  "game_version": "4.1.1.7209685",
+  "has_unofficial_mods": false,
+  "leader": "Maia",
+  "level": "SCL_Main_A",
+  "mods": [
+   "ImpUI (ImprovedUI)",
+   "Show Camp Night Notification",
+   "Better Target Info"
+  ],
+  "save_id": 294,
+  "save_name": "QuickSave_294",
+  "saved_at": "2026-06-10 14:07:07 UTC"
+ },
  "source": "quicksave_294.lsv"
 }

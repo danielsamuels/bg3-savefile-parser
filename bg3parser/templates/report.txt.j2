@@ -1,7 +1,7 @@
 BG3 Save File Report
 Source: {{ report.source }}
 ========================================================================
-{% if report.save_info is not none %}
+{% if opts.save_info and report.save_info is not none %}
 {% include 'save_info.txt.j2' %}
 {% endif %}
 {% if report.quests is not none %}

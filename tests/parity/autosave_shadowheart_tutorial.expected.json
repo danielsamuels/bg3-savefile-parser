@@ -721,6 +721,16 @@
  "level_items": null,
  "names_resolved": true,
  "quests": null,
- "save_info": null,
+ "save_info": {
+  "difficulty": "DifficultyMedium, RulesetLarian",
+  "game_version": "4.1.1.7209685",
+  "has_unofficial_mods": false,
+  "leader": "Shadowheart",
+  "level": "TUT_Avernus_C",
+  "mods": [],
+  "save_id": 2,
+  "save_name": "AutoSave_2",
+  "saved_at": "2026-05-23 13:40:42 UTC"
+ },
  "source": "autosave_shadowheart_tutorial.lsv"
 }

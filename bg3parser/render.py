@@ -158,6 +158,7 @@ def render_text(report: SaveReport, opts=None) -> str:
         'all_spells': all_spells,
         'carried': carried,
         'limits': opt('limits'),
+        'save_info': opt('save-info'),
     }
 
     # Pre-compute values that require Python operators not available in Jinja2.

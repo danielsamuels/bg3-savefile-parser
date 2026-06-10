@@ -210,9 +210,10 @@ SLOT_DISPLAY_ORDER: dict[str, int] = {
 def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=None) -> SaveReport:
     """Run the extraction pipeline and return the structured report model.
 
-    `opts` gates the sections with real gathering cost (--save-info, --quests,
-    --all-items, --inspect); pure presentation flags (--verbose, --carried,
-    --all-spells, --limits) are handled by the views.
+    `opts` gates the sections with real gathering cost (--quests, --all-items,
+    --inspect); pure presentation flags (--verbose, --carried, --all-spells,
+    --limits, --save-info) are handled by the views. Save metadata is always
+    gathered (meta.lsf is parsed regardless, for the leader name).
     """
 
     def opt(name: str) -> bool:
@@ -240,25 +241,24 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
     leader_name = meta.get('leader_name') or ''
     player_display_name = f'{leader_name} (player)' if leader_name else 'Player'
 
-    if opt('save-info'):
-        save_time_str = '?'
-        if meta.get('save_time') is not None:
-            try:
-                dt = datetime.datetime.fromtimestamp(meta['save_time'], tz=datetime.UTC)
-                save_time_str = dt.strftime('%Y-%m-%d %H:%M:%S UTC')
-            except (OSError, OverflowError, ValueError):
-                save_time_str = str(meta['save_time'])
-        report.save_info = {
-            'save_name': info.get('Save Name', '?'),
-            'save_id': meta.get('save_game_id', '?'),
-            'saved_at': save_time_str,
-            'game_version': info.get('Game Version', '?'),
-            'level': info.get('Current Level', '?'),
-            'difficulty': ', '.join(info.get('Difficulty', [])),
-            'leader': meta.get('leader_name', '?'),
-            'mods': [m.get('name', '?') for m in meta.get('user_mods', [])],
-            'has_unofficial_mods': meta.get('has_unofficial_mods', False),
-        }
+    save_time_str = '?'
+    if meta.get('save_time') is not None:
+        try:
+            dt = datetime.datetime.fromtimestamp(meta['save_time'], tz=datetime.UTC)
+            save_time_str = dt.strftime('%Y-%m-%d %H:%M:%S UTC')
+        except (OSError, OverflowError, ValueError):
+            save_time_str = str(meta['save_time'])
+    report.save_info = {
+        'save_name': info.get('Save Name', '?'),
+        'save_id': meta.get('save_game_id', '?'),
+        'saved_at': save_time_str,
+        'game_version': info.get('Game Version', '?'),
+        'level': info.get('Current Level', '?'),
+        'difficulty': ', '.join(info.get('Difficulty', [])),
+        'leader': meta.get('leader_name', '?'),
+        'mods': [m.get('name', '?') for m in meta.get('user_mods', [])],
+        'has_unofficial_mods': meta.get('has_unofficial_mods', False),
+    }
 
     if opt('quests'):
         osiris = parse_osiris(frames)
