@@ -512,12 +512,18 @@ struct ComponentDesc {
 ```
 
 This is a complete `name → {elem_size, row_count, data_offset}` index for all
-355 types, e.g. `core.v0.EntityId` (elem=16 — one entity-instance GUID per
+~350 types, e.g. `core.v0.EntityId` (elem=16 — one entity-instance GUID per
 row), `game.inventory.v0.MemberData` (#125, elem=16, rows=1314,
 data_off=0x166010), `game.inventory.v0.MemberComponent` (#126, elem=8,
 rows=1314, data_off=0x16b230). The inventory cluster is contiguous in the
 names blob: `CanBeWieldedComponent · ContainerSlotData · MemberData ·
 MemberComponent · OwnerComponent · StackMemberComponent · WieldedComponent · …`
+
+> Dump the full directory of any save with the bundled exploration harness:
+> `uv run explore_lsmf.py <save-number-or-path>` prints every component's
+> element size, row count, ownerlist length, and data offset; imported as a
+> module it exposes row access, ownerlist lookup, offset→component resolution,
+> and the item→entity bridge for further reverse engineering.
 
 ### Ownerlist region (✅ decoded)
 
