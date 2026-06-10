@@ -5,7 +5,7 @@ description = "Parse Baldur's Gate 3 save files and report character gear, spell
 license = { text = "MIT" }
 authors = [{ name = "Daniel Finch", email = "daniel.samuels1@gmail.com" }]
 requires-python = ">=3.11"
-dependencies = ["zstandard", "lz4"]
+dependencies = ["zstandard", "lz4", "jinja2"]
 
 [project.scripts]
 bg3save = "bg3parser.cli:main"

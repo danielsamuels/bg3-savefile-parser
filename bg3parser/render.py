@@ -2,8 +2,11 @@
 
 import dataclasses
 import json
+from pathlib import Path
 
-from .model import CharacterReport, ItemRef, SaveReport, SpellRef
+from jinja2 import Environment, FileSystemLoader
+
+from .model import CharacterReport, ItemRef, LevelItemEntry, SaveReport, SpellRef
 
 
 def fmt_class(cls: dict) -> str:
@@ -57,108 +60,36 @@ EQUIPMENT_NOTES = {
 }
 
 
-def render_text(report: SaveReport, opts=None) -> str:
-    """Render the model as the classic plain-text report."""
-    def opt(name: str) -> bool:
-        return bool(getattr(opts, name.replace('-', '_'), False)) if opts is not None else False
+def dedup_sorted_spells(spells: list[SpellRef], verbose: bool) -> list[str]:
+    """Deduplicate spell display strings (upcast variants share a name) and sort."""
+    return sorted({fmt_spell(sp, verbose) for sp in spells})
 
-    verbose = opt('verbose')
+
+def sort_equipped(items: list[ItemRef], verbose: bool) -> list[ItemRef]:
+    """Sort equipped items by (slot_rank, display_name) — compound key Jinja2 can't express."""
+    return sorted(items, key=lambda i: (i.slot_rank, fmt_item(i, verbose)))
+
+
+def fmt_level_item(entry: LevelItemEntry, verbose: bool) -> str:
+    """Format a level item entry as the padded columns line."""
+    qty = f'x{entry.count}' if entry.count > 1 else '   '
+    if entry.name:
+        label = f'{entry.name} ({entry.stats})' if verbose else entry.name
+    else:
+        label = entry.stats
+    return f'{qty:4s} {label:60s} {entry.category}'
+
+
+def render_char(char: CharacterReport, opts: dict) -> str:
+    """Render one character block as a multi-line string for the template."""
+    verbose = opts.get('verbose', False)
+    all_spells = opts.get('all_spells', False)
+    carried = opts.get('carried', False)
+    inspect_pattern = opts.get('inspect_pattern', '')
+
     lines: list[str] = []
     w = lines.append
 
-    w('BG3 Save File Report')
-    w(f'Source: {report.source}')
-    w('=' * 72)
-
-    if report.save_info is not None:
-        si = report.save_info
-        w('')
-        w(f'Save Name  : {si["save_name"]}')
-        w(f'Save #     : {si["save_id"]}')
-        w(f'Saved At   : {si["saved_at"]}')
-        w(f'Game Ver   : {si["game_version"]}')
-        w(f'Level      : {si["level"]}')
-        w(f'Difficulty : {si["difficulty"]}')
-        w(f'Leader     : {si["leader"]}')
-        if si['mods']:
-            flag = '  (flagged unofficial by game)' if si['has_unofficial_mods'] else ''
-            w(f'Mods       : {len(si["mods"])} user mod(s){flag}')
-            for mod_name in si['mods']:
-                w(f'             {mod_name}')
-        else:
-            w('Mods       : none')
-        item_name_source = (
-            'resolved from game data'
-            if report.names_resolved
-            else 'internal only (game data not found; set BG3_DATA_DIR)'
-        )
-        w(f'Item names : {item_name_source}')
-
-    if report.quests is not None:
-        w('')
-        w('━' * 72)
-        w('QUEST & STORY STATE  (Osiris / StorySave.bin)')
-        w('━' * 72)
-        q = report.quests
-        if q['failed']:
-            w('\n  (Osiris parse failed or frame not present)\n')
-        else:
-            w(f'\n  Osiris version: {q["version"] >> 8}.{q["version"] & 0xFF}')
-            w(f'\n  Quests in progress ({len(q["active"])}):')
-            for name in q['active']:
-                w(f'    {name}')
-            w(f'\n  Quests closed / resolved ({len(q["closed"])}):')
-            w('  (closed covers completed and failed; no separate failed-quest DB)')
-            for name in q['closed']:
-                w(f'    {name}')
-            w(f'\n  Finalized goals — flags=0x07 ({len(q["goals_finalized"])}):')
-            w('  (orchestration goals finalize when the act/phase is *entered*, not finished;')
-            w('   the presence of "Act2" here means Act 2 was started, not completed)')
-            for name in q['goals_finalized']:
-                w(f'    {name}')
-            w(f'\n  Story flags — DB_GlobalFlag '
-              f'(first {len(q["global_flags"])} of {q["global_flags_total"]} shown):')
-            for name in q['global_flags']:
-                w(f'    {name}')
-            w('')
-
-    w('')
-    w('━' * 72)
-    w('PARTY CHARACTERS')
-    w('━' * 72)
-    for char in report.characters:
-        render_character(char, w, verbose=verbose,
-                         all_spells=opt('all-spells'), carried=opt('carried'),
-                         inspect_pattern=report.inspect_pattern)
-
-    if report.level_items is not None:
-        li = report.level_items
-        w('')
-        w('━' * 72)
-        w('ALL ITEMS ON CURRENT LEVEL  (per-character gear listed above)')
-        w('Note: items carried by party members are attributed to each character')
-        w('above, by shared world position. The list below is the full level pool')
-        w('(world loot, containers, vendor stock) for reference.')
-        w('━' * 72)
-        w(f'\n  {li["total"]} items total  ({li["unique"]} unique types)\n')
-        for e in li['entries']:
-            qty = f'x{e.count}' if e.count > 1 else '   '
-            label = (f'{e.name} ({e.stats})' if verbose else e.name) if e.name else e.stats
-            w(f'  {qty:4s} {label:60s} {e.category}')
-
-    if opt('limits'):
-        w('')
-        w('━' * 72)
-        w('LIMITS')
-        w('━' * 72)
-        w(LIMITS_NOTE)
-
-    return '\n'.join(lines)
-
-
-def render_character(char: CharacterReport, w, *, verbose: bool,
-                     all_spells: bool, carried: bool,
-                     inspect_pattern: str = '') -> None:
     cls_str = '; '.join(fmt_class(c) for c in char.classes) if char.classes else '?'
     w('')
     w(f'  {char.name}')
@@ -171,15 +102,14 @@ def render_character(char: CharacterReport, w, *, verbose: bool,
         w(f'    Location  : {char.location}')
 
     if char.spells is not None:
-        folded = {'sub-spell': [], 'basic-action': []}
-        shown_refs = []
+        folded: dict[str, list[SpellRef]] = {'sub-spell': [], 'basic-action': []}
+        shown_refs: list[SpellRef] = []
         for sp in char.spells:
             if not all_spells and sp.category in folded:
                 folded[sp.category].append(sp)
             else:
                 shown_refs.append(sp)
-        # Upcast variants share a display name; show each rendering once.
-        shown = sorted({fmt_spell(sp, verbose) for sp in shown_refs})
+        shown = dedup_sorted_spells(shown_refs, verbose)
         extras = [f'+{len(group)} {label}' for group, label in
                   ((folded['sub-spell'], 'sub-spells'),
                    (folded['basic-action'], 'basic actions')) if group]
@@ -202,13 +132,12 @@ def render_character(char: CharacterReport, w, *, verbose: bool,
 
     if char.equipment_note:
         w(f'    Equipment : {EQUIPMENT_NOTES[char.equipment_note]}')
-        return
+        return '\n'.join(lines)
 
     w(f'    Equipped ({len(char.equipped)}):')
-    for item in sorted(char.equipped,
-                       key=lambda i: (i.slot_rank, fmt_item(i, verbose))):
-        suffix = f'  [{item.slot}]' if item.slot else ''
-        w(f'      – {fmt_item(item, verbose)}{suffix}')
+    for item in sort_equipped(char.equipped, verbose):
+        slot_suffix = f'  [{item.slot}]' if item.slot else ''
+        w(f'      – {fmt_item(item, verbose)}{slot_suffix}')
     if char.undetermined:
         w(f'    Worn or carried — undetermined ({len(char.undetermined)}):')
         for item in char.undetermined:
@@ -217,6 +146,60 @@ def render_character(char: CharacterReport, w, *, verbose: bool,
         w(f'    Carried / personal inventory ({len(char.carried)}):')
         for item in char.carried:
             w(f'      – {fmt_item(item, verbose)}')
+
+    return '\n'.join(lines)
+
+
+def build_opts_dict(opts) -> dict:
+    """Convert opts namespace (or None) to a plain dict for template use."""
+    def opt(name: str) -> bool:
+        return bool(getattr(opts, name.replace('-', '_'), False)) if opts is not None else False
+
+    inspect_pattern = (getattr(opts, 'inspect', None) or '') if opts is not None else ''
+    return {
+        'verbose': opt('verbose'),
+        'all_spells': opt('all-spells'),
+        'carried': opt('carried'),
+        'limits': opt('limits'),
+        'inspect_pattern': inspect_pattern,
+    }
+
+
+def build_jinja_env() -> Environment:
+    """Build the Jinja2 environment with custom filters registered."""
+    env = Environment(
+        loader=FileSystemLoader(Path(__file__).parent / 'templates'),
+        autoescape=False,
+        trim_blocks=True,
+        lstrip_blocks=True,
+    )
+    env.filters['fmt_class'] = fmt_class
+    env.filters['fmt_item'] = fmt_item
+    env.filters['fmt_spell'] = fmt_spell
+    env.filters['dedup_sorted_spells'] = dedup_sorted_spells
+    env.filters['sort_equipped'] = sort_equipped
+    env.filters['fmt_level_item'] = fmt_level_item
+    env.filters['render_char'] = render_char
+    return env
+
+
+def render_text(report: SaveReport, opts=None) -> str:
+    """Render the model as the classic plain-text report."""
+    env = build_jinja_env()
+    template = env.get_template('report.txt.j2')
+    opts_dict = build_opts_dict(opts)
+    result = template.render(
+        report=report,
+        opts=opts_dict,
+        limits_note=LIMITS_NOTE,
+    )
+    # The template always emits one trailing newline after the final {% endif %}.
+    # Strip it unconditionally: LIMITS_NOTE itself ends with '\n', reproducing
+    # the original behaviour where w(LIMITS_NOTE) followed by '\n'.join(lines)
+    # yields exactly one trailing newline; the non-limits path has none.
+    if result.endswith('\n'):
+        result = result[:-1]
+    return result
 
 
 def render_json(report: SaveReport, indent: int = 2) -> str:
