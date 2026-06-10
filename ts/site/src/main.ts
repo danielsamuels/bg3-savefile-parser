@@ -1,6 +1,7 @@
 import type { CharacterReport, ItemRef, SaveInfo, SaveReport, SpellRef } from '@bg3save/parser/src/model.ts';
 
 import './styles.css';
+import { allSaves, clearSaves, deleteSave, groupHistory, recordSave, renderHistoryHtml } from './history.ts';
 import { renderTextReport } from './textReport.ts';
 
 const worker = new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' });
@@ -281,18 +282,8 @@ function renderCharacter(c: CharacterReport, index: number): string {
   </section>`;
 }
 
-worker.onmessage = (ev: MessageEvent) => {
-  const msg = ev.data as
-    | { kind: 'report'; report: SaveReport; ms: number }
-    | { kind: 'error'; message: string };
-  if (msg.kind === 'error') {
-    const detail = msg.message.replace(/^Error:\s*/, '').replace(/\s*\([^)]*\)\s*$/, '');
-    setStatus(`Couldn't read that file (${detail}). Is it a BG3 .lsv save?`, true);
-    return;
-  }
-  const r = msg.report;
-  const time = msg.ms < 1000 ? `${msg.ms} ms` : `${(msg.ms / 1000).toFixed(1)} s`;
-  setStatus(`Parsed ${r.source} in ${time}. Nothing left your machine.`);
+function showReport(r: SaveReport, statusText: string): void {
+  setStatus(statusText);
 
   const namesNote = r.names_resolved
     ? ''
@@ -311,4 +302,65 @@ worker.onmessage = (ev: MessageEvent) => {
   dl.href = URL.createObjectURL(new Blob([renderTextReport(r)], { type: 'text/plain' }));
   dl.download = `${r.save_info.save_name !== '?' ? r.save_info.save_name : r.source.replace(/\.lsv$/i, '')}.txt`;
   dl.hidden = false;
+}
+
+/* ---- Local history ------------------------------------------------------ */
+
+const historyEl = document.querySelector('#history') as HTMLElement;
+let currentCampaign: string | undefined;
+
+async function refreshHistory(): Promise<void> {
+  try {
+    const view = groupHistory(await allSaves(), currentCampaign);
+    historyEl.innerHTML = view ? renderHistoryHtml(view) : '';
+  } catch (err) {
+    console.error('History render failed:', err);
+    historyEl.innerHTML = '';
+  }
+}
+
+historyEl.addEventListener('click', (e) => {
+  const btn = (e.target as HTMLElement).closest('button');
+  if (!btn) return;
+  if (btn.id === 'hist-clear') {
+    void clearSaves().then(refreshHistory);
+  } else if (btn.classList.contains('hist-del')) {
+    void deleteSave(btn.dataset.id!).then(refreshHistory);
+  } else if (btn.classList.contains('hist-open')) {
+    void allSaves().then((records) => {
+      const rec = records.find((r) => r.id === btn.dataset.id);
+      if (rec) {
+        showReport(rec.report, `Loaded ${rec.saveName} from history (saved ${rec.savedAt}).`);
+        window.scrollTo({ top: 0 });
+      }
+    });
+  }
+});
+
+historyEl.addEventListener('change', (e) => {
+  const sel = e.target as HTMLSelectElement;
+  if (sel.id === 'hist-campaign') {
+    currentCampaign = sel.value;
+    void refreshHistory();
+  }
+});
+
+void refreshHistory();
+
+worker.onmessage = (ev: MessageEvent) => {
+  const msg = ev.data as
+    | { kind: 'report'; report: SaveReport; ms: number }
+    | { kind: 'error'; message: string };
+  if (msg.kind === 'error') {
+    const detail = msg.message.replace(/^Error:\s*/, '').replace(/\s*\([^)]*\)\s*$/, '');
+    setStatus(`Couldn't read that file (${detail}). Is it a BG3 .lsv save?`, true);
+    return;
+  }
+  const r = msg.report;
+  const time = msg.ms < 1000 ? `${msg.ms} ms` : `${(msg.ms / 1000).toFixed(1)} s`;
+  showReport(r, `Parsed ${r.source} in ${time}. Nothing left your machine.`);
+  currentCampaign = r.save_info.leader;
+  recordSave(r)
+    .then(refreshHistory)
+    .catch((err) => console.error('History store failed:', err));
 };

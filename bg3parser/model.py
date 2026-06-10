@@ -256,7 +256,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         'level': info.get('Current Level', '?'),
         'difficulty': ', '.join(info.get('Difficulty', [])),
         'leader': meta.get('leader_name', '?'),
-        'game_id': meta.get('game_id', ''),  # campaign identity UUID
+        'game_id': meta.get('game_id', ''),  # regenerated per save; not campaign-stable
         'mods': [m.get('name', '?') for m in meta.get('user_mods', [])],
         'has_unofficial_mods': meta.get('has_unofficial_mods', False),
     }

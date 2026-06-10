@@ -313,6 +313,88 @@ details.sub ul { margin: var(--space-xs) 0 0; }
 
 .undet-note { color: var(--mute); font-size: 0.875rem; margin: var(--space-xs) 0 0; }
 
+/* ---- Campaign history ---------------------------------------------------- */
+
+#history { margin-top: var(--space-xl); }
+
+.hist-campaign {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  color: var(--mute);
+  font-size: 0.9375rem;
+  margin-bottom: var(--space-sm);
+}
+
+.hist-campaign select {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  font: 400 0.9375rem var(--sans);
+}
+
+.hist-charts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-lg) var(--space-2xl);
+  margin: var(--space-sm) 0 var(--space-md);
+}
+
+.spark { margin: 0; }
+.spark figcaption { font-size: 0.875rem; color: var(--mute); margin-bottom: 2px; }
+.spark svg { width: 220px; height: 48px; display: block; }
+.spark polyline { fill: none; stroke: var(--gold); stroke-width: 1.5; }
+.spark circle { fill: var(--gold); }
+
+.hist-list { list-style: none; margin: 0; padding: 0; }
+.hist-list li { display: flex; align-items: baseline; gap: var(--space-sm); }
+
+.hist-open {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs) var(--space-md);
+  align-items: baseline;
+  padding: 0.3rem 0;
+  font: inherit;
+  text-align: left;
+  color: var(--ink);
+}
+
+.hist-name { color: var(--gold); font-weight: 600; }
+.hist-open:hover .hist-name { color: var(--gold-hi); }
+.hist-meta { color: var(--mute); font-size: 0.9375rem; }
+
+.hist-del {
+  background: none;
+  border: none;
+  color: var(--mute);
+  cursor: pointer;
+  font-size: 1.05rem;
+  line-height: 1;
+  padding: 0.3rem 0.5rem;
+}
+
+.hist-del:hover { color: var(--error); }
+
+.hist-clear {
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--mute);
+  cursor: pointer;
+  padding: 0.3rem 0.8rem;
+  font: 400 0.875rem var(--sans);
+  margin-top: var(--space-md);
+  transition: border-color 0.18s var(--ease-out), color 0.18s var(--ease-out);
+}
+
+.hist-clear:hover { border-color: var(--error); color: var(--error); }
+
 /* ---- Footer ------------------------------------------------------------ */
 
 .colophon {

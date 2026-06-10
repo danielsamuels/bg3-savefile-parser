@@ -73,7 +73,8 @@ def parse_metadata(frames: dict[str, bytes]) -> dict:
         save_time           int  — wall-clock save time (Unix epoch seconds)
         save_game_id        int  — save slot number (e.g. 242)
         save_game_type      int  — save type code (1 = QuickSave, observed once)
-        game_id             str  — campaign identity UUID
+        game_id             str  — save identity UUID (observed to change on
+                                   every save; NOT stable across a campaign)
         game_session_id     str  — session identity UUID
         leader_name         str  — party leader's name
         seed                int  — RNG seed
