@@ -475,6 +475,12 @@ details.sub ul {
 }
 
 /* Quest log: nested sub-quests under their parent */
+.quest-obj {
+  color: var(--mute);
+  font-size: 0.875rem;
+  margin: 0.05rem 0 0.25rem;
+}
+
 .quests > li {
   margin: 0.15rem 0;
 }

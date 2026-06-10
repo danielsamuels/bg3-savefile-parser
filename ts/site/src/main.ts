@@ -351,13 +351,22 @@ function questLabel(id: string): string {
 /** The in-game journal hides quests with no title (engine bookkeeping like
  *  ORI_Avatar_*); mirror that. Named sub-quests of hidden parents are
  *  promoted to top level, and duplicate titles collapse to one entry. */
-function questTree(quests: QuestRef[]): Map<string, Set<string>> {
+interface QuestView {
+  tree: Map<string, Set<string>>;
+  objectives: Map<string, string>;
+}
+
+function questTree(quests: QuestRef[]): QuestView {
   const anyNamed = quests.some((q) => q.name !== null);
   const titleOf = (q: QuestRef): string | null => q.name ?? (anyNamed ? null : questLabel(q.id));
   const named = new Map<string, string>();
+  const objectives = new Map<string, string>();
   for (const q of quests) {
     const t = titleOf(q);
-    if (t !== null) named.set(q.id, t);
+    if (t !== null) {
+      named.set(q.id, t);
+      if (q.objective && !objectives.has(t)) objectives.set(t, q.objective);
+    }
   }
   const tree = new Map<string, Set<string>>();
   for (const q of quests) {
@@ -376,15 +385,22 @@ function questTree(quests: QuestRef[]): Map<string, Set<string>> {
   for (const [title, subs] of tree) {
     if (!subs.size && subTitles.has(title)) tree.delete(title);
   }
-  return tree;
+  return { tree, objectives };
 }
 
-function questList(tree: Map<string, Set<string>>): string {
+function questList(view: QuestView): string {
+  const { tree, objectives } = view;
+  const obj = (title: string): string => {
+    const text = objectives.get(title);
+    return text ? `<div class="quest-obj">${esc(text)}</div>` : '';
+  };
   const rows = [...tree.entries()]
     .map(
       ([p, subs]) =>
-        `<li>${esc(p)}${
-          subs.size ? `<ul>${[...subs].map((s) => `<li>${esc(s)}</li>`).join('')}</ul>` : ''
+        `<li>${esc(p)}${obj(p)}${
+          subs.size
+            ? `<ul>${[...subs].map((s) => `<li>${esc(s)}${obj(s)}</li>`).join('')}</ul>`
+            : ''
         }</li>`,
     )
     .join('');
@@ -411,15 +427,15 @@ function renderQuests(q: QuestsReport, index: number): string {
   if (q.failed) return '';
   const active = questTree(q.active);
   const closed = questTree(q.closed);
-  if (!active.size && !closed.size) return '';
+  if (!active.tree.size && !closed.tree.size) return '';
   return `<section class="char" style="--i:${index}">
     <h3 class="char-name">Quest Log</h3>
     <details class="fold" open>
-      <summary>In progress <span class="count">${active.size}</span></summary>
+      <summary>In progress <span class="count">${active.tree.size}</span></summary>
       <div>${questList(active)}</div>
     </details>
     <details class="fold">
-      <summary>Completed or closed <span class="count">${closed.size}</span><span class="fold-note">the save does not distinguish completed from failed</span></summary>
+      <summary>Completed or closed <span class="count">${closed.tree.size}</span><span class="fold-note">the save does not distinguish completed from failed</span></summary>
       <div>${questList(closed)}</div>
     </details>
   </section>`;

@@ -44,6 +44,7 @@ from .party import (
     find_party_character_nodes,
     invert_entity_template_map,
     is_equipment_type,
+    parse_journal_objectives,
     resolve_slot_conflicts,
     split_equipped_carried,
 )
@@ -267,12 +268,30 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         'has_unofficial_mods': meta.get('has_unofficial_mods', False),
     }
 
+    # ---- Globals.lsf ------------------------------------------------------
+    nodes0 = parse_lsof(decomp_frame(frames['Globals.lsf']))
+    party_nodes = find_party_character_nodes(nodes0, player_display_name)
+    entity_to_template0 = build_entity_template_map(nodes0, 'Items')
+    template_to_stats0 = build_template_stats_map(nodes0)
+    char_positions = collect_character_positions(nodes0, party_nodes)
+
+    # Quests need the journal (Globals) for current objectives, so this runs
+    # after nodes0 is parsed.
     if opt('quests'):
+        journal_objectives = parse_journal_objectives(nodes0)
+
+        def quest_ref(qid: str) -> dict:
+            obj_id = journal_objectives.get(qid, '')
+            return {
+                'id': qid,
+                'name': dn.quest_name_for(qid),
+                'objective': dn.quest_objective_for(obj_id) if obj_id else None,
+            }
+
         osiris = parse_osiris(frames)
         if osiris is None:
             report.quests = {'failed': True}
         else:
-            quest_ref = lambda qid: {'id': qid, 'name': dn.quest_name_for(qid)}  # noqa: E731
             report.quests = {
                 'failed': False,
                 'version': osiris['version'],
@@ -282,13 +301,6 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
                 'global_flags': osiris['global_flags'],
                 'global_flags_total': osiris['global_flags_total'],
             }
-
-    # ---- Globals.lsf ------------------------------------------------------
-    nodes0 = parse_lsof(decomp_frame(frames['Globals.lsf']))
-    party_nodes = find_party_character_nodes(nodes0, player_display_name)
-    entity_to_template0 = build_entity_template_map(nodes0, 'Items')
-    template_to_stats0 = build_template_stats_map(nodes0)
-    char_positions = collect_character_positions(nodes0, party_nodes)
 
     lsmf_blob = None
     for nd in nodes0:

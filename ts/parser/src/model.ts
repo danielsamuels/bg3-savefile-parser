@@ -38,6 +38,7 @@ import {
   isEquipmentType,
   NULL_UUID,
   ORIGIN_INFO,
+  parseJournalObjectives,
   resolveSlotConflicts,
   splitEquippedCarried,
 } from './party.js';
@@ -109,6 +110,7 @@ export interface SaveInfo {
 export interface QuestRef {
   id: string;
   name: string | null;
+  objective: string | null;
 }
 
 /** Mirrors the Python quests dict: the failed shape carries only `failed`. */
@@ -589,7 +591,15 @@ export function gatherReport(
 
   if (opts?.quests) {
     const osiris = parseOsiris(frames);
-    const questRef = (qid: string): QuestRef => ({ id: qid, name: dn.questNameFor(qid) });
+    const journalObjectives = parseJournalObjectives(nodes0);
+    const questRef = (qid: string): QuestRef => {
+      const objId = journalObjectives.get(qid) ?? '';
+      return {
+        id: qid,
+        name: dn.questNameFor(qid),
+        objective: objId ? dn.questObjectiveFor(objId) : null,
+      };
+    };
     report.quests =
       osiris === null
         ? { failed: true }

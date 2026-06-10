@@ -103,9 +103,15 @@ QUEST_PROTOTYPE_FILES = [
     ('Gustav.pak', 'Mods/GustavDev/Story/Journal/quest_prototypes.lsx'),
 ]
 
+# Journal objective definitions: ObjectiveID -> Description handle. The save
+# stores each quest's current ObjectiveID directly (Journal/QuestsProgress).
+OBJECTIVE_PROTOTYPE_FILES = [
+    ('Gustav.pak', 'Mods/GustavDev/Story/Journal/objective_prototypes.lsx'),
+]
+
 
 # Bump when the resolver logic changes so a stale cache is not silently reused.
-DISPLAYNAME_SCHEMA_VERSION = 11
+DISPLAYNAME_SCHEMA_VERSION = 12
 
 
 def find_game_data_dir() -> str | None:
@@ -178,11 +184,12 @@ def build_displayname_maps(
     frozenset[str],
     frozenset[str],
     dict[str, str],
+    dict[str, str],
 ]:
     """Build display-name and item-stat maps from installed game data.
 
     Returns (guid->name, stats->name, spell_id->name, object_type_stats, stats_to_slot,
-    two_handed_stats, sub_spells, quest_names).
+    two_handed_stats, sub_spells, quest_names, quest_objectives).
 
     Results are cached under XDG_CACHE_HOME keyed on the source paks' mtime/size,
     so the ~1 s parse only happens after a game update.
@@ -204,6 +211,7 @@ def build_displayname_maps(
             frozenset(data.get('two_handed', [])),
             frozenset(data.get('sub_spells', [])),
             data.get('quest_names', {}),
+            data.get('quest_objectives', {}),
         )
     except (OSError, ValueError, KeyError):
         pass
@@ -229,6 +237,27 @@ def build_displayname_maps(
                 if title and '%%%' not in title:
                     quest_names[current_quest] = title
                 current_quest = None
+
+    # Objective texts: inside an <node id="Objective"> the attributes sort
+    # alphabetically, so the Description handle PRECEDES the ObjectiveID.
+    quest_objectives: dict[str, str] = {}
+    objective_attr_re = re.compile(
+        r'id="(ObjectiveID|Description)"[^>]*?(?:value|handle)="([^"]*)"'
+    )
+    for pak, name in OBJECTIVE_PROTOTYPE_FILES:
+        try:
+            text = lspk_extract(os.path.join(data_dir, pak), name).decode('utf-8', 'replace')
+        except (OSError, KeyError, ValueError):
+            continue
+        pending_handle = None
+        for m in objective_attr_re.finditer(text):
+            if m.group(1) == 'Description':
+                pending_handle = m.group(2)
+            elif pending_handle:
+                title = handle_to_text.get(pending_handle)
+                if title and '%%%' not in title:
+                    quest_objectives[m.group(2)] = title
+                pending_handle = None
 
     guid_handle: dict[str, str] = {}  # template GUID -> own DisplayName handle ('' if none)
     guid_parent: dict[str, str] = {}  # template GUID -> ParentTemplateId
@@ -449,6 +478,7 @@ def build_displayname_maps(
                     'two_handed': two_handed_stats_list,
                     'sub_spells': sub_spell_list,
                     'quest_names': quest_names,
+                    'quest_objectives': quest_objectives,
                 },
                 fh,
             )
@@ -463,6 +493,7 @@ def build_displayname_maps(
         frozenset(two_handed_stats_list),
         frozenset(sub_spell_list),
         quest_names,
+        quest_objectives,
     )
 
 
@@ -479,6 +510,7 @@ class DisplayNames:
         two_handed_stats: frozenset[str] | None = None,
         sub_spells: frozenset[str] | None = None,
         quest_names: dict[str, str] | None = None,
+        quest_objectives: dict[str, str] | None = None,
     ):
         self._guid = guid_name
         self._stats = stats_name
@@ -488,6 +520,7 @@ class DisplayNames:
         self.two_handed_stats: frozenset[str] = two_handed_stats or frozenset()
         self.sub_spells: frozenset[str] = sub_spells or frozenset()
         self.quest_names: dict[str, str] = quest_names or {}
+        self.quest_objectives: dict[str, str] = quest_objectives or {}
         self.verbose = False  # set to True to append (INTERNAL_NAME) after display names
 
     @classmethod
@@ -519,6 +552,10 @@ class DisplayNames:
     def quest_name_for(self, quest_id: str) -> str | None:
         """Return the journal title for a quest, or None if unresolved."""
         return self.quest_names.get(quest_id)
+
+    def quest_objective_for(self, objective_id: str) -> str | None:
+        """Return the journal text for an objective, or None if unresolved."""
+        return self.quest_objectives.get(objective_id)
 
     def spell_name_for(self, spell_id: str) -> str | None:
         """Return the display name for a spell, or None if unresolved."""

@@ -60,6 +60,34 @@ export function findCampChest(nodes: LsofNode[]): string | null {
   return null;
 }
 
+/** quest_id -> current ObjectiveID, from the Journal's QuestsProgress map. */
+export function parseJournalObjectives(nodes: LsofNode[]): Map<string, string> {
+  const out = new Map<string, string>();
+  const ji = nodes.findIndex((nd) => nd.name === 'Journal' && nd.parent === -1);
+  if (ji === -1) return out;
+  const walk = (i: number): void => {
+    const nd = nodes[i]!;
+    if (nd.name === 'QuestsProgress') {
+      const qid = (nd.attrs.MapKey as string) ?? '';
+      for (const mi of nd.children) {
+        for (const qi of nodes[mi]!.children) {
+          const q = nodes[qi]!;
+          if (q.name === 'Quest' && q.attrs.QuestUnlocked && !q.attrs.QuestDisabled) {
+            const obj = (q.attrs.ObjectiveID as string) ?? '';
+            if (qid && obj) out.set(qid, obj);
+          }
+        }
+      }
+      return;
+    }
+    for (const c of nd.children) walk(c);
+  };
+  for (const c of nodes[ji]!.children) {
+    if (nodes[c]!.name === 'Quests') walk(c);
+  }
+  return out;
+}
+
 export function campDistance(a: string, b: string): number {
   const pa = a.split(',').map(Number);
   const pb = b.split(',').map(Number);

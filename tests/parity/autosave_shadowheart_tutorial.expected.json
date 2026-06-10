@@ -727,15 +727,18 @@
   "active": [
    {
     "id": "GLO_ArtefactDiscovery",
-    "name": "Discover the Artefact's Secrets"
+    "name": "Discover the Artefact's Secrets",
+    "objective": "Find out more about the artefact."
    },
    {
     "id": "ORI_Avatar_ShadowHeart",
-    "name": "Daughter of Darkness"
+    "name": "Daughter of Darkness",
+    "objective": "Bring the artefact to your Mother Superior in Baldur's Gate."
    },
    {
     "id": "TUT_NautiloidEscape",
-    "name": "Escape the Nautiloid"
+    "name": "Escape the Nautiloid",
+    "objective": "Reach the Helm."
    }
   ],
   "closed": [],

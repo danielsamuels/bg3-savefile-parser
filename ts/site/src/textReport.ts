@@ -109,7 +109,10 @@ function questsLines(q: NonNullable<SaveReport['quests']>): string[] {
   }
   out.push(`  Osiris version: ${q.version >> 8}.${q.version & 0xff}`, '');
   out.push(`  Quests in progress (${q.active.length}):`);
-  for (const n of q.active) out.push(`    ${n.name ?? n.id}`);
+  for (const n of q.active) {
+    out.push(`    ${n.name ?? n.id}`);
+    if (n.objective) out.push(`      → ${n.objective}`);
+  }
   out.push('');
   out.push(`  Quests closed / resolved (${q.closed.length}):`);
   out.push('  (closed covers completed and failed; no separate failed-quest DB)');

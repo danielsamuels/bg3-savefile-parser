@@ -77,6 +77,45 @@ def camp_distance(a: tuple, b: tuple) -> float:
     return sum((x - y) ** 2 for x, y in zip(a, b, strict=False)) ** 0.5
 
 
+def parse_journal_objectives(nodes: list[dict]) -> dict[str, str]:
+    """quest_id -> current ObjectiveID, from the Journal's QuestsProgress map.
+
+    Covers unlocked, not-yet-disabled journal quests (the active set); the
+    save stores the current objective directly, no inference needed.
+    """
+    ji = next(
+        (i for i, nd in enumerate(nodes) if nd['name'] == 'Journal' and nd['parent'] == -1),
+        None,
+    )
+    if ji is None:
+        return {}
+    out: dict[str, str] = {}
+
+    def walk(i: int) -> None:
+        nd = nodes[i]
+        if nd['name'] == 'QuestsProgress':
+            qid = nd['attrs'].get('MapKey', '')
+            for mi in nd['children']:
+                for qi in nodes[mi]['children']:
+                    q = nodes[qi]
+                    if (
+                        q['name'] == 'Quest'
+                        and q['attrs'].get('QuestUnlocked')
+                        and not q['attrs'].get('QuestDisabled')
+                    ):
+                        obj = q['attrs'].get('ObjectiveID', '')
+                        if qid and obj:
+                            out[qid] = obj
+            return
+        for c in nd['children']:
+            walk(c)
+
+    for c in nodes[ji]['children']:
+        if nodes[c]['name'] == 'Quests':
+            walk(c)
+    return out
+
+
 def find_party_character_nodes(nodes: list[dict], player_name: str = 'Player') -> dict[str, int]:
     chars_root = next(
         (i for i, nd in enumerate(nodes) if nd['name'] == 'Characters' and nd['parent'] == -1),

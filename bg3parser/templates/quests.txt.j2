@@ -13,6 +13,9 @@ QUEST & STORY STATE  (Osiris / StorySave.bin)
   Quests in progress ({{ report.quests.active | length }}):
 {% for q in report.quests.active %}
     {{ q.name or q.id }}
+{% if q.objective %}
+      → {{ q.objective }}
+{% endif %}
 {% endfor %}
 
   Quests closed / resolved ({{ report.quests.closed | length }}):

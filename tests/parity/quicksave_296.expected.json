@@ -6647,281 +6647,350 @@
   "active": [
    {
     "id": "FOR_DangerousBook",
-    "name": "Search the Cellar"
+    "name": "Search the Cellar",
+    "objective": "Find a way to finish the Necromancy of Thay."
    },
    {
     "id": "FOR_DangerousBook_SUB_EvilTome",
-    "name": "Destroy the Ancient Tome"
+    "name": "Destroy the Ancient Tome",
+    "objective": "Destroy the book."
    },
    {
     "id": "FOR_DangerousBook_SUB_UseTome",
-    "name": "Unlock the Ancient Tome"
+    "name": "Unlock the Ancient Tome",
+    "objective": "Find a way to finish The Necromancy of Thay."
    },
    {
     "id": "GLO_DoubtingArtist",
-    "name": "Free the Artist"
+    "name": "Free the Artist",
+    "objective": "Look for Oskar in Baldur's Gate."
    },
    {
     "id": "GLO_Moonrise",
-    "name": "Infiltrate Moonrise Towers"
+    "name": "Infiltrate Moonrise Towers",
+    "objective": "Infiltrate the cult of the Absolute."
    },
    {
     "id": "GLO_Moonrise_SUB_Relic",
-    "name": "Find Ketheric Thorm's Relic"
+    "name": "Find Ketheric Thorm's Relic",
+    "objective": "Investigate the Thorm Mausoleum."
    },
    {
     "id": "GLO_Tadpole",
-    "name": "Find a Cure"
+    "name": "Find a Cure",
+    "objective": "Find the source of the parasite."
    },
    {
     "id": "GLO_UnleashPowers",
-    "name": "Embrace Your Potential"
+    "name": "Embrace Your Potential",
+    "objective": "Find more parasites to absorb and grow your power."
    },
    {
     "id": "HIDDEN_WLD_Boosters",
-    "name": null
+    "name": null,
+    "objective": null
    },
    {
     "id": "MOO_GnomeRescue",
-    "name": "Rescue Wulbren"
+    "name": "Rescue Wulbren",
+    "objective": "Travel to Moonrise Towers."
    },
    {
     "id": "ORI_Avatar_ShadowHeart_SUB_ChosenOfShar",
-    "name": "The Chosen of Shar"
+    "name": "The Chosen of Shar",
+    "objective": "Find the lair of the Dark Justiciars."
    },
    {
     "id": "ORI_Avatar_Wyll_SUB_Duke",
-    "name": "The Grand Duke"
+    "name": "The Grand Duke",
+    "objective": "Search for Grand Duke Ravengard."
    },
    {
     "id": "ORI_COM_Astarion",
-    "name": "The Pale Elf"
+    "name": "The Pale Elf",
+    "objective": "Travel the road to Baldur's Gate."
    },
    {
     "id": "ORI_COM_Gale",
-    "name": "The Wizard of Waterdeep"
+    "name": "The Wizard of Waterdeep",
+    "objective": "Destroy the Heart of the Absolute."
    },
    {
     "id": "ORI_COM_Karlach",
-    "name": "Our Fiery Friend"
+    "name": "Our Fiery Friend",
+    "objective": "Travel with Karlach."
    },
    {
     "id": "ORI_COM_ShadowHeart",
-    "name": "Daughter of Darkness"
+    "name": "Daughter of Darkness",
+    "objective": "Continue travelling with Shadowheart."
    },
    {
     "id": "ORI_COM_ShadowHeart_SUB_Justiciar",
-    "name": "The Chosen of Shar"
+    "name": "The Chosen of Shar",
+    "objective": "Reach the ancient temple."
    },
    {
     "id": "ORI_COM_Wyll",
-    "name": "The Blade of Frontiers"
+    "name": "The Blade of Frontiers",
+    "objective": "Rescue Zariel's asset from Moonrise Towers."
    },
    {
     "id": "ORI_COM_Wyll_SUB_Duke",
-    "name": "The Grand Duke"
+    "name": "The Grand Duke",
+    "objective": "Search for Grand Duke Ravengard."
    },
    {
     "id": "PLA_GrandDukeRescue",
-    "name": "Rescue the Grand Duke"
+    "name": "Rescue the Grand Duke",
+    "objective": "Search for Grand Duke Ravengard."
    },
    {
     "id": "SHA_OldEnemy",
-    "name": "Kill Raphael's Old Enemy"
+    "name": "Kill Raphael's Old Enemy",
+    "objective": "Deal with Raphael's Old Enemy"
    }
   ],
   "closed": [
    {
     "id": "CHA_Chapel",
-    "name": "Explore the Ruins"
+    "name": "Explore the Ruins",
+    "objective": null
    },
    {
     "id": "CHA_LaezelRecruit",
-    "name": "Free Lae'zel"
+    "name": "Free Lae'zel",
+    "objective": null
    },
    {
     "id": "CRE_BloodOfLathander",
-    "name": "Find the Blood of Lathander"
+    "name": "Find the Blood of Lathander",
+    "objective": null
    },
    {
     "id": "CRE_Hatchery",
-    "name": "Steal a Githyanki Egg"
+    "name": "Steal a Githyanki Egg",
+    "objective": null
    },
    {
     "id": "DEN_Conflict",
-    "name": "Save the Refugees"
+    "name": "Save the Refugees",
+    "objective": null
    },
    {
     "id": "DEN_Conflict_SUB_AoD",
-    "name": "Raid the Emerald Grove"
+    "name": "Raid the Emerald Grove",
+    "objective": null
    },
    {
     "id": "DEN_Conflict_SUB_Goblin",
-    "name": "Defeat the Goblins"
+    "name": "Defeat the Goblins",
+    "objective": null
    },
    {
     "id": "DEN_Conflict_SUB_Halsin",
-    "name": "Save the First Druid"
+    "name": "Save the First Druid",
+    "objective": null
    },
    {
     "id": "DEN_Conflict_SUB_Murder",
-    "name": "Kill Kagha"
+    "name": "Kill Kagha",
+    "objective": null
    },
    {
     "id": "DEN_Conflict_SUB_Ritual",
-    "name": "Investigate Kagha"
+    "name": "Investigate Kagha",
+    "objective": null
    },
    {
     "id": "DEN_RobbedAdventurer",
-    "name": "Return the Locket"
+    "name": "Return the Locket",
+    "objective": null
    },
    {
     "id": "DEN_SnakeCourt",
-    "name": "Save Arabella"
+    "name": "Save Arabella",
+    "objective": null
    },
    {
     "id": "DEN_Thieflings",
-    "name": "Find Your Belongings"
+    "name": "Find Your Belongings",
+    "objective": null
    },
    {
     "id": "DEN_VoloAdventure",
-    "name": "Rescue Volo"
+    "name": "Rescue Volo",
+    "objective": null
    },
    {
     "id": "FOR_UnfortunateGnome",
-    "name": "Rescue the Gnome"
+    "name": "Rescue the Gnome",
+    "objective": null
    },
    {
     "id": "GLO_ArtefactDiscovery",
-    "name": "Discover the Artefact's Secrets"
+    "name": "Discover the Artefact's Secrets",
+    "objective": null
    },
    {
     "id": "GLO_Moonrise_SUB_Caravan",
-    "name": "Follow the Convoy"
+    "name": "Follow the Convoy",
+    "objective": null
    },
    {
     "id": "GLO_Moonrise_SUB_MarcusCapture",
-    "name": "Resolve the Abduction"
+    "name": "Resolve the Abduction",
+    "objective": null
    },
    {
     "id": "GLO_Moonrise_SUB_Shadowcurse",
-    "name": "Seek Protection from the Shadow Curse"
+    "name": "Seek Protection from the Shadow Curse",
+    "objective": null
    },
    {
     "id": "GLO_PathToMoonrise",
-    "name": "Travel to Moonrise Towers"
+    "name": "Travel to Moonrise Towers",
+    "objective": null
    },
    {
     "id": "GLO_PathToMoonrise_SUB_MountainPath",
-    "name": "Travel through the Mountain Pass"
+    "name": "Travel through the Mountain Pass",
+    "objective": null
    },
    {
     "id": "GLO_PathToMoonrise_SUB_UnderdarkPath",
-    "name": "Travel through the Underdark"
+    "name": "Travel through the Underdark",
+    "objective": null
    },
    {
     "id": "GLO_Tadpole_SUB_Apprentice",
-    "name": "Get Help from Healer Nettie"
+    "name": "Get Help from Healer Nettie",
+    "objective": null
    },
    {
     "id": "GLO_Tadpole_SUB_Creche",
-    "name": "Find the Githyanki Crèche"
+    "name": "Find the Githyanki Crèche",
+    "objective": null
    },
    {
     "id": "GLO_Tadpole_SUB_Druid",
-    "name": "Rescue the Druid Halsin"
+    "name": "Rescue the Druid Halsin",
+    "objective": null
    },
    {
     "id": "GLO_Tadpole_SUB_Hag",
-    "name": "Get Help from Auntie Ethel"
+    "name": "Get Help from Auntie Ethel",
+    "objective": null
    },
    {
     "id": "GLO_Tadpole_SUB_Priestess",
-    "name": "Ask the Goblin Priestess for Help"
+    "name": "Ask the Goblin Priestess for Help",
+    "objective": null
    },
    {
     "id": "GLO_Tadpole_SUB_Society",
-    "name": "Help Omeluum Investigate the Parasite"
+    "name": "Help Omeluum Investigate the Parasite",
+    "objective": null
    },
    {
     "id": "HAG_HagSpawn",
-    "name": "Save Mayrina"
+    "name": "Save Mayrina",
+    "objective": null
    },
    {
     "id": "ORI_COM_Karlach_SUB_ForgingOfTheHeart",
-    "name": "The Hellion's Heart"
+    "name": "The Hellion's Heart",
+    "objective": null
    },
    {
     "id": "ORI_COM_Laezel",
-    "name": "The Githyanki Warrior"
+    "name": "The Githyanki Warrior",
+    "objective": null
    },
    {
     "id": "PLA_PaladinsOfTyr",
-    "name": "Hunt the Devil"
+    "name": "Hunt the Devil",
+    "objective": null
    },
    {
     "id": "PLA_StuckHalfElf",
-    "name": "Rescue the Trapped Man"
+    "name": "Rescue the Trapped Man",
+    "objective": null
    },
    {
     "id": "PLA_ZhentShipment",
-    "name": "Find the Missing Shipment"
+    "name": "Find the Missing Shipment",
+    "objective": null
    },
    {
     "id": "TUT_NautiloidEscape",
-    "name": "Escape the Nautiloid"
+    "name": "Escape the Nautiloid",
+    "objective": null
    },
    {
     "id": "TUT_ShadowheartEscape",
-    "name": "Rescue the Illithids' Captive"
+    "name": "Rescue the Illithids' Captive",
+    "objective": null
    },
    {
     "id": "UND_AdamantineForge",
-    "name": "The Adamantine Forge"
+    "name": "The Adamantine Forge",
+    "objective": null
    },
    {
     "id": "UND_AdamantineForge_SUB_Rubble",
-    "name": "Get Past the Rubble"
+    "name": "Get Past the Rubble",
+    "objective": null
    },
    {
     "id": "UND_BroodingSovereign",
-    "name": "Avenge Glut's Circle"
+    "name": "Avenge Glut's Circle",
+    "objective": null
    },
    {
     "id": "UND_CaveIn",
-    "name": "Free True Soul Nere"
+    "name": "Free True Soul Nere",
+    "objective": null
    },
    {
     "id": "UND_CaveIn_SUB_Eye",
-    "name": "Blind the Absolute"
+    "name": "Blind the Absolute",
+    "objective": null
    },
    {
     "id": "UND_CaveIn_SUB_Smokepowder",
-    "name": "Find Explosives"
+    "name": "Find Explosives",
+    "objective": null
    },
    {
     "id": "UND_DuergarPoison",
-    "name": "Cure the Poisoned Gnome"
+    "name": "Cure the Poisoned Gnome",
+    "objective": null
    },
    {
     "id": "UND_GnomeRescue",
-    "name": "Save the Grymforge Gnomes"
+    "name": "Save the Grymforge Gnomes",
+    "objective": null
    },
    {
     "id": "UND_LoneDuergar",
-    "name": "Find the Missing Boots"
+    "name": "Find the Missing Boots",
+    "objective": null
    },
    {
     "id": "UND_MushroomHunter",
-    "name": "Find the Mushroom Picker"
+    "name": "Find the Mushroom Picker",
+    "objective": null
    },
    {
     "id": "UND_MyconidCircle",
-    "name": "Defeat the Duergar Intruders"
+    "name": "Defeat the Duergar Intruders",
+    "objective": null
    },
    {
     "id": "UND_MyconidRevenge",
-    "name": "Deliver Nere's Head"
+    "name": "Deliver Nere's Head",
+    "objective": null
    }
   ],
   "failed": false,
