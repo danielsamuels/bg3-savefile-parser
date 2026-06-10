@@ -2,7 +2,7 @@
  *  campaign, with gold / XP progression charts. Nothing leaves the browser. */
 import type { SaveReport } from '@bg3save/parser/src/model.ts';
 
-const GOLD_STATS = new Set(['OBJ_GoldCoin', 'OBJ_GoldPile']);
+export const GOLD_STATS = new Set(['OBJ_GoldCoin', 'OBJ_GoldPile']);
 
 export interface HistoryRecord {
   id: string;
@@ -15,6 +15,7 @@ export interface HistoryRecord {
   partyLevel: number;
   leaderXp: number | null;
   report: SaveReport;
+  thumbnail?: ArrayBuffer | null;
 }
 
 let dbPromise: Promise<IDBDatabase> | null = null;
@@ -46,7 +47,7 @@ function tx<T>(
   );
 }
 
-export function toRecord(report: SaveReport): HistoryRecord {
+export function toRecord(report: SaveReport, thumbnail?: ArrayBuffer | null): HistoryRecord {
   const si = report.save_info;
   let gold = 0;
   let partyLevel = 0;
@@ -68,11 +69,12 @@ export function toRecord(report: SaveReport): HistoryRecord {
     partyLevel,
     leaderXp,
     report,
+    thumbnail: thumbnail ?? null,
   };
 }
 
-export const recordSave = (report: SaveReport): Promise<unknown> =>
-  tx('readwrite', (s) => s.put(toRecord(report)));
+export const recordSave = (report: SaveReport, thumbnail?: ArrayBuffer | null): Promise<unknown> =>
+  tx('readwrite', (s) => s.put(toRecord(report, thumbnail)));
 
 export const allSaves = (): Promise<HistoryRecord[]> =>
   tx<HistoryRecord[]>('readonly', (s) => s.getAll() as IDBRequest<HistoryRecord[]>);

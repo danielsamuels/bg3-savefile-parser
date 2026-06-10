@@ -1,8 +1,21 @@
 /// <reference lib="webworker" />
 import { DisplayNames, type GamedataJson } from '@bg3save/parser/src/gamedata.ts';
+import { decompFrame, extractFrames } from '@bg3save/parser/src/lspk.ts';
 import { gatherReport } from '@bg3save/parser/src/model.ts';
 
 let gamedata: DisplayNames | null = null;
+
+/** The save's load-screen WebP, decompressed; null when absent or unreadable. */
+function thumbnailBytes(bytes: Uint8Array): ArrayBuffer | null {
+  try {
+    const frame = extractFrames(bytes).get('thumbnail');
+    if (!frame?.length) return null;
+    const d = decompFrame(frame);
+    return d.buffer.slice(d.byteOffset, d.byteOffset + d.byteLength) as ArrayBuffer;
+  } catch {
+    return null;
+  }
+}
 
 self.onmessage = (ev: MessageEvent) => {
   const msg = ev.data as
@@ -14,12 +27,13 @@ self.onmessage = (ev: MessageEvent) => {
   }
   try {
     const t0 = performance.now();
-    const report = gatherReport(
-      new Uint8Array(msg.buffer),
-      gamedata ?? new DisplayNames(),
-      msg.name,
+    const bytes = new Uint8Array(msg.buffer);
+    const report = gatherReport(bytes, gamedata ?? new DisplayNames(), msg.name);
+    const thumbnail = thumbnailBytes(bytes);
+    self.postMessage(
+      { kind: 'report', report, ms: Math.round(performance.now() - t0), thumbnail },
+      thumbnail ? [thumbnail] : [],
     );
-    self.postMessage({ kind: 'report', report, ms: Math.round(performance.now() - t0) });
   } catch (err) {
     self.postMessage({ kind: 'error', message: String(err) });
   }

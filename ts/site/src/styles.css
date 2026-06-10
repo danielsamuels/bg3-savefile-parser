@@ -225,6 +225,30 @@ body.has-report .drop-hint {
   margin: var(--space-xl) 0 var(--space-lg);
 }
 
+.save-head.has-thumb {
+  display: flex;
+  gap: var(--space-lg);
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.save-thumb {
+  max-width: 220px;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+  .save-head.has-thumb {
+    flex-direction: column-reverse;
+  }
+  .save-thumb {
+    max-width: 100%;
+  }
+}
+
 .save-head h2 {
   font: 600 2.125rem / 1.15 var(--serif);
   margin: 0 0 var(--space-sm);

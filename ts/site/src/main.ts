@@ -11,6 +11,7 @@ import {
   allSaves,
   clearSaves,
   deleteSave,
+  GOLD_STATS,
   groupHistory,
   recordSave,
   renderHistoryHtml,
@@ -176,7 +177,7 @@ const CARRIED_GROUPS: [string, string][] = [
   ['misc', 'Everything else'],
 ];
 
-function renderSaveHead(si: SaveInfo, sourceName: string): string {
+function renderSaveHead(si: SaveInfo, sourceName: string, thumbUrl: string | null): string {
   const metaRow = (label: string, value: string): string =>
     value ? `<div><dt>${label}</dt><dd>${value}</dd></div>` : '';
   const mods = si.mods.length
@@ -186,16 +187,23 @@ function renderSaveHead(si: SaveInfo, sourceName: string): string {
           : ''
       }</summary><ul>${si.mods.map((m) => `<li>${esc(m)}</li>`).join('')}</ul></details>`
     : '';
-  return `<header class="save-head" style="--i:0">
-    <h2>${esc(si.save_name !== '?' ? si.save_name : sourceName)}</h2>
-    <dl class="save-meta">
-      ${metaRow('Leader', esc(si.leader))}
-      ${metaRow('Region', si.level === '?' ? '' : labelled(si.level, REGION_LABELS))}
-      ${metaRow('Difficulty', friendlyDifficulty(si.difficulty))}
-      ${metaRow('Saved', si.saved_at === '?' ? '' : esc(si.saved_at))}
-      ${metaRow('Game version', si.game_version === '?' ? '' : esc(si.game_version))}
-    </dl>
-    ${mods}
+  const thumb = thumbUrl
+    ? `<img class="save-thumb" src="${esc(thumbUrl)}" alt="Load-screen thumbnail of this save" />`
+    : '';
+  return `<header class="save-head${thumb ? ' has-thumb' : ''}" style="--i:0">
+    <div class="save-head-text">
+      <h2>${esc(si.save_name !== '?' ? si.save_name : sourceName)}</h2>
+      <dl class="save-meta">
+        ${metaRow('Leader', esc(si.leader))}
+        ${metaRow('Save', si.save_id === null ? '' : `#${si.save_id}`)}
+        ${metaRow('Region', si.level === '?' ? '' : labelled(si.level, REGION_LABELS))}
+        ${metaRow('Difficulty', friendlyDifficulty(si.difficulty))}
+        ${metaRow('Saved', si.saved_at === '?' ? '' : esc(si.saved_at))}
+        ${metaRow('Game version', si.game_version === '?' ? '' : esc(si.game_version))}
+      </dl>
+      ${mods}
+    </div>
+    ${thumb}
   </header>`;
 }
 
@@ -279,7 +287,13 @@ function renderCharacter(c: CharacterReport, index: number): string {
        <p class="undet-note">The save's equipment signals conflict for these items; they are on the character either way.</p>`
     : '';
 
-  const carriedTotal = c.carried.reduce((n, i) => n + i.count, 0);
+  // Gold stacks are money, not luggage: "14 items · 2,102 gold", not "2,116 items".
+  const carriedGold = c.carried
+    .filter((i) => GOLD_STATS.has(i.stats))
+    .reduce((n, i) => n + i.count, 0);
+  const carriedItems = c.carried
+    .filter((i) => !GOLD_STATS.has(i.stats))
+    .reduce((n, i) => n + i.count, 0);
   const carriedGroups = CARRIED_GROUPS.map(([key, label]) => {
     const counts = new Map<string, number>();
     for (const it of c.carried.filter((i) => i.category === key)) {
@@ -293,9 +307,13 @@ function renderCharacter(c: CharacterReport, index: number): string {
       .join('');
     return `<h5 class="group-head">${esc(label)}</h5><ul class="items">${lines}</ul>`;
   }).join('');
-  const carried = carriedTotal
-    ? `<details class="fold"><summary>Carried <span class="count">${carriedTotal}</span></summary><div>${carriedGroups}</div></details>`
+  const goldNote = carriedGold
+    ? `<span class="fold-note">${carriedGold.toLocaleString('en-GB')} gold</span>`
     : '';
+  const carried =
+    carriedItems || carriedGold
+      ? `<details class="fold"><summary>Carried <span class="count">${carriedItems}</span>${goldNote}</summary><div>${carriedGroups}</div></details>`
+      : '';
 
   const spells = c.spells ? renderSpells(c.spells) : '';
   const spellsNote =
@@ -308,15 +326,20 @@ function renderCharacter(c: CharacterReport, index: number): string {
   </section>`;
 }
 
-function showReport(r: SaveReport, statusText: string): void {
+let thumbUrl: string | null = null;
+
+function showReport(r: SaveReport, statusText: string, thumbnail?: ArrayBuffer | null): void {
   setStatus(statusText);
+
+  if (thumbUrl) URL.revokeObjectURL(thumbUrl);
+  thumbUrl = thumbnail ? URL.createObjectURL(new Blob([thumbnail], { type: 'image/webp' })) : null;
 
   const namesNote = r.names_resolved
     ? ''
     : '<p class="names-note">Display names unavailable; items and spells are shown by their internal names.</p>';
 
   reportEl.innerHTML =
-    renderSaveHead(r.save_info, r.source) +
+    renderSaveHead(r.save_info, r.source, thumbUrl) +
     namesNote +
     r.characters.map((c, i) => renderCharacter(c, i + 1)).join('');
 
@@ -357,7 +380,11 @@ historyEl.addEventListener('click', (e) => {
     void allSaves().then((records) => {
       const rec = records.find((r) => r.id === btn.dataset.id);
       if (rec) {
-        showReport(rec.report, `Loaded ${rec.saveName} from history (saved ${rec.savedAt}).`);
+        showReport(
+          rec.report,
+          `Loaded ${rec.saveName} from history (saved ${rec.savedAt}).`,
+          rec.thumbnail,
+        );
         window.scrollTo({ top: 0 });
       }
     });
@@ -401,7 +428,7 @@ if (watchSupported()) {
 
 worker.onmessage = (ev: MessageEvent) => {
   const msg = ev.data as
-    | { kind: 'report'; report: SaveReport; ms: number }
+    | { kind: 'report'; report: SaveReport; ms: number; thumbnail: ArrayBuffer | null }
     | { kind: 'error'; message: string };
   if (msg.kind === 'error') {
     const detail = msg.message.replace(/^Error:\s*/, '').replace(/\s*\([^)]*\)\s*$/, '');
@@ -410,9 +437,9 @@ worker.onmessage = (ev: MessageEvent) => {
   }
   const r = msg.report;
   const time = msg.ms < 1000 ? `${msg.ms} ms` : `${(msg.ms / 1000).toFixed(1)} s`;
-  showReport(r, `Parsed ${r.source} in ${time}. Nothing left your machine.`);
+  showReport(r, `Parsed ${r.source} in ${time}. Nothing left your machine.`, msg.thumbnail);
   currentCampaign = r.save_info.leader;
-  recordSave(r)
+  recordSave(r, msg.thumbnail)
     .then(refreshHistory)
     .catch((err) => console.error('History store failed:', err));
 };
