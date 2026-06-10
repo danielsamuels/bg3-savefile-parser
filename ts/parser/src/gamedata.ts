@@ -9,6 +9,7 @@ export interface GamedataJson {
   stats_slots?: Record<string, string>;
   two_handed?: string[];
   sub_spells?: string[];
+  quest_names?: Record<string, string>;
   class_uuid_names?: Record<string, string>;
 }
 
@@ -20,6 +21,7 @@ export class DisplayNames {
   readonly statsToSlot: Record<string, string>;
   readonly twoHandedStats: Set<string>;
   readonly subSpells: Set<string>;
+  readonly questNames: Record<string, string>;
   readonly classUuidNames: Record<string, string>;
 
   constructor(data?: GamedataJson) {
@@ -30,6 +32,7 @@ export class DisplayNames {
     this.statsToSlot = data?.stats_slots ?? {};
     this.twoHandedStats = new Set(data?.two_handed ?? []);
     this.subSpells = new Set(data?.sub_spells ?? []);
+    this.questNames = data?.quest_names ?? {};
     this.classUuidNames = data?.class_uuid_names ?? {};
   }
 
@@ -45,5 +48,10 @@ export class DisplayNames {
 
   spellNameFor(spellId: string): string | null {
     return this.spells[spellId] ?? null;
+  }
+
+  /** Journal title for a quest, or null if unresolved. */
+  questNameFor(questId: string): string | null {
+    return this.questNames[questId] ?? null;
   }
 }

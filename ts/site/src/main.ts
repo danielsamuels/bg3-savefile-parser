@@ -1,6 +1,7 @@
 import type {
   CharacterReport,
   ItemRef,
+  QuestRef,
   QuestsReport,
   SaveInfo,
   SaveReport,
@@ -327,8 +328,8 @@ function renderCharacter(c: CharacterReport, index: number): string {
   </section>`;
 }
 
-/** 'GLO_Moonrise_SUB_Shadowcurse' → top-level quest + nested sub-quests;
- *  labels drop the short all-caps prefixes and split camel case. */
+/** Fallback when a quest has no journal title: drop the short all-caps
+ *  prefixes from the id and split camel case. */
 function questLabel(id: string): string {
   const pretty = id
     .split('_')
@@ -338,20 +339,20 @@ function questLabel(id: string): string {
   return pretty || id;
 }
 
-function questList(ids: string[]): string {
+function questList(quests: QuestRef[]): string {
+  const names = new Map(quests.map((q) => [q.id, q.name]));
+  const label = (id: string): string => names.get(id) ?? questLabel(id);
   const parents = new Map<string, string[]>();
-  for (const id of ids) {
-    const [parent, sub] = id.split('_SUB_') as [string, string?];
+  for (const q of quests) {
+    const [parent, sub] = q.id.split('_SUB_') as [string, string?];
     if (!parents.has(parent)) parents.set(parent, []);
-    if (sub) parents.get(parent)!.push(sub);
+    if (sub) parents.get(parent)!.push(q.id);
   }
   const rows = [...parents.entries()]
     .map(
       ([p, subs]) =>
-        `<li><span title="${esc(p)}">${esc(questLabel(p))}</span>${
-          subs.length
-            ? `<ul>${subs.map((s) => `<li>${esc(questLabel(s))}</li>`).join('')}</ul>`
-            : ''
+        `<li><span title="${esc(p)}">${esc(label(p))}</span>${
+          subs.length ? `<ul>${subs.map((s) => `<li>${esc(label(s))}</li>`).join('')}</ul>` : ''
         }</li>`,
     )
     .join('');
@@ -360,7 +361,8 @@ function questList(ids: string[]): string {
 
 function renderQuests(q: QuestsReport, index: number): string {
   if (q.failed) return '';
-  const topCount = (ids: string[]): number => new Set(ids.map((i) => i.split('_SUB_')[0])).size;
+  const topCount = (quests: QuestRef[]): number =>
+    new Set(quests.map((e) => e.id.split('_SUB_')[0])).size;
   return `<section class="char" style="--i:${index}">
     <h3 class="char-name">Quest Log</h3>
     <details class="fold" open>

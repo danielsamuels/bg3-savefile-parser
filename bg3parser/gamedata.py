@@ -98,8 +98,14 @@ STAT_ITEM_PAKS = ['Shared.pak', 'Gustav.pak', 'GustavX.pak']
 STAT_ITEM_FILE_RE = re.compile(r'/Stats/Generated/Data/(?:Armor|Weapon|Object)\.txt$')
 
 
+# Journal quest definitions: QuestID -> QuestTitle localisation handle.
+QUEST_PROTOTYPE_FILES = [
+    ('Gustav.pak', 'Mods/GustavDev/Story/Journal/quest_prototypes.lsx'),
+]
+
+
 # Bump when the resolver logic changes so a stale cache is not silently reused.
-DISPLAYNAME_SCHEMA_VERSION = 10
+DISPLAYNAME_SCHEMA_VERSION = 11
 
 
 def find_game_data_dir() -> str | None:
@@ -171,11 +177,12 @@ def build_displayname_maps(
     dict[str, str],
     frozenset[str],
     frozenset[str],
+    dict[str, str],
 ]:
     """Build display-name and item-stat maps from installed game data.
 
     Returns (guid->name, stats->name, spell_id->name, object_type_stats, stats_to_slot,
-    two_handed_stats, sub_spells).
+    two_handed_stats, sub_spells, quest_names).
 
     Results are cached under XDG_CACHE_HOME keyed on the source paks' mtime/size,
     so the ~1 s parse only happens after a game update.
@@ -196,11 +203,32 @@ def build_displayname_maps(
             data.get('stats_slots', {}),
             frozenset(data.get('two_handed', [])),
             frozenset(data.get('sub_spells', [])),
+            data.get('quest_names', {}),
         )
     except (OSError, ValueError, KeyError):
         pass
 
     handle_to_text = parse_loca(lspk_extract(os.path.join(data_dir, LOCA_PAK), LOCA_FILE))
+
+    # Quest titles: pair each QuestID with the QuestTitle handle that follows
+    # it inside the same <node id="Quest"> (QuestSteps carry neither attribute).
+    quest_names: dict[str, str] = {}
+    quest_attr_re = re.compile(r'id="(QuestID|QuestTitle)"[^>]*?(?:value|handle)="([^"]*)"')
+    for pak, name in QUEST_PROTOTYPE_FILES:
+        try:
+            text = lspk_extract(os.path.join(data_dir, pak), name).decode('utf-8', 'replace')
+        except (OSError, KeyError, ValueError):
+            continue
+        current_quest = None
+        for m in quest_attr_re.finditer(text):
+            if m.group(1) == 'QuestID':
+                current_quest = m.group(2)
+            elif current_quest:
+                title = handle_to_text.get(m.group(2))
+                # Hidden/internal quests carry the '%%% EMPTY' placeholder title.
+                if title and '%%%' not in title:
+                    quest_names[current_quest] = title
+                current_quest = None
 
     guid_handle: dict[str, str] = {}  # template GUID -> own DisplayName handle ('' if none)
     guid_parent: dict[str, str] = {}  # template GUID -> ParentTemplateId
@@ -420,6 +448,7 @@ def build_displayname_maps(
                     'stats_slots': stats_to_slot,
                     'two_handed': two_handed_stats_list,
                     'sub_spells': sub_spell_list,
+                    'quest_names': quest_names,
                 },
                 fh,
             )
@@ -433,6 +462,7 @@ def build_displayname_maps(
         stats_to_slot,
         frozenset(two_handed_stats_list),
         frozenset(sub_spell_list),
+        quest_names,
     )
 
 
@@ -448,6 +478,7 @@ class DisplayNames:
         stats_to_slot: dict[str, str] | None = None,
         two_handed_stats: frozenset[str] | None = None,
         sub_spells: frozenset[str] | None = None,
+        quest_names: dict[str, str] | None = None,
     ):
         self._guid = guid_name
         self._stats = stats_name
@@ -456,6 +487,7 @@ class DisplayNames:
         self.stats_to_slot: dict[str, str] = stats_to_slot or {}
         self.two_handed_stats: frozenset[str] = two_handed_stats or frozenset()
         self.sub_spells: frozenset[str] = sub_spells or frozenset()
+        self.quest_names: dict[str, str] = quest_names or {}
         self.verbose = False  # set to True to append (INTERNAL_NAME) after display names
 
     @classmethod
@@ -483,6 +515,10 @@ class DisplayNames:
         if dn:
             return f'{dn} ({stats})' if self.verbose else dn
         return stats
+
+    def quest_name_for(self, quest_id: str) -> str | None:
+        """Return the journal title for a quest, or None if unresolved."""
+        return self.quest_names.get(quest_id)
 
     def spell_name_for(self, spell_id: str) -> str | None:
         """Return the display name for a spell, or None if unresolved."""

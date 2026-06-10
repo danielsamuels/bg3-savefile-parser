@@ -266,11 +266,12 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         if osiris is None:
             report.quests = {'failed': True}
         else:
+            quest_ref = lambda qid: {'id': qid, 'name': dn.quest_name_for(qid)}  # noqa: E731
             report.quests = {
                 'failed': False,
                 'version': osiris['version'],
-                'active': osiris['quests_active'],
-                'closed': osiris['quests_closed'],
+                'active': [quest_ref(q) for q in osiris['quests_active']],
+                'closed': [quest_ref(q) for q in osiris['quests_closed']],
                 'goals_finalized': osiris['goals_finalized'],
                 'global_flags': osiris['global_flags'],
                 'global_flags_total': osiris['global_flags_total'],

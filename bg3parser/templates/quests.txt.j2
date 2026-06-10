@@ -11,14 +11,14 @@ QUEST & STORY STATE  (Osiris / StorySave.bin)
   Osiris version: {{ quests_version }}
 
   Quests in progress ({{ report.quests.active | length }}):
-{% for name in report.quests.active %}
-    {{ name }}
+{% for q in report.quests.active %}
+    {{ q.name or q.id }}
 {% endfor %}
 
   Quests closed / resolved ({{ report.quests.closed | length }}):
   (closed covers completed and failed; no separate failed-quest DB)
-{% for name in report.quests.closed %}
-    {{ name }}
+{% for q in report.quests.closed %}
+    {{ q.name or q.id }}
 {% endfor %}
 
   Finalized goals — flags=0x07 ({{ report.quests.goals_finalized | length }}):

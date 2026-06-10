@@ -3700,77 +3700,284 @@
  "names_resolved": true,
  "quests": {
   "active": [
-   "FOR_DangerousBook",
-   "FOR_DangerousBook_SUB_EvilTome",
-   "FOR_DangerousBook_SUB_UseTome",
-   "GLO_DoubtingArtist",
-   "GLO_Moonrise",
-   "GLO_Moonrise_SUB_Relic",
-   "GLO_Tadpole",
-   "GLO_UnleashPowers",
-   "HIDDEN_WLD_Boosters",
-   "MOO_GnomeRescue",
-   "ORI_Avatar_ShadowHeart_SUB_ChosenOfShar",
-   "ORI_Avatar_Wyll_SUB_Duke",
-   "ORI_COM_Astarion",
-   "ORI_COM_Gale",
-   "ORI_COM_Karlach",
-   "ORI_COM_ShadowHeart",
-   "ORI_COM_ShadowHeart_SUB_Justiciar",
-   "ORI_COM_Wyll",
-   "ORI_COM_Wyll_SUB_Duke",
-   "PLA_GrandDukeRescue",
-   "SHA_OldEnemy"
+   {
+    "id": "FOR_DangerousBook",
+    "name": "Search the Cellar"
+   },
+   {
+    "id": "FOR_DangerousBook_SUB_EvilTome",
+    "name": "Destroy the Ancient Tome"
+   },
+   {
+    "id": "FOR_DangerousBook_SUB_UseTome",
+    "name": "Unlock the Ancient Tome"
+   },
+   {
+    "id": "GLO_DoubtingArtist",
+    "name": "Free the Artist"
+   },
+   {
+    "id": "GLO_Moonrise",
+    "name": "Infiltrate Moonrise Towers"
+   },
+   {
+    "id": "GLO_Moonrise_SUB_Relic",
+    "name": "Find Ketheric Thorm's Relic"
+   },
+   {
+    "id": "GLO_Tadpole",
+    "name": "Find a Cure"
+   },
+   {
+    "id": "GLO_UnleashPowers",
+    "name": "Embrace Your Potential"
+   },
+   {
+    "id": "HIDDEN_WLD_Boosters",
+    "name": null
+   },
+   {
+    "id": "MOO_GnomeRescue",
+    "name": "Rescue Wulbren"
+   },
+   {
+    "id": "ORI_Avatar_ShadowHeart_SUB_ChosenOfShar",
+    "name": "The Chosen of Shar"
+   },
+   {
+    "id": "ORI_Avatar_Wyll_SUB_Duke",
+    "name": "The Grand Duke"
+   },
+   {
+    "id": "ORI_COM_Astarion",
+    "name": "The Pale Elf"
+   },
+   {
+    "id": "ORI_COM_Gale",
+    "name": "The Wizard of Waterdeep"
+   },
+   {
+    "id": "ORI_COM_Karlach",
+    "name": "Our Fiery Friend"
+   },
+   {
+    "id": "ORI_COM_ShadowHeart",
+    "name": "Daughter of Darkness"
+   },
+   {
+    "id": "ORI_COM_ShadowHeart_SUB_Justiciar",
+    "name": "The Chosen of Shar"
+   },
+   {
+    "id": "ORI_COM_Wyll",
+    "name": "The Blade of Frontiers"
+   },
+   {
+    "id": "ORI_COM_Wyll_SUB_Duke",
+    "name": "The Grand Duke"
+   },
+   {
+    "id": "PLA_GrandDukeRescue",
+    "name": "Rescue the Grand Duke"
+   },
+   {
+    "id": "SHA_OldEnemy",
+    "name": "Kill Raphael's Old Enemy"
+   }
   ],
   "closed": [
-   "CHA_Chapel",
-   "CHA_LaezelRecruit",
-   "CRE_BloodOfLathander",
-   "CRE_Hatchery",
-   "DEN_Conflict",
-   "DEN_Conflict_SUB_AoD",
-   "DEN_Conflict_SUB_Goblin",
-   "DEN_Conflict_SUB_Halsin",
-   "DEN_Conflict_SUB_Murder",
-   "DEN_Conflict_SUB_Ritual",
-   "DEN_RobbedAdventurer",
-   "DEN_SnakeCourt",
-   "DEN_Thieflings",
-   "DEN_VoloAdventure",
-   "FOR_UnfortunateGnome",
-   "GLO_ArtefactDiscovery",
-   "GLO_Moonrise_SUB_Caravan",
-   "GLO_Moonrise_SUB_MarcusCapture",
-   "GLO_Moonrise_SUB_Shadowcurse",
-   "GLO_PathToMoonrise",
-   "GLO_PathToMoonrise_SUB_MountainPath",
-   "GLO_PathToMoonrise_SUB_UnderdarkPath",
-   "GLO_Tadpole_SUB_Apprentice",
-   "GLO_Tadpole_SUB_Creche",
-   "GLO_Tadpole_SUB_Druid",
-   "GLO_Tadpole_SUB_Hag",
-   "GLO_Tadpole_SUB_Priestess",
-   "GLO_Tadpole_SUB_Society",
-   "HAG_HagSpawn",
-   "ORI_COM_Karlach_SUB_ForgingOfTheHeart",
-   "ORI_COM_Laezel",
-   "PLA_PaladinsOfTyr",
-   "PLA_StuckHalfElf",
-   "PLA_ZhentShipment",
-   "TUT_NautiloidEscape",
-   "TUT_ShadowheartEscape",
-   "UND_AdamantineForge",
-   "UND_AdamantineForge_SUB_Rubble",
-   "UND_BroodingSovereign",
-   "UND_CaveIn",
-   "UND_CaveIn_SUB_Eye",
-   "UND_CaveIn_SUB_Smokepowder",
-   "UND_DuergarPoison",
-   "UND_GnomeRescue",
-   "UND_LoneDuergar",
-   "UND_MushroomHunter",
-   "UND_MyconidCircle",
-   "UND_MyconidRevenge"
+   {
+    "id": "CHA_Chapel",
+    "name": "Explore the Ruins"
+   },
+   {
+    "id": "CHA_LaezelRecruit",
+    "name": "Free Lae'zel"
+   },
+   {
+    "id": "CRE_BloodOfLathander",
+    "name": "Find the Blood of Lathander"
+   },
+   {
+    "id": "CRE_Hatchery",
+    "name": "Steal a Githyanki Egg"
+   },
+   {
+    "id": "DEN_Conflict",
+    "name": "Save the Refugees"
+   },
+   {
+    "id": "DEN_Conflict_SUB_AoD",
+    "name": "Raid the Emerald Grove"
+   },
+   {
+    "id": "DEN_Conflict_SUB_Goblin",
+    "name": "Defeat the Goblins"
+   },
+   {
+    "id": "DEN_Conflict_SUB_Halsin",
+    "name": "Save the First Druid"
+   },
+   {
+    "id": "DEN_Conflict_SUB_Murder",
+    "name": "Kill Kagha"
+   },
+   {
+    "id": "DEN_Conflict_SUB_Ritual",
+    "name": "Investigate Kagha"
+   },
+   {
+    "id": "DEN_RobbedAdventurer",
+    "name": "Return the Locket"
+   },
+   {
+    "id": "DEN_SnakeCourt",
+    "name": "Save Arabella"
+   },
+   {
+    "id": "DEN_Thieflings",
+    "name": "Find Your Belongings"
+   },
+   {
+    "id": "DEN_VoloAdventure",
+    "name": "Rescue Volo"
+   },
+   {
+    "id": "FOR_UnfortunateGnome",
+    "name": "Rescue the Gnome"
+   },
+   {
+    "id": "GLO_ArtefactDiscovery",
+    "name": "Discover the Artefact's Secrets"
+   },
+   {
+    "id": "GLO_Moonrise_SUB_Caravan",
+    "name": "Follow the Convoy"
+   },
+   {
+    "id": "GLO_Moonrise_SUB_MarcusCapture",
+    "name": "Resolve the Abduction"
+   },
+   {
+    "id": "GLO_Moonrise_SUB_Shadowcurse",
+    "name": "Seek Protection from the Shadow Curse"
+   },
+   {
+    "id": "GLO_PathToMoonrise",
+    "name": "Travel to Moonrise Towers"
+   },
+   {
+    "id": "GLO_PathToMoonrise_SUB_MountainPath",
+    "name": "Travel through the Mountain Pass"
+   },
+   {
+    "id": "GLO_PathToMoonrise_SUB_UnderdarkPath",
+    "name": "Travel through the Underdark"
+   },
+   {
+    "id": "GLO_Tadpole_SUB_Apprentice",
+    "name": "Get Help from Healer Nettie"
+   },
+   {
+    "id": "GLO_Tadpole_SUB_Creche",
+    "name": "Find the Githyanki Crèche"
+   },
+   {
+    "id": "GLO_Tadpole_SUB_Druid",
+    "name": "Rescue the Druid Halsin"
+   },
+   {
+    "id": "GLO_Tadpole_SUB_Hag",
+    "name": "Get Help from Auntie Ethel"
+   },
+   {
+    "id": "GLO_Tadpole_SUB_Priestess",
+    "name": "Ask the Goblin Priestess for Help"
+   },
+   {
+    "id": "GLO_Tadpole_SUB_Society",
+    "name": "Help Omeluum Investigate the Parasite"
+   },
+   {
+    "id": "HAG_HagSpawn",
+    "name": "Save Mayrina"
+   },
+   {
+    "id": "ORI_COM_Karlach_SUB_ForgingOfTheHeart",
+    "name": "The Hellion's Heart"
+   },
+   {
+    "id": "ORI_COM_Laezel",
+    "name": "The Githyanki Warrior"
+   },
+   {
+    "id": "PLA_PaladinsOfTyr",
+    "name": "Hunt the Devil"
+   },
+   {
+    "id": "PLA_StuckHalfElf",
+    "name": "Rescue the Trapped Man"
+   },
+   {
+    "id": "PLA_ZhentShipment",
+    "name": "Find the Missing Shipment"
+   },
+   {
+    "id": "TUT_NautiloidEscape",
+    "name": "Escape the Nautiloid"
+   },
+   {
+    "id": "TUT_ShadowheartEscape",
+    "name": "Rescue the Illithids' Captive"
+   },
+   {
+    "id": "UND_AdamantineForge",
+    "name": "The Adamantine Forge"
+   },
+   {
+    "id": "UND_AdamantineForge_SUB_Rubble",
+    "name": "Get Past the Rubble"
+   },
+   {
+    "id": "UND_BroodingSovereign",
+    "name": "Avenge Glut's Circle"
+   },
+   {
+    "id": "UND_CaveIn",
+    "name": "Free True Soul Nere"
+   },
+   {
+    "id": "UND_CaveIn_SUB_Eye",
+    "name": "Blind the Absolute"
+   },
+   {
+    "id": "UND_CaveIn_SUB_Smokepowder",
+    "name": "Find Explosives"
+   },
+   {
+    "id": "UND_DuergarPoison",
+    "name": "Cure the Poisoned Gnome"
+   },
+   {
+    "id": "UND_GnomeRescue",
+    "name": "Save the Grymforge Gnomes"
+   },
+   {
+    "id": "UND_LoneDuergar",
+    "name": "Find the Missing Boots"
+   },
+   {
+    "id": "UND_MushroomHunter",
+    "name": "Find the Mushroom Picker"
+   },
+   {
+    "id": "UND_MyconidCircle",
+    "name": "Defeat the Duergar Intruders"
+   },
+   {
+    "id": "UND_MyconidRevenge",
+    "name": "Deliver Nere's Head"
+   }
   ],
   "failed": false,
   "global_flags": [

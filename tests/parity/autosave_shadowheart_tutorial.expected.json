@@ -722,9 +722,18 @@
  "names_resolved": true,
  "quests": {
   "active": [
-   "GLO_ArtefactDiscovery",
-   "ORI_Avatar_ShadowHeart",
-   "TUT_NautiloidEscape"
+   {
+    "id": "GLO_ArtefactDiscovery",
+    "name": "Discover the Artefact's Secrets"
+   },
+   {
+    "id": "ORI_Avatar_ShadowHeart",
+    "name": "Daughter of Darkness"
+   },
+   {
+    "id": "TUT_NautiloidEscape",
+    "name": "Escape the Nautiloid"
+   }
   ],
   "closed": [],
   "failed": false,

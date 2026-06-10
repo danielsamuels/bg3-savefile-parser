@@ -101,14 +101,19 @@ export interface SaveInfo {
   has_unofficial_mods: boolean;
 }
 
+export interface QuestRef {
+  id: string;
+  name: string | null;
+}
+
 /** Mirrors the Python quests dict: the failed shape carries only `failed`. */
 export type QuestsReport =
   | { failed: true }
   | {
       failed: false;
       version: number;
-      active: string[];
-      closed: string[];
+      active: QuestRef[];
+      closed: QuestRef[];
       goals_finalized: string[];
       global_flags: string[];
       global_flags_total: number;
@@ -379,14 +384,15 @@ export function gatherReport(
 
   if (opts?.quests) {
     const osiris = parseOsiris(frames);
+    const questRef = (qid: string): QuestRef => ({ id: qid, name: dn.questNameFor(qid) });
     report.quests =
       osiris === null
         ? { failed: true }
         : {
             failed: false,
             version: osiris.version,
-            active: osiris.quests_active,
-            closed: osiris.quests_closed,
+            active: osiris.quests_active.map(questRef),
+            closed: osiris.quests_closed.map(questRef),
             goals_finalized: osiris.goals_finalized,
             global_flags: osiris.global_flags,
             global_flags_total: osiris.global_flags_total,
