@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-10T19:05:00Z",
+  "title": "Design System: BG3 Save Parser",
+  "extensions": {
+    "colorMeta": {
+      "lantern-gold": {
+        "role": "primary",
+        "displayName": "Lantern Gold",
+        "canonical": "oklch(0.80 0.10 85)",
+        "tonalRamp": ["oklch(0.20 0.05 85)", "oklch(0.31 0.07 85)", "oklch(0.42 0.09 85)", "oklch(0.53 0.10 85)", "oklch(0.64 0.10 85)", "oklch(0.75 0.10 85)", "oklch(0.86 0.09 85)", "oklch(0.94 0.05 85)"]
+      },
+      "underdark": {
+        "role": "neutral",
+        "displayName": "Underdark",
+        "canonical": "oklch(0.17 0.012 80)",
+        "tonalRamp": ["oklch(0.15 0.012 80)", "oklch(0.21 0.015 80)", "oklch(0.27 0.02 80)", "oklch(0.38 0.025 80)", "oklch(0.50 0.03 80)", "oklch(0.63 0.03 80)", "oklch(0.77 0.03 80)", "oklch(0.91 0.025 85)"]
+      },
+      "parchment-ink": {
+        "role": "neutral",
+        "displayName": "Parchment Ink",
+        "canonical": "oklch(0.91 0.025 85)",
+        "tonalRamp": ["oklch(0.30 0.025 85)", "oklch(0.40 0.025 85)", "oklch(0.50 0.025 85)", "oklch(0.60 0.03 85)", "oklch(0.72 0.035 83)", "oklch(0.80 0.03 85)", "oklch(0.91 0.025 85)", "oklch(0.96 0.015 85)"]
+      },
+      "ember-error": {
+        "role": "semantic-error",
+        "displayName": "Ember Error",
+        "canonical": "oklch(0.74 0.13 28)",
+        "tonalRamp": ["oklch(0.25 0.10 28)", "oklch(0.35 0.12 28)", "oklch(0.45 0.13 28)", "oklch(0.55 0.13 28)", "oklch(0.65 0.13 28)", "oklch(0.74 0.13 28)", "oklch(0.84 0.10 28)", "oklch(0.93 0.05 28)"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "The save name; one per page. EB Garamond 600." },
+      "headline": { "displayName": "Headline", "purpose": "Character names, in Lantern Gold." },
+      "title": { "displayName": "Title", "purpose": "Section heads and fold summaries; weight + gold count, no uppercase tracking." },
+      "body": { "displayName": "Body", "purpose": "All running text and item names; +0.01em tracking for light-on-dark." },
+      "label": { "displayName": "Label", "purpose": "Slot labels, hints, meta lines, group heads in Scribe Mute." }
+    },
+    "shadows": [],
+    "motion": [
+      { "name": "ease-out", "value": "cubic-bezier(0.22, 1, 0.36, 1)", "purpose": "The only easing curve; state transitions at 180ms, entrances at 400ms." },
+      { "name": "rise", "value": "opacity 0→1, translateY 8px→0, 0.4s, 50ms stagger per section", "purpose": "Report entrance; disabled under prefers-reduced-motion." }
+    ],
+    "breakpoints": [
+      { "name": "narrow", "value": "480px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Drop Zone",
+      "kind": "custom",
+      "refersTo": "drop-zone",
+      "description": "The single primary action: a dashed, keyboard-focusable file target that lights gold on attention.",
+      "html": "<label class=\"ds-drop\" tabindex=\"0\"><span class=\"ds-drop-label\"><strong>Drop a <code>.lsv</code> save here</strong> <span class=\"ds-drop-or\">or click to browse</span></span><span class=\"ds-drop-hint\">Larian Studios / Baldur's Gate 3 / PlayerProfiles / … / Savegames / Story</span></label>",
+      "css": ".ds-drop { display: block; border: 1px dashed oklch(0.32 0.025 80); border-radius: 10px; padding: 3.25rem 1.5rem; text-align: center; cursor: pointer; color: oklch(0.91 0.025 85); background: oklch(0.17 0.012 80); font: 400 1rem/1.55 system-ui, sans-serif; transition: border-color 0.18s cubic-bezier(0.22,1,0.36,1), background-color 0.18s cubic-bezier(0.22,1,0.36,1); } .ds-drop:hover, .ds-drop:focus-visible { border-color: oklch(0.8 0.1 85); background: oklch(0.21 0.015 80); outline: 2px solid oklch(0.8 0.1 85); outline-offset: 3px; } .ds-drop-label { display: block; font-size: 1.0625rem; } .ds-drop-or { color: oklch(0.72 0.035 83); } .ds-drop-hint { display: block; margin-top: 0.5rem; color: oklch(0.72 0.035 83); font-size: 0.875rem; } .ds-drop code { font-family: ui-monospace, monospace; font-size: 0.9em; }"
+    },
+    {
+      "name": "Disclosure Fold",
+      "kind": "custom",
+      "refersTo": "fold-summary",
+      "description": "Carried/spells/mods expander with the gold chevron and count.",
+      "html": "<details class=\"ds-fold\" open><summary>Carried <span class=\"ds-count\">27</span><span class=\"ds-fold-note\">+39 sub-spells · +11 basic actions</span></summary><div><ul class=\"ds-items\"><li>Potion of Healing <span class=\"ds-count\">×3</span></li><li>Scroll of Revivify</li></ul></div></details>",
+      "css": ".ds-fold { color: oklch(0.91 0.025 85); background: oklch(0.17 0.012 80); font: 400 1rem/1.55 system-ui, sans-serif; } .ds-fold > summary { cursor: pointer; list-style: none; font: 600 0.9375rem/1.3 system-ui, sans-serif; padding: 0.2rem 0; } .ds-fold > summary::-webkit-details-marker { display: none; } .ds-fold > summary::before { content: ''; display: inline-block; width: 0.5em; height: 0.5em; margin-right: 0.55em; border-right: 1.5px solid oklch(0.8 0.1 85); border-bottom: 1.5px solid oklch(0.8 0.1 85); transform: rotate(-45deg) translateY(-0.1em); transition: transform 0.18s cubic-bezier(0.22,1,0.36,1); } .ds-fold[open] > summary::before { transform: rotate(45deg); } .ds-fold > div { padding: 0.5rem 0 0 1.1rem; } .ds-count { color: oklch(0.8 0.1 85); font-weight: 600; } .ds-fold-note { color: oklch(0.72 0.035 83); font-weight: 400; font-size: 0.875rem; margin-left: 0.5em; } .ds-items { list-style: none; margin: 0; padding: 0; } .ds-items li { margin: 0.15rem 0; }"
+    },
+    {
+      "name": "Equipped Row",
+      "kind": "custom",
+      "refersTo": "slot-label",
+      "description": "Slot-labelled item row from the equipped grid.",
+      "html": "<ul class=\"ds-equip\"><li><span class=\"ds-slot\">Headwear</span><span class=\"ds-item\">Grymskull Helm</span></li><li><span class=\"ds-slot\">Main Hand</span><span class=\"ds-item\">Phalar Aluve</span></li><li><span class=\"ds-slot\">—</span><span class=\"ds-item\">Lute</span></li></ul>",
+      "css": ".ds-equip { list-style: none; margin: 0; padding: 0; color: oklch(0.91 0.025 85); background: oklch(0.17 0.012 80); font: 400 1rem/1.55 system-ui, sans-serif; } .ds-equip li { display: grid; grid-template-columns: 7.5rem 1fr; gap: 1rem; padding: 0.2rem 0; } .ds-slot { color: oklch(0.72 0.035 83); font-size: 0.875rem; padding-top: 0.1em; } .ds-item { overflow-wrap: anywhere; }"
+    },
+    {
+      "name": "Character Heading",
+      "kind": "custom",
+      "refersTo": "headline",
+      "description": "Gold serif character name with the muted player tag and meta line.",
+      "html": "<div class=\"ds-char\"><h3 class=\"ds-char-name\">Maia<span class=\"ds-who\">player</span></h3><p class=\"ds-char-meta\">High Elf · Fighter / Battle Master · Level 7 · 22,756 XP</p></div>",
+      "css": ".ds-char { background: oklch(0.17 0.012 80); border-top: 1px solid oklch(0.32 0.025 80); padding-top: 1.5rem; } .ds-char-name { font: 600 1.5rem/1.2 'EB Garamond', Georgia, serif; color: oklch(0.8 0.1 85); margin: 0 0 0.25rem; letter-spacing: 0.015em; } .ds-who { font: 500 0.9375rem/1 system-ui, sans-serif; color: oklch(0.72 0.035 83); letter-spacing: 0.02em; margin-left: 0.5em; } .ds-char-meta { color: oklch(0.72 0.035 83); margin: 0; font-size: 0.9375rem; font-family: system-ui, sans-serif; }"
+    },
+    {
+      "name": "Status Line",
+      "kind": "custom",
+      "refersTo": "body",
+      "description": "Polite live-region status; muted for progress, ember for errors.",
+      "html": "<p class=\"ds-status\">Parsed QuickSave_242.lsv in 643 ms. Nothing left your machine.</p><p class=\"ds-status ds-status-error\">Couldn't read that file (not an LSPK package). Is it a BG3 .lsv save?</p>",
+      "css": ".ds-status { min-height: 1.5em; margin: 1rem 0; color: oklch(0.72 0.035 83); font: 400 0.9375rem/1.55 system-ui, sans-serif; background: oklch(0.17 0.012 80); } .ds-status-error { color: oklch(0.74 0.13 28); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Identify Spell",
+    "overview": "A scholar's instrument that reveals exact truths from a mysterious object. The player hands over an arcane artifact (a binary .lsv save) and the interface returns precise, trustworthy answers. The mysticism lives entirely in the atmosphere — a deep, warm dark and lantern gold — while the answers themselves are set with the rigor of a well-kept ledger. Committed-dark is the color strategy: the surface IS the atmosphere; gold is the revealing light.",
+    "keyCharacteristics": [
+      "Committed dark: a warm near-black surface carries the whole page",
+      "One metal: gold does headings, counts, focus, and interaction — nothing else does",
+      "Two voices: a renaissance serif for names, a system sans for data",
+      "Tactile and warm: controls respond with surface light and gold edges, not shadows",
+      "Precision as flavor: exact counts, slot labels, and honest 'undetermined' states"
+    ],
+    "rules": [
+      { "name": "The Lantern Rule", "body": "Gold is the light source, not the paint. It marks what the reader should find and never fills surfaces. If gold covers more than roughly a tenth of the screen, the room is on fire — pull it back.", "section": "colors" },
+      { "name": "The Warm-Dark Rule", "body": "All neutrals share the gold hue (h≈80–85) at low chroma. Pure gray and cool tints are prohibited; so is any cream/parchment body background.", "section": "colors" },
+      { "name": "The Two Voices Rule", "body": "The serif names things; the sans states facts. Neither borrows the other's job.", "section": "typography" },
+      { "name": "The No-Eyebrow Rule", "body": "Tracked-uppercase section kickers are prohibited. Section hierarchy is weight + gold count, set in normal case.", "section": "typography" },
+      { "name": "The Candlelit Rule", "body": "Surfaces are flat at rest and brighten under attention. If a box-shadow appears anywhere, it is a bug.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep every text/background pair at 4.5:1 minimum; this system runs at 7:1+.",
+      "Do put raw internal identifiers in the mono face with the friendly label leading and the raw value in a title attribute.",
+      "Do use periods, semicolons, colons, and parentheses in UI copy — em dashes are reserved for the empty-slot placeholder glyph.",
+      "Do state degraded states plainly; honesty is the trust mechanic."
+    ],
+    "donts": [
+      "Don't look like a sketchy save-upload site: no ads, no fake progress, no uploading theater, no urgency copy.",
+      "Don't do heavy skeuomorphic fantasy: no faux-leather textures, dragon filigree, parchment scroll-edges, or game-UI cosplay.",
+      "Don't drift into the generic SaaS template: no cream backgrounds, tracked-uppercase eyebrows, hero-metric cards, or identical icon grids.",
+      "Don't use box-shadows or side-stripe borders thicker than 1px.",
+      "Don't introduce a second accent color beyond gold and Ember Error.",
+      "Don't use display:none on the file input or remove focus outlines."
+    ]
+  }
+}
