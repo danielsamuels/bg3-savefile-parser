@@ -213,7 +213,7 @@ export type ItemPair = [stats: string, guid: string];
 /** Python-compatible sorted(set(...)) over (stats, guid) pairs. */
 function sortedUniquePairs(pairs: ItemPair[]): ItemPair[] {
   const seen = new Map<string, ItemPair>();
-  for (const p of pairs) seen.set(`${p[0]} ${p[1]}`, p);
+  for (const p of pairs) seen.set(`${p[0]}\x00${p[1]}`, p);
   return [...seen.keys()].sort().map((k) => seen.get(k)!);
 }
 
