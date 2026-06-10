@@ -1,0 +1,1592 @@
+BG3 Save File Report
+Source: quicksave_maia.lsv
+========================================================================
+
+Save Name  : QuickSave_242
+Save #     : 242
+Saved At   : 2026-06-03 21:08:18 UTC
+Game Ver   : 4.1.1.7209685
+Level      : SCL_Main_A
+Difficulty : DifficultyMedium, RulesetLarian
+Leader     : Maia
+Mods       : 3 user mod(s)
+             ImpUI (ImprovedUI)
+             Show Camp Night Notification
+             Better Target Info
+Item names : internal only (game data not found; set BG3_DATA_DIR)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+QUEST & STORY STATE  (Osiris / StorySave.bin)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Osiris version: 1.15
+
+  Quests in progress (20):
+    FOR_DangerousBook
+    FOR_DangerousBook_SUB_EvilTome
+    FOR_DangerousBook_SUB_UseTome
+    GLO_DoubtingArtist
+    GLO_Moonrise
+    GLO_Moonrise_SUB_Shadowcurse
+    GLO_Tadpole
+    GLO_UnleashPowers
+    HIDDEN_WLD_Boosters
+    MOO_GnomeRescue
+    ORI_Avatar_ShadowHeart_SUB_ChosenOfShar
+    ORI_Avatar_Wyll_SUB_Duke
+    ORI_COM_Astarion
+    ORI_COM_Gale
+    ORI_COM_Karlach
+    ORI_COM_ShadowHeart
+    ORI_COM_ShadowHeart_SUB_Justiciar
+    ORI_COM_Wyll
+    ORI_COM_Wyll_SUB_Duke
+    PLA_GrandDukeRescue
+
+  Quests closed / resolved (46):
+  (closed covers completed and failed; no separate failed-quest DB)
+    CHA_Chapel
+    CHA_LaezelRecruit
+    CRE_BloodOfLathander
+    CRE_Hatchery
+    DEN_Conflict
+    DEN_Conflict_SUB_AoD
+    DEN_Conflict_SUB_Goblin
+    DEN_Conflict_SUB_Halsin
+    DEN_Conflict_SUB_Murder
+    DEN_Conflict_SUB_Ritual
+    DEN_RobbedAdventurer
+    DEN_SnakeCourt
+    DEN_Thieflings
+    DEN_VoloAdventure
+    FOR_UnfortunateGnome
+    GLO_ArtefactDiscovery
+    GLO_Moonrise_SUB_MarcusCapture
+    GLO_PathToMoonrise
+    GLO_PathToMoonrise_SUB_MountainPath
+    GLO_PathToMoonrise_SUB_UnderdarkPath
+    GLO_Tadpole_SUB_Apprentice
+    GLO_Tadpole_SUB_Creche
+    GLO_Tadpole_SUB_Druid
+    GLO_Tadpole_SUB_Hag
+    GLO_Tadpole_SUB_Priestess
+    GLO_Tadpole_SUB_Society
+    HAG_HagSpawn
+    ORI_COM_Karlach_SUB_ForgingOfTheHeart
+    ORI_COM_Laezel
+    PLA_PaladinsOfTyr
+    PLA_StuckHalfElf
+    PLA_ZhentShipment
+    TUT_NautiloidEscape
+    TUT_ShadowheartEscape
+    UND_AdamantineForge
+    UND_AdamantineForge_SUB_Rubble
+    UND_BroodingSovereign
+    UND_CaveIn
+    UND_CaveIn_SUB_Eye
+    UND_CaveIn_SUB_Smokepowder
+    UND_DuergarPoison
+    UND_GnomeRescue
+    UND_LoneDuergar
+    UND_MushroomHunter
+    UND_MyconidCircle
+    UND_MyconidRevenge
+
+  Finalized goals — flags=0x07 (60):
+  (orchestration goals finalize when the act/phase is *entered*, not finished;
+   the presence of "Act2" here means Act 2 was started, not completed)
+    Act1
+    Act1_CMB_StatusOnInit
+    Act1_CRA_Escape_Autosave
+    Act1_CRA_Escape_IntellectDevourers
+    Act1_CRA_Escape_WakeUp
+    Act1_DEN_AttackOnDen
+    Act1_DEN_HarpyMeal
+    Act1_DEN_TieflingRefugees
+    Act1_FOR_Monitor
+    Act1_FOR_UnfortunateGnomeFree
+    Act1_FOR_UnfortunateGnomeHeld
+    Act1_GOB_Orpheus_Protection
+    Act1_GOB_VoloBallad
+    Act1_HAG_Hagspawn_TriggerInitialScene
+    Act1_NOT_EA
+    Act1_PLA_GithChokepoint
+    Act1_PLA_TavernInvestigation
+    Act1_UND_AdamantineForge_Combat
+    Act1_UND_Bulette
+    Act1b
+    Act2
+    Act2_CMB_StatusOnInit
+    Act2_COL_ZZZ_Debug
+    Act2_HAV_EnteringHaven
+    Act2_HAV_TakingIsobel
+    Act2_HAV_TakingIsobel_Capture
+    Act2_HAV_TakingIsobel_FlamingSpy
+    Act2_HAV_TakingIsobel_FollowUp_Saved
+    Act2_HAV_TakingIsobel_InnAttack
+    Act2_MOO_ZhentVendor
+    BG3_CleanUpDBs_SavegamePatch
+    BG3_CleanupLavaBubbles_SavegamePatch
+    BG3_CleanupSummons_SavegamePatch
+    BG3_DeadForceUpdate_SavegamePatch
+    GLO_AtDeathsDoorStatus
+    GLO_Hag
+    GLO_Origin_Gale_Death
+    GLO_Origin_Gale_Death_PostEA
+    ModWrapper_Gustav
+    ORI_Gale_Elminster
+    ORI_Gale_Elminster_Setup
+    ORI_ShadowheartResurrection
+    Start
+    TUT_GameOverLogic
+    TUT_Helm
+    TUT_LowerDeck
+    TUT_Misc
+    TUT_Start
+    TUT_TransformChamber
+    TUT_Tutorials_TUTOnly
+    TUT_WakeUp
+    Tutorial
+    Z_Shared_Campaign_At_End
+    Z_Shared_CharacterCreation
+    Z_Shared_CharacterCreation_AfterEvents
+    Z_Shared_TutorialCharacterCreation
+    _CharacterCreation_Monk
+    __AAB_CharacterCreation_At_Start
+    __Shared_Campaign
+    __Start
+
+  Story flags — DB_GlobalFlag (first 50 of 1034 shown):
+    Debug_CAMP_IgnoreCampTypeRestrictions_4118a620-c0e5-afaf-1bec-2e260882a45f
+    GLO_DifficultyMode_Medium_0fc95071-9342-44d5-988a-30e8a8c8b787
+    GLO_DifficultyMode_CharacterStats_Medium_b2c46d86-0d5d-42ae-9f15-c1020a007123
+    GLO_CursedIronFlask_State_HasCreature_3e4af18c-8227-6100-34e0-716d7a3be27c
+    GLO_Not_For_EA_e270f143-e357-4579-ae51-5657d5bd67c2
+    GLO_SteelWatchers_State_InBaseState_ca1b279a-b266-49ee-8549-5e6bd9bc209b
+    GLO_Jergal_State_CanResurrect_736d598a-ab47-4a25-b9e0-d5499b19fef3
+    ORI_Laezel_State_CaringAboutZorru_05c85d1f-11e6-4219-a047-901b958c3578
+    ORI_Wyll_State_Alive_1b20bb3c-71a5-4766-9b70-097cf5866ed7
+    Hireling_State_AllowReplace_a8bffa48-dffb-4615-a318-cc2df8b8a551
+    GLO_Pixie_State_InsideLantern_5b43c283-e984-421b-972f-e046e79749ec
+    TUT_Start_State_AvatarWokeUp_001_67326df5-8ad8-43f2-a92a-138f2e21c1c2
+    SCL_SaveGamePatch_GUS_318742_28063004-0e4d-4135-a499-a150a1f5d5e3
+    TUT_Start_Knows_PoolBrittle_86f644a9-a3a1-4b1a-8e6e-a1d999b2b54d
+    TUT_LowerDeck_Event_SetGuideVisible_5b044d7c-ba8d-47f5-b056-dbe941c9cf72
+    LOW_LowerDeck_Event_ImpRoomTeleportPlayers_66c9ae56-50b5-46ee-a9a0-fc4e2b21657a
+    ORI_Laezel_HasMet_2e085b0e-8e64-fbad-a009-7ce8e5da8a11
+    ORI_Laezel_Event_FirstCombat_def8ed0f-1bdf-4134-9412-d71ce2e33f75
+    TUT_LowerDeck_State_ImpsDead_c505f03a-c6d4-4ac5-a0a1-ea805fc1a589
+    TUT_TransformChamber_Knows_MagicSeals_a5ef930d-8db2-46df-87bb-400607e28777
+    TUT_TransformChamber_HasMet_PodGirl_4125f563-fbcb-4b64-9f7d-66afc693d142
+    ORI_ShadowHeart_HasMet_d06842a4-248e-7f83-da87-4eec7606178e
+    TUT_TransformChamber_State_LaezelRushed_37f99bae-17cc-4d9a-9097-ba043ca3d7ed
+    TUT_TransformChamber_Knows_PodLock_795a45ed-f676-4b68-8c21-8dcc300c7cd4
+    TUT_TransformChamber_State_ActivatedConsole_5c73cf41-04e7-4018-bc84-d4e9cbff2243
+    TUT_TransformChamber_State_EndPodDialogue_46cfbaa6-ffae-4aec-afeb-78843d3f2d5d
+    ORI_Shadowheart_State_WolfDreamPoint_NautiloidSaved_71127b5b-ad4c-46ff-b870-82e91fb3d067
+    TUT_TransformChamber_State_ShadowheartFreed_c5b714f1-b88c-4268-9736-47bcdc538b4f
+    TUT_TransformChamber_Event_CheckForGith_eec50557-fd64-40cb-9942-652af0550a22
+    TUT_TransformChamber_State_GithInParty_fe089c5e-3e18-4ce9-b3d0-6dbb0eadec82
+    ORI_Shadowheart_Knows_Name_e639e469-e6de-03e1-148b-70f6164f87e0
+    TUT_TransformChamber_Knows_SeenPickUpBox_6af0aa8d-3806-4097-9270-abad32f18bb7
+    ORI_Shadowheart_SeenWithBox_31d00a1b-9f7b-7385-4d94-e6f98883742c
+    TUT_Helm_Event_DevilReinforcements_500de597-f350-48b2-9fb7-1cc9b2513365
+    TUT_Misc_Quest_ReachedHelm_f61440b7-4118-4936-b165-40677fff1a9c
+    TUT_Helm_Event_TeleportToHelm_da46bc45-e134-4be9-a8d2-19eb9d460f74
+    TUT_Helm_JoinedMindflayerFight_ec25d7dc-f9d6-47ff-92c9-8921d6e32f54
+    TUT_Helm_State_TutorialEnded_55073953-23b9-448c-bee8-4c44d3d67b6b
+    TUT_Helm_TransponderActivated_40d32a6d-8d41-4ceb-a4e9-bbd34d0664e4
+    TUT_Helm_Event_EnterEtherealPlane_b106d52e-8507-469b-8980-9762f9ba2817
+    TUT_Guide_LaezelWasGuide_a10b31fe-0e33-41db-876e-40e2676b04af
+    GLO_Shadowheart_State_RecruitedInTutorial_c7f8437b-6064-4a1d-9774-71da051887e5
+    ORI_Shadowheart_State_LaezelWeary_a7b0e52b-0854-4194-bc09-cd1e78859620
+    VISITEDREGION_WLD_Main_A_925c721d-686b-4fbe-8c3c-d1233bf863b7
+    DEN_GoblinScouts_State_BearTurretActive_5deca4c4-aa41-4774-927d-ee70b365f807
+    DEN_GoblinScouts_State_EagleTurretActive_38ffe461-d5c2-4be0-a15e-43f99db3ed7d
+    DEN_GoblinScouts_State_WolfTurretActive_a45384dd-bd1c-40c6-b9e0-8d364de250e4
+    DEN_HarpyMeal_State_GoCower_dbe0ef4a-49c4-4fac-912e-552447766b76
+    Debug_GOB_ChickenChase_State_FireDisabled_14182872-d77d-4f5d-9ff7-cea5a0533c53
+    PLA_ZhentShipment_State_FlaskInChest_d5b92de7-760f-462e-903c-2ea24d81f18e
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PARTY CHARACTERS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Maia (player)
+  Race      : Elf_HighElf
+  Class     : Fighter / BattleMaster
+  Level     : 7
+  XP        : 22756
+  Location  : HAV_IsobelRoom_SUB
+  Spells/Abilities (36; +11 basic actions):
+    – Projectile_DisarmingAttack
+    – Projectile_FireBolt
+    – Projectile_HamstringShot
+    – Projectile_MAG_PushingAttack
+    – Projectile_MagicMissile_2
+    – Projectile_MenacingAttack
+    – Projectile_TripAttack
+    – Rush_SpringAttack
+    – Shout_ActionSurge
+    – Shout_Bard_Perform_BardDance_Lute
+    – Shout_Bard_Perform_Lute
+    – Shout_Bard_Perform_Stargazing_Lute
+    – Shout_Bard_Perform_ThePower_Lute
+    – Shout_MAG_HarpersAmulet_Shield
+    – Shout_MAG_Harpers_SingingSword_Container
+    – Shout_MAG_Harpers_SingingSword_Shriek
+    – Shout_MAG_Harpers_SingingSword_Sing
+    – Shout_Macro_Mods_Camp_Night_Utils
+    – Shout_Macro_Mods_Change_Camp_Night_Notifications
+    – Shout_Macro_Mods_Purge_Camp_Night_Notifications
+    – Shout_PrecisionAttack
+    – Shout_SecondWind
+    – Shout_SteadyRanged
+    – Shout_TAD_PsionicOverload
+    – Target_DisarmingAttack
+    – Target_GLO_DangerousBook_SpeakWithDead
+    – Target_MAG_HuntersMark_Grymskull
+    – Target_MenacingAttack
+    – Target_PommelStrike
+    – Target_Slash_New
+    – Target_TAD_ConcentratedBlast
+    – Target_TAD_ShieldOfThralls
+    – Target_TAD_TransfuseHealth
+    – Target_Topple
+    – Target_TripAttack
+    – Target_UNI_MistyStep_NightWalkers
+  Equipped (12):
+    – ARM_HalfPlate_Body
+    – ARM_Instrument_Lute
+    – FOR_DangerousBook
+    – FOR_NightWalkers
+    – MAG_FlamingFist_ScoutRing
+    – MAG_Harpers_HarpersAmulet
+    – MAG_MeleeDebuff_AttackDebuff1_OnDamage_Helmet
+    – MAG_MeleeDebuff_AttackDebuff2_OnDamage_SplintMail
+    – MAG_StrongString_Longbow
+    – MAG_ZOC_AdvantageOnMeleeAttackWhileSurounded_Gloves
+    – UND_SwordInStone
+    – UNI_CONT_DEVIL_PuzzleBox_A
+  Carried / personal inventory (4):
+    – ARM_Camp_Body
+    – ARM_Camp_Shoes
+    – ARM_Underwear_Elves
+    – WPN_Greatclub_1
+
+Wyll
+  Race      : Human
+  Class     : Warlock / Fiend
+  Level     : 7
+  XP        : 22841
+  Location  : HAV_IsobelRoom_SUB
+  Spells/Abilities (30; +11 basic actions):
+    – Projectile_EldritchBlast
+    – Projectile_Fireball_4
+    – Projectile_HamstringShot
+    – Projectile_SneakAttack
+    – Shout_ArmorOfAgathys_4
+    – Shout_BladeWard
+    – Shout_MAG_SpellSlotRestoration_PearlOfPower
+    – Shout_MAG_SpellSlotRestoration_PearlOfPower_1
+    – Shout_MAG_SpellSlotRestoration_PearlOfPower_2
+    – Shout_MAG_SpellSlotRestoration_PearlOfPower_3
+    – Target_CloudOfDaggers_4
+    – Target_Counterspell_4
+    – Target_FindFamiliar_Cat_Ritual
+    – Target_FindFamiliar_Crab_Ritual
+    – Target_FindFamiliar_Frog_Ritual
+    – Target_FindFamiliar_Rat_Ritual
+    – Target_FindFamiliar_Raven_Ritual
+    – Target_FindFamiliar_Ritual
+    – Target_FindFamiliar_Spider_Ritual
+    – Target_HungerOfHadar_4
+    – Target_MinorIllusion
+    – Target_MistyStep_4
+    – Target_OpeningAttack
+    – Target_PactOfTheChain_Imp
+    – Target_PactOfTheChain_Quasit
+    – Target_Polymorph
+    – Target_SneakAttack
+    – Target_SurvivalInstinct
+    – Teleportation_DimensionDoor
+    – Wall_WallOfFire
+  Equipped (11):
+    – GOB_DrowCommander_Leather_Armor
+    – MAG_BG_OfTheBanshee_Bow
+    – MAG_Duergar_Sword_KingsKnife
+    – MAG_Evasive_Shoes
+    – MAG_Lesser_Infernal_Plate_Armor
+    – MAG_PHB_CloakOfProtection_Cloak
+    – MAG_PHB_ofPower_Pearl_Amulet
+    – MAG_Safeguard_Shield
+    – MAG_Thunder_Reverberation_Gloves
+    – UND_ShadowOfMenzoberranzan
+    – WPN_Torch
+  Carried / personal inventory (10):
+    – ARM_Boots_Leather
+    – ARM_Camp_Body_Wyll
+    – ARM_Camp_Shoes_Wyll
+    – ARM_Underwear_Wyll
+    – CONS_Mushrooms_Bonecap
+    – OBJ_Bag_AlchemyPouch
+    – OBJ_Crystal_SylvanStone
+    – OBJ_GoldPile
+    – OBJ_Keychain
+    – PUZ_Key
+
+Karlach
+  Race      : Tiefling_Zariel
+  Class     : Barbarian / TotemWarriorPath
+  Level     : 7
+  XP        : 22731
+  Location  : HAV_IsobelRoom_SUB
+  Spells/Abilities (16; +13 basic actions):
+    – Projectile_PiercingShot
+    – Projectile_Smite_Branding_ZarielTiefling
+    – Rush_MAG_Barbarian_Armor_Trample
+    – Shout_BootsOfSpeed
+    – Shout_Rage_Totem_Tiger
+    – Shout_SpeakWithAnimals_Barbarian
+    – Shout_SteadyRangedCrossbow
+    – Shout_Thaumaturgy
+    – Target_PommelStrike
+    – Target_RecklessAttack
+    – Target_Slash_New
+    – Target_Smite_Branding_ZarielTiefling
+    – Target_Smite_Branding_ZarielTiefling_Container
+    – Target_Smite_Searing_ZarielTiefling
+    – Target_UNI_MistyStep_DrowCommander_Amulet
+    – Zone_TigersBloodlust
+  Equipped (10):
+    – ARM_BootsOfSpeed
+    – GOB_DrowCommander_Amulet
+    – MAG_Acid_AcidDamageOnWeaponAttack_Ring
+    – MAG_BG_Harold_HeavyCrossbow
+    – MAG_BarbMonk_Offensive_Cloth
+    – MAG_Colossal_Greatsword
+    – MAG_Gish_ArcaneSynergy_Circlet
+    – MAG_Harpers_RingOfProjection
+    – UNI_Karlach_Gloves
+    – WPN_Torch
+  Carried / personal inventory (6):
+    – ARM_Camp_Body_Karlach
+    – ARM_Camp_Shoes_Karlach
+    – ARM_Underwear_Karlach
+    – CONS_Mushrooms_DragonEggMushroom
+    – OBJ_Bag_AlchemyPouch
+    – OBJ_Keychain
+
+Shadowheart
+  Race      : HalfElf_High
+  Class     : Cleric / TrickeryDomain
+  Level     : 7
+  XP        : 22706
+  Location  : HAV_IsobelRoom_SUB
+  Spells/Abilities (278; +11 basic actions):
+    – Projectile_FireBolt
+    – Projectile_GuidingBolt
+    – Projectile_GuildingBolt_2
+    – Projectile_GuildingBolt_3
+    – Projectile_GuildingBolt_4
+    – Projectile_HamstringShot
+    – Shout_Aid
+    – Shout_Aid_3
+    – Shout_Aid_4
+    – Shout_BeaconOfHope
+    – Shout_BeaconOfHope_4
+    – Shout_CloakOfShadows
+    – Shout_DisguiseSelf
+    – Shout_DisguiseSelf_Dragonborn_Female
+    – Shout_DisguiseSelf_Dragonborn_Male
+    – Shout_DisguiseSelf_Drow_Female
+    – Shout_DisguiseSelf_Drow_Male
+    – Shout_DisguiseSelf_Drow_Strong_Female
+    – Shout_DisguiseSelf_Drow_Strong_Male
+    – Shout_DisguiseSelf_Dwarf_Female
+    – Shout_DisguiseSelf_Dwarf_Male
+    – Shout_DisguiseSelf_Elf_Female
+    – Shout_DisguiseSelf_Elf_Male
+    – Shout_DisguiseSelf_Elf_Strong_Female
+    – Shout_DisguiseSelf_Elf_Strong_Male
+    – Shout_DisguiseSelf_Githyanki_Female
+    – Shout_DisguiseSelf_Githyanki_Male
+    – Shout_DisguiseSelf_Gnome_Female
+    – Shout_DisguiseSelf_Gnome_Male
+    – Shout_DisguiseSelf_HalfElf_Female
+    – Shout_DisguiseSelf_HalfElf_Male
+    – Shout_DisguiseSelf_HalfElf_Strong_Female
+    – Shout_DisguiseSelf_HalfElf_Strong_Male
+    – Shout_DisguiseSelf_HalfOrc_Female
+    – Shout_DisguiseSelf_HalfOrc_Male
+    – Shout_DisguiseSelf_Halfling_Female
+    – Shout_DisguiseSelf_Halfling_Male
+    – Shout_DisguiseSelf_Human_Female
+    – Shout_DisguiseSelf_Human_Male
+    – Shout_DisguiseSelf_Human_Strong_Female
+    – Shout_DisguiseSelf_Human_Strong_Male
+    – Shout_DisguiseSelf_Tiefling_Female
+    – Shout_DisguiseSelf_Tiefling_Male
+    – Shout_DisguiseSelf_Tiefling_Strong_Female
+    – Shout_DisguiseSelf_Tiefling_Strong_Male
+    – Shout_HealingWord_Mass
+    – Shout_HealingWord_Mass_4
+    – Shout_MAG_HealingWord_Mass
+    – Shout_MirrorImage
+    – Shout_MirrorImage_3
+    – Shout_MirrorImage_4
+    – Shout_PassWithoutTrace
+    – Shout_PassWithoutTrace_3
+    – Shout_PassWithoutTrace_4
+    – Shout_PrayerOfHealing
+    – Shout_PrayerOfHealing_3
+    – Shout_PrayerOfHealing_4
+    – Shout_ProduceFlame
+    – Shout_SpiritGuardians
+    – Shout_SpiritGuardians_Necrotic
+    – Shout_SpiritGuardians_Necrotic_4
+    – Shout_SpiritGuardians_Radiant
+    – Shout_SpiritGuardians_Radiant_4
+    – Shout_TurnUndead
+    – Target_AnimateDead
+    – Target_AnimateDead_Skeleton
+    – Target_AnimateDead_Skeleton_4
+    – Target_AnimateDead_Zombie
+    – Target_AnimateDead_Zombie_4
+    – Target_Bane
+    – Target_Bane_2
+    – Target_Bane_3
+    – Target_Bane_4
+    – Target_Banishment
+    – Target_BestowCurse
+    – Target_BestowCurse_4
+    – Target_BestowCurse_Ability_Charisma
+    – Target_BestowCurse_Ability_Charisma_4
+    – Target_BestowCurse_Ability_Constitution
+    – Target_BestowCurse_Ability_Constitution_4
+    – Target_BestowCurse_Ability_Dexterity
+    – Target_BestowCurse_Ability_Dexterity_4
+    – Target_BestowCurse_Ability_Intelligence
+    – Target_BestowCurse_Ability_Intelligence_4
+    – Target_BestowCurse_Ability_Strength
+    – Target_BestowCurse_Ability_Strength_4
+    – Target_BestowCurse_Ability_Wisdom
+    – Target_BestowCurse_Ability_Wisdom_4
+    – Target_BestowCurse_Attack
+    – Target_BestowCurse_Attack_4
+    – Target_BestowCurse_ExtraDamage
+    – Target_BestowCurse_ExtraDamage_4
+    – Target_BestowCurse_SkipTurn
+    – Target_BestowCurse_SkipTurn_4
+    – Target_Bless
+    – Target_Bless_2
+    – Target_Bless_3
+    – Target_Bless_4
+    – Target_BlessingOfTheTrickster
+    – Target_Blindness
+    – Target_Blindness_3
+    – Target_Blindness_4
+    – Target_CalmEmotions
+    – Target_CalmEmotions_3
+    – Target_CalmEmotions_4
+    – Target_CharmPerson
+    – Target_CharmPerson_2
+    – Target_CharmPerson_3
+    – Target_CharmPerson_4
+    – Target_Command_Approach
+    – Target_Command_Approach_2
+    – Target_Command_Approach_3
+    – Target_Command_Approach_4
+    – Target_Command_Container
+    – Target_Command_Container_2
+    – Target_Command_Container_3
+    – Target_Command_Container_4
+    – Target_Command_Drop
+    – Target_Command_Drop_2
+    – Target_Command_Drop_3
+    – Target_Command_Drop_4
+    – Target_Command_Flee
+    – Target_Command_Flee_2
+    – Target_Command_Flee_3
+    – Target_Command_Flee_4
+    – Target_Command_Grovel
+    – Target_Command_Grovel_2
+    – Target_Command_Grovel_3
+    – Target_Command_Grovel_4
+    – Target_Command_Halt
+    – Target_Command_Halt_2
+    – Target_Command_Halt_3
+    – Target_Command_Halt_4
+    – Target_ConcussiveSmash
+    – Target_CreateDestroyWater
+    – Target_CreateWater
+    – Target_CreateWater_2
+    – Target_CreateWater_3
+    – Target_CreateWater_4
+    – Target_CureWounds
+    – Target_CureWounds_2
+    – Target_CureWounds_3
+    – Target_CureWounds_4
+    – Target_Daylight
+    – Target_Daylight_4
+    – Target_Daylight_Container
+    – Target_Daylight_Container_4
+    – Target_Daylight_Enchantment
+    – Target_Daylight_Enchantment_4
+    – Target_DeathWard
+    – Target_DestroyWater
+    – Target_DestroyWater_2
+    – Target_DestroyWater_3
+    – Target_DestroyWater_4
+    – Target_EnhanceAbility
+    – Target_EnhanceAbility_3
+    – Target_EnhanceAbility_4
+    – Target_EnhanceAbility_BearsEndurance
+    – Target_EnhanceAbility_BearsEndurance_3
+    – Target_EnhanceAbility_BearsEndurance_4
+    – Target_EnhanceAbility_BullsStrength
+    – Target_EnhanceAbility_BullsStrength_3
+    – Target_EnhanceAbility_BullsStrength_4
+    – Target_EnhanceAbility_CatsGrace
+    – Target_EnhanceAbility_CatsGrace_3
+    – Target_EnhanceAbility_CatsGrace_4
+    – Target_EnhanceAbility_EaglesSplendor
+    – Target_EnhanceAbility_EaglesSplendor_3
+    – Target_EnhanceAbility_EaglesSplendor_4
+    – Target_EnhanceAbility_FoxsCunning
+    – Target_EnhanceAbility_FoxsCunning_3
+    – Target_EnhanceAbility_FoxsCunning_4
+    – Target_EnhanceAbility_OwlsWisdom
+    – Target_EnhanceAbility_OwlsWisdom_3
+    – Target_EnhanceAbility_OwlsWisdom_4
+    – Target_FeignDeath
+    – Target_FeignDeath_4
+    – Target_FreedomOfMovement
+    – Target_GlyphOfWarding
+    – Target_GlyphOfWarding_Acid
+    – Target_GlyphOfWarding_Acid_4
+    – Target_GlyphOfWarding_Cold
+    – Target_GlyphOfWarding_Cold_4
+    – Target_GlyphOfWarding_Detonation
+    – Target_GlyphOfWarding_Detonation_4
+    – Target_GlyphOfWarding_Fire
+    – Target_GlyphOfWarding_Fire_4
+    – Target_GlyphOfWarding_Lightning
+    – Target_GlyphOfWarding_Lightning_4
+    – Target_GlyphOfWarding_Sleep
+    – Target_GlyphOfWarding_Sleep_4
+    – Target_GlyphOfWarding_Thunder
+    – Target_GlyphOfWarding_Thunder_4
+    – Target_GuardianOfFaith
+    – Target_Guidance
+    – Target_HealingWord
+    – Target_HealingWord_2
+    – Target_HealingWord_3
+    – Target_HealingWord_4
+    – Target_HoldPerson
+    – Target_HoldPerson_3
+    – Target_HoldPerson_4
+    – Target_InflictWounds
+    – Target_InflictWounds_2
+    – Target_InflictWounds_3
+    – Target_InflictWounds_4
+    – Target_InvokeDuplicity
+    – Target_LesserRestoration
+    – Target_LesserRestoration_3
+    – Target_LesserRestoration_4
+    – Target_MAG_HealingWord
+    – Target_MAG_HuntersMark
+    – Target_OpeningAttack
+    – Target_Polymorph
+    – Target_ProtectionFromEnergy
+    – Target_ProtectionFromEnergy_Acid
+    – Target_ProtectionFromEnergy_Acid_4
+    – Target_ProtectionFromEnergy_Cold
+    – Target_ProtectionFromEnergy_Cold_4
+    – Target_ProtectionFromEnergy_Fire
+    – Target_ProtectionFromEnergy_Fire_4
+    – Target_ProtectionFromEnergy_Lightning
+    – Target_ProtectionFromEnergy_Lightning_4
+    – Target_ProtectionFromEnergy_Thunder
+    – Target_ProtectionFromEnergy_Thunder_4
+    – Target_ProtectionFromEvilAndGood
+    – Target_ProtectionFromEvilAndGood_2
+    – Target_ProtectionFromEvilAndGood_3
+    – Target_ProtectionFromEvilAndGood_4
+    – Target_ProtectionFromPoison
+    – Target_ProtectionFromPoison_3
+    – Target_ProtectionFromPoison_4
+    – Target_RemoveCurse
+    – Target_RemoveCurse_4
+    – Target_Resistance
+    – Target_SacredFlame
+    – Target_Sanctuary
+    – Target_Sanctuary_2
+    – Target_Sanctuary_3
+    – Target_Sanctuary_4
+    – Target_ShieldOfFaith
+    – Target_ShieldOfFaith_2
+    – Target_ShieldOfFaith_3
+    – Target_ShieldOfFaith_4
+    – Target_Silence
+    – Target_Silence_3
+    – Target_Silence_4
+    – Target_Slash_New
+    – Target_SpeakWithDead
+    – Target_SpeakWithDead_4
+    – Target_SpiritualWeapon
+    – Target_SpiritualWeapon_Greataxe
+    – Target_SpiritualWeapon_Greataxe_3
+    – Target_SpiritualWeapon_Greataxe_4
+    – Target_SpiritualWeapon_Greatsword
+    – Target_SpiritualWeapon_Greatsword_3
+    – Target_SpiritualWeapon_Greatsword_4
+    – Target_SpiritualWeapon_Halberd
+    – Target_SpiritualWeapon_Halberd_3
+    – Target_SpiritualWeapon_Halberd_4
+    – Target_SpiritualWeapon_Maul
+    – Target_SpiritualWeapon_Maul_3
+    – Target_SpiritualWeapon_Maul_4
+    – Target_SpiritualWeapon_Spear
+    – Target_SpiritualWeapon_Spear_3
+    – Target_SpiritualWeapon_Spear_4
+    – Target_SpiritualWeapon_Trident
+    – Target_SpiritualWeapon_Trident_3
+    – Target_SpiritualWeapon_Trident_4
+    – Target_WardingBond
+    – Target_WardingBond_3
+    – Target_WardingBond_4
+    – Teleportation_DimensionDoor
+    – Teleportation_Revivify
+    – Teleportation_Revivify_4
+    – Zone_Fear
+    – Zone_Fear_4
+    – Zone_MAG_BloodOfLathander_Sunbeam
+  Equipped (11):
+    – ARM_CircletOfBlasting
+    – ARM_Ring_I_Silver_A
+    – CRE_BloodOfLathander
+    – DEN_HellridersPride
+    – MAG_BG_OfDevotion_Shield
+    – MAG_BG_OfDexterity_Gloves
+    – MAG_Healer_HPRestoration_Amulet
+    – MAG_Hunting_Shortbow
+    – MAG_Paladin_MomentumOnConcentration_Boots
+    – MAG_Radiant_RadiatingOrb_Armor
+    – UNI_MassHealRing
+  Carried / personal inventory (13):
+    – ALCH_Ingredient_Part_OchreJellySlime
+    – ARM_Camp_Body_Shadowheart
+    – ARM_Camp_Shoes_Shadowheart
+    – ARM_Underwear_Shadowheart
+    – CONS_Herbs_Balsam
+    – CONS_Mushrooms_RoguesMorsel
+    – OBJ_Backpack_CampSupplies
+    – OBJ_Bag_AlchemyPouch
+    – OBJ_Keychain
+    – OBJ_Kit_ThievesTools
+    – OBJ_Potion_Healing
+    – OBJ_Rope
+    – OBJ_Scroll_Revivify
+
+Imp_Summon
+  Race      : Imp
+  Class     : ?
+  Level     : 1
+  XP        : 0
+  Location  : HAV_IsobelRoom_SUB
+  Spells/Abilities : (spell book not found)
+  Equipment : character node not found
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ALL ITEMS ON CURRENT LEVEL  (per-character gear listed above)
+Note: items carried by party members are attributed to each character
+above, by shared world position. The list below is the full level pool
+(world loot, containers, vendor stock) for reference.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  5150 items total  (859 unique types)
+
+  x4   ACT1_HAG_HagMask                                             
+  x9   ALCH_Ingredient_Loot_FireAmber                               [alchemy]
+  x2   ALCH_Ingredient_Loot_HillGiantFinger                         [alchemy]
+       ALCH_Ingredient_Loot_PegasusFeather                          [alchemy]
+       ALCH_Ingredient_Loot_SnakeFang                               [alchemy]
+  x2   ALCH_Ingredient_Loot_YellowMuskCreeper                       [alchemy]
+       ALCH_Ingredient_Part_EagleFeather                            [alchemy]
+  x9   ALCH_Ingredient_Part_GremishkaTail                           [alchemy]
+  x13  ALCH_Ingredient_Part_HyenaEar                                [alchemy]
+  x21  ALCH_Ingredient_Part_IntellectDevourer                       [alchemy]
+  x7   ALCH_Ingredient_Part_MagmaMephitHeart                        [alchemy]
+  x2   ALCH_Ingredient_Part_MudMephitWing                           [alchemy]
+       ALCH_Ingredient_Part_MyconidSpore_Haste                      [alchemy]
+  x2   ALCH_Ingredient_Part_MyconidSpore_Poison                     [alchemy]
+  x2   ALCH_Ingredient_Part_OchreJellySlime                         [alchemy]
+  x2   ALCH_Ingredient_Part_Shadowcursed                            [alchemy]
+  x4   ALCH_Ingredient_Part_SpiderGland                             [alchemy]
+       ALCH_Ingredient_Part_WoodBark                                [alchemy]
+  x9   ALCH_Ingredient_Part_WorgFang                                [alchemy]
+  x2   ALCH_Solution_Elixir_Alertness                               [alchemy]
+  x2   ALCH_Solution_Elixir_Darkvision                              [alchemy]
+       ALCH_Solution_Elixir_Enlarge                                 [alchemy]
+  x3   ALCH_Solution_Elixir_Meditation                              [alchemy]
+       ALCH_Solution_Elixir_Meditation_Greater                      [alchemy]
+       ALCH_Solution_Elixir_SeeInvisible                            [alchemy]
+       ALCH_Solution_Grenade_Light                                  [alchemy]
+  x5   ALCH_Solution_Oil_AttackBuff                                 [alchemy]
+       ALCH_Solution_Oil_Bane                                       [alchemy]
+  x5   ALCH_Solution_Oil_DamageAttackBuff                           [alchemy]
+  x5   ALCH_Solution_Oil_Reduce                                     [alchemy]
+  x5   ALCH_Solution_Oil_RemoveResistanceFire                       [alchemy]
+  x3   ALCH_Solution_Oil_Wizardsbane                                [alchemy]
+  x5   ALCH_Solution_Potion_DetectThoughts                          [alchemy]
+       ALCH_Solution_Potion_Flying                                  [alchemy]
+  x6   ALCH_Solution_Potion_Jump                                    [alchemy]
+       ALCH_Solution_Potion_Rest_Greater                            [alchemy]
+  x3   ARM_Amulet                                                   [armour/accessory]
+  x2   ARM_Amulet_Necklace_A_Bronze_Green                           [armour/accessory]
+       ARM_Amulet_Necklace_A_Silver_Orange                          [armour/accessory]
+  x6   ARM_Amulet_Necklace_B_Bronze_A                               [armour/accessory]
+       ARM_Amulet_Necklace_B_Gold_A                                 [armour/accessory]
+  x10  ARM_Amulet_Necklace_B_Silver_A                               [armour/accessory]
+  x3   ARM_Boots_Leather                                            [armour/accessory]
+       ARM_Boots_Leather_A                                          [armour/accessory]
+       ARM_Boots_Leather_D                                          [armour/accessory]
+       ARM_Boots_Metal                                              [armour/accessory]
+  x2   ARM_Breastplate_Body                                         [armour/accessory]
+  x2   ARM_Camp_Body_Gale                                           [armour/accessory]
+       ARM_Camp_Body_Shadowheart                                    [armour/accessory]
+  x12  ARM_Camp_Sandals_B                                           [armour/accessory]
+  x18  ARM_Camp_Sandals_B_Red                                       [armour/accessory]
+  x19  ARM_Camp_Sandals_C                                           [armour/accessory]
+  x20  ARM_Camp_Shoes_B                                             [armour/accessory]
+  x15  ARM_Camp_Shoes_C                                             [armour/accessory]
+  x2   ARM_Camp_Shoes_Gale                                          [armour/accessory]
+       ARM_Camp_Shoes_Shadowheart                                   [armour/accessory]
+  x9   ARM_ChainMail_Body                                           [armour/accessory]
+  x2   ARM_ChainMail_Body_1                                         [armour/accessory]
+  x3   ARM_ChainShirt_Body_2                                        [armour/accessory]
+  x5   ARM_ChainShirt_Body_Shar                                     [armour/accessory]
+       ARM_Cloak                                                    [armour/accessory]
+       ARM_DrunkGoblinRing                                          [armour/accessory]
+       ARM_Duergar_Shield_A                                         [armour/accessory]
+       ARM_Gloves_Leather                                           [armour/accessory]
+       ARM_Gloves_Metal                                             [armour/accessory]
+       ARM_Goblin_Shield_A                                          [armour/accessory]
+  x4   ARM_Goblin_Shield_C                                          [armour/accessory]
+  x9   ARM_Goblin_Shield_D                                          [armour/accessory]
+  x10  ARM_HalfPlate_Body                                           [armour/accessory]
+  x21  ARM_HalfPlate_Body_Githyanki                                 [armour/accessory]
+  x8   ARM_Hat                                                      [armour/accessory]
+  x9   ARM_Hat_MuffinHat_A                                          [armour/accessory]
+  x10  ARM_Hat_MuffinHat_B                                          [armour/accessory]
+  x11  ARM_Hat_Wizard_B                                             [armour/accessory]
+  x10  ARM_Hat_Wizard_D                                             [armour/accessory]
+  x13  ARM_Helmet_Leather                                           [armour/accessory]
+  x10  ARM_Helmet_Metal                                             [armour/accessory]
+       ARM_Hide_Body                                                [armour/accessory]
+  x3   ARM_Hide_Body_2                                              [armour/accessory]
+  x3   ARM_Instrument_Drum                                          [armour/accessory]
+  x2   ARM_Instrument_Flute                                         [armour/accessory]
+  x5   ARM_Instrument_Lute                                          [armour/accessory]
+  x3   ARM_Instrument_Lute_B                                        [armour/accessory]
+  x2   ARM_Instrument_Lyre                                          [armour/accessory]
+       ARM_KeepsakeLocket_A                                         [armour/accessory]
+  x5   ARM_KuoToa_Shield_A                                          [armour/accessory]
+  x94  ARM_Leather_Body                                             [armour/accessory]
+  x2   ARM_Leather_Body_1                                           [armour/accessory]
+       ARM_MerregonMask                                             [armour/accessory]
+  x4   ARM_Padded_Body                                              [armour/accessory]
+  x2   ARM_Padded_Body_2                                            [armour/accessory]
+  x22  ARM_Plate_Body                                               [armour/accessory]
+  x30  ARM_RingMail_Body                                            [armour/accessory]
+  x2   ARM_RingMail_Body_2                                          [armour/accessory]
+       ARM_RingOfPoisonResistance                                   [armour/accessory]
+  x3   ARM_Ring_A_Gem_A_Gold                                        [armour/accessory]
+       ARM_Ring_A_Simple_Gold                                       [armour/accessory]
+  x3   ARM_Ring_B                                                   [armour/accessory]
+       ARM_Ring_B_Gem_B_Gold                                        [armour/accessory]
+       ARM_Ring_B_Gold_A                                            [armour/accessory]
+  x3   ARM_Ring_B_Silver_A                                          [armour/accessory]
+  x2   ARM_Ring_C                                                   [armour/accessory]
+       ARM_Ring_C_Gold_A                                            [armour/accessory]
+  x3   ARM_Ring_C_Silver_A                                          [armour/accessory]
+  x2   ARM_Ring_D                                                   [armour/accessory]
+       ARM_Ring_D_Gold_A                                            [armour/accessory]
+       ARM_Ring_D_Silver_A                                          [armour/accessory]
+  x2   ARM_Ring_E                                                   [armour/accessory]
+       ARM_Ring_E_Gold_A                                            [armour/accessory]
+  x2   ARM_Ring_E_Silver_A                                          [armour/accessory]
+       ARM_Ring_F                                                   [armour/accessory]
+       ARM_Ring_F_Gold_A                                            [armour/accessory]
+  x3   ARM_Ring_F_Silver_A                                          [armour/accessory]
+       ARM_Ring_G                                                   [armour/accessory]
+  x2   ARM_Ring_G_Silver_A                                          [armour/accessory]
+  x3   ARM_Ring_H                                                   [armour/accessory]
+       ARM_Ring_H_Gold_A                                            [armour/accessory]
+  x2   ARM_Ring_H_Silver_A                                          [armour/accessory]
+  x2   ARM_Ring_I_Silver_A                                          [armour/accessory]
+  x16  ARM_Robe_Body                                                [armour/accessory]
+  x3   ARM_Robe_Selunite                                            [armour/accessory]
+  x28  ARM_ScaleMail_Body                                           [armour/accessory]
+  x2   ARM_ScaleMail_Body_1                                         [armour/accessory]
+  x4   ARM_Shar_Shield                                              [armour/accessory]
+  x9   ARM_Shield                                                   [armour/accessory]
+  x3   ARM_Shield_C                                                 [armour/accessory]
+       ARM_Shield_D                                                 [armour/accessory]
+  x3   ARM_Shield_FlamingFist                                       [armour/accessory]
+       ARM_Shield_GuardianOfFaith_Good                              [armour/accessory]
+       ARM_Shield_Rusty                                             [armour/accessory]
+  x3   ARM_Shoes                                                    [armour/accessory]
+       ARM_Shoes_Barbarian                                          [armour/accessory]
+       ARM_Shoes_H                                                  [armour/accessory]
+  x2   ARM_Splint_Body                                              [armour/accessory]
+  x31  ARM_StuddedLeather_Body                                      [armour/accessory]
+       ARM_TalismanOfJergal                                         [armour/accessory]
+  x2   ARM_Underwear_Gale                                           [armour/accessory]
+  x5   ARM_Underwear_Helper                                         [armour/accessory]
+       ARM_Underwear_Shadowheart                                    [armour/accessory]
+       ARM_Vanity_Body_Citizen                                      [armour/accessory]
+       ARM_Vanity_Body_Citizen_B_Teal                               [armour/accessory]
+       ARM_Vanity_Body_Citizen_C_Blue                               [armour/accessory]
+       ARM_Vanity_Body_Citizen_C_Green                              [armour/accessory]
+  x3   ARM_Vanity_Body_Cultist                                      [armour/accessory]
+       ARM_Vanity_Body_Refugee                                      [armour/accessory]
+  x42  ARM_Vanity_Body_Refugee_Gray                                 [armour/accessory]
+  x40  ARM_Vanity_Body_Refugee_Green                                [armour/accessory]
+       ARM_Vanity_Body_Shirt_Black                                  [armour/accessory]
+       ARM_Vanity_Body_Shirt_Green                                  [armour/accessory]
+       ARM_Vanity_Body_Shirt_Purple                                 [armour/accessory]
+       ARM_Vanity_Body_Shirt_Red                                    [armour/accessory]
+  x44  ARM_Vanity_Prison_Poor                                       [armour/accessory]
+       BOOK_Alchemy_HealingPotion                                   [book/scroll]
+       BOOK_Alchemy_PotionsVsElixirs                                [book/scroll]
+       BOOK_Alchemy_SerpentVenom                                    [book/scroll]
+       BOOK_GEN_Faction_EmeraldEnclaveLogBook                       [book/scroll]
+       BOOK_GEN_Factions_LeadershipOfZhentarim                      [book/scroll]
+       BOOK_GEN_Factions_SecretSocieties1                           [book/scroll]
+       BOOK_GEN_Gods_AforAzuth1                                     [book/scroll]
+  x6   BOOK_GEN_Gods_DeathandDivinityJergal                         [book/scroll]
+  x2   BOOK_GEN_Gods_SharSeluneConflict                             [book/scroll]
+  x8   BOOK_GEN_History_BhaalspawnMissives                          [book/scroll]
+  x6   BOOK_GEN_History_BhaalspawnTestimonials                      [book/scroll]
+  x6   BOOK_GEN_History_SarevokDiaryEncounter                       [book/scroll]
+       BOOK_GEN_History_SensibleLiving12                            [book/scroll]
+       BOOK_GEN_Planes_AdventuresMorrowAstral                       [book/scroll]
+       BOOK_GEN_Planes_AdventuresMorrowRavenloft                    [book/scroll]
+       BOOK_GEN_Planes_Annihilation                                 [book/scroll]
+  x13  BOOK_GEN_Planes_CityofJudgment                               [book/scroll]
+  x10  BOOK_GEN_Planes_SoulCoinsTreatise                            [book/scroll]
+       BOOK_GEN_Planes_Yeenoghu                                     [book/scroll]
+  x4   BOOK_GEN_Races_CurseofVampyr                                 [book/scroll]
+       BOOK_GEN_Races_FablesofFaerun4                               [book/scroll]
+       BOOK_GEN_Races_HalflingRhymes1                               [book/scroll]
+  x2   BOOK_GEN_Races_OralHistories_MFGith                          [book/scroll]
+  x2   BOOK_GEN_Races_RealmAccordingToBumpo001                      [book/scroll]
+       BOOK_GEN_Races_SoothsayerAccount                             [book/scroll]
+       BOOK_GEN_World_AdventuresofBalduran001                       [book/scroll]
+       BOOK_GEN_World_AnnalsofBGOrigin                              [book/scroll]
+  x2   BOOK_GEN_World_BGPeacockLetter                               [book/scroll]
+       BOOK_GEN_World_CandlekeepEels                                [book/scroll]
+  x5   BOOK_GEN_World_FringePhilosophy5                             [book/scroll]
+  x5   BOOK_GEN_World_GuideOnHags001                                [book/scroll]
+  x2   BOOK_GEN_World_GuideOnHags002                                [book/scroll]
+       BOOK_GEN_World_GuideOuterCity                                [book/scroll]
+  x2   BOOK_GEN_World_GuideRisenRoad                                [book/scroll]
+  x7   BOOK_GEN_World_IntroToTheWeave                               [book/scroll]
+       BOOK_GEN_World_JourneyThroughChult                           [book/scroll]
+  x7   BOOK_GEN_World_MetatextResurrection                          [book/scroll]
+       BOOK_GEN_World_OralHistories_LuirenAbeirSpellplague          [book/scroll]
+       BOOK_GLO_Alchemy_DrowPoison                                  [book/scroll]
+       BOOK_GLO_GeneralLoreBook_ADreamOfGears                       [book/scroll]
+       BOOK_GLO_GeneralLoreBook_CorsairsOfLuskan                    [book/scroll]
+       BOOK_GLO_GeneralLoreBook_HarvestOfMemory                     [book/scroll]
+       BOOK_GLO_GeneralLoreBook_JudgeOfTheDamned                    [book/scroll]
+       BOOK_GLO_GeneralLoreBook_KelemvorBlessings                   [book/scroll]
+       BOOK_GLO_GeneralLoreBook_SeluneHealingLore                   [book/scroll]
+       CHA_CompassSpear                                             
+       CHA_OutpostJewelry                                           
+  x14  CONS_Berry                                                   [consumable]
+  x3   CONS_DRINK_Beer                                              [consumable]
+  x3   CONS_DRINK_Oil                                               [consumable]
+  x14  CONS_DRINK_Rum                                               [consumable]
+       CONS_DRINK_Rum_B                                             [consumable]
+       CONS_DRINK_Valuable_Wine_Bottle                              [consumable]
+  x44  CONS_DRINK_Water_Bottle                                      [consumable]
+  x6   CONS_DRINK_Wine                                              [consumable]
+  x16  CONS_DRINK_Wine_Bottle                                       [consumable]
+  x2   CONS_DRINK_Wine_Bottle_Wicker                                [consumable]
+  x8   CONS_Drink_Wine_B                                            [consumable]
+  x15  CONS_Drink_Wine_B_Wicker                                     [consumable]
+  x2   CONS_Drink_Wine_Bottle_A                                     [consumable]
+  x2   CONS_Drink_Wine_C                                            [consumable]
+       CONS_Drink_Wine_C_Wicker                                     [consumable]
+  x7   CONS_Drink_Wine_D_Wicker                                     [consumable]
+       CONS_Drink_Wine_E_Wicker                                     [consumable]
+  x15  CONS_Drink_Wine_F                                            [consumable]
+       CONS_Drink_Wine_G                                            [consumable]
+  x11  CONS_Drink_Wine_H                                            [consumable]
+  x16  CONS_Drink_Wine_I                                            [consumable]
+       CONS_Drink_Wine_Pitcher_B                                    [consumable]
+  x5   CONS_Drink_Wine_Pitcher_C                                    [consumable]
+  x7   CONS_Drink_Wine_Pitcher_D                                    [consumable]
+  x3   CONS_FOOD_BluecapMushroom                                    [consumable]
+  x5   CONS_FOOD_Bread_Bun                                          [consumable]
+  x5   CONS_FOOD_Bread_Loaf                                         [consumable]
+  x9   CONS_FOOD_Cheese                                             [consumable]
+  x13  CONS_FOOD_Cheese_Piece                                       [consumable]
+  x4   CONS_FOOD_Egg                                                [consumable]
+  x48  CONS_FOOD_Egg_Rotten                                         [consumable]
+  x5   CONS_FOOD_Egg_WildBird                                       [consumable]
+  x3   CONS_FOOD_Fish_Big                                           [consumable]
+  x3   CONS_FOOD_Fish_Big_Headface                                  [consumable]
+       CONS_FOOD_Fish_Big_Headless                                  [consumable]
+  x8   CONS_FOOD_Fish_Rotten_A                                      [consumable]
+  x9   CONS_FOOD_Fish_Rotten_B                                      [consumable]
+  x7   CONS_FOOD_Fish_Rotten_C                                      [consumable]
+  x9   CONS_FOOD_Fish_Rotten_D                                      [consumable]
+  x4   CONS_FOOD_Fish_Small_A                                       [consumable]
+  x5   CONS_FOOD_Fish_Small_B                                       [consumable]
+  x3   CONS_FOOD_Fish_Small_C                                       [consumable]
+  x3   CONS_FOOD_Fish_Small_D                                       [consumable]
+  x5   CONS_FOOD_Fish_Small_E                                       [consumable]
+  x33  CONS_FOOD_Fruit_Apple                                        [consumable]
+  x4   CONS_FOOD_Fruit_Banana_A_Rotten                              [consumable]
+  x9   CONS_FOOD_Fruit_Goodberry                                    [consumable]
+       CONS_FOOD_Fruit_Grapes_Green                                 [consumable]
+  x2   CONS_FOOD_Fruit_Grapes_Purple                                [consumable]
+  x4   CONS_FOOD_Fruit_Kiwi                                         [consumable]
+  x10  CONS_FOOD_Fruit_Lemon                                        [consumable]
+  x3   CONS_FOOD_Fruit_Lemon_A_Rotten                               [consumable]
+  x4   CONS_FOOD_Fruit_Melon                                        [consumable]
+       CONS_FOOD_Fruit_Melon_Half                                   [consumable]
+       CONS_FOOD_Fruit_Melon_Piece                                  [consumable]
+  x8   CONS_FOOD_Fruit_Orange                                       [consumable]
+  x21  CONS_FOOD_Fruit_Pear                                         [consumable]
+  x9   CONS_FOOD_GlowcapMushroom                                    [consumable]
+       CONS_FOOD_Ration                                             [consumable]
+  x16  CONS_FOOD_Sausage                                            [consumable]
+  x13  CONS_FOOD_Sausage_B                                          [consumable]
+       CONS_FOOD_Sausage_C                                          [consumable]
+  x14  CONS_FOOD_Sausage_D                                          [consumable]
+  x14  CONS_FOOD_Sausage_Piled                                      [consumable]
+  x12  CONS_FOOD_Sausage_Piled_B                                    [consumable]
+       CONS_FOOD_Soup_Onion                                         [consumable]
+       CONS_FOOD_Soup_Vegetable                                     [consumable]
+  x22  CONS_FOOD_Vegetable_Carrot                                   [consumable]
+  x71  CONS_FOOD_Vegetable_Carrot_A_Rotten                          [consumable]
+  x12  CONS_FOOD_Vegetable_Garlic                                   [consumable]
+  x48  CONS_FOOD_Vegetable_Potato                                   [consumable]
+  x76  CONS_FOOD_Vegetable_Tomato_A_Rotten                          [consumable]
+  x9   CONS_FOOD_Vegetable_Zucchini                                 [consumable]
+       CONS_FOOD_YellowOnion                                        [consumable]
+  x40  CONS_Fungi_Mushroom_Agaric_A_Rotten                          [consumable]
+  x41  CONS_Fungi_Mushroom_Agaric_B_Rotten                          [consumable]
+       CONS_GEN_Alcohol_Bottle_Cheap_A                              [consumable]
+  x9   CONS_GEN_Alcohol_Bottle_Normal_A                             [consumable]
+  x9   CONS_GEN_Alcohol_Bottle_Normal_B                             [consumable]
+  x9   CONS_GEN_Alcohol_Bottle_Normal_C                             [consumable]
+  x8   CONS_GEN_Alcohol_Bottle_Normal_D                             [consumable]
+  x15  CONS_GEN_Alcohol_Bottle_Normal_E                             [consumable]
+  x9   CONS_GEN_Alcohol_Bottle_Normal_F                             [consumable]
+       CONS_GEN_Alcohol_Bottle_Rich_A                               [consumable]
+  x3   CONS_GEN_FOOD_Tart_Treacle_Spoiled                           [consumable]
+  x8   CONS_GEN_Food_Cheese_Blue_Piece_A_Rotten                     [consumable]
+  x9   CONS_GEN_Food_Cheese_Blue_Piece_B_Rotten                     [consumable]
+  x9   CONS_GEN_Food_Cheese_Blue_Wheel_A_Rotten                     [consumable]
+  x8   CONS_GEN_Food_Cheese_Cheddar_Piece_A_Rotten                  [consumable]
+  x8   CONS_GEN_Food_Cheese_Cheddar_Piece_B_Rotten                  [consumable]
+  x8   CONS_GEN_Food_Cheese_Cheddar_Wheel_A_Rotten                  [consumable]
+  x9   CONS_GEN_Food_Cheese_Goat_Piece_A_Rotten                     [consumable]
+  x9   CONS_GEN_Food_Cheese_Goat_Piece_B_Rotten                     [consumable]
+  x8   CONS_GEN_Food_Cheese_Goat_Wheel_A_Rotten                     [consumable]
+  x2   CONS_Herbs_Autumncrocus                                      [consumable]
+       CONS_Herbs_Balsam                                            [consumable]
+  x2   CONS_Herbs_Belladonna                                        [consumable]
+  x3   CONS_Herbs_Daggeroot                                         [consumable]
+  x2   CONS_Herbs_Mergrass                                          [consumable]
+  x4   CONS_Herbs_Mugwort                                           [consumable]
+  x3   CONS_Herbs_Weavemoss                                         [consumable]
+       CONS_Herbs_Wispweed                                          [consumable]
+  x7   CONS_Honey                                                   [consumable]
+  x6   CONS_Mushrooms_Bonecap                                       [consumable]
+  x7   CONS_Mushrooms_BullywugTrumpet                               [consumable]
+  x10  CONS_Mushrooms_DragonEggMushroom                             [consumable]
+  x7   CONS_Mushrooms_Nightlight_Piece                              [consumable]
+  x15  CONS_Mushrooms_RoguesMorsel                                  [consumable]
+  x6   CONS_Mushrooms_SilvanTruffle                                 [consumable]
+  x6   CONS_Mushrooms_SwarmingToadstool                             [consumable]
+       CRE_Hatchery_AcidPoisonImmunity_Boots                        
+       CRE_MAG_Psychic_Githborn_Circlet                             
+       Cup_Glass_A                                                  
+  x2   Cup_Glass_B                                                  
+  x4   Cup_Metal                                                    
+  x3   Cup_Metal_B                                                  
+  x4   Cup_Metal_C                                                  
+  x4   Cup_Metal_D                                                  
+  x2   Cup_Metal_E                                                  
+  x4   Cup_Metal_F                                                  
+  x3   Cup_Mug_Metal                                                
+  x2   Cup_Silver                                                   
+  x2   Cup_Silver_B                                                 
+  x2   Cup_Silver_C                                                 
+       Cup_Silver_D                                                 
+  x3   Cup_Silver_E                                                 
+  x3   Cup_Silver_F                                                 
+       Cup_Silver_G                                                 
+       Cup_Silver_H                                                 
+       DEN_RaidingParty_GoblinCaptain_Gloves                        
+       DEN_TunnelStaff                                              
+  x2   DiningPlate_Silver_A                                         
+       DiningPlate_Silver_C                                         
+       DiningPlate_Silver_D                                         
+  x2   DiningPlate_Silver_E                                         
+       DiningPlate_Silver_Elevated_B                                
+       FOR_OwlbearCubs_Armor                                        
+       FOR_SpiderstepBoots                                          
+       Food_Horseradish_Bundle                                      
+       Food_Neogi_Claws                                             
+       Food_Potato_Scones                                           
+       Food_Sweet_Potato                                            
+  x3   GLO_SoulCoin                                                 
+       GOB_DwarfsPoem                                               
+       GOB_GoblinKing_Warhammer                                     
+       GOB_PainPriest_Dagger                                        
+       GOB_PainPriest_Handaxe                                       
+       GOB_PainPriest_Scourge                                       
+       GOB_Pens_Dagger                                              
+       GOB_Priest_Amulet                                            
+       GOB_Priest_Shield                                            
+  x5   HAG_AntidotePear                                             
+  x24  HAG_PoisonApple                                              
+       HAG_SwampedHero_OldFancyGreatsword                           
+       MAG_Absolute_Protecter_Shield                                [weapon/magic]
+       MAG_Acid_AcidMeleeCounter_Cloak                              [weapon/magic]
+       MAG_Acid_NoxiousFumes_Gloves                                 [weapon/magic]
+       MAG_Bard_HealingBardicInspiration_Hat                        [weapon/magic]
+       MAG_CQCaster_CloseRangedSpellMastery_Gloves                  [weapon/magic]
+       MAG_ChargedLightning_BonusAC_Robe                            [weapon/magic]
+       MAG_ChargedLightning_Dash_Boots                              [weapon/magic]
+       MAG_ChargedLightning_ElectricSurface_Boots                   [weapon/magic]
+       MAG_ChargedLightning_Electrocute_Armor                       [weapon/magic]
+       MAG_ChargedLightning_LightningBlast_Amulet                   [weapon/magic]
+       MAG_ChargedLightning_StaticDischarge_Shield                  [weapon/magic]
+       MAG_Druid_Late_Hide_Armor_1                                  [weapon/magic]
+       MAG_Druid_Magic_Hide_Armor                                   [weapon/magic]
+       MAG_Finesse_Longsword                                        [weapon/magic]
+       MAG_Fire_AlwaysDippedInFire_Greatsword                       [weapon/magic]
+       MAG_Fire_FireDamage_Quarterstaff                             [weapon/magic]
+       MAG_Fire_HeatOnFireDamage_Gloves                             [weapon/magic]
+       MAG_Fire_IncreasePiercingDamageToBurning_HandCrossbow        [weapon/magic]
+       MAG_Fire_IncreaseSlashingDamageToBurning_Handaxe             [weapon/magic]
+       MAG_FlamingFist_BattleWizardGloves                           [weapon/magic]
+       MAG_FlamingFist_Flaming_Shield                               [weapon/magic]
+       MAG_FlamingFist_StaffOfFire                                  [weapon/magic]
+       MAG_Frost_GenerateSurfaceOnColdDamage_Ring                   [weapon/magic]
+       MAG_Frost_IceSurfaceProneImmunity_Boots                      [weapon/magic]
+       MAG_Gish_ArcaneSynergy_Ring                                  [weapon/magic]
+       MAG_Gish_PsychicDamageBonusWhileConcentrating_Ring           [weapon/magic]
+       MAG_Gish_TempHPWhileConcentrating_Boots                      [weapon/magic]
+       MAG_Gish_WeaknessBranding_Amulet                             [weapon/magic]
+       MAG_Githborn_Mindcrusher_Greatsword                          [weapon/magic]
+       MAG_Githborn_TelekineticBolt_HeavyCrossbow                   [weapon/magic]
+       MAG_Harpers_ArmorOfShadows                                   [weapon/magic]
+       MAG_Healer_HealSelfPoisonWeapon_Amulet                       [weapon/magic]
+       MAG_Healer_HealSelf_Helmet                                   [weapon/magic]
+       MAG_Heat_Fire_Robe                                           [weapon/magic]
+       MAG_Invisible_Pike                                           [weapon/magic]
+       MAG_Ketheric_Shield                                          [weapon/magic]
+       MAG_Ketheric_Warhammer                                       [weapon/magic]
+  x2   MAG_Kuotoa_Lightning_Spear                                   [weapon/magic]
+       MAG_LowHP_IncreaseDamage_Greataxe                            [weapon/magic]
+       MAG_LowHP_TemporaryHP_Shield                                 [weapon/magic]
+       MAG_MeleeDebuff_AttackDebuff2_OnDamage_HeavyCrossbow         [weapon/magic]
+       MAG_Mobility_LowHP_Momentum_Ring                             [weapon/magic]
+       MAG_Mobility_MomentumOnAttack_Scimitar                       [weapon/magic]
+       MAG_Mobility_MomentumOnCombatStart_Helmet                    [weapon/magic]
+       MAG_Monk_Fire_Gloves                                         [weapon/magic]
+       MAG_Monk_Magic_Hat                                           [weapon/magic]
+       MAG_MonsterSlayer_Glaive                                     [weapon/magic]
+       MAG_Myrkulites_CircletOfMyrkul_Circlet                       [weapon/magic]
+       MAG_OfRupture_Rapier                                         [weapon/magic]
+       MAG_OfTheBalancedHands_Gloves                                [weapon/magic]
+       MAG_PHB_Defender_Greataxe                                    [weapon/magic]
+       MAG_PassWithoutTrace_Ring                                    [weapon/magic]
+       MAG_Radiant_Radiating_Helmet                                 [weapon/magic]
+       MAG_Rage_TempHPOnExit_Gloves                                 [weapon/magic]
+       MAG_SHA_SharBlessing_Spear                                   [weapon/magic]
+       MAG_Shadow_StealthBonusWhileObscured_Armor                   [weapon/magic]
+       MAG_SpectatorEye_Amulet                                      [weapon/magic]
+       MAG_Spellbreaker_Battleaxe                                   [weapon/magic]
+       MAG_Surgeon_Bonesaw                                          [weapon/magic]
+       MAG_Surgeon_Leech                                            [weapon/magic]
+       MAG_Surgeon_Syringe                                          [weapon/magic]
+       MAG_Surgeon_Trepan                                           [weapon/magic]
+       MAG_Violence_LowHP_Violence_Clothes                          [weapon/magic]
+       MAG_Violence_ViolenceOnDamaged_Helmet                        [weapon/magic]
+       MAG_ZOC_ForceConduit_ChainMail                               [weapon/magic]
+       MAG_ZOC_ForceConduit_Halberd                                 [weapon/magic]
+       MAG_Zhentarim_Demonspirit_Gloves                             [weapon/magic]
+       MOO_Ketheric_Armor                                           
+  x7   OBJ_AcidBottle                                               [misc/loot]
+  x18  OBJ_Agate                                                    [misc/loot]
+  x6   OBJ_Antitoxin                                                [misc/loot]
+  x13  OBJ_ArrowOfAcid                                              [misc/loot]
+  x2   OBJ_ArrowOfAntimagic                                         [misc/loot]
+  x5   OBJ_ArrowOfDarkness                                          [misc/loot]
+  x19  OBJ_ArrowOfDetonation                                        [misc/loot]
+  x3   OBJ_ArrowOfDispelling                                        [misc/loot]
+       OBJ_ArrowOfDragonSlaying                                     [misc/loot]
+       OBJ_ArrowOfElementalSlaying                                  [misc/loot]
+       OBJ_ArrowOfFiendSlaying                                      [misc/loot]
+  x21  OBJ_ArrowOfFire                                              [misc/loot]
+       OBJ_ArrowOfHumanoidSlaying                                   [misc/loot]
+  x14  OBJ_ArrowOfIce                                               [misc/loot]
+  x13  OBJ_ArrowOfLightning                                         [misc/loot]
+  x3   OBJ_ArrowOfMonstrositySlaying                                [misc/loot]
+  x4   OBJ_ArrowOfRicochet                                          [misc/loot]
+  x3   OBJ_ArrowOfTeleportation                                     [misc/loot]
+  x7   OBJ_ArrowOfWraithsEmbrace                                    [misc/loot]
+  x3   OBJ_AutomatonPart_B                                          [misc/loot]
+  x3   OBJ_Backpack                                                 [misc/loot]
+  x2   OBJ_Backpack_CampSupplies                                    [misc/loot]
+  x2   OBJ_Bag_AlchemyPouch                                         [misc/loot]
+       OBJ_Bag_BlackPowder                                          [misc/loot]
+  x3   OBJ_BarbedArrow                                              [misc/loot]
+  x28  OBJ_BasicPoison                                              [misc/loot]
+       OBJ_Basket                                                   [misc/loot]
+  x5   OBJ_Bloodstone                                               [misc/loot]
+  x4   OBJ_BodyPart_Generic_Heart                                   [misc/loot]
+  x13  OBJ_Bomb                                                     [misc/loot]
+  x135 OBJ_Bone                                                     [misc/loot]
+  x55  OBJ_Book                                                     [misc/loot]
+  x79  OBJ_Bottle                                                   [misc/loot]
+  x6   OBJ_Bottle_Destructible                                      [misc/loot]
+  x8   OBJ_Bowl                                                     [misc/loot]
+  x4   OBJ_Bucket                                                   [misc/loot]
+  x11  OBJ_Camp_Pack                                                [misc/loot]
+  x52  OBJ_Candle                                                   [misc/loot]
+  x6   OBJ_Candle_Gold                                              [misc/loot]
+  x2   OBJ_Cauldron                                                 [misc/loot]
+       OBJ_Cauldron_C                                               [misc/loot]
+       OBJ_Cauldron_Lid_B                                           [misc/loot]
+       OBJ_Chalice_Glass                                            [misc/loot]
+       OBJ_Chalice_Silver                                           [misc/loot]
+       OBJ_CrawlerMucus                                             [misc/loot]
+  x3   OBJ_Crystal_ChasmCreeper                                     [misc/loot]
+  x5   OBJ_Crystal_Laculite                                         [misc/loot]
+  x4   OBJ_Crystal_LolthsCandle                                     [misc/loot]
+  x2   OBJ_Crystal_PurpleFluorite_Shard                             [misc/loot]
+  x3   OBJ_Crystal_SylvanStone                                      [misc/loot]
+  x8   OBJ_Crystal_Viridian                                         [misc/loot]
+       OBJ_Cup_Rich                                                 [misc/loot]
+       OBJ_Demijohn                                                 [misc/loot]
+  x7   OBJ_DrowPoison                                               [misc/loot]
+       OBJ_Dye_BlackGreen                                           [misc/loot]
+       OBJ_Dye_BlackRed                                             [misc/loot]
+       OBJ_Dye_BlackTeal                                            [misc/loot]
+       OBJ_Dye_Blue                                                 [misc/loot]
+       OBJ_Dye_BlueGreen                                            [misc/loot]
+       OBJ_Dye_BluePurple                                           [misc/loot]
+       OBJ_Dye_BlueYellow                                           [misc/loot]
+       OBJ_Dye_BlueYellow_02                                        [misc/loot]
+       OBJ_Dye_Golden                                               [misc/loot]
+  x2   OBJ_Dye_Green                                                [misc/loot]
+       OBJ_Dye_GreenSage                                            [misc/loot]
+       OBJ_Dye_GreenSwamp                                           [misc/loot]
+       OBJ_Dye_IceCream_03                                          [misc/loot]
+  x2   OBJ_Dye_OrangeBlue                                           [misc/loot]
+  x4   OBJ_Dye_Purple_02                                            [misc/loot]
+       OBJ_Dye_Red                                                  [misc/loot]
+       OBJ_Dye_RedWhite                                             [misc/loot]
+  x3   OBJ_Dye_Remover                                              [misc/loot]
+       OBJ_Dye_Teal                                                 [misc/loot]
+  x2   OBJ_Dye_WhiteBlack                                           [misc/loot]
+  x2   OBJ_Earring_Selunite                                         [misc/loot]
+       OBJ_FOOD_Chicken_B                                           [misc/loot]
+  x2   OBJ_FOOD_Ham                                                 [misc/loot]
+  x4   OBJ_FOOD_Meat                                                [misc/loot]
+  x3   OBJ_FOOD_Meat_Grilled                                        [misc/loot]
+  x3   OBJ_FOOD_Meat_Grilled_B                                      [misc/loot]
+       OBJ_FOOD_Meat_Grilled_C                                      [misc/loot]
+  x3   OBJ_FOOD_PorkHead                                            [misc/loot]
+  x2   OBJ_FOOD_PorkHead_B                                          [misc/loot]
+       OBJ_FOOD_PorkPiece                                           [misc/loot]
+  x7   OBJ_FOOD_PorkPiece_B                                         [misc/loot]
+       OBJ_FOOD_PorkPiece_C                                         [misc/loot]
+  x3   OBJ_FOOD_PorkPiece_D                                         [misc/loot]
+  x10  OBJ_Feather                                                  [misc/loot]
+  x25  OBJ_FireBottle                                               [misc/loot]
+       OBJ_GenericDrinkItem                                         [misc/loot]
+  x7   OBJ_GenericLootItem                                          [misc/loot]
+  x4   OBJ_Goblet_Rich_Bronze                                       [misc/loot]
+       OBJ_Goblet_Rich_Gold                                         [misc/loot]
+  x2   OBJ_Goblet_Rich_Silver                                       [misc/loot]
+  x91  OBJ_GoldCoin                                                 [misc/loot]
+  x157 OBJ_GoldPile                                                 [misc/loot]
+  x9   OBJ_GreaseBottle                                             [misc/loot]
+       OBJ_HandMirror                                               [misc/loot]
+  x2   OBJ_HarperPin                                                [misc/loot]
+       OBJ_HolyWaterFlask                                           [misc/loot]
+  x2   OBJ_Idol_Selune                                              [misc/loot]
+  x5   OBJ_Incense                                                  [misc/loot]
+  x2   OBJ_IncenseBowl                                              [misc/loot]
+  x2   OBJ_IncenseBowl_B                                            [misc/loot]
+  x2   OBJ_Incense_B                                                [misc/loot]
+  x2   OBJ_Incense_Bundle                                           [misc/loot]
+  x2   OBJ_Incense_C                                                [misc/loot]
+  x2   OBJ_Incense_D                                                [misc/loot]
+  x2   OBJ_Incense_Pile                                             [misc/loot]
+  x3   OBJ_Incense_Pile_B                                           [misc/loot]
+  x2   OBJ_Incense_Stick                                            [misc/loot]
+  x2   OBJ_Incense_Stick_BCDE                                       [misc/loot]
+  x2   OBJ_InfernalPlate                                            [misc/loot]
+  x10  OBJ_InkPot                                                   [misc/loot]
+  x2   OBJ_InkPot_Open                                              [misc/loot]
+  x2   OBJ_Jade                                                     [misc/loot]
+  x2   OBJ_Keychain                                                 [misc/loot]
+  x44  OBJ_Kit_ThievesTools                                         [misc/loot]
+  x25  OBJ_Kit_TrapDisarm                                           [misc/loot]
+  x2   OBJ_KitchenInstrument_CuttingBoard                           [misc/loot]
+       OBJ_KitchenInstrument_Spatula                                [misc/loot]
+  x2   OBJ_KitchenInstrument_Strainer                               [misc/loot]
+       OBJ_KitchenwareRich_Ceramic_Bowl_A                           [misc/loot]
+  x2   OBJ_KitchenwareRich_Cutlery_Fork_Silver                      [misc/loot]
+  x2   OBJ_KitchenwareRich_Cutlery_Knife_A                          [misc/loot]
+       OBJ_KitchenwareRich_Cutlery_Knife_Silver                     [misc/loot]
+  x2   OBJ_KitchenwareRich_Cutlery_Spoon_A                          [misc/loot]
+       OBJ_KitchenwareRich_Cutlery_Spoon_Silver                     [misc/loot]
+       OBJ_KitchenwareRich_Plate_A                                  [misc/loot]
+  x2   OBJ_Kitchenware_Cutlery_Fork_Iron                            [misc/loot]
+  x7   OBJ_Kitchenware_Cutlery_Fork_Poor                            [misc/loot]
+  x2   OBJ_Kitchenware_Cutlery_Knife_Poor                           [misc/loot]
+       OBJ_Kitchenware_Cutlery_Ladle                                [misc/loot]
+  x2   OBJ_Kitchenware_Cutlery_Ladle_Wood                           [misc/loot]
+  x8   OBJ_Kitchenware_Cutlery_Spoon_Poor                           [misc/loot]
+       OBJ_Kitchenware_Pot                                          [misc/loot]
+       OBJ_Kitchenware_Pot_C                                        [misc/loot]
+  x2   OBJ_Kitchenware_Pot_Drum                                     [misc/loot]
+  x8   OBJ_Malachite                                                [misc/loot]
+  x5   OBJ_Metalbar_Bronze                                          [misc/loot]
+  x2   OBJ_Metalbar_Gold                                            [misc/loot]
+  x5   OBJ_Metalbar_Silver                                          [misc/loot]
+  x2   OBJ_MilkCan                                                  [misc/loot]
+  x7   OBJ_MindflayerBulb_Caustic                                   [misc/loot]
+  x2   OBJ_MindflayerBulb_Spiked                                    [misc/loot]
+  x7   OBJ_MindflayerBulb_Vacuum                                    [misc/loot]
+  x2   OBJ_Music_GuitarLute_Broken                                  [misc/loot]
+       OBJ_Music_Horn                                               [misc/loot]
+  x3   OBJ_Myconid_Flesh                                            [misc/loot]
+       OBJ_Oil_Of_The_Basilisk                                      [misc/loot]
+  x9   OBJ_Onyx                                                     [misc/loot]
+       OBJ_Painting_Landscape_F                                     [misc/loot]
+       OBJ_Pearl                                                    [misc/loot]
+  x9   OBJ_Plate_Metal                                              [misc/loot]
+  x8   OBJ_Plate_Metal_B                                            [misc/loot]
+  x55  OBJ_Potion_Healing                                           [misc/loot]
+  x21  OBJ_Potion_Healing_Greater                                   [misc/loot]
+  x2   OBJ_Potion_Healing_Superior                                  [misc/loot]
+       OBJ_Potion_Healing_Supreme                                   [misc/loot]
+  x7   OBJ_Potion_Of_Animal_Speaking                                [misc/loot]
+  x3   OBJ_Potion_Of_Fire_Resistance                                [misc/loot]
+       OBJ_Potion_Of_Heroism                                        [misc/loot]
+  x2   OBJ_Potion_Of_Hill_Giant_Strength                            [misc/loot]
+  x2   OBJ_Potion_Of_Invisibility                                   [misc/loot]
+       OBJ_Potion_Of_Necrotic_Resistance                            [misc/loot]
+       OBJ_Potion_Of_Poison_Resistance                              [misc/loot]
+  x7   OBJ_Potion_Of_Speed                                          [misc/loot]
+       OBJ_Potion_Of_Vitality                                       [misc/loot]
+  x13  OBJ_Rag_Stacked_A                                            [misc/loot]
+  x14  OBJ_Rag_Stacked_B                                            [misc/loot]
+  x15  OBJ_Rag_Stacked_C                                            [misc/loot]
+  x13  OBJ_Rag_Stacked_D                                            [misc/loot]
+  x14  OBJ_Rag_Stacked_E                                            [misc/loot]
+  x13  OBJ_Rag_Stacked_F                                            [misc/loot]
+  x41  OBJ_Rope                                                     [misc/loot]
+       OBJ_Rope_Pier                                                [misc/loot]
+       OBJ_Ruby                                                     [misc/loot]
+  x66  OBJ_Scroll                                                   [misc/loot]
+  x3   OBJ_Scroll_Aid                                               [misc/loot]
+  x2   OBJ_Scroll_BestowCurse                                       [misc/loot]
+  x2   OBJ_Scroll_Blight                                            [misc/loot]
+  x4   OBJ_Scroll_Blindness                                         [misc/loot]
+  x2   OBJ_Scroll_Blink                                             [misc/loot]
+  x6   OBJ_Scroll_Blur                                              [misc/loot]
+  x4   OBJ_Scroll_BurningHands                                      [misc/loot]
+  x2   OBJ_Scroll_CharmPerson                                       [misc/loot]
+       OBJ_Scroll_ChillTouch                                        [misc/loot]
+       OBJ_Scroll_CloudOfDaggers                                    [misc/loot]
+       OBJ_Scroll_Cloudkill                                         [misc/loot]
+  x2   OBJ_Scroll_ColorSpray                                        [misc/loot]
+       OBJ_Scroll_ConeOfCold                                        [misc/loot]
+  x2   OBJ_Scroll_ConjureMinorElemental                             [misc/loot]
+  x3   OBJ_Scroll_CrownOfMadness                                    [misc/loot]
+  x3   OBJ_Scroll_Darkness                                          [misc/loot]
+  x2   OBJ_Scroll_Darkvision                                        [misc/loot]
+  x4   OBJ_Scroll_DetectThoughts                                    [misc/loot]
+  x2   OBJ_Scroll_DimensionDoor                                     [misc/loot]
+       OBJ_Scroll_DisguiseSelf                                      [misc/loot]
+       OBJ_Scroll_Disintegrate                                      [misc/loot]
+       OBJ_Scroll_ExpeditiousRetreat                                [misc/loot]
+       OBJ_Scroll_FalseLife                                         [misc/loot]
+       OBJ_Scroll_Fear                                              [misc/loot]
+  x8   OBJ_Scroll_FeatherFall                                       [misc/loot]
+       OBJ_Scroll_FireBolt                                          [misc/loot]
+       OBJ_Scroll_FireShield_Warm                                   [misc/loot]
+  x5   OBJ_Scroll_Fireball                                          [misc/loot]
+       OBJ_Scroll_FleshToStone                                      [misc/loot]
+  x7   OBJ_Scroll_Fly                                               [misc/loot]
+  x2   OBJ_Scroll_GlyphOfWarding                                    [misc/loot]
+  x8   OBJ_Scroll_Grease                                            [misc/loot]
+       OBJ_Scroll_GustOfWind                                        [misc/loot]
+  x2   OBJ_Scroll_Haste                                             [misc/loot]
+  x3   OBJ_Scroll_HideousLaughter                                   [misc/loot]
+       OBJ_Scroll_HoldMonster                                       [misc/loot]
+  x8   OBJ_Scroll_HoldPerson                                        [misc/loot]
+       OBJ_Scroll_IceKnife                                          [misc/loot]
+       OBJ_Scroll_IceStorm                                          [misc/loot]
+  x3   OBJ_Scroll_Invisibility                                      [misc/loot]
+       OBJ_Scroll_Knock                                             [misc/loot]
+  x3   OBJ_Scroll_MageArmor                                         [misc/loot]
+  x3   OBJ_Scroll_MagicMissile                                      [misc/loot]
+  x4   OBJ_Scroll_MagicWeapon                                       [misc/loot]
+       OBJ_Scroll_MirrorImage                                       [misc/loot]
+  x4   OBJ_Scroll_MistyStep                                         [misc/loot]
+  x2   OBJ_Scroll_PhantasmalKiller                                  [misc/loot]
+       OBJ_Scroll_PlanarBinding                                     [misc/loot]
+       OBJ_Scroll_Polymorph                                         [misc/loot]
+  x3   OBJ_Scroll_ProtectionFromEnergy                              [misc/loot]
+  x5   OBJ_Scroll_ProtectionFromEvilAndGood                         [misc/loot]
+       OBJ_Scroll_RayOfEnfeeblement                                 [misc/loot]
+  x2   OBJ_Scroll_RayOfFrost                                        [misc/loot]
+  x3   OBJ_Scroll_RayOfSickness                                     [misc/loot]
+       OBJ_Scroll_RemoveCurse                                       [misc/loot]
+  x11  OBJ_Scroll_Revivify                                          [misc/loot]
+  x3   OBJ_Scroll_ScorchingRay                                      [misc/loot]
+       OBJ_Scroll_SeeInvisibility                                   [misc/loot]
+  x3   OBJ_Scroll_Shatter                                           [misc/loot]
+       OBJ_Scroll_ShockingGrasp                                     [misc/loot]
+  x3   OBJ_Scroll_Sleep                                             [misc/loot]
+  x2   OBJ_Scroll_Slow                                              [misc/loot]
+  x7   OBJ_Scroll_SpeakWithDead                                     [misc/loot]
+  x2   OBJ_Scroll_Stoneskin                                         [misc/loot]
+       OBJ_Scroll_Telekinesis                                       [misc/loot]
+       OBJ_Scroll_Thunderwave                                       [misc/loot]
+  x2   OBJ_Scroll_VampiricTouch                                     [misc/loot]
+  x3   OBJ_Scroll_WallOfFire                                        [misc/loot]
+  x3   OBJ_Scroll_Web                                               [misc/loot]
+  x3   OBJ_Scroll_WitchBolt                                         [misc/loot]
+       OBJ_SerpentVenom                                             [misc/loot]
+       OBJ_Shell_B                                                  [misc/loot]
+       OBJ_Shell_Starfish_A                                         [misc/loot]
+  x17  OBJ_Skull                                                    [misc/loot]
+       OBJ_THR_SpiderEggSack                                        [misc/loot]
+  x2   OBJ_TadpolePowerJar                                          [misc/loot]
+  x3   OBJ_ThrowingRock                                             [misc/loot]
+  x33  OBJ_Tool_Hammer                                              [misc/loot]
+  x4   OBJ_Tool_Shears                                              [misc/loot]
+  x9   OBJ_Tool_Shovel                                              [misc/loot]
+  x30  OBJ_Tool_Tong                                                [misc/loot]
+       OBJ_Topaz                                                    [misc/loot]
+  x5   OBJ_Valuable_AloeOil                                         [misc/loot]
+       OBJ_Valuables_MemoryCrystal                                  [misc/loot]
+       OBJ_Wand                                                     [misc/loot]
+  x2   OBJ_WyvernPoison                                             [misc/loot]
+       PLA_SmugglerRing                                             
+       PLA_ZhentCave_Gloves                                         
+  x63  PUZ_Key                                                      
+       Painting_Portrait_Rectangle_E                                
+       Quest_FOR_BrokenSpear_Head                                   
+       Quest_FOR_BrokenSpear_Shaft                                  
+  x2   REF_Primitives                                               
+       SCL_Distillery_PurpleWormPoisonIngredient                    
+       SCL_MAG_SkepticalRobber_WifesRing                            
+       SCL_MastiffPoachers_Ring                                     
+  x4   SC_ArrowContainer                                            
+       SC_BagOfContainers                                           
+  x4   SC_BookContainer                                             
+  x4   SC_ExplosivesContainer                                       
+  x4   SC_PoisonContainer                                           
+  x4   SC_PotionContainer                                           
+  x4   SC_ScrollContainer                                           
+       SHA_JusticiarArmor_Gloves                                    
+       SHA_SummonGolemBell                                          
+  x13  Solution_Toxin_Basic                                         
+       TWN_AasimarSurvivor_HazmatSuit                               
+       TWN_BondedByLove_HusbandsRing                                
+       TWN_BondedByLove_WifesRing                                   
+       TWN_BootsOfApparentDeath                                     
+       TWN_NecklaceOfCharming                                       
+       TWN_ShieldOfWatcher                                          
+       TWN_ShortswordOfStealth                                      
+       TWN_TollCollector_ArmorPart_Arm_L                            
+       TWN_TollCollector_ArmorPart_Arm_R                            
+       TWN_TollCollector_ArmorPart_Head                             
+       TWN_TollCollector_ArmorPart_Leg_L                            
+       TWN_TollCollector_ArmorPart_Leg_R                            
+       TWN_TollCollector_ArmorPart_Torso                            
+       TWN_Tollhouse_TradersRing                                    
+  x2   Toy_TeddyBear_Worn                                           
+       UND_DeadInWater_CallarduranTrinket                           
+       UND_DuergarBlacksmithHammer                                  
+       UND_DuergarRaft_GruesomeHammer                               
+       UND_Duergar_ShortswordOfFirstBlood                           
+       UND_FairyRing_AntiCharmHelmet                                
+  x2   UND_Justiciar_Chainshirt_Magic                               
+       UND_Justiciar_Helmet_Magic                                   
+       UND_Justiciar_Mask_Magic                                     
+       UND_KC_Elder_Warpick                                         
+       UND_Minotaur_BeltAmulet                                      
+       UND_MushroomHunger_RingOfExploration                         
+       UND_Nere_Sword                                               
+       UND_SeluneOutpost_Key                                        
+       UND_SharranCrossbow                                          
+       UND_StrengthChair_Leg                                        
+       UND_Tower_AmuletDetectThoughts                               
+       UND_Tower_BootsFeatherFall                                   
+       UND_Tower_RingArcana                                         
+       UND_Tower_RingLight                                          
+       UND_Tower_StaffBlessMystra                                   
+       UND_Wand_Fireballs_Crooked                                   
+       UNI_ARM_OfDefense_Gloves                                     
+       UNI_Bow_SpellslotRecharge                                    
+       UNI_CRE_LathanderBloodGem                                    
+       UNI_DarkJusticiarArmor_HalfPlate                             
+       UNI_Druid_Helmet_Circlet                                     
+  x2   UNI_GaleRobe                                                 
+       UNI_LOOT_AdamantineForge_ShieldMold                          
+  x5   UNI_LOW_KarabasansGift_Grenade                               
+       UNI_MagicStaff_Part_Crystal                                  
+       UNI_MagicStaff_Part_Helve                                    
+  x3   UNI_NarrativeLoot_BloodBottle                                
+       UNI_RepeatStaff                                              
+       UNI_SHA_DarkJusticiar_Boots                                  
+  x2   UNI_SHA_SharBook_2                                           
+       UNI_SHA_SharBook_4                                           
+       UNI_SHA_SharBook_5                                           
+  x3   UNI_ShadowheartCirclet                                       
+       UNI_SickleOfBOOOAL                                           
+       UNI_StaffOfRain                                              
+       WPN_Apostle_Scythe                                           [weapon/magic]
+  x3   WPN_Battleaxe                                                [weapon/magic]
+       WPN_Battleaxe_1                                              [weapon/magic]
+       WPN_Bonesaw                                                  [weapon/magic]
+       WPN_Brewer_Mace                                              [weapon/magic]
+  x10  WPN_Bugbear_Morningstar                                      [weapon/magic]
+  x12  WPN_Club                                                     [weapon/magic]
+       WPN_Club_1                                                   [weapon/magic]
+  x106 WPN_Dagger                                                   [weapon/magic]
+  x2   WPN_Dagger_1                                                 [weapon/magic]
+  x2   WPN_Dagger_Rusty                                             [weapon/magic]
+  x7   WPN_Dagger_Shar                                              [weapon/magic]
+       WPN_Flail                                                    [weapon/magic]
+  x2   WPN_Glaive                                                   [weapon/magic]
+  x8   WPN_Gnoll_Bow                                                [weapon/magic]
+       WPN_Gnoll_Flind_Flail                                        [weapon/magic]
+  x2   WPN_Gnoll_Spear                                              [weapon/magic]
+       WPN_Gnoll_Sword                                              [weapon/magic]
+  x15  WPN_Goblin_Mace                                              [weapon/magic]
+  x10  WPN_Goblin_Quarterstaff                                      [weapon/magic]
+  x38  WPN_Goblin_Scimitar                                          [weapon/magic]
+  x55  WPN_Goblin_Shortbow                                          [weapon/magic]
+  x17  WPN_Greataxe                                                 [weapon/magic]
+  x2   WPN_Greataxe_1                                               [weapon/magic]
+  x5   WPN_Greatclub                                                [weapon/magic]
+  x4   WPN_Greatclub_1                                              [weapon/magic]
+  x20  WPN_Greatsword                                               [weapon/magic]
+       WPN_Greatsword_1                                             [weapon/magic]
+  x13  WPN_Greatsword_Gith                                          [weapon/magic]
+  x5   WPN_Greatsword_Rusty                                         [weapon/magic]
+  x23  WPN_Halberd                                                  [weapon/magic]
+  x11  WPN_HandCrossbow                                             [weapon/magic]
+  x23  WPN_Handaxe                                                  [weapon/magic]
+  x4   WPN_Handaxe_1                                                [weapon/magic]
+  x30  WPN_HeavyCrossbow                                            [weapon/magic]
+       WPN_HeavyCrossbow_1                                          [weapon/magic]
+  x13  WPN_HeavyCrossbow_Gith                                       [weapon/magic]
+  x4   WPN_HeavyCrossbow_Rusty                                      [weapon/magic]
+  x26  WPN_Javelin                                                  [weapon/magic]
+  x2   WPN_KingsKnife                                               [weapon/magic]
+  x10  WPN_Kuotoa_LightCrossbow                                     [weapon/magic]
+  x5   WPN_Kuotoa_Spear                                             [weapon/magic]
+  x3   WPN_Lantern                                                  [weapon/magic]
+       WPN_Leech                                                    [weapon/magic]
+  x33  WPN_LightCrossbow                                            [weapon/magic]
+       WPN_LightCrossbow_1                                          [weapon/magic]
+  x4   WPN_LightHammer                                              [weapon/magic]
+       WPN_LightHammer_1                                            [weapon/magic]
+  x18  WPN_Longbow                                                  [weapon/magic]
+  x2   WPN_Longbow_1                                                [weapon/magic]
+  x26  WPN_Longsword                                                [weapon/magic]
+  x3   WPN_Longsword_Gith                                           [weapon/magic]
+       WPN_Longsword_GuardianOfFaith_Good                           [weapon/magic]
+       WPN_Longsword_Rusty                                          [weapon/magic]
+  x11  WPN_Mace                                                     [weapon/magic]
+       WPN_Mace_1                                                   [weapon/magic]
+       WPN_Mace_Rusty                                               [weapon/magic]
+       WPN_MagicStaff                                               [weapon/magic]
+  x3   WPN_Maul                                                     [weapon/magic]
+  x4   WPN_MeatCleaver                                              [weapon/magic]
+  x9   WPN_Merregon_Halberd                                         [weapon/magic]
+  x2   WPN_MinePickaxe                                              [weapon/magic]
+       WPN_Minotaur_Greatclub                                       [weapon/magic]
+  x2   WPN_Morningstar                                              [weapon/magic]
+  x3   WPN_Ogre_Club                                                [weapon/magic]
+  x2   WPN_Ogre_Greatclub                                           [weapon/magic]
+  x2   WPN_Pike                                                     [weapon/magic]
+       WPN_Pitchfork                                                [weapon/magic]
+  x24  WPN_Quarterstaff                                             [weapon/magic]
+  x9   WPN_Quarterstaff_B                                           [weapon/magic]
+  x9   WPN_Rapier                                                   [weapon/magic]
+       WPN_Rapier_1                                                 [weapon/magic]
+  x3   WPN_Redcap_Sickle                                            [weapon/magic]
+  x19  WPN_Salami                                                   [weapon/magic]
+  x9   WPN_Scimitar                                                 [weapon/magic]
+       WPN_Scimitar_2                                               [weapon/magic]
+  x14  WPN_Scimitar_Shar                                            [weapon/magic]
+  x49  WPN_Shortbow                                                 [weapon/magic]
+       WPN_Shortbow_1                                               [weapon/magic]
+  x33  WPN_Shortsword                                               [weapon/magic]
+  x4   WPN_Shortsword_Gith                                          [weapon/magic]
+       WPN_Sickle                                                   [weapon/magic]
+  x3   WPN_SkullFlail                                               [weapon/magic]
+  x6   WPN_SkullFlail_1                                             [weapon/magic]
+  x6   WPN_Spear                                                    [weapon/magic]
+  x7   WPN_Spear_Rusty                                              [weapon/magic]
+       WPN_Syringe                                                  [weapon/magic]
+  x69  WPN_Torch                                                    [weapon/magic]
+  x4   WPN_Torch_StartLit                                           [weapon/magic]
+       WPN_Tower_AutomatonHalberd                                   [weapon/magic]
+       WPN_Trepan                                                   [weapon/magic]
+       WPN_Trident                                                  [weapon/magic]
+       WPN_Trident_1                                                [weapon/magic]
+  x3   WPN_WarPick                                                  [weapon/magic]
+       WPN_WarPick_1                                                [weapon/magic]
+  x7   WPN_Warhammer                                                [weapon/magic]
+       WPN_Warhammer_1                                              [weapon/magic]
+       WPN_WhippingCane                                             [weapon/magic]
+       WPN_WoodWoad_Club                                            [weapon/magic]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LIMITS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Spell attribution reads each character's exact spell book from the save's
+  ECS blob (SpellBookComponent -> SpellData -> SpellId -> string pool),
+  matching party members by class/subclass/level.  If two members share an
+  identical build, their books cannot be told apart and a note is shown
+  instead.
+
+  Per-character item ownership is recovered from shared world position
+  (each carried/worn item copies its holder's Translate).  Whether an
+  attributed item is *worn* is determined by layered signals: a STATUS
+  on-equip effect; the 0x04000000 Flags bit; ECS component membership; and
+  physical-attachment components, with per-slot conflict resolution.  The
+  displayed [Slot] is derived from item stats — the save stores no explicit
+  ItemSlot field (same-type assignment like Ring vs Ring2 persists via
+  container ordering).  See LIMITS.md.
+
+  Display names are resolved from the installed game data (root templates +
+  english.loca, following ParentTemplateId/using inheritance).  Without a
+  game install (or with BG3_DATA_DIR unset and auto-detect failing) items
+  are shown by their internal names.

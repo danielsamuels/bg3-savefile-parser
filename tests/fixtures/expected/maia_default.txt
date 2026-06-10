@@ -1,0 +1,456 @@
+BG3 Save File Report
+Source: quicksave_maia.lsv
+========================================================================
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PARTY CHARACTERS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Maia (player)
+  Race      : Elf_HighElf
+  Class     : Fighter / BattleMaster
+  Level     : 7
+  XP        : 22756
+  Location  : HAV_IsobelRoom_SUB
+  Spells/Abilities (36; +11 basic actions):
+    – Projectile_DisarmingAttack
+    – Projectile_FireBolt
+    – Projectile_HamstringShot
+    – Projectile_MAG_PushingAttack
+    – Projectile_MagicMissile_2
+    – Projectile_MenacingAttack
+    – Projectile_TripAttack
+    – Rush_SpringAttack
+    – Shout_ActionSurge
+    – Shout_Bard_Perform_BardDance_Lute
+    – Shout_Bard_Perform_Lute
+    – Shout_Bard_Perform_Stargazing_Lute
+    – Shout_Bard_Perform_ThePower_Lute
+    – Shout_MAG_HarpersAmulet_Shield
+    – Shout_MAG_Harpers_SingingSword_Container
+    – Shout_MAG_Harpers_SingingSword_Shriek
+    – Shout_MAG_Harpers_SingingSword_Sing
+    – Shout_Macro_Mods_Camp_Night_Utils
+    – Shout_Macro_Mods_Change_Camp_Night_Notifications
+    – Shout_Macro_Mods_Purge_Camp_Night_Notifications
+    – Shout_PrecisionAttack
+    – Shout_SecondWind
+    – Shout_SteadyRanged
+    – Shout_TAD_PsionicOverload
+    – Target_DisarmingAttack
+    – Target_GLO_DangerousBook_SpeakWithDead
+    – Target_MAG_HuntersMark_Grymskull
+    – Target_MenacingAttack
+    – Target_PommelStrike
+    – Target_Slash_New
+    – Target_TAD_ConcentratedBlast
+    – Target_TAD_ShieldOfThralls
+    – Target_TAD_TransfuseHealth
+    – Target_Topple
+    – Target_TripAttack
+    – Target_UNI_MistyStep_NightWalkers
+  Equipped (12):
+    – ARM_HalfPlate_Body
+    – ARM_Instrument_Lute
+    – FOR_DangerousBook
+    – FOR_NightWalkers
+    – MAG_FlamingFist_ScoutRing
+    – MAG_Harpers_HarpersAmulet
+    – MAG_MeleeDebuff_AttackDebuff1_OnDamage_Helmet
+    – MAG_MeleeDebuff_AttackDebuff2_OnDamage_SplintMail
+    – MAG_StrongString_Longbow
+    – MAG_ZOC_AdvantageOnMeleeAttackWhileSurounded_Gloves
+    – UND_SwordInStone
+    – UNI_CONT_DEVIL_PuzzleBox_A
+
+Wyll
+  Race      : Human
+  Class     : Warlock / Fiend
+  Level     : 7
+  XP        : 22841
+  Location  : HAV_IsobelRoom_SUB
+  Spells/Abilities (30; +11 basic actions):
+    – Projectile_EldritchBlast
+    – Projectile_Fireball_4
+    – Projectile_HamstringShot
+    – Projectile_SneakAttack
+    – Shout_ArmorOfAgathys_4
+    – Shout_BladeWard
+    – Shout_MAG_SpellSlotRestoration_PearlOfPower
+    – Shout_MAG_SpellSlotRestoration_PearlOfPower_1
+    – Shout_MAG_SpellSlotRestoration_PearlOfPower_2
+    – Shout_MAG_SpellSlotRestoration_PearlOfPower_3
+    – Target_CloudOfDaggers_4
+    – Target_Counterspell_4
+    – Target_FindFamiliar_Cat_Ritual
+    – Target_FindFamiliar_Crab_Ritual
+    – Target_FindFamiliar_Frog_Ritual
+    – Target_FindFamiliar_Rat_Ritual
+    – Target_FindFamiliar_Raven_Ritual
+    – Target_FindFamiliar_Ritual
+    – Target_FindFamiliar_Spider_Ritual
+    – Target_HungerOfHadar_4
+    – Target_MinorIllusion
+    – Target_MistyStep_4
+    – Target_OpeningAttack
+    – Target_PactOfTheChain_Imp
+    – Target_PactOfTheChain_Quasit
+    – Target_Polymorph
+    – Target_SneakAttack
+    – Target_SurvivalInstinct
+    – Teleportation_DimensionDoor
+    – Wall_WallOfFire
+  Equipped (11):
+    – GOB_DrowCommander_Leather_Armor
+    – MAG_BG_OfTheBanshee_Bow
+    – MAG_Duergar_Sword_KingsKnife
+    – MAG_Evasive_Shoes
+    – MAG_Lesser_Infernal_Plate_Armor
+    – MAG_PHB_CloakOfProtection_Cloak
+    – MAG_PHB_ofPower_Pearl_Amulet
+    – MAG_Safeguard_Shield
+    – MAG_Thunder_Reverberation_Gloves
+    – UND_ShadowOfMenzoberranzan
+    – WPN_Torch
+
+Karlach
+  Race      : Tiefling_Zariel
+  Class     : Barbarian / TotemWarriorPath
+  Level     : 7
+  XP        : 22731
+  Location  : HAV_IsobelRoom_SUB
+  Spells/Abilities (16; +13 basic actions):
+    – Projectile_PiercingShot
+    – Projectile_Smite_Branding_ZarielTiefling
+    – Rush_MAG_Barbarian_Armor_Trample
+    – Shout_BootsOfSpeed
+    – Shout_Rage_Totem_Tiger
+    – Shout_SpeakWithAnimals_Barbarian
+    – Shout_SteadyRangedCrossbow
+    – Shout_Thaumaturgy
+    – Target_PommelStrike
+    – Target_RecklessAttack
+    – Target_Slash_New
+    – Target_Smite_Branding_ZarielTiefling
+    – Target_Smite_Branding_ZarielTiefling_Container
+    – Target_Smite_Searing_ZarielTiefling
+    – Target_UNI_MistyStep_DrowCommander_Amulet
+    – Zone_TigersBloodlust
+  Equipped (10):
+    – ARM_BootsOfSpeed
+    – GOB_DrowCommander_Amulet
+    – MAG_Acid_AcidDamageOnWeaponAttack_Ring
+    – MAG_BG_Harold_HeavyCrossbow
+    – MAG_BarbMonk_Offensive_Cloth
+    – MAG_Colossal_Greatsword
+    – MAG_Gish_ArcaneSynergy_Circlet
+    – MAG_Harpers_RingOfProjection
+    – UNI_Karlach_Gloves
+    – WPN_Torch
+
+Shadowheart
+  Race      : HalfElf_High
+  Class     : Cleric / TrickeryDomain
+  Level     : 7
+  XP        : 22706
+  Location  : HAV_IsobelRoom_SUB
+  Spells/Abilities (278; +11 basic actions):
+    – Projectile_FireBolt
+    – Projectile_GuidingBolt
+    – Projectile_GuildingBolt_2
+    – Projectile_GuildingBolt_3
+    – Projectile_GuildingBolt_4
+    – Projectile_HamstringShot
+    – Shout_Aid
+    – Shout_Aid_3
+    – Shout_Aid_4
+    – Shout_BeaconOfHope
+    – Shout_BeaconOfHope_4
+    – Shout_CloakOfShadows
+    – Shout_DisguiseSelf
+    – Shout_DisguiseSelf_Dragonborn_Female
+    – Shout_DisguiseSelf_Dragonborn_Male
+    – Shout_DisguiseSelf_Drow_Female
+    – Shout_DisguiseSelf_Drow_Male
+    – Shout_DisguiseSelf_Drow_Strong_Female
+    – Shout_DisguiseSelf_Drow_Strong_Male
+    – Shout_DisguiseSelf_Dwarf_Female
+    – Shout_DisguiseSelf_Dwarf_Male
+    – Shout_DisguiseSelf_Elf_Female
+    – Shout_DisguiseSelf_Elf_Male
+    – Shout_DisguiseSelf_Elf_Strong_Female
+    – Shout_DisguiseSelf_Elf_Strong_Male
+    – Shout_DisguiseSelf_Githyanki_Female
+    – Shout_DisguiseSelf_Githyanki_Male
+    – Shout_DisguiseSelf_Gnome_Female
+    – Shout_DisguiseSelf_Gnome_Male
+    – Shout_DisguiseSelf_HalfElf_Female
+    – Shout_DisguiseSelf_HalfElf_Male
+    – Shout_DisguiseSelf_HalfElf_Strong_Female
+    – Shout_DisguiseSelf_HalfElf_Strong_Male
+    – Shout_DisguiseSelf_HalfOrc_Female
+    – Shout_DisguiseSelf_HalfOrc_Male
+    – Shout_DisguiseSelf_Halfling_Female
+    – Shout_DisguiseSelf_Halfling_Male
+    – Shout_DisguiseSelf_Human_Female
+    – Shout_DisguiseSelf_Human_Male
+    – Shout_DisguiseSelf_Human_Strong_Female
+    – Shout_DisguiseSelf_Human_Strong_Male
+    – Shout_DisguiseSelf_Tiefling_Female
+    – Shout_DisguiseSelf_Tiefling_Male
+    – Shout_DisguiseSelf_Tiefling_Strong_Female
+    – Shout_DisguiseSelf_Tiefling_Strong_Male
+    – Shout_HealingWord_Mass
+    – Shout_HealingWord_Mass_4
+    – Shout_MAG_HealingWord_Mass
+    – Shout_MirrorImage
+    – Shout_MirrorImage_3
+    – Shout_MirrorImage_4
+    – Shout_PassWithoutTrace
+    – Shout_PassWithoutTrace_3
+    – Shout_PassWithoutTrace_4
+    – Shout_PrayerOfHealing
+    – Shout_PrayerOfHealing_3
+    – Shout_PrayerOfHealing_4
+    – Shout_ProduceFlame
+    – Shout_SpiritGuardians
+    – Shout_SpiritGuardians_Necrotic
+    – Shout_SpiritGuardians_Necrotic_4
+    – Shout_SpiritGuardians_Radiant
+    – Shout_SpiritGuardians_Radiant_4
+    – Shout_TurnUndead
+    – Target_AnimateDead
+    – Target_AnimateDead_Skeleton
+    – Target_AnimateDead_Skeleton_4
+    – Target_AnimateDead_Zombie
+    – Target_AnimateDead_Zombie_4
+    – Target_Bane
+    – Target_Bane_2
+    – Target_Bane_3
+    – Target_Bane_4
+    – Target_Banishment
+    – Target_BestowCurse
+    – Target_BestowCurse_4
+    – Target_BestowCurse_Ability_Charisma
+    – Target_BestowCurse_Ability_Charisma_4
+    – Target_BestowCurse_Ability_Constitution
+    – Target_BestowCurse_Ability_Constitution_4
+    – Target_BestowCurse_Ability_Dexterity
+    – Target_BestowCurse_Ability_Dexterity_4
+    – Target_BestowCurse_Ability_Intelligence
+    – Target_BestowCurse_Ability_Intelligence_4
+    – Target_BestowCurse_Ability_Strength
+    – Target_BestowCurse_Ability_Strength_4
+    – Target_BestowCurse_Ability_Wisdom
+    – Target_BestowCurse_Ability_Wisdom_4
+    – Target_BestowCurse_Attack
+    – Target_BestowCurse_Attack_4
+    – Target_BestowCurse_ExtraDamage
+    – Target_BestowCurse_ExtraDamage_4
+    – Target_BestowCurse_SkipTurn
+    – Target_BestowCurse_SkipTurn_4
+    – Target_Bless
+    – Target_Bless_2
+    – Target_Bless_3
+    – Target_Bless_4
+    – Target_BlessingOfTheTrickster
+    – Target_Blindness
+    – Target_Blindness_3
+    – Target_Blindness_4
+    – Target_CalmEmotions
+    – Target_CalmEmotions_3
+    – Target_CalmEmotions_4
+    – Target_CharmPerson
+    – Target_CharmPerson_2
+    – Target_CharmPerson_3
+    – Target_CharmPerson_4
+    – Target_Command_Approach
+    – Target_Command_Approach_2
+    – Target_Command_Approach_3
+    – Target_Command_Approach_4
+    – Target_Command_Container
+    – Target_Command_Container_2
+    – Target_Command_Container_3
+    – Target_Command_Container_4
+    – Target_Command_Drop
+    – Target_Command_Drop_2
+    – Target_Command_Drop_3
+    – Target_Command_Drop_4
+    – Target_Command_Flee
+    – Target_Command_Flee_2
+    – Target_Command_Flee_3
+    – Target_Command_Flee_4
+    – Target_Command_Grovel
+    – Target_Command_Grovel_2
+    – Target_Command_Grovel_3
+    – Target_Command_Grovel_4
+    – Target_Command_Halt
+    – Target_Command_Halt_2
+    – Target_Command_Halt_3
+    – Target_Command_Halt_4
+    – Target_ConcussiveSmash
+    – Target_CreateDestroyWater
+    – Target_CreateWater
+    – Target_CreateWater_2
+    – Target_CreateWater_3
+    – Target_CreateWater_4
+    – Target_CureWounds
+    – Target_CureWounds_2
+    – Target_CureWounds_3
+    – Target_CureWounds_4
+    – Target_Daylight
+    – Target_Daylight_4
+    – Target_Daylight_Container
+    – Target_Daylight_Container_4
+    – Target_Daylight_Enchantment
+    – Target_Daylight_Enchantment_4
+    – Target_DeathWard
+    – Target_DestroyWater
+    – Target_DestroyWater_2
+    – Target_DestroyWater_3
+    – Target_DestroyWater_4
+    – Target_EnhanceAbility
+    – Target_EnhanceAbility_3
+    – Target_EnhanceAbility_4
+    – Target_EnhanceAbility_BearsEndurance
+    – Target_EnhanceAbility_BearsEndurance_3
+    – Target_EnhanceAbility_BearsEndurance_4
+    – Target_EnhanceAbility_BullsStrength
+    – Target_EnhanceAbility_BullsStrength_3
+    – Target_EnhanceAbility_BullsStrength_4
+    – Target_EnhanceAbility_CatsGrace
+    – Target_EnhanceAbility_CatsGrace_3
+    – Target_EnhanceAbility_CatsGrace_4
+    – Target_EnhanceAbility_EaglesSplendor
+    – Target_EnhanceAbility_EaglesSplendor_3
+    – Target_EnhanceAbility_EaglesSplendor_4
+    – Target_EnhanceAbility_FoxsCunning
+    – Target_EnhanceAbility_FoxsCunning_3
+    – Target_EnhanceAbility_FoxsCunning_4
+    – Target_EnhanceAbility_OwlsWisdom
+    – Target_EnhanceAbility_OwlsWisdom_3
+    – Target_EnhanceAbility_OwlsWisdom_4
+    – Target_FeignDeath
+    – Target_FeignDeath_4
+    – Target_FreedomOfMovement
+    – Target_GlyphOfWarding
+    – Target_GlyphOfWarding_Acid
+    – Target_GlyphOfWarding_Acid_4
+    – Target_GlyphOfWarding_Cold
+    – Target_GlyphOfWarding_Cold_4
+    – Target_GlyphOfWarding_Detonation
+    – Target_GlyphOfWarding_Detonation_4
+    – Target_GlyphOfWarding_Fire
+    – Target_GlyphOfWarding_Fire_4
+    – Target_GlyphOfWarding_Lightning
+    – Target_GlyphOfWarding_Lightning_4
+    – Target_GlyphOfWarding_Sleep
+    – Target_GlyphOfWarding_Sleep_4
+    – Target_GlyphOfWarding_Thunder
+    – Target_GlyphOfWarding_Thunder_4
+    – Target_GuardianOfFaith
+    – Target_Guidance
+    – Target_HealingWord
+    – Target_HealingWord_2
+    – Target_HealingWord_3
+    – Target_HealingWord_4
+    – Target_HoldPerson
+    – Target_HoldPerson_3
+    – Target_HoldPerson_4
+    – Target_InflictWounds
+    – Target_InflictWounds_2
+    – Target_InflictWounds_3
+    – Target_InflictWounds_4
+    – Target_InvokeDuplicity
+    – Target_LesserRestoration
+    – Target_LesserRestoration_3
+    – Target_LesserRestoration_4
+    – Target_MAG_HealingWord
+    – Target_MAG_HuntersMark
+    – Target_OpeningAttack
+    – Target_Polymorph
+    – Target_ProtectionFromEnergy
+    – Target_ProtectionFromEnergy_Acid
+    – Target_ProtectionFromEnergy_Acid_4
+    – Target_ProtectionFromEnergy_Cold
+    – Target_ProtectionFromEnergy_Cold_4
+    – Target_ProtectionFromEnergy_Fire
+    – Target_ProtectionFromEnergy_Fire_4
+    – Target_ProtectionFromEnergy_Lightning
+    – Target_ProtectionFromEnergy_Lightning_4
+    – Target_ProtectionFromEnergy_Thunder
+    – Target_ProtectionFromEnergy_Thunder_4
+    – Target_ProtectionFromEvilAndGood
+    – Target_ProtectionFromEvilAndGood_2
+    – Target_ProtectionFromEvilAndGood_3
+    – Target_ProtectionFromEvilAndGood_4
+    – Target_ProtectionFromPoison
+    – Target_ProtectionFromPoison_3
+    – Target_ProtectionFromPoison_4
+    – Target_RemoveCurse
+    – Target_RemoveCurse_4
+    – Target_Resistance
+    – Target_SacredFlame
+    – Target_Sanctuary
+    – Target_Sanctuary_2
+    – Target_Sanctuary_3
+    – Target_Sanctuary_4
+    – Target_ShieldOfFaith
+    – Target_ShieldOfFaith_2
+    – Target_ShieldOfFaith_3
+    – Target_ShieldOfFaith_4
+    – Target_Silence
+    – Target_Silence_3
+    – Target_Silence_4
+    – Target_Slash_New
+    – Target_SpeakWithDead
+    – Target_SpeakWithDead_4
+    – Target_SpiritualWeapon
+    – Target_SpiritualWeapon_Greataxe
+    – Target_SpiritualWeapon_Greataxe_3
+    – Target_SpiritualWeapon_Greataxe_4
+    – Target_SpiritualWeapon_Greatsword
+    – Target_SpiritualWeapon_Greatsword_3
+    – Target_SpiritualWeapon_Greatsword_4
+    – Target_SpiritualWeapon_Halberd
+    – Target_SpiritualWeapon_Halberd_3
+    – Target_SpiritualWeapon_Halberd_4
+    – Target_SpiritualWeapon_Maul
+    – Target_SpiritualWeapon_Maul_3
+    – Target_SpiritualWeapon_Maul_4
+    – Target_SpiritualWeapon_Spear
+    – Target_SpiritualWeapon_Spear_3
+    – Target_SpiritualWeapon_Spear_4
+    – Target_SpiritualWeapon_Trident
+    – Target_SpiritualWeapon_Trident_3
+    – Target_SpiritualWeapon_Trident_4
+    – Target_WardingBond
+    – Target_WardingBond_3
+    – Target_WardingBond_4
+    – Teleportation_DimensionDoor
+    – Teleportation_Revivify
+    – Teleportation_Revivify_4
+    – Zone_Fear
+    – Zone_Fear_4
+    – Zone_MAG_BloodOfLathander_Sunbeam
+  Equipped (11):
+    – ARM_CircletOfBlasting
+    – ARM_Ring_I_Silver_A
+    – CRE_BloodOfLathander
+    – DEN_HellridersPride
+    – MAG_BG_OfDevotion_Shield
+    – MAG_BG_OfDexterity_Gloves
+    – MAG_Healer_HPRestoration_Amulet
+    – MAG_Hunting_Shortbow
+    – MAG_Paladin_MomentumOnConcentration_Boots
+    – MAG_Radiant_RadiatingOrb_Armor
+    – UNI_MassHealRing
+
+Imp_Summon
+  Race      : Imp
+  Class     : ?
+  Level     : 1
+  XP        : 0
+  Location  : HAV_IsobelRoom_SUB
+  Spells/Abilities : (spell book not found)
+  Equipment : character node not found
