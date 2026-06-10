@@ -5,6 +5,12 @@ import { allSaves, clearSaves, deleteSave, groupHistory, recordSave, renderHisto
 import { renderTextReport } from './textReport.ts';
 import { isWatching, startWatching, stopWatching, watchSupported } from './watch.ts';
 
+if ('serviceWorker' in navigator && !import.meta.env.DEV) {
+  window.addEventListener('load', () => {
+    void navigator.serviceWorker.register('/sw.js');
+  });
+}
+
 const worker = new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' });
 const statusEl = document.querySelector('#status') as HTMLElement;
 const reportEl = document.querySelector('#report') as HTMLElement;
