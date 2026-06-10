@@ -31,3 +31,21 @@ jobs:
 
       - name: Test (pytest)
         run: uv run pytest tests/ -v
+
+  typescript:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.3
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck --workspace=@bg3save/parser
+
+      - name: Test
+        run: npm test --workspace=@bg3save/parser

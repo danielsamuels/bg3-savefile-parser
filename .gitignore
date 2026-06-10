@@ -9,3 +9,4 @@ htmlcov/
 __pycache__/
 *.report.txt
 report.txt
+node_modules/

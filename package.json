@@ -1,0 +1,5 @@
+{
+  "name": "bg3-savefile-parser-workspace",
+  "private": true,
+  "workspaces": ["ts/*"]
+}
