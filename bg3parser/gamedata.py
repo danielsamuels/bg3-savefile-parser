@@ -179,8 +179,12 @@ def build_displayname_maps(
 
     Results are cached under XDG_CACHE_HOME keyed on the source paks' mtime/size,
     so the ~1 s parse only happens after a game update.
+
+    BG3_GAMEDATA_JSON overrides everything: it points at a pre-built cache
+    file (the committed data/gamedata.json), used where no game is installed
+    (CI, the TypeScript port's build, other machines).
     """
-    cache = cache_path(data_dir)
+    cache = os.environ.get('BG3_GAMEDATA_JSON') or cache_path(data_dir)
     try:
         with open(cache, encoding='utf-8') as fh:
             data = json.load(fh)
@@ -457,10 +461,10 @@ class DisplayNames:
     @classmethod
     def load(cls) -> 'DisplayNames':
         data_dir = find_game_data_dir()
-        if not data_dir:
+        if not data_dir and not os.environ.get('BG3_GAMEDATA_JSON'):
             return cls({}, {}, {})
         try:
-            return cls(*build_displayname_maps(data_dir))
+            return cls(*build_displayname_maps(data_dir or ''))
         except Exception:  # never let display-name resolution break the report
             return cls({}, {}, {})
 

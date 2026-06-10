@@ -1,0 +1,2960 @@
+{
+ "characters": [
+  {
+   "carried": [
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Homely Clothes",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Camp_Body",
+     "template_guid": "f369f4fa-2da7-4693-a147-16cfaf02bca5"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Tasteful Boots",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Camp_Shoes",
+     "template_guid": "6bb7a595-7646-48a9-9c44-d39f16c1c5cb"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Half Plate Armour",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_HalfPlate_Body",
+     "template_guid": "6fbbe358-8915-4781-b738-098c3e5a3bff"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Underwear",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Underwear_Elves",
+     "template_guid": "0ec7d956-e65f-4bfa-b677-22f399f81a32"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "The Necromancy of Thay",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "FOR_DangerousBook",
+     "template_guid": "73ea8888-ed82-4ca5-b9f9-0c9119873507"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Mysterious Artefact",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "UNI_CONT_DEVIL_PuzzleBox_A",
+     "template_guid": "326324f9-0920-8f0f-3e85-3781fbf48282"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Greatclub +1",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "WPN_Greatclub_1",
+     "template_guid": "d64e1a13-18a5-4cdc-ac02-977523435f8f"
+    }
+   ],
+   "classes": [
+    {
+     "Main": "Fighter",
+     "Sub": "BattleMaster"
+    }
+   ],
+   "equipment_note": null,
+   "equipped": [
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Lute",
+     "slot": "MusicalInstrument",
+     "slot_rank": [
+      11,
+      0
+     ],
+     "stats": "ARM_Instrument_Lute",
+     "template_guid": "8f98a7e7-c773-4b58-9127-5cf79b9206e9"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Disintegrating Night Walkers",
+     "slot": "Boots",
+     "slot_rank": [
+      4,
+      0
+     ],
+     "stats": "FOR_NightWalkers",
+     "template_guid": "e7f24f6d-4d73-4f04-94ef-d8e7042ce6a2"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Shifting Corpus Ring",
+     "slot": "Ring",
+     "slot_rank": [
+      6,
+      0
+     ],
+     "stats": "MAG_FlamingFist_ScoutRing",
+     "template_guid": "959e9aa6-b12b-4b71-83b4-0debdf647e9c"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Amulet of the Harpers",
+     "slot": "Amulet",
+     "slot_rank": [
+      5,
+      0
+     ],
+     "stats": "MAG_Harpers_HarpersAmulet",
+     "template_guid": "ddc9ac0b-8e68-422b-8d9d-c081629ab4ad"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Grymskull Helm",
+     "slot": "Helmet",
+     "slot_rank": [
+      0,
+      0
+     ],
+     "stats": "MAG_MeleeDebuff_AttackDebuff1_OnDamage_Helmet",
+     "template_guid": "6b1c4d55-e0d1-4b58-a26d-57d807bca488"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Adamantine Splint Armour",
+     "slot": "Breast",
+     "slot_rank": [
+      2,
+      0
+     ],
+     "stats": "MAG_MeleeDebuff_AttackDebuff2_OnDamage_SplintMail",
+     "template_guid": "ea3cf349-19ab-4104-9253-8e182bdbf538"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Titanstring Bow",
+     "slot": "Ranged Main Weapon",
+     "slot_rank": [
+      9,
+      0
+     ],
+     "stats": "MAG_StrongString_Longbow",
+     "template_guid": "13236988-83df-4bf2-8005-b4ac31f21ff4"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Gloves of the Growling Underdog",
+     "slot": "Gloves",
+     "slot_rank": [
+      3,
+      0
+     ],
+     "stats": "MAG_ZOC_AdvantageOnMeleeAttackWhileSurounded_Gloves",
+     "template_guid": "1001f28b-5ea3-4257-864c-f60c812aecf0"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Phalar Aluve",
+     "slot": "Melee Main Weapon",
+     "slot_rank": [
+      7,
+      0
+     ],
+     "stats": "UND_SwordInStone",
+     "template_guid": "cc16c1cb-d355-47df-820a-33a83c42234b"
+    }
+   ],
+   "inspect": null,
+   "level": 7,
+   "location": "HAV_IsobelRoom_SUB",
+   "name": "Maia (player)",
+   "race": "Elf_HighElf",
+   "spells": [
+    {
+     "category": "spell",
+     "id": "Projectile_DisarmingAttack",
+     "name": "Disarming Attack (Ranged)"
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_FireBolt",
+     "name": "Fire Bolt"
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_HamstringShot",
+     "name": "Hamstring Shot"
+    },
+    {
+     "category": "basic-action",
+     "id": "Projectile_Jump",
+     "name": "Jump"
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_MAG_PushingAttack",
+     "name": "Pushing Attack (Ranged)"
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_MagicMissile_2",
+     "name": "Magic Missile"
+    },
+    {
+     "category": "basic-action",
+     "id": "Projectile_MainHandAttack",
+     "name": "Ranged Attack"
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_MenacingAttack",
+     "name": "Menacing Attack (Ranged)"
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_TripAttack",
+     "name": "Trip Attack (Ranged)"
+    },
+    {
+     "category": "spell",
+     "id": "Rush_SpringAttack",
+     "name": "Rush Attack"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_ActionSurge",
+     "name": "Action Surge"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_Bard_Perform_BardDance_Lute",
+     "name": "Perform 'Bard Dance'"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_Bard_Perform_Lute",
+     "name": "Perform"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_Bard_Perform_Stargazing_Lute",
+     "name": "Perform 'Old Time Battles'"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_Bard_Perform_ThePower_Lute",
+     "name": "Perform 'The Power'"
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Dash",
+     "name": "Dash"
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Disengage",
+     "name": "Disengage"
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Hide",
+     "name": "Hide"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_MAG_HarpersAmulet_Shield",
+     "name": "Shield"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_MAG_Harpers_SingingSword_Container",
+     "name": "Phalar Aluve: Melody"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_MAG_Harpers_SingingSword_Shriek",
+     "name": "Phalar Aluve: Shriek"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_MAG_Harpers_SingingSword_Sing",
+     "name": "Phalar Aluve: Sing"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_Macro_Mods_Camp_Night_Utils",
+     "name": null
+    },
+    {
+     "category": "spell",
+     "id": "Shout_Macro_Mods_Change_Camp_Night_Notifications",
+     "name": null
+    },
+    {
+     "category": "spell",
+     "id": "Shout_Macro_Mods_Purge_Camp_Night_Notifications",
+     "name": null
+    },
+    {
+     "category": "spell",
+     "id": "Shout_PrecisionAttack",
+     "name": "Precision Attack"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_SecondWind",
+     "name": "Second Wind"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_SteadyRanged",
+     "name": "Brace (Ranged)"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_TAD_PsionicOverload",
+     "name": "Psionic Overload"
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Dip",
+     "name": "Dip"
+    },
+    {
+     "category": "spell",
+     "id": "Target_DisarmingAttack",
+     "name": "Disarming Attack (Melee)"
+    },
+    {
+     "category": "spell",
+     "id": "Target_GLO_DangerousBook_SpeakWithDead",
+     "name": "Speak with Dead"
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Help",
+     "name": "Help"
+    },
+    {
+     "category": "spell",
+     "id": "Target_MAG_HuntersMark_Grymskull",
+     "name": "Hunter's Mark"
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_MainHandAttack",
+     "name": "Main Hand Attack"
+    },
+    {
+     "category": "spell",
+     "id": "Target_MenacingAttack",
+     "name": "Menacing Attack (Melee)"
+    },
+    {
+     "category": "spell",
+     "id": "Target_PommelStrike",
+     "name": "Pommel Strike"
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Shove",
+     "name": "Shove"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Slash_New",
+     "name": "Lacerate"
+    },
+    {
+     "category": "spell",
+     "id": "Target_TAD_ConcentratedBlast",
+     "name": "Concentrated Blast"
+    },
+    {
+     "category": "spell",
+     "id": "Target_TAD_ShieldOfThralls",
+     "name": "Shield of Thralls"
+    },
+    {
+     "category": "spell",
+     "id": "Target_TAD_TransfuseHealth",
+     "name": "Transfuse Health"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Topple",
+     "name": "Topple"
+    },
+    {
+     "category": "spell",
+     "id": "Target_TripAttack",
+     "name": "Trip Attack (Melee)"
+    },
+    {
+     "category": "spell",
+     "id": "Target_UNI_MistyStep_NightWalkers",
+     "name": "Misty Step"
+    },
+    {
+     "category": "basic-action",
+     "id": "Throw_ImprovisedWeapon",
+     "name": "Improvised Melee Weapon"
+    },
+    {
+     "category": "basic-action",
+     "id": "Throw_Throw",
+     "name": "Throw"
+    }
+   ],
+   "spells_note": null,
+   "undetermined": [],
+   "xp": 22756
+  },
+  {
+   "carried": [
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Leather Boots",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Boots_Leather",
+     "template_guid": "969bab00-b269-46a5-a7e9-dd4887814719"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Wyll's Earthy Garb",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Camp_Body_Wyll",
+     "template_guid": "bd2ac836-5584-41e5-b4ff-01782c0dec6d"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Tasteful Boots",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Camp_Shoes_Wyll",
+     "template_guid": "b307af36-a2da-4c01-aac3-a31771edd407"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Wyll's Underwear",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Underwear_Wyll",
+     "template_guid": "1930ceec-4a50-43d9-8589-94593c449be4"
+    },
+    {
+     "category": "consumable",
+     "count": 1,
+     "name": "Bonecap",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "CONS_Mushrooms_Bonecap",
+     "template_guid": "7ea30dc7-4ccd-465a-b91f-9fd2d31c38c0"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Flawed Helldusk Armour",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "MAG_Lesser_Infernal_Plate_Armor",
+     "template_guid": "d9863839-e955-47a2-8a06-070f5c3c9541"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Alchemy Pouch",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Bag_AlchemyPouch",
+     "template_guid": "b7543ff4-5010-4c01-9bcd-4da1047aebfc"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Sylvan Stone",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Crystal_SylvanStone",
+     "template_guid": "1524e46d-179d-4785-99ce-f515e1c52e32"
+    },
+    {
+     "category": "misc",
+     "count": 2102,
+     "name": "Gold",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_GoldPile",
+     "template_guid": "1c3c9c74-34a1-4685-989e-410dc080be6f"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Keychain",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Keychain",
+     "template_guid": "ee329627-dbee-405f-b9a6-b260de9ad34c"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Gold Key",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "PUZ_Key",
+     "template_guid": "a5ea7cd3-6599-40e5-b609-50056b65a361"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Torch",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "WPN_Torch",
+     "template_guid": "50c43f27-a12e-412c-88f0-56e15eba692a"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Torch",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "WPN_Torch",
+     "template_guid": "50c43f27-a12e-412c-88f0-56e15eba692a"
+    }
+   ],
+   "classes": [
+    {
+     "Main": "Warlock",
+     "Sub": "Fiend"
+    }
+   ],
+   "equipment_note": null,
+   "equipped": [
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Spidersilk Armour",
+     "slot": "Breast",
+     "slot_rank": [
+      2,
+      0
+     ],
+     "stats": "GOB_DrowCommander_Leather_Armor",
+     "template_guid": "c0c0534c-b7fc-4d0b-a335-b8f4c548852d"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Bow of the Banshee",
+     "slot": "Ranged Main Weapon",
+     "slot_rank": [
+      9,
+      0
+     ],
+     "stats": "MAG_BG_OfTheBanshee_Bow",
+     "template_guid": "c040d1fc-4804-4774-8367-6dfa397e27e2"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Knife of the Undermountain King",
+     "slot": "Melee Main Weapon",
+     "slot_rank": [
+      7,
+      0
+     ],
+     "stats": "MAG_Duergar_Sword_KingsKnife",
+     "template_guid": "025e162a-45ec-4f4c-89da-04d8e8dfe606"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Evasive Shoes",
+     "slot": "Boots",
+     "slot_rank": [
+      4,
+      0
+     ],
+     "stats": "MAG_Evasive_Shoes",
+     "template_guid": "119f753a-8b06-44d8-bb9a-8a307f6032da"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Cloak of Protection",
+     "slot": "Cloak",
+     "slot_rank": [
+      1,
+      0
+     ],
+     "stats": "MAG_PHB_CloakOfProtection_Cloak",
+     "template_guid": "602f62dd-0fba-4438-ad68-b846f17ac538"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Pearl of Power Amulet",
+     "slot": "Amulet",
+     "slot_rank": [
+      5,
+      0
+     ],
+     "stats": "MAG_PHB_ofPower_Pearl_Amulet",
+     "template_guid": "6b8fcc06-fa6a-4a11-8318-075d90d8e909"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Safeguard Shield",
+     "slot": "Melee Offhand Weapon",
+     "slot_rank": [
+      8,
+      0
+     ],
+     "stats": "MAG_Safeguard_Shield",
+     "template_guid": "3138b480-3ef6-42af-ba35-e4cad4e962ee"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Gloves of Belligerent Skies",
+     "slot": "Gloves",
+     "slot_rank": [
+      3,
+      0
+     ],
+     "stats": "MAG_Thunder_Reverberation_Gloves",
+     "template_guid": "c987b6e4-adcb-47d6-8dfd-6d4d2f15a381"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Shadow of Menzoberranzan",
+     "slot": "Helmet",
+     "slot_rank": [
+      0,
+      0
+     ],
+     "stats": "UND_ShadowOfMenzoberranzan",
+     "template_guid": "674bef93-9008-45ce-85b5-9632f9f92ed2"
+    }
+   ],
+   "inspect": null,
+   "level": 7,
+   "location": "HAV_IsobelRoom_SUB",
+   "name": "Wyll",
+   "race": "Human",
+   "spells": [
+    {
+     "category": "spell",
+     "id": "Projectile_EldritchBlast",
+     "name": "Eldritch Blast"
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_Fireball_4",
+     "name": "Fireball"
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_HamstringShot",
+     "name": "Hamstring Shot"
+    },
+    {
+     "category": "basic-action",
+     "id": "Projectile_Jump",
+     "name": "Jump"
+    },
+    {
+     "category": "basic-action",
+     "id": "Projectile_MainHandAttack",
+     "name": "Ranged Attack"
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_SneakAttack",
+     "name": "Sneak Attack (Ranged)"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_ArmorOfAgathys_4",
+     "name": "Armour of Agathys"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_BladeWard",
+     "name": "Blade Ward"
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Dash",
+     "name": "Dash"
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Disengage",
+     "name": "Disengage"
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Hide",
+     "name": "Hide"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_MAG_SpellSlotRestoration_PearlOfPower",
+     "name": "Pearlescent Restoration"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_MAG_SpellSlotRestoration_PearlOfPower_1",
+     "name": "Pearlescent Restoration Level 1"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_MAG_SpellSlotRestoration_PearlOfPower_2",
+     "name": "Pearlescent Restoration Level 2"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_MAG_SpellSlotRestoration_PearlOfPower_3",
+     "name": "Pearlescent Restoration Level 3"
+    },
+    {
+     "category": "spell",
+     "id": "Target_CloudOfDaggers_4",
+     "name": "Cloud of Daggers"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Counterspell_4",
+     "name": "Counterspell"
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Dip",
+     "name": "Dip"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_FindFamiliar_Cat_Ritual",
+     "name": "Find Familiar: Cat"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_FindFamiliar_Crab_Ritual",
+     "name": "Find Familiar: Crab"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_FindFamiliar_Frog_Ritual",
+     "name": "Find Familiar: Frog"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_FindFamiliar_Rat_Ritual",
+     "name": "Find Familiar: Rat"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_FindFamiliar_Raven_Ritual",
+     "name": "Find Familiar: Raven"
+    },
+    {
+     "category": "spell",
+     "id": "Target_FindFamiliar_Ritual",
+     "name": "Find Familiar"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_FindFamiliar_Spider_Ritual",
+     "name": "Find Familiar: Spider"
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Help",
+     "name": "Help"
+    },
+    {
+     "category": "spell",
+     "id": "Target_HungerOfHadar_4",
+     "name": "Hunger of Hadar"
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_MainHandAttack",
+     "name": "Main Hand Attack"
+    },
+    {
+     "category": "spell",
+     "id": "Target_MinorIllusion",
+     "name": "Minor Illusion"
+    },
+    {
+     "category": "spell",
+     "id": "Target_MistyStep_4",
+     "name": "Misty Step"
+    },
+    {
+     "category": "spell",
+     "id": "Target_OpeningAttack",
+     "name": "Flourish"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_PactOfTheChain_Imp",
+     "name": "Find Familiar: Imp"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_PactOfTheChain_Quasit",
+     "name": "Find Familiar: Quasit"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Polymorph",
+     "name": "Polymorph"
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Shove",
+     "name": "Shove"
+    },
+    {
+     "category": "spell",
+     "id": "Target_SneakAttack",
+     "name": "Sneak Attack (Melee)"
+    },
+    {
+     "category": "spell",
+     "id": "Target_SurvivalInstinct",
+     "name": "Survival Instinct"
+    },
+    {
+     "category": "spell",
+     "id": "Teleportation_DimensionDoor",
+     "name": "Dimension Door"
+    },
+    {
+     "category": "basic-action",
+     "id": "Throw_ImprovisedWeapon",
+     "name": "Improvised Melee Weapon"
+    },
+    {
+     "category": "basic-action",
+     "id": "Throw_Throw",
+     "name": "Throw"
+    },
+    {
+     "category": "spell",
+     "id": "Wall_WallOfFire",
+     "name": "Wall of Fire"
+    }
+   ],
+   "spells_note": null,
+   "undetermined": [],
+   "xp": 22841
+  },
+  {
+   "carried": [
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Karlach's Infernal Trousers",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Camp_Body_Karlach",
+     "template_guid": "5c79e518-2c59-41c5-84a7-d43a58e76d09"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Tasteful Boots",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Camp_Shoes_Karlach",
+     "template_guid": "b8f42945-a42e-46cb-a424-3a0a5e97157a"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Karlach's Underwear",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Underwear_Karlach",
+     "template_guid": "e865db4c-4df3-48e9-8cf3-5abad75510ba"
+    },
+    {
+     "category": "consumable",
+     "count": 1,
+     "name": "Dragon Egg Mushroom",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "CONS_Mushrooms_DragonEggMushroom",
+     "template_guid": "ca00a2d6-3108-4868-b295-7729e8aafabf"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Alchemy Pouch",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Bag_AlchemyPouch",
+     "template_guid": "b7543ff4-5010-4c01-9bcd-4da1047aebfc"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Keychain",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Keychain",
+     "template_guid": "ee329627-dbee-405f-b9a6-b260de9ad34c"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Torch",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "WPN_Torch",
+     "template_guid": "50c43f27-a12e-412c-88f0-56e15eba692a"
+    }
+   ],
+   "classes": [
+    {
+     "Main": "Barbarian",
+     "Sub": "TotemWarriorPath"
+    }
+   ],
+   "equipment_note": null,
+   "equipped": [
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Boots of Speed",
+     "slot": "Boots",
+     "slot_rank": [
+      4,
+      0
+     ],
+     "stats": "ARM_BootsOfSpeed",
+     "template_guid": "8b22d15a-85bb-4c8d-90cf-a773fc451eac"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Amulet of Misty Step",
+     "slot": "Amulet",
+     "slot_rank": [
+      5,
+      0
+     ],
+     "stats": "GOB_DrowCommander_Amulet",
+     "template_guid": "338848e7-b2c6-4f97-879b-cb3439b4f959"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Caustic Band",
+     "slot": "Ring 2",
+     "slot_rank": [
+      6,
+      2
+     ],
+     "stats": "MAG_Acid_AcidDamageOnWeaponAttack_Ring",
+     "template_guid": "463b0a81-1fc3-4db1-bafe-a915f9a8e028"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Harold",
+     "slot": "Ranged Main Weapon",
+     "slot_rank": [
+      9,
+      0
+     ],
+     "stats": "MAG_BG_Harold_HeavyCrossbow",
+     "template_guid": "22bf3680-a37f-4a04-b036-2865805f3d60"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "The Mighty Cloth",
+     "slot": "Breast",
+     "slot_rank": [
+      2,
+      0
+     ],
+     "stats": "MAG_BarbMonk_Offensive_Cloth",
+     "template_guid": "48215bcb-b4a2-48cb-bfbe-8b601e678032"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Jorgoral's Greatsword",
+     "slot": "Melee Main Weapon",
+     "slot_rank": [
+      7,
+      0
+     ],
+     "stats": "MAG_Colossal_Greatsword",
+     "template_guid": "26ac9758-19f4-4867-9d5d-57437d6b9794"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Diadem of Arcane Synergy",
+     "slot": "Helmet",
+     "slot_rank": [
+      0,
+      0
+     ],
+     "stats": "MAG_Gish_ArcaneSynergy_Circlet",
+     "template_guid": "f6585fc7-22bb-4e58-b4a6-bbb56e48a86f"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Ring of Flinging",
+     "slot": "Ring",
+     "slot_rank": [
+      6,
+      1
+     ],
+     "stats": "MAG_Harpers_RingOfProjection",
+     "template_guid": "4aba2198-98f9-4ec8-8a1b-bbd9ed864856"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Leather Gloves",
+     "slot": "Gloves",
+     "slot_rank": [
+      3,
+      0
+     ],
+     "stats": "UNI_Karlach_Gloves",
+     "template_guid": "8ee5bdde-c22f-452f-add9-2d82ec3dc390"
+    }
+   ],
+   "inspect": null,
+   "level": 7,
+   "location": "HAV_IsobelRoom_SUB",
+   "name": "Karlach",
+   "race": "Tiefling_Zariel",
+   "spells": [
+    {
+     "category": "basic-action",
+     "id": "Projectile_Jump",
+     "name": "Jump"
+    },
+    {
+     "category": "basic-action",
+     "id": "Projectile_MainHandAttack",
+     "name": "Ranged Attack"
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_PiercingShot",
+     "name": "Piercing Shot"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Projectile_Smite_Branding_ZarielTiefling",
+     "name": "Branding Smite (Ranged)"
+    },
+    {
+     "category": "spell",
+     "id": "Rush_MAG_Barbarian_Armor_Trample",
+     "name": "Bull Rush"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_BootsOfSpeed",
+     "name": "Click Heels"
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Dash",
+     "name": "Dash"
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Dash_NPC",
+     "name": "Dash"
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Disengage",
+     "name": "Disengage"
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Hide",
+     "name": "Hide"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_Rage_Totem_Tiger",
+     "name": "Rage: Tiger Heart"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_SpeakWithAnimals_Barbarian",
+     "name": "Speak with Animals"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_SteadyRangedCrossbow",
+     "name": "Brace (Ranged)"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_Thaumaturgy",
+     "name": "Thaumaturgy"
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Dip",
+     "name": "Dip"
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Help",
+     "name": "Help"
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_MainHandAttack",
+     "name": "Main Hand Attack"
+    },
+    {
+     "category": "spell",
+     "id": "Target_PommelStrike",
+     "name": "Pommel Strike"
+    },
+    {
+     "category": "spell",
+     "id": "Target_RecklessAttack",
+     "name": "Reckless Attack"
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Shove",
+     "name": "Shove"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Slash_New",
+     "name": "Lacerate"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Smite_Branding_ZarielTiefling",
+     "name": "Branding Smite (Melee)"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Smite_Branding_ZarielTiefling_Container",
+     "name": "Legacy of Avernus: Branding Smite"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Smite_Searing_ZarielTiefling",
+     "name": "Legacy of Avernus: Searing Smite"
+    },
+    {
+     "category": "spell",
+     "id": "Target_UNI_MistyStep_DrowCommander_Amulet",
+     "name": "Misty Step"
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_UnarmedAttack",
+     "name": "Unarmed Strike"
+    },
+    {
+     "category": "basic-action",
+     "id": "Throw_ImprovisedWeapon",
+     "name": "Improvised Melee Weapon"
+    },
+    {
+     "category": "basic-action",
+     "id": "Throw_Throw",
+     "name": "Throw"
+    },
+    {
+     "category": "spell",
+     "id": "Zone_TigersBloodlust",
+     "name": "Tiger's Bloodlust"
+    }
+   ],
+   "spells_note": null,
+   "undetermined": [],
+   "xp": 22731
+  },
+  {
+   "carried": [
+    {
+     "category": "consumable",
+     "count": 1,
+     "name": "Ochre Jelly Slime",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ALCH_Ingredient_Part_OchreJellySlime",
+     "template_guid": "540e8376-f6ac-4261-a920-f288abf176e1"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Shadowheart's Clothes",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Camp_Body_Shadowheart",
+     "template_guid": "7062410b-439c-4f2f-bc48-1c16ab1ace20"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Acolyte's Sandals",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Camp_Shoes_Shadowheart",
+     "template_guid": "e92e4dad-8e96-4f27-aacb-cc430df0bc75"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Shadowheart's Underwear",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Underwear_Shadowheart",
+     "template_guid": "b460bd0c-58fe-4a56-831c-af92fd4ba7e2"
+    },
+    {
+     "category": "consumable",
+     "count": 1,
+     "name": "Balsam",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "CONS_Herbs_Balsam",
+     "template_guid": "9a524608-1ad1-4d01-ae99-76fb3c513b3c"
+    },
+    {
+     "category": "consumable",
+     "count": 1,
+     "name": "Rogue's Morsel",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "CONS_Mushrooms_RoguesMorsel",
+     "template_guid": "a09f8033-f5d8-44de-97ad-09499d967989"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Hellrider's Pride",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "DEN_HellridersPride",
+     "template_guid": "db4d4560-dc72-4d64-b552-5caf442c0927"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Camp Supply Sack",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Backpack_CampSupplies",
+     "template_guid": "efcb70b7-868b-4214-968a-e23f6ad586bc"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Alchemy Pouch",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Bag_AlchemyPouch",
+     "template_guid": "b7543ff4-5010-4c01-9bcd-4da1047aebfc"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Keychain",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Keychain",
+     "template_guid": "ee329627-dbee-405f-b9a6-b260de9ad34c"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Thieves' Tools",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Kit_ThievesTools",
+     "template_guid": "e32a200c-5b63-414d-ae57-00e7b38f125b"
+    },
+    {
+     "category": "consumable",
+     "count": 1,
+     "name": "Potion of Healing",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Potion_Healing",
+     "template_guid": "d47006e9-8a51-453d-b200-9e0d42e9bbab"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Rope",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Rope",
+     "template_guid": "63400c5f-cc10-4009-8d8f-b01dbb47060a"
+    },
+    {
+     "category": "book",
+     "count": 1,
+     "name": "Scroll of Revivify",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Scroll_Revivify",
+     "template_guid": "c1c3e4fb-d68c-4e10-afdc-d4550238d50e"
+    }
+   ],
+   "classes": [
+    {
+     "Main": "Cleric",
+     "Sub": "TrickeryDomain"
+    }
+   ],
+   "equipment_note": null,
+   "equipped": [
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Circlet of Blasting",
+     "slot": "Helmet",
+     "slot_rank": [
+      0,
+      0
+     ],
+     "stats": "ARM_CircletOfBlasting",
+     "template_guid": "3abdbb8a-4701-4397-8fce-7a8dd8a0bb84"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Onyx Ring",
+     "slot": "Ring 2",
+     "slot_rank": [
+      6,
+      2
+     ],
+     "stats": "ARM_Ring_I_Silver_A",
+     "template_guid": "fc5dbbb6-10ec-427d-abe5-a04f5182e332"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Dawngrip Mace",
+     "slot": "Melee Main Weapon",
+     "slot_rank": [
+      7,
+      0
+     ],
+     "stats": "CRE_BloodOfLathander",
+     "template_guid": "e26f0c19-6185-43a7-b7f7-7155b936c59c"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Shield of Devotion",
+     "slot": "Melee Offhand Weapon",
+     "slot_rank": [
+      8,
+      0
+     ],
+     "stats": "MAG_BG_OfDevotion_Shield",
+     "template_guid": "a0bc3295-c01d-405e-8396-e0fa7e1e5340"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Gloves of Dexterity",
+     "slot": "Gloves",
+     "slot_rank": [
+      3,
+      0
+     ],
+     "stats": "MAG_BG_OfDexterity_Gloves",
+     "template_guid": "f3775096-0055-4d35-8cc0-f5765284bc7d"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Amulet of Restoration",
+     "slot": "Amulet",
+     "slot_rank": [
+      5,
+      0
+     ],
+     "stats": "MAG_Healer_HPRestoration_Amulet",
+     "template_guid": "b648ee98-f648-411b-be7e-6c50ca9b463c"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Hunting Shortbow",
+     "slot": "Ranged Main Weapon",
+     "slot_rank": [
+      9,
+      0
+     ],
+     "stats": "MAG_Hunting_Shortbow",
+     "template_guid": "a1d1634c-02e6-4428-a822-7603e9163264"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Boots of Striding",
+     "slot": "Boots",
+     "slot_rank": [
+      4,
+      0
+     ],
+     "stats": "MAG_Paladin_MomentumOnConcentration_Boots",
+     "template_guid": "8770f821-38bc-41cc-aae9-02988d46df02"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Luminous Armour",
+     "slot": "Breast",
+     "slot_rank": [
+      2,
+      0
+     ],
+     "stats": "MAG_Radiant_RadiatingOrb_Armor",
+     "template_guid": "a2cbaf4f-3eb8-4362-9f2e-d325a0d47a36"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "The Whispering Promise",
+     "slot": "Ring",
+     "slot_rank": [
+      6,
+      1
+     ],
+     "stats": "UNI_MassHealRing",
+     "template_guid": "4aef9bb0-38a8-428e-8b87-6e462d612dd6"
+    }
+   ],
+   "inspect": null,
+   "level": 7,
+   "location": "HAV_IsobelRoom_SUB",
+   "name": "Shadowheart",
+   "race": "HalfElf_High",
+   "spells": [
+    {
+     "category": "spell",
+     "id": "Projectile_FireBolt",
+     "name": "Fire Bolt"
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_GuidingBolt",
+     "name": "Guiding Bolt"
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_GuildingBolt_2",
+     "name": "Guiding Bolt"
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_GuildingBolt_3",
+     "name": "Guiding Bolt"
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_GuildingBolt_4",
+     "name": "Guiding Bolt"
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_HamstringShot",
+     "name": "Hamstring Shot"
+    },
+    {
+     "category": "basic-action",
+     "id": "Projectile_Jump",
+     "name": "Jump"
+    },
+    {
+     "category": "basic-action",
+     "id": "Projectile_MainHandAttack",
+     "name": "Ranged Attack"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_Aid",
+     "name": "Aid"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_Aid_3",
+     "name": "Aid"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_Aid_4",
+     "name": "Aid"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_BeaconOfHope",
+     "name": "Beacon of Hope"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_BeaconOfHope_4",
+     "name": "Beacon of Hope"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_CloakOfShadows",
+     "name": "Channel Divinity: Cloak of Shadows"
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Dash",
+     "name": "Dash"
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Disengage",
+     "name": "Disengage"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_DisguiseSelf",
+     "name": "Disguise Self"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Dragonborn_Female",
+     "name": "Disguise Self: Femme Dragonborn"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Dragonborn_Male",
+     "name": "Disguise Self: Masc Dragonborn"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Drow_Female",
+     "name": "Disguise Self: Femme Drow"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Drow_Male",
+     "name": "Disguise Self: Masc Drow"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Drow_Strong_Female",
+     "name": "Disguise Self: Femme Strong Drow"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Drow_Strong_Male",
+     "name": "Disguise Self: Masc Strong Drow"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Dwarf_Female",
+     "name": "Disguise Self: Femme Dwarf"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Dwarf_Male",
+     "name": "Disguise Self: Masc Dwarf"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Elf_Female",
+     "name": "Disguise Self: Femme Elf"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Elf_Male",
+     "name": "Disguise Self: Masc Elf"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Elf_Strong_Female",
+     "name": "Disguise Self: Femme Strong Elf"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Elf_Strong_Male",
+     "name": "Disguise Self: Masc Strong Elf"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Githyanki_Female",
+     "name": "Disguise Self: Femme Githyanki"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Githyanki_Male",
+     "name": "Disguise Self: Masc Githyanki"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Gnome_Female",
+     "name": "Disguise Self: Femme Gnome"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Gnome_Male",
+     "name": "Disguise Self: Masc Gnome"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_HalfElf_Female",
+     "name": "Disguise Self: Femme Half-Elf"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_HalfElf_Male",
+     "name": "Disguise Self: Masc Half-Elf"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_HalfElf_Strong_Female",
+     "name": "Disguise Self: Femme Strong Half-Elf"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_HalfElf_Strong_Male",
+     "name": "Disguise Self: Masc Strong Half-Elf"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_HalfOrc_Female",
+     "name": "Disguise Self: Femme Half-Orc"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_HalfOrc_Male",
+     "name": "Disguise Self: Masc Half-Orc"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Halfling_Female",
+     "name": "Disguise Self: Femme Halfling"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Halfling_Male",
+     "name": "Disguise Self: Masc Halfling"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Human_Female",
+     "name": "Disguise Self: Femme Human"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Human_Male",
+     "name": "Disguise Self: Masc Human"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Human_Strong_Female",
+     "name": "Disguise Self: Femme Strong Human"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Human_Strong_Male",
+     "name": "Disguise Self: Masc Strong Human"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Tiefling_Female",
+     "name": "Disguise Self: Femme Tiefling"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Tiefling_Male",
+     "name": "Disguise Self: Masc Tiefling"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Tiefling_Strong_Female",
+     "name": "Disguise Self: Femme Strong Tiefling"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Tiefling_Strong_Male",
+     "name": "Disguise Self: Masc Strong Tiefling"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_HealingWord_Mass",
+     "name": "Mass Healing Word"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_HealingWord_Mass_4",
+     "name": "Mass Healing Word"
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Hide",
+     "name": "Hide"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_MAG_HealingWord_Mass",
+     "name": "Mass Healing Word"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_MirrorImage",
+     "name": "Mirror Image"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_MirrorImage_3",
+     "name": "Mirror Image"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_MirrorImage_4",
+     "name": "Mirror Image"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_PassWithoutTrace",
+     "name": "Pass Without Trace"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_PassWithoutTrace_3",
+     "name": "Pass Without Trace"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_PassWithoutTrace_4",
+     "name": "Pass Without Trace"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_PrayerOfHealing",
+     "name": "Prayer of Healing"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_PrayerOfHealing_3",
+     "name": "Prayer of Healing"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_PrayerOfHealing_4",
+     "name": "Prayer of Healing"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_ProduceFlame",
+     "name": "Produce Flame"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_SpiritGuardians",
+     "name": "Spirit Guardians"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_SpiritGuardians_Necrotic",
+     "name": "Spirit Guardians"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_SpiritGuardians_Necrotic_4",
+     "name": "Spirit Guardians"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_SpiritGuardians_Radiant",
+     "name": "Spirit Guardians"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_SpiritGuardians_Radiant_4",
+     "name": "Spirit Guardians"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_TurnUndead",
+     "name": "Turn Undead"
+    },
+    {
+     "category": "spell",
+     "id": "Target_AnimateDead",
+     "name": "Animate Dead"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_AnimateDead_Skeleton",
+     "name": "Animate Dead: Skeleton"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_AnimateDead_Skeleton_4",
+     "name": "Animate Dead: Skeleton Squad"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_AnimateDead_Zombie",
+     "name": "Animate Dead: Zombie"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_AnimateDead_Zombie_4",
+     "name": "Animate Dead: Zombie Battalion"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Bane",
+     "name": "Bane"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Bane_2",
+     "name": "Bane"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Bane_3",
+     "name": "Bane"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Bane_4",
+     "name": "Bane"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Banishment",
+     "name": "Banishment"
+    },
+    {
+     "category": "spell",
+     "id": "Target_BestowCurse",
+     "name": "Bestow Curse"
+    },
+    {
+     "category": "spell",
+     "id": "Target_BestowCurse_4",
+     "name": "Bestow Curse"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Ability_Charisma",
+     "name": "Bestow Curse: Charisma Disadvantage"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Ability_Charisma_4",
+     "name": "Bestow Curse: Charisma Disadvantage"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Ability_Constitution",
+     "name": "Bestow Curse: Constitution Disadvantage"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Ability_Constitution_4",
+     "name": "Bestow Curse: Constitution Disadvantage"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Ability_Dexterity",
+     "name": "Bestow Curse: Dexterity Disadvantage"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Ability_Dexterity_4",
+     "name": "Bestow Curse: Dexterity Disadvantage"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Ability_Intelligence",
+     "name": "Bestow Curse: Intelligence Disadvantage"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Ability_Intelligence_4",
+     "name": "Bestow Curse: Intelligence Disadvantage"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Ability_Strength",
+     "name": "Bestow Curse: Strength Disadvantage"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Ability_Strength_4",
+     "name": "Bestow Curse: Strength Disadvantage"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Ability_Wisdom",
+     "name": "Bestow Curse: Wisdom Disadvantage"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Ability_Wisdom_4",
+     "name": "Bestow Curse: Wisdom Disadvantage"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Attack",
+     "name": "Bestow Curse: Attack Disadvantage"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Attack_4",
+     "name": "Bestow Curse: Attack Disadvantage"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_ExtraDamage",
+     "name": "Bestow Curse: Additional Damage"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_ExtraDamage_4",
+     "name": "Bestow Curse: Additional Damage"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_SkipTurn",
+     "name": "Bestow Curse: Dread"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_SkipTurn_4",
+     "name": "Bestow Curse: Dread"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Bless",
+     "name": "Bless"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Bless_2",
+     "name": "Bless"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Bless_3",
+     "name": "Bless"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Bless_4",
+     "name": "Bless"
+    },
+    {
+     "category": "spell",
+     "id": "Target_BlessingOfTheTrickster",
+     "name": "Blessing of the Trickster"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Blindness",
+     "name": "Blindness"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Blindness_3",
+     "name": "Blindness"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Blindness_4",
+     "name": "Blindness"
+    },
+    {
+     "category": "spell",
+     "id": "Target_CalmEmotions",
+     "name": "Calm Emotions"
+    },
+    {
+     "category": "spell",
+     "id": "Target_CalmEmotions_3",
+     "name": "Calm Emotions"
+    },
+    {
+     "category": "spell",
+     "id": "Target_CalmEmotions_4",
+     "name": "Calm Emotions"
+    },
+    {
+     "category": "spell",
+     "id": "Target_CharmPerson",
+     "name": "Charm Person"
+    },
+    {
+     "category": "spell",
+     "id": "Target_CharmPerson_2",
+     "name": "Charm Person"
+    },
+    {
+     "category": "spell",
+     "id": "Target_CharmPerson_3",
+     "name": "Charm Person"
+    },
+    {
+     "category": "spell",
+     "id": "Target_CharmPerson_4",
+     "name": "Charm Person"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Approach",
+     "name": "Command: Approach"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Approach_2",
+     "name": "Command: Approach"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Approach_3",
+     "name": "Command: Approach"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Approach_4",
+     "name": "Command: Approach"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Command_Container",
+     "name": "Command"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Command_Container_2",
+     "name": "Command"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Command_Container_3",
+     "name": "Command"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Command_Container_4",
+     "name": "Command"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Drop",
+     "name": "Command: Drop"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Drop_2",
+     "name": "Command: Drop"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Drop_3",
+     "name": "Command: Drop"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Drop_4",
+     "name": "Command: Drop"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Flee",
+     "name": "Command: Flee"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Flee_2",
+     "name": "Command: Flee"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Flee_3",
+     "name": "Command: Flee"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Flee_4",
+     "name": "Command: Flee"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Grovel",
+     "name": "Command: Grovel"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Grovel_2",
+     "name": "Command: Grovel"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Grovel_3",
+     "name": "Command: Grovel"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Grovel_4",
+     "name": "Command: Grovel"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Halt",
+     "name": "Command: Halt"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Halt_2",
+     "name": "Command: Halt"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Halt_3",
+     "name": "Command: Halt"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Halt_4",
+     "name": "Command: Halt"
+    },
+    {
+     "category": "spell",
+     "id": "Target_ConcussiveSmash",
+     "name": "Concussive Smash"
+    },
+    {
+     "category": "spell",
+     "id": "Target_CreateDestroyWater",
+     "name": "Create or Destroy Water"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_CreateWater",
+     "name": "Create Water"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_CreateWater_2",
+     "name": "Create Water"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_CreateWater_3",
+     "name": "Create Water"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_CreateWater_4",
+     "name": "Create Water"
+    },
+    {
+     "category": "spell",
+     "id": "Target_CureWounds",
+     "name": "Cure Wounds"
+    },
+    {
+     "category": "spell",
+     "id": "Target_CureWounds_2",
+     "name": "Cure Wounds"
+    },
+    {
+     "category": "spell",
+     "id": "Target_CureWounds_3",
+     "name": "Cure Wounds"
+    },
+    {
+     "category": "spell",
+     "id": "Target_CureWounds_4",
+     "name": "Cure Wounds"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Daylight",
+     "name": "Daylight: Sphere"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Daylight_4",
+     "name": "Daylight: Sphere"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Daylight_Container",
+     "name": "Daylight"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Daylight_Container_4",
+     "name": "Daylight"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Daylight_Enchantment",
+     "name": "Daylight: Enchant Item"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Daylight_Enchantment_4",
+     "name": "Daylight: Enchant Item"
+    },
+    {
+     "category": "spell",
+     "id": "Target_DeathWard",
+     "name": "Death Ward"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_DestroyWater",
+     "name": "Destroy Water"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_DestroyWater_2",
+     "name": "Destroy Water"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_DestroyWater_3",
+     "name": "Destroy Water"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_DestroyWater_4",
+     "name": "Destroy Water"
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Dip",
+     "name": "Dip"
+    },
+    {
+     "category": "spell",
+     "id": "Target_EnhanceAbility",
+     "name": "Enhance Ability"
+    },
+    {
+     "category": "spell",
+     "id": "Target_EnhanceAbility_3",
+     "name": "Enhance Ability"
+    },
+    {
+     "category": "spell",
+     "id": "Target_EnhanceAbility_4",
+     "name": "Enhance Ability"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_BearsEndurance",
+     "name": "Bear's Endurance"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_BearsEndurance_3",
+     "name": "Bear's Endurance"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_BearsEndurance_4",
+     "name": "Bear's Endurance"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_BullsStrength",
+     "name": "Bull's Strength"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_BullsStrength_3",
+     "name": "Bull's Strength"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_BullsStrength_4",
+     "name": "Bull's Strength"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_CatsGrace",
+     "name": "Cat's Grace"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_CatsGrace_3",
+     "name": "Cat's Grace"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_CatsGrace_4",
+     "name": "Cat's Grace"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_EaglesSplendor",
+     "name": "Eagle's Splendour"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_EaglesSplendor_3",
+     "name": "Eagle's Splendour"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_EaglesSplendor_4",
+     "name": "Eagle's Splendour"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_FoxsCunning",
+     "name": "Fox's Cunning"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_FoxsCunning_3",
+     "name": "Fox's Cunning"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_FoxsCunning_4",
+     "name": "Fox's Cunning"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_OwlsWisdom",
+     "name": "Owl's Wisdom"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_OwlsWisdom_3",
+     "name": "Owl's Wisdom"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_OwlsWisdom_4",
+     "name": "Owl's Wisdom"
+    },
+    {
+     "category": "spell",
+     "id": "Target_FeignDeath",
+     "name": "Feign Death"
+    },
+    {
+     "category": "spell",
+     "id": "Target_FeignDeath_4",
+     "name": "Feign Death"
+    },
+    {
+     "category": "spell",
+     "id": "Target_FreedomOfMovement",
+     "name": "Freedom of Movement"
+    },
+    {
+     "category": "spell",
+     "id": "Target_GlyphOfWarding",
+     "name": "Glyph of Warding"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Acid",
+     "name": "Glyph of Warding: Acid"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Acid_4",
+     "name": "Glyph of Warding: Acid"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Cold",
+     "name": "Glyph of Warding: Cold"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Cold_4",
+     "name": "Glyph of Warding: Cold"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Detonation",
+     "name": "Glyph of Warding: Detonation"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Detonation_4",
+     "name": "Glyph of Warding: Detonation"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Fire",
+     "name": "Glyph of Warding: Fire"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Fire_4",
+     "name": "Glyph of Warding: Fire"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Lightning",
+     "name": "Glyph of Warding: Lightning"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Lightning_4",
+     "name": "Glyph of Warding: Lightning"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Sleep",
+     "name": "Glyph of Warding: Sleep"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Sleep_4",
+     "name": "Glyph of Warding: Sleep"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Thunder",
+     "name": "Glyph of Warding: Thunder"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Thunder_4",
+     "name": "Glyph of Warding: Thunder"
+    },
+    {
+     "category": "spell",
+     "id": "Target_GuardianOfFaith",
+     "name": "Guardian of Faith"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Guidance",
+     "name": "Guidance"
+    },
+    {
+     "category": "spell",
+     "id": "Target_HealingWord",
+     "name": "Healing Word"
+    },
+    {
+     "category": "spell",
+     "id": "Target_HealingWord_2",
+     "name": "Healing Word"
+    },
+    {
+     "category": "spell",
+     "id": "Target_HealingWord_3",
+     "name": "Healing Word"
+    },
+    {
+     "category": "spell",
+     "id": "Target_HealingWord_4",
+     "name": "Healing Word"
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Help",
+     "name": "Help"
+    },
+    {
+     "category": "spell",
+     "id": "Target_HoldPerson",
+     "name": "Hold Person"
+    },
+    {
+     "category": "spell",
+     "id": "Target_HoldPerson_3",
+     "name": "Hold Person"
+    },
+    {
+     "category": "spell",
+     "id": "Target_HoldPerson_4",
+     "name": "Hold Person"
+    },
+    {
+     "category": "spell",
+     "id": "Target_InflictWounds",
+     "name": "Inflict Wounds"
+    },
+    {
+     "category": "spell",
+     "id": "Target_InflictWounds_2",
+     "name": "Inflict Wounds"
+    },
+    {
+     "category": "spell",
+     "id": "Target_InflictWounds_3",
+     "name": "Inflict Wounds"
+    },
+    {
+     "category": "spell",
+     "id": "Target_InflictWounds_4",
+     "name": "Inflict Wounds"
+    },
+    {
+     "category": "spell",
+     "id": "Target_InvokeDuplicity",
+     "name": "Invoke Duplicity"
+    },
+    {
+     "category": "spell",
+     "id": "Target_LesserRestoration",
+     "name": "Lesser Restoration"
+    },
+    {
+     "category": "spell",
+     "id": "Target_LesserRestoration_3",
+     "name": "Lesser Restoration"
+    },
+    {
+     "category": "spell",
+     "id": "Target_LesserRestoration_4",
+     "name": "Lesser Restoration"
+    },
+    {
+     "category": "spell",
+     "id": "Target_MAG_HealingWord",
+     "name": "Healing Word"
+    },
+    {
+     "category": "spell",
+     "id": "Target_MAG_HuntersMark",
+     "name": "Hunter's Mark"
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_MainHandAttack",
+     "name": "Main Hand Attack"
+    },
+    {
+     "category": "spell",
+     "id": "Target_OpeningAttack",
+     "name": "Flourish"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Polymorph",
+     "name": "Polymorph"
+    },
+    {
+     "category": "spell",
+     "id": "Target_ProtectionFromEnergy",
+     "name": "Protection from Energy"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_ProtectionFromEnergy_Acid",
+     "name": "Protection from Energy: Acid"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_ProtectionFromEnergy_Acid_4",
+     "name": "Protection from Energy: Acid"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_ProtectionFromEnergy_Cold",
+     "name": "Protection from Energy: Cold"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_ProtectionFromEnergy_Cold_4",
+     "name": "Protection from Energy: Cold"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_ProtectionFromEnergy_Fire",
+     "name": "Protection from Energy: Fire"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_ProtectionFromEnergy_Fire_4",
+     "name": "Protection from Energy: Fire"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_ProtectionFromEnergy_Lightning",
+     "name": "Protection from Energy: Lightning"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_ProtectionFromEnergy_Lightning_4",
+     "name": "Protection from Energy: Lightning"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_ProtectionFromEnergy_Thunder",
+     "name": "Protection from Energy: Thunder"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_ProtectionFromEnergy_Thunder_4",
+     "name": "Protection from Energy: Thunder"
+    },
+    {
+     "category": "spell",
+     "id": "Target_ProtectionFromEvilAndGood",
+     "name": "Protection from Evil and Good"
+    },
+    {
+     "category": "spell",
+     "id": "Target_ProtectionFromEvilAndGood_2",
+     "name": "Protection from Evil and Good"
+    },
+    {
+     "category": "spell",
+     "id": "Target_ProtectionFromEvilAndGood_3",
+     "name": "Protection from Evil and Good"
+    },
+    {
+     "category": "spell",
+     "id": "Target_ProtectionFromEvilAndGood_4",
+     "name": "Protection from Evil and Good"
+    },
+    {
+     "category": "spell",
+     "id": "Target_ProtectionFromPoison",
+     "name": "Protection from Poison"
+    },
+    {
+     "category": "spell",
+     "id": "Target_ProtectionFromPoison_3",
+     "name": "Protection from Poison"
+    },
+    {
+     "category": "spell",
+     "id": "Target_ProtectionFromPoison_4",
+     "name": "Protection from Poison"
+    },
+    {
+     "category": "spell",
+     "id": "Target_RemoveCurse",
+     "name": "Remove Curse"
+    },
+    {
+     "category": "spell",
+     "id": "Target_RemoveCurse_4",
+     "name": "Remove Curse"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Resistance",
+     "name": "Resistance"
+    },
+    {
+     "category": "spell",
+     "id": "Target_SacredFlame",
+     "name": "Sacred Flame"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Sanctuary",
+     "name": "Sanctuary"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Sanctuary_2",
+     "name": "Sanctuary"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Sanctuary_3",
+     "name": "Sanctuary"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Sanctuary_4",
+     "name": "Sanctuary"
+    },
+    {
+     "category": "spell",
+     "id": "Target_ShieldOfFaith",
+     "name": "Shield of Faith"
+    },
+    {
+     "category": "spell",
+     "id": "Target_ShieldOfFaith_2",
+     "name": "Shield of Faith"
+    },
+    {
+     "category": "spell",
+     "id": "Target_ShieldOfFaith_3",
+     "name": "Shield of Faith"
+    },
+    {
+     "category": "spell",
+     "id": "Target_ShieldOfFaith_4",
+     "name": "Shield of Faith"
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Shove",
+     "name": "Shove"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Silence",
+     "name": "Silence"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Silence_3",
+     "name": "Silence"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Silence_4",
+     "name": "Silence"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Slash_New",
+     "name": "Lacerate"
+    },
+    {
+     "category": "spell",
+     "id": "Target_SpeakWithDead",
+     "name": "Speak with Dead"
+    },
+    {
+     "category": "spell",
+     "id": "Target_SpeakWithDead_4",
+     "name": "Speak with Dead"
+    },
+    {
+     "category": "spell",
+     "id": "Target_SpiritualWeapon",
+     "name": "Spiritual Weapon"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Greataxe",
+     "name": "Spiritual Weapon: Greataxe"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Greataxe_3",
+     "name": "Spiritual Weapon: Greataxe"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Greataxe_4",
+     "name": "Spiritual Weapon: Greataxe"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Greatsword",
+     "name": "Spiritual Weapon: Greatsword"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Greatsword_3",
+     "name": "Spiritual Weapon: Greatsword"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Greatsword_4",
+     "name": "Spiritual Weapon: Greatsword"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Halberd",
+     "name": "Spiritual Weapon: Halberd"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Halberd_3",
+     "name": "Spiritual Weapon: Halberd"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Halberd_4",
+     "name": "Spiritual Weapon: Halberd"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Maul",
+     "name": "Spiritual Weapon: Maul"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Maul_3",
+     "name": "Spiritual Weapon: Maul"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Maul_4",
+     "name": "Spiritual Weapon: Maul"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Spear",
+     "name": "Spiritual Weapon: Spear"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Spear_3",
+     "name": "Spiritual Weapon: Spear"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Spear_4",
+     "name": "Spiritual Weapon: Spear"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Trident",
+     "name": "Spiritual Weapon: Trident"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Trident_3",
+     "name": "Spiritual Weapon: Trident"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Trident_4",
+     "name": "Spiritual Weapon: Trident"
+    },
+    {
+     "category": "spell",
+     "id": "Target_WardingBond",
+     "name": "Warding Bond"
+    },
+    {
+     "category": "spell",
+     "id": "Target_WardingBond_3",
+     "name": "Warding Bond"
+    },
+    {
+     "category": "spell",
+     "id": "Target_WardingBond_4",
+     "name": "Warding Bond"
+    },
+    {
+     "category": "spell",
+     "id": "Teleportation_DimensionDoor",
+     "name": "Dimension Door"
+    },
+    {
+     "category": "spell",
+     "id": "Teleportation_Revivify",
+     "name": "Revivify"
+    },
+    {
+     "category": "spell",
+     "id": "Teleportation_Revivify_4",
+     "name": "Revivify"
+    },
+    {
+     "category": "basic-action",
+     "id": "Throw_ImprovisedWeapon",
+     "name": "Improvised Melee Weapon"
+    },
+    {
+     "category": "basic-action",
+     "id": "Throw_Throw",
+     "name": "Throw"
+    },
+    {
+     "category": "spell",
+     "id": "Zone_Fear",
+     "name": "Fear"
+    },
+    {
+     "category": "spell",
+     "id": "Zone_Fear_4",
+     "name": "Fear"
+    },
+    {
+     "category": "spell",
+     "id": "Zone_MAG_BloodOfLathander_Sunbeam",
+     "name": "Sunbeam"
+    }
+   ],
+   "spells_note": null,
+   "undetermined": [],
+   "xp": 22706
+  },
+  {
+   "carried": [],
+   "classes": [],
+   "equipment_note": "no-character-node",
+   "equipped": [],
+   "inspect": null,
+   "level": 1,
+   "location": "HAV_IsobelRoom_SUB",
+   "name": "Imp_Summon",
+   "race": "Imp",
+   "spells": null,
+   "spells_note": "not-found",
+   "undetermined": [],
+   "xp": 0
+  }
+ ],
+ "inspect_pattern": "",
+ "level_items": null,
+ "names_resolved": true,
+ "quests": null,
+ "save_info": null,
+ "source": "quicksave_maia.lsv"
+}

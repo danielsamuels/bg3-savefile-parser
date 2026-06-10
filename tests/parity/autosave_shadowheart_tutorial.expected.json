@@ -1,0 +1,726 @@
+{
+ "characters": [
+  {
+   "carried": [
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Shadowheart's Clothes",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Camp_Body_Shadowheart",
+     "template_guid": "7062410b-439c-4f2f-bc48-1c16ab1ace20"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Acolyte's Sandals",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Camp_Shoes_Shadowheart",
+     "template_guid": "e92e4dad-8e96-4f27-aacb-cc430df0bc75"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Bronze Ring",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Ring_F",
+     "template_guid": "5dafe8e9-8437-4347-96eb-98b58efaacf6"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Simple Robe",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Robe_Body",
+     "template_guid": "168b9099-19f5-44e4-b55c-e64ceb60b71f"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Shadowheart's Underwear",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Underwear_Shadowheart",
+     "template_guid": "b460bd0c-58fe-4a56-831c-af92fd4ba7e2"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Mug",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "Cup_Metal",
+     "template_guid": "2add6f00-eb1c-4f86-bf7f-73e2c68ad5de"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Camp Supply Sack",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Backpack_CampSupplies",
+     "template_guid": "efcb70b7-868b-4214-968a-e23f6ad586bc"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Alchemy Pouch",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Bag_AlchemyPouch",
+     "template_guid": "b7543ff4-5010-4c01-9bcd-4da1047aebfc"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Supply Pack",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Camp_Pack",
+     "template_guid": "398e7328-ce90-4c02-94a2-93341fac499a"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Candle",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Candle",
+     "template_guid": "34df8770-06c5-4752-a7b6-25d4f64d64dc"
+    },
+    {
+     "category": "misc",
+     "count": 15,
+     "name": "Gold",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_GoldCoin",
+     "template_guid": "1c3c9c74-34a1-4685-989e-410dc080be6f"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Keychain",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Keychain",
+     "template_guid": "ee329627-dbee-405f-b9a6-b260de9ad34c"
+    },
+    {
+     "category": "consumable",
+     "count": 1,
+     "name": "Potion of Healing",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Potion_Healing",
+     "template_guid": "d47006e9-8a51-453d-b200-9e0d42e9bbab"
+    },
+    {
+     "category": "book",
+     "count": 1,
+     "name": "Scroll of Detect Thoughts",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Scroll_DetectThoughts",
+     "template_guid": "126cc673-1151-4113-b1bf-98457233441b"
+    },
+    {
+     "category": "book",
+     "count": 1,
+     "name": "Scroll of Revivify",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Scroll_Revivify",
+     "template_guid": "c1c3e4fb-d68c-4e10-afdc-d4550238d50e"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Mysterious Artefact",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "UNI_CONT_DEVIL_PuzzleBox_A",
+     "template_guid": "326324f9-0920-8f0f-3e85-3781fbf48282"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Handaxe",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "WPN_Handaxe",
+     "template_guid": "46b64a36-8446-45bd-98e8-ee81e3136baa"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Shortsword",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "WPN_Shortsword",
+     "template_guid": "467ddb4f-6791-41fa-99f7-ee8620d63bbe"
+    }
+   ],
+   "classes": [
+    {
+     "Main": "Cleric",
+     "Sub": "TrickeryDomain"
+    }
+   ],
+   "equipment_note": null,
+   "equipped": [
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Leather Boots",
+     "slot": "Boots",
+     "slot_rank": [
+      4,
+      0
+     ],
+     "stats": "ARM_Boots_Leather",
+     "template_guid": "969bab00-b269-46a5-a7e9-dd4887814719"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Chain Shirt",
+     "slot": "Breast",
+     "slot_rank": [
+      2,
+      0
+     ],
+     "stats": "ARM_ChainShirt_Body_Shar",
+     "template_guid": "0c0c1031-4a04-4e8f-ba8a-8aafa2a396e8"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Circlet",
+     "slot": "Helmet",
+     "slot_rank": [
+      0,
+      0
+     ],
+     "stats": "UNI_ShadowheartCirclet",
+     "template_guid": "437aede9-dea6-46fd-ade2-fc9cfef16c3d"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Light Crossbow",
+     "slot": "Ranged Main Weapon",
+     "slot_rank": [
+      9,
+      0
+     ],
+     "stats": "WPN_LightCrossbow",
+     "template_guid": "43b7fbf5-7f6e-4e9e-bce7-c679eea44593"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Mace",
+     "slot": "Melee Main Weapon",
+     "slot_rank": [
+      7,
+      0
+     ],
+     "stats": "WPN_Mace",
+     "template_guid": "3186796d-3ab3-4d49-bfc2-cba1aff0cf5a"
+    }
+   ],
+   "inspect": null,
+   "level": 1,
+   "location": "",
+   "name": "Shadowheart",
+   "race": "HalfElf_High",
+   "spells": [
+    {
+     "category": "spell",
+     "id": "Projectile_FireBolt",
+     "name": "Fire Bolt"
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_GuidingBolt",
+     "name": "Guiding Bolt"
+    },
+    {
+     "category": "basic-action",
+     "id": "Projectile_Jump",
+     "name": "Jump"
+    },
+    {
+     "category": "basic-action",
+     "id": "Projectile_MainHandAttack",
+     "name": "Ranged Attack"
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Dash",
+     "name": "Dash"
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Disengage",
+     "name": "Disengage"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_DisguiseSelf",
+     "name": "Disguise Self"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Dragonborn_Female",
+     "name": "Disguise Self: Femme Dragonborn"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Dragonborn_Male",
+     "name": "Disguise Self: Masc Dragonborn"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Drow_Female",
+     "name": "Disguise Self: Femme Drow"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Drow_Male",
+     "name": "Disguise Self: Masc Drow"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Drow_Strong_Female",
+     "name": "Disguise Self: Femme Strong Drow"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Drow_Strong_Male",
+     "name": "Disguise Self: Masc Strong Drow"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Dwarf_Female",
+     "name": "Disguise Self: Femme Dwarf"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Dwarf_Male",
+     "name": "Disguise Self: Masc Dwarf"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Elf_Female",
+     "name": "Disguise Self: Femme Elf"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Elf_Male",
+     "name": "Disguise Self: Masc Elf"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Elf_Strong_Female",
+     "name": "Disguise Self: Femme Strong Elf"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Elf_Strong_Male",
+     "name": "Disguise Self: Masc Strong Elf"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Githyanki_Female",
+     "name": "Disguise Self: Femme Githyanki"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Githyanki_Male",
+     "name": "Disguise Self: Masc Githyanki"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Gnome_Female",
+     "name": "Disguise Self: Femme Gnome"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Gnome_Male",
+     "name": "Disguise Self: Masc Gnome"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_HalfElf_Female",
+     "name": "Disguise Self: Femme Half-Elf"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_HalfElf_Male",
+     "name": "Disguise Self: Masc Half-Elf"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_HalfElf_Strong_Female",
+     "name": "Disguise Self: Femme Strong Half-Elf"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_HalfElf_Strong_Male",
+     "name": "Disguise Self: Masc Strong Half-Elf"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_HalfOrc_Female",
+     "name": "Disguise Self: Femme Half-Orc"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_HalfOrc_Male",
+     "name": "Disguise Self: Masc Half-Orc"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Halfling_Female",
+     "name": "Disguise Self: Femme Halfling"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Halfling_Male",
+     "name": "Disguise Self: Masc Halfling"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Human_Female",
+     "name": "Disguise Self: Femme Human"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Human_Male",
+     "name": "Disguise Self: Masc Human"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Human_Strong_Female",
+     "name": "Disguise Self: Femme Strong Human"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Human_Strong_Male",
+     "name": "Disguise Self: Masc Strong Human"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Tiefling_Female",
+     "name": "Disguise Self: Femme Tiefling"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Tiefling_Male",
+     "name": "Disguise Self: Masc Tiefling"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Tiefling_Strong_Female",
+     "name": "Disguise Self: Femme Strong Tiefling"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_DisguiseSelf_Tiefling_Strong_Male",
+     "name": "Disguise Self: Masc Strong Tiefling"
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Hide",
+     "name": "Hide"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Bane",
+     "name": "Bane"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Bless",
+     "name": "Bless"
+    },
+    {
+     "category": "spell",
+     "id": "Target_BlessingOfTheTrickster",
+     "name": "Blessing of the Trickster"
+    },
+    {
+     "category": "spell",
+     "id": "Target_CharmPerson",
+     "name": "Charm Person"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Approach",
+     "name": "Command: Approach"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Command_Container",
+     "name": "Command"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Drop",
+     "name": "Command: Drop"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Flee",
+     "name": "Command: Flee"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Grovel",
+     "name": "Command: Grovel"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Halt",
+     "name": "Command: Halt"
+    },
+    {
+     "category": "spell",
+     "id": "Target_CreateDestroyWater",
+     "name": "Create or Destroy Water"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_CreateWater",
+     "name": "Create Water"
+    },
+    {
+     "category": "spell",
+     "id": "Target_CureWounds",
+     "name": "Cure Wounds"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_DestroyWater",
+     "name": "Destroy Water"
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Dip",
+     "name": "Dip"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Guidance",
+     "name": "Guidance"
+    },
+    {
+     "category": "spell",
+     "id": "Target_HealingWord",
+     "name": "Healing Word"
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Help",
+     "name": "Help"
+    },
+    {
+     "category": "spell",
+     "id": "Target_InflictWounds",
+     "name": "Inflict Wounds"
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_MainHandAttack",
+     "name": "Main Hand Attack"
+    },
+    {
+     "category": "spell",
+     "id": "Target_ProtectionFromEvilAndGood",
+     "name": "Protection from Evil and Good"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Resistance",
+     "name": "Resistance"
+    },
+    {
+     "category": "spell",
+     "id": "Target_SacredFlame",
+     "name": "Sacred Flame"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Sanctuary",
+     "name": "Sanctuary"
+    },
+    {
+     "category": "spell",
+     "id": "Target_ShieldOfFaith",
+     "name": "Shield of Faith"
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Shove",
+     "name": "Shove"
+    },
+    {
+     "category": "basic-action",
+     "id": "Throw_ImprovisedWeapon",
+     "name": "Improvised Melee Weapon"
+    },
+    {
+     "category": "basic-action",
+     "id": "Throw_Throw",
+     "name": "Throw"
+    }
+   ],
+   "spells_note": null,
+   "undetermined": [],
+   "xp": 70
+  },
+  {
+   "carried": [],
+   "classes": [
+    {
+     "Main": "Fighter",
+     "Sub": ""
+    }
+   ],
+   "equipment_note": "no-character-node",
+   "equipped": [],
+   "inspect": null,
+   "level": 1,
+   "location": "",
+   "name": "Laezel",
+   "race": "Githyanki",
+   "spells": [
+    {
+     "category": "basic-action",
+     "id": "Projectile_Jump",
+     "name": "Jump"
+    },
+    {
+     "category": "basic-action",
+     "id": "Projectile_MainHandAttack",
+     "name": "Ranged Attack"
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_PiercingShot",
+     "name": "Piercing Shot"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_AstralKnowledge",
+     "name": "Astral Knowledge"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_AstralKnowledge_Charisma",
+     "name": "Astral Knowledge: Charisma"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_AstralKnowledge_Dexterity",
+     "name": "Astral Knowledge: Dexterity"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_AstralKnowledge_Intelligence",
+     "name": "Astral Knowledge: Intelligence"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_AstralKnowledge_Strength",
+     "name": "Astral Knowledge: Strength"
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_AstralKnowledge_Wisdom",
+     "name": "Astral Knowledge: Wisdom"
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Dash",
+     "name": "Dash"
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Disengage",
+     "name": "Disengage"
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Hide",
+     "name": "Hide"
+    },
+    {
+     "category": "spell",
+     "id": "Shout_SecondWind",
+     "name": "Second Wind"
+    },
+    {
+     "category": "spell",
+     "id": "Target_ConcussiveSmash",
+     "name": "Concussive Smash"
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Dip",
+     "name": "Dip"
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Help",
+     "name": "Help"
+    },
+    {
+     "category": "spell",
+     "id": "Target_MageHand_GithyankiPsionics",
+     "name": "Githyanki Psionics: Mage Hand"
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_MainHandAttack",
+     "name": "Main Hand Attack"
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Shove",
+     "name": "Shove"
+    },
+    {
+     "category": "spell",
+     "id": "Target_Slash_New",
+     "name": "Lacerate"
+    },
+    {
+     "category": "basic-action",
+     "id": "Throw_ImprovisedWeapon",
+     "name": "Improvised Melee Weapon"
+    },
+    {
+     "category": "basic-action",
+     "id": "Throw_Throw",
+     "name": "Throw"
+    }
+   ],
+   "spells_note": null,
+   "undetermined": [],
+   "xp": 70
+  }
+ ],
+ "inspect_pattern": "",
+ "level_items": null,
+ "names_resolved": true,
+ "quests": null,
+ "save_info": null,
+ "source": "autosave_shadowheart_tutorial.lsv"
+}
