@@ -2,6 +2,9 @@
 
 import dataclasses
 import json
+from pathlib import Path
+
+from jinja2 import Environment, FileSystemLoader
 
 from .model import CharacterReport, ItemRef, SaveReport, SpellRef
 
@@ -57,103 +60,125 @@ EQUIPMENT_NOTES = {
 }
 
 
+def prepare_char_data(char: CharacterReport, verbose: bool, all_spells: bool) -> dict:
+    """Pre-process per-character spell and item data for the template.
+
+    Handles set-based dedup, multi-key sorting, and spells-header suffix
+    construction — the genuinely complex logic that belongs in Python.
+    """
+    data: dict = {}
+
+    if char.spells is not None:
+        folded: dict[str, list] = {'sub-spell': [], 'basic-action': []}
+        shown_refs = []
+        for sp in char.spells:
+            if not all_spells and sp.category in folded:
+                folded[sp.category].append(sp)
+            else:
+                shown_refs.append(sp)
+        # Upcast variants share a display name; show each rendering once.
+        shown = sorted({fmt_spell(sp, verbose) for sp in shown_refs})
+        extras = [f'+{len(group)} {label}' for group, label in
+                  ((folded['sub-spell'], 'sub-spells'),
+                   (folded['basic-action'], 'basic actions')) if group]
+        suffix = ('; ' + ', '.join(extras)) if extras else ''
+        data['spells_shown'] = shown
+        data['spells_header_suffix'] = suffix
+    else:
+        data['spells_shown'] = None
+        data['spells_header_suffix'] = ''
+
+    # Pre-sort equipped items — sort key depends on verbose, so must be Python-side.
+    data['equipped_sorted'] = sorted(
+        char.equipped,
+        key=lambda i: (i.slot_rank, fmt_item(i, verbose)),
+    )
+
+    return data
+
+
+def prepare_level_items(report: SaveReport, verbose: bool) -> list:
+    """Pre-compute display strings for level-item entries."""
+    if report.level_items is None:
+        return []
+    entries = []
+    for e in report.level_items['entries']:
+        qty = f'x{e.count}' if e.count > 1 else '   '
+        label = (f'{e.name} ({e.stats})' if verbose else e.name) if e.name else e.stats
+        entries.append({
+            'qty_str': f'{qty:<4s}',
+            'label_str': f'{label:<60s}',
+            'category': e.category,
+        })
+    return entries
+
+
+def make_jinja_env() -> Environment:
+    """Create the Jinja2 environment with registered format filters."""
+    env = Environment(
+        loader=FileSystemLoader(Path(__file__).parent / 'templates'),
+        autoescape=False,
+        trim_blocks=True,
+        lstrip_blocks=True,
+        keep_trailing_newline=False,
+    )
+    env.filters['fmt_class'] = fmt_class
+    env.filters['fmt_item'] = fmt_item
+    env.filters['fmt_spell'] = fmt_spell
+    env.filters['pyfmt'] = repr
+    return env
+
+
 def render_text(report: SaveReport, opts=None) -> str:
     """Render the model as the classic plain-text report."""
     def opt(name: str) -> bool:
         return bool(getattr(opts, name.replace('-', '_'), False)) if opts is not None else False
 
     verbose = opt('verbose')
-    lines: list[str] = []
-    w = lines.append
+    all_spells = opt('all-spells')
+    carried = opt('carried')
 
-    w('BG3 Save File Report')
-    w(f'Source: {report.source}')
-    w('=' * 72)
+    chars_data = [
+        prepare_char_data(char, verbose=verbose, all_spells=all_spells)
+        for char in report.characters
+    ]
+    level_items_entries = prepare_level_items(report, verbose=verbose)
 
-    if report.save_info is not None:
-        si = report.save_info
-        w('')
-        w(f'Save Name  : {si["save_name"]}')
-        w(f'Save #     : {si["save_id"]}')
-        w(f'Saved At   : {si["saved_at"]}')
-        w(f'Game Ver   : {si["game_version"]}')
-        w(f'Level      : {si["level"]}')
-        w(f'Difficulty : {si["difficulty"]}')
-        w(f'Leader     : {si["leader"]}')
-        if si['mods']:
-            flag = '  (flagged unofficial by game)' if si['has_unofficial_mods'] else ''
-            w(f'Mods       : {len(si["mods"])} user mod(s){flag}')
-            for mod_name in si['mods']:
-                w(f'             {mod_name}')
-        else:
-            w('Mods       : none')
-        item_name_source = (
-            'resolved from game data'
-            if report.names_resolved
-            else 'internal only (game data not found; set BG3_DATA_DIR)'
-        )
-        w(f'Item names : {item_name_source}')
+    opts_dict = {
+        'verbose': verbose,
+        'all_spells': all_spells,
+        'carried': carried,
+        'limits': opt('limits'),
+    }
 
-    if report.quests is not None:
-        w('')
-        w('━' * 72)
-        w('QUEST & STORY STATE  (Osiris / StorySave.bin)')
-        w('━' * 72)
-        q = report.quests
-        if q['failed']:
-            w('\n  (Osiris parse failed or frame not present)\n')
-        else:
-            w(f'\n  Osiris version: {q["version"] >> 8}.{q["version"] & 0xFF}')
-            w(f'\n  Quests in progress ({len(q["active"])}):')
-            for name in q['active']:
-                w(f'    {name}')
-            w(f'\n  Quests closed / resolved ({len(q["closed"])}):')
-            w('  (closed covers completed and failed; no separate failed-quest DB)')
-            for name in q['closed']:
-                w(f'    {name}')
-            w(f'\n  Finalized goals — flags=0x07 ({len(q["goals_finalized"])}):')
-            w('  (orchestration goals finalize when the act/phase is *entered*, not finished;')
-            w('   the presence of "Act2" here means Act 2 was started, not completed)')
-            for name in q['goals_finalized']:
-                w(f'    {name}')
-            w(f'\n  Story flags — DB_GlobalFlag '
-              f'(first {len(q["global_flags"])} of {q["global_flags_total"]} shown):')
-            for name in q['global_flags']:
-                w(f'    {name}')
-            w('')
+    # Pre-compute values that require Python operators not available in Jinja2.
+    quests_version = ''
+    if report.quests and not report.quests.get('failed'):
+        v = report.quests['version']
+        quests_version = f'{v >> 8}.{v & 0xFF}'
 
-    w('')
-    w('━' * 72)
-    w('PARTY CHARACTERS')
-    w('━' * 72)
-    for char in report.characters:
-        render_character(char, w, verbose=verbose,
-                         all_spells=opt('all-spells'), carried=opt('carried'),
-                         inspect_pattern=report.inspect_pattern)
+    env = make_jinja_env()
+    template = env.get_template('report.txt.j2')
 
-    if report.level_items is not None:
-        li = report.level_items
-        w('')
-        w('━' * 72)
-        w('ALL ITEMS ON CURRENT LEVEL  (per-character gear listed above)')
-        w('Note: items carried by party members are attributed to each character')
-        w('above, by shared world position. The list below is the full level pool')
-        w('(world loot, containers, vendor stock) for reference.')
-        w('━' * 72)
-        w(f'\n  {li["total"]} items total  ({li["unique"]} unique types)\n')
-        for e in li['entries']:
-            qty = f'x{e.count}' if e.count > 1 else '   '
-            label = (f'{e.name} ({e.stats})' if verbose else e.name) if e.name else e.stats
-            w(f'  {qty:4s} {label:60s} {e.category}')
-
-    if opt('limits'):
-        w('')
-        w('━' * 72)
-        w('LIMITS')
-        w('━' * 72)
-        w(LIMITS_NOTE)
-
-    return '\n'.join(lines)
+    output = template.render(
+        report=report,
+        opts=opts_dict,
+        chars_data=chars_data,
+        level_items_entries=level_items_entries,
+        spells_notes=SPELLS_NOTES,
+        equipment_notes=EQUIPMENT_NOTES,
+        limits_note=LIMITS_NOTE,
+        fmt_item=fmt_item,
+        verbose=verbose,
+        inspect_pattern=report.inspect_pattern,
+        quests_version=quests_version,
+    )
+    # Jinja2 for-loop lines produce a trailing '\n' that '\n'.join() does not.
+    # Strip exactly one trailing newline unless the --limits note legitimately
+    # ends the output with one (LIMITS_NOTE itself ends with '\n').
+    if not opts_dict['limits'] and output.endswith('\n'):
+        output = output[:-1]
+    return output
 
 
 def render_character(char: CharacterReport, w, *, verbose: bool,

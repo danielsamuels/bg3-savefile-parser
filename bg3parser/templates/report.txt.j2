@@ -1,0 +1,141 @@
+BG3 Save File Report
+Source: {{ report.source }}
+{{ '=' * 72 }}
+{% if report.save_info is not none %}
+
+Save Name  : {{ report.save_info.save_name }}
+Save #     : {{ report.save_info.save_id }}
+Saved At   : {{ report.save_info.saved_at }}
+Game Ver   : {{ report.save_info.game_version }}
+Level      : {{ report.save_info.level }}
+Difficulty : {{ report.save_info.difficulty }}
+Leader     : {{ report.save_info.leader }}
+{% if report.save_info.mods %}
+Mods       : {{ report.save_info.mods | length }} user mod(s){{ '  (flagged unofficial by game)' if report.save_info.has_unofficial_mods else '' }}
+{% for mod_name in report.save_info.mods %}
+             {{ mod_name }}
+{% endfor %}
+{% else %}
+Mods       : none
+{% endif %}
+Item names : {{ 'resolved from game data' if report.names_resolved else 'internal only (game data not found; set BG3_DATA_DIR)' }}
+{% endif %}
+{% if report.quests is not none %}
+
+{{ '━' * 72 }}
+QUEST & STORY STATE  (Osiris / StorySave.bin)
+{{ '━' * 72 }}
+{% if report.quests.failed %}
+
+  (Osiris parse failed or frame not present)
+
+{% else %}
+
+  Osiris version: {{ quests_version }}
+
+  Quests in progress ({{ report.quests.active | length }}):
+{% for name in report.quests.active %}
+    {{ name }}
+{% endfor %}
+
+  Quests closed / resolved ({{ report.quests.closed | length }}):
+  (closed covers completed and failed; no separate failed-quest DB)
+{% for name in report.quests.closed %}
+    {{ name }}
+{% endfor %}
+
+  Finalized goals — flags=0x07 ({{ report.quests.goals_finalized | length }}):
+  (orchestration goals finalize when the act/phase is *entered*, not finished;
+   the presence of "Act2" here means Act 2 was started, not completed)
+{% for name in report.quests.goals_finalized %}
+    {{ name }}
+{% endfor %}
+
+  Story flags — DB_GlobalFlag (first {{ report.quests.global_flags | length }} of {{ report.quests.global_flags_total }} shown):
+{% for name in report.quests.global_flags %}
+    {{ name }}
+{% endfor %}
+
+{% endif %}
+{% endif %}
+
+{{ '━' * 72 }}
+PARTY CHARACTERS
+{{ '━' * 72 }}
+{% macro render_character(char, char_data) %}
+
+  {{ char.name }}
+    Race      : {{ char.race }}
+    Class     : {{ char.classes | map('fmt_class') | join('; ') if char.classes else '?' }}
+    Level     : {{ char.level }}
+{% if char.xp is not none %}
+    XP        : {{ char.xp }}
+{% endif %}
+{% if char.location %}
+    Location  : {{ char.location }}
+{% endif %}
+{% if char.spells is not none %}
+    Spells/Abilities ({{ char_data.spells_shown | length }}{{ char_data.spells_header_suffix }}):
+{% for line in char_data.spells_shown %}
+      – {{ line }}
+{% endfor %}
+{% else %}
+    Spells/Abilities : {{ spells_notes.get(char.spells_note or 'not-found') }}
+{% endif %}
+{% if char.inspect %}
+    Inspect — items matching {{ inspect_pattern | pyfmt }}:
+{% for entry in char.inspect %}
+      – {{ entry.stats }}
+        eq_bit={{ entry.eq_bit }} flags={{ entry.flags }} mc={{ entry.membership_count }} status={{ entry.has_status }}
+        components ({{ entry.components | length }}):
+{% for c in entry.components %}
+          {{ c }}
+{% endfor %}
+{% endfor %}
+{% endif %}
+{% if char.equipment_note %}
+    Equipment : {{ equipment_notes[char.equipment_note] }}
+{% else %}
+    Equipped ({{ char.equipped | length }}):
+{% for item in char_data.equipped_sorted %}
+      – {{ item | fmt_item(verbose) }}{{ '  [' ~ item.slot ~ ']' if item.slot else '' }}
+{% endfor %}
+{% if char.undetermined %}
+    Worn or carried — undetermined ({{ char.undetermined | length }}):
+{% for item in char.undetermined %}
+      – {{ item | fmt_item(verbose) }}
+{% endfor %}
+{% endif %}
+{% if opts.carried %}
+    Carried / personal inventory ({{ char.carried | length }}):
+{% for item in char.carried %}
+      – {{ item | fmt_item(verbose) }}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% endmacro %}
+{% for char in report.characters %}
+{{ render_character(char, chars_data[loop.index0]) -}}
+{% endfor %}
+{% if report.level_items is not none %}
+
+{{ '━' * 72 }}
+ALL ITEMS ON CURRENT LEVEL  (per-character gear listed above)
+Note: items carried by party members are attributed to each character
+above, by shared world position. The list below is the full level pool
+(world loot, containers, vendor stock) for reference.
+{{ '━' * 72 }}
+
+  {{ report.level_items.total }} items total  ({{ report.level_items.unique }} unique types)
+
+{% for e in level_items_entries %}
+  {{ e.qty_str }} {{ e.label_str }} {{ e.category }}
+{% endfor %}
+{% endif %}
+{% if opts.limits %}
+
+{{ '━' * 72 }}
+LIMITS
+{{ '━' * 72 }}
+{{ limits_note -}}
+{% endif %}
