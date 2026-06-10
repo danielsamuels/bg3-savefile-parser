@@ -71,37 +71,49 @@ isn't). Validated against the QuickSave_242 ground truth (4 characters, 34 worn
 items): all 34 worn items are attributed to the correct character with no
 misclassifications.
 
-## What is partial or missing
+## How the harder classifications work
 
 ### How equipped vs carried is determined
-Items attributed to a character are split two ways:
+Items attributed to a character are classified in layers:
 
-- **Equipped** — the item grants a `STATUS` on-equip effect, **or** carries the
-  `0x04000000` `Flags` bit (on an equipment-type stats name), **or** its ECS
-  entity appears in ≥ 15 component ownerlists (equipped items are materialised
-  in the ECS world with ~35–41 memberships; backpack items dematerialise to
-  ~3–6).
-- **Carried** — not equipment at all (consumables, keys, gold, camp/cosmetic
-  clothing), or an equipment-type item whose ECS entity has low membership
-  (< 15 ownerlists).
+1. **Object-type filter.** Stats names whose game stat entry has
+   `type "Object"` (books, containers, quest items) can never be equipped and
+   are classified as carried regardless of any other signal.
+2. **LSF signals.** An item is equipped if it grants an active on-equip
+   `STATUS` (`SourceEquippedItem`) or carries the `0x04000000` `Flags` bit on
+   an equipment-type stats name. Items that are not equipment at all
+   (consumables, keys, gold, camp/cosmetic clothing) are carried.
+3. **ECS membership.** Equipment-type items with no LSF signal are resolved by
+   ECS component membership count: equipped items are materialised in the ECS
+   world with ~35–41 ownerlist memberships, while items dematerialised into a
+   backpack drop to ~3–6, so a threshold of 15 separates them cleanly. The
+   count is taken per physical instance (the save's parallel Creators/Items
+   arrays map each item to its specific entity), so other level instances of
+   the same item type cannot contaminate it. Items present in
+   `game.inventory.v0.WieldedComponent` are *not* promoted by this rule: that
+   component retains a stale marker on items that were previously in a weapon
+   slot but have since moved to the inventory, and those keep a high
+   membership count.
+4. **Slot-conflict resolution.** After both passes, equipped candidates are
+   grouped by equipment slot (the stat files' `Slot` field via the `using`
+   chain). A slot holds one item — rings hold two. When more items claim a
+   slot than it can hold, Flags-signalled items beat ECS-only items, and
+   Flags-vs-Flags ties are broken in priority order: active on-equip status,
+   then physical attachment (`WieldedComponent` /
+   `GravityDisabledComponent`), then `OwnedAsLootComponent` membership, then
+   higher membership count. A two-handed weapon in the main-hand slot also
+   demotes any ECS-only offhand claim. Losers are reclassified as carried.
 
-The membership count is the authoritative signal for items the LSF signals miss.
-A controlled diff of saves 242 (Evasive Shoes equipped on Wyll) and 243 (shoes
-moved to his bag) found 35 components whose ownerlist contained the equipped
-entity and not the in-bag entity; `game.inventory.v0.MemberComponent` is one of
-them. The parser uses the total count across all components (threshold 15), not
-a specific component check.
-
-Validated against the QuickSave_242 ground truth (34 worn items across 4
-characters): all 34 are classified as equipped. The ECS signal resolves items
-invisible to the LSF signals alone (Evasive Shoes and Pearl of Power Amulet on
-Wyll, both with `Flags=0x0000000c`, confirmed by controlled equip/unequip
-experiments across saves 242/248/249 and 242/243).
-
-**One confirmed false positive** in the LSF signals: `DEN_HellridersPride`
-(Hellrider's Pride) carries the equip bit but sits in Shadowheart's inventory,
-not in an equipment slot. The ECS signal would separately classify it by actual
-slot status — this is not yet cross-validated.
+The underlying signals were established by controlled equip/unequip
+experiments: a diff of the same save with Evasive Shoes worn (242) vs bagged
+(243) found 35 components whose ownerlists contained only the equipped entity
+(`game.inventory.v0.MemberComponent` among them); saves 242/248/249 confirmed
+the same for the Pearl of Power Amulet. The full cascade is validated against
+ground-truth party loadouts across the test saves (QuickSave_242 through
+QuickSave_291): every confirmed misclassification found along the way —
+Hellrider's Pride with a stale equip bit, previously-wielded weapons retaining
+high membership counts, game-stat Object items carrying the Flags bit — now
+classifies correctly, and no known misclassifications remain.
 
 ### Exact equipment slot — derived from stats; order persists in the container
 The save stores no **explicit** `ItemSlot` value. Evidence: a byte-level sweep
@@ -132,6 +144,21 @@ the right character. If two party members have identical class, subclass,
 *and* level, their books cannot be told apart; the report says so explicitly
 for those members instead of guessing. (An earlier string-pool + class-rule
 heuristic was retired once the exact chain proved reliable across saves.)
+
+## Known limitations
+
+- **Dual-wield main/off-hand ordering is unverified.** Two worn rings are
+  ordered into Ring vs Ring 2 by `ContainerSlotData` row order (ground-truth
+  verified); the same rule probably orders two dual-wielded weapons into main
+  and off hand, but no test save contains a dual-wielding party member to
+  confirm it. The main-hand slot's capacity of 1 in conflict resolution would
+  also wrongly demote one of two genuinely dual-wielded weapons.
+- **Shared stats names** (~9% of stats names) resolve to the first/base
+  display-name variant rather than the exact variant — see "How display names
+  work" above.
+- **Identical party builds.** If two party members have the same class,
+  subclass, *and* level, their spell books cannot be told apart; the report
+  says so explicitly for those members instead of guessing.
 
 ## The ECS blob (NewAge / LSMF)
 
