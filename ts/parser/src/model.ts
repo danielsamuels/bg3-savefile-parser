@@ -86,6 +86,7 @@ export interface SaveInfo {
   level: string;
   difficulty: string;
   leader: string;
+  game_id: string;
   mods: string[];
   has_unofficial_mods: boolean;
 }
@@ -196,6 +197,7 @@ export function gatherReport(data: Uint8Array, dn: DisplayNames, source = ''): S
     level: info['Current Level'] ?? '?',
     difficulty: (info.Difficulty ?? []).join(', '),
     leader: leaderName,
+    game_id: (metaAttrs.GameID as string) ?? '',
     mods: userMods,
     has_unofficial_mods: Boolean(metaAttrs.HasUnofficialMods ?? false),
   };

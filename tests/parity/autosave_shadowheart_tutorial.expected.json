@@ -723,6 +723,7 @@
  "quests": null,
  "save_info": {
   "difficulty": "DifficultyMedium, RulesetLarian",
+  "game_id": "bd2775b3-bea5-389a-24f8-936c69584188",
   "game_version": "4.1.1.7209685",
   "has_unofficial_mods": false,
   "leader": "Shadowheart",

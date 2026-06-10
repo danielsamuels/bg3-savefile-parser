@@ -3701,6 +3701,7 @@
  "quests": null,
  "save_info": {
   "difficulty": "DifficultyMedium, RulesetLarian",
+  "game_id": "908306ce-bd11-09b5-2e18-e3c20f7f3505",
   "game_version": "4.1.1.7209685",
   "has_unofficial_mods": false,
   "leader": "Maia",
