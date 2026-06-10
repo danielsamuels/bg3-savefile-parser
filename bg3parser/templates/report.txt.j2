@@ -1,6 +1,6 @@
 BG3 Save File Report
 Source: {{ report.source }}
-{{ '=' * 72 }}
+========================================================================
 {% if report.save_info is not none %}
 {% set si = report.save_info %}
 
@@ -25,9 +25,9 @@ Item names : {{ 'resolved from game data' if report.names_resolved else 'interna
 {% if report.quests is not none %}
 {% set q = report.quests %}
 
-{{ '━' * 72 }}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 QUEST & STORY STATE  (Osiris / StorySave.bin)
-{{ '━' * 72 }}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 {% if q.failed %}
 
   (Osiris parse failed or frame not present)
@@ -62,21 +62,21 @@ QUEST & STORY STATE  (Osiris / StorySave.bin)
 {% endif %}
 {% endif %}
 
-{{ '━' * 72 }}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PARTY CHARACTERS
-{{ '━' * 72 }}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 {% for char in report.characters %}
 {{ char | render_char(opts) }}
 {% endfor %}
 {% if report.level_items is not none %}
 {% set li = report.level_items %}
 
-{{ '━' * 72 }}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ALL ITEMS ON CURRENT LEVEL  (per-character gear listed above)
 Note: items carried by party members are attributed to each character
 above, by shared world position. The list below is the full level pool
 (world loot, containers, vendor stock) for reference.
-{{ '━' * 72 }}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   {{ li.total }} items total  ({{ li.unique }} unique types)
 
@@ -86,8 +86,8 @@ above, by shared world position. The list below is the full level pool
 {% endif %}
 {% if opts.limits %}
 
-{{ '━' * 72 }}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 LIMITS
-{{ '━' * 72 }}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 {{ limits_note }}
 {% endif %}
