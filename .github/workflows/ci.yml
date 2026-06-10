@@ -6,8 +6,14 @@ on:
   pull_request:
     branches: [master]
 
+# Cancel superseded runs, but never an in-flight master run (it may be deploying).
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
+
 jobs:
-  lint-and-test:
+  python:
+    name: Python
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6.0.3
@@ -37,32 +43,35 @@ jobs:
         run: uv run pytest tests/ -v
 
   typescript:
+    name: TypeScript
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6.0.3
 
-      - uses: oven-sh/setup-bun@v2
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
 
-      - name: Install
+      - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Lint + format check (biome)
+      - name: Lint + format check (Biome)
         run: bunx biome ci ts
 
       - name: Type check (parser)
         run: bun run --filter '@bg3save/parser' typecheck
 
-      - name: Test (parser)
-        run: bun run --filter '@bg3save/parser' test
-
       - name: Type check (site)
         run: bun run --filter '@bg3save/site' typecheck
+
+      - name: Test (parser)
+        run: bun run --filter '@bg3save/parser' test
 
       - name: Build (site)
         run: bun run --filter '@bg3save/site' build
 
   deploy:
-    needs: [lint-and-test, typescript]
+    name: Deploy
+    needs: [python, typescript]
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     environment:
@@ -71,29 +80,16 @@ jobs:
     steps:
       - uses: actions/checkout@v6.0.3
 
-      - name: Check deploy secret
-        id: secret
-        run: |
-          if [ -n "${{ secrets.CLOUDFLARE_API_TOKEN }}" ]; then
-            echo "available=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "::warning::CLOUDFLARE_API_TOKEN not set — skipping deploy"
-            echo "available=false" >> "$GITHUB_OUTPUT"
-          fi
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
 
-      - uses: oven-sh/setup-bun@v2
-        if: steps.secret.outputs.available == 'true'
-
-      - name: Install
-        if: steps.secret.outputs.available == 'true'
+      - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Build
-        if: steps.secret.outputs.available == 'true'
+      - name: Build (site)
         run: bun run --filter '@bg3save/site' build
 
-      - name: Deploy
-        if: steps.secret.outputs.available == 'true'
+      - name: Deploy (wrangler)
         working-directory: ts/site
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
