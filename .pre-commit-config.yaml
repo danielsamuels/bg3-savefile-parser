@@ -1,0 +1,13 @@
+repos:
+  - repo: local
+    hooks:
+      - id: ruff
+        name: ruff lint
+        entry: uvx ruff check bg3_save_reader.py explore_lsmf.py tests/
+        language: system
+        pass_filenames: false
+      - id: ty
+        name: ty type check
+        entry: uv run ty check bg3_save_reader.py
+        language: system
+        pass_filenames: false
