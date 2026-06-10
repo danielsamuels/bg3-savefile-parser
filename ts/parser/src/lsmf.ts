@@ -317,3 +317,100 @@ export function parseLsmfStackAmounts(blob: Uint8Array): Map<string, number> {
   }
   return out;
 }
+
+/** Extract every spell book: entity row -> ordered list of spell IDs. */
+export function parseLsmfSpellbooks(blob: Uint8Array): Map<number, string[]> {
+  const out = new Map<number, string[]>();
+  const idx = lsmfComponentIndex(blob);
+  const sb = idx.get('game.spell.v3.SpellBookComponent');
+  const sd = idx.get('game.spell.v3.SpellData');
+  const si = idx.get('game.spell.v0.SpellId');
+  if (!sb || !sd || !si) return out;
+  if (sb.elemSize !== 16 || sd.elemSize < 56 || si.elemSize !== 24) return out;
+  const { bytes, dv } = align(blob);
+  const L = bytes.length;
+  const sdLo = sd.dataOffset;
+  const sdHi = sd.dataOffset + sd.rowCount * sd.elemSize;
+  const siLo = si.dataOffset;
+  const siHi = si.dataOffset + si.rowCount * si.elemSize;
+  const dec = new TextDecoder();
+
+  const spellIdName = (row: number): string | null => {
+    // Observed record shapes: {meta_ptr, str_ptr, len-packed} and
+    // {str_ptr, len-packed, source_ptr}; try both (pointer, length) pairings.
+    const base = si.dataOffset + row * si.elemSize;
+    const a = u64(dv, base);
+    const b = u64(dv, base + 8);
+    const c = u64(dv, base + 16);
+    for (const [ptr, lnRaw] of [
+      [b, c],
+      [a, b],
+    ] as const) {
+      const ln = lnRaw % 2 ** 32; // low dword
+      const p0 = ptr + LSMF_HEAP_BASE;
+      if (!(ln > 0 && ln <= 128 && p0 > 0 && p0 <= L - ln)) continue;
+      const s = bytes.subarray(p0, p0 + ln);
+      let printable = true;
+      for (const ch of s) {
+        if (ch < 0x20 || ch >= 0x7f) {
+          printable = false;
+          break;
+        }
+      }
+      if (printable) return dec.decode(s);
+    }
+    return null;
+  };
+
+  for (let k = 0; k < Math.min(sb.ownerRows.length, sb.rowCount); k++) {
+    const ent = sb.ownerRows[k]!;
+    const begin = u64(dv, sb.dataOffset + k * sb.elemSize);
+    const end = u64(dv, sb.dataOffset + k * sb.elemSize + 8);
+    if (!(sdLo <= begin && begin <= end && end <= sdHi)) continue;
+    const names: string[] = [];
+    const r0 = Math.floor((begin - sdLo) / sd.elemSize);
+    const r1 = Math.floor((end - sdLo) / sd.elemSize);
+    for (let r = r0; r < r1; r++) {
+      const v = u64(dv, sd.dataOffset + r * sd.elemSize + 48);
+      if (siLo <= v && v < siHi) {
+        const nm = spellIdName(Math.floor((v - siLo) / si.elemSize));
+        if (nm) names.push(nm);
+      }
+    }
+    if (names.length && names.length > (out.get(ent)?.length ?? 0)) out.set(ent, names);
+  }
+  return out;
+}
+
+export type ClassEntry = [classGuid: string, subclassGuid: string, level: number];
+
+/** Extract class progressions: entity row -> [(class, subclass, level), …]. */
+export function parseLsmfClasses(blob: Uint8Array): Map<number, ClassEntry[]> {
+  const out = new Map<number, ClassEntry[]>();
+  const idx = lsmfComponentIndex(blob);
+  const cc = idx.get('game.stats.v0.ClassesComponent');
+  if (!cc || cc.elemSize !== 16) return out;
+  const { bytes, dv } = align(blob);
+  const L = bytes.length;
+  for (let k = 0; k < Math.min(cc.ownerRows.length, cc.rowCount); k++) {
+    const ent = cc.ownerRows[k]!;
+    const begin = u64(dv, cc.dataOffset + k * cc.elemSize);
+    const end = u64(dv, cc.dataOffset + k * cc.elemSize + 8);
+    const size = end - begin;
+    if (!(size > 0 && size <= 40 * 16 && size % 40 === 0)) continue;
+    const p0 = begin + LSMF_HEAP_BASE;
+    if (p0 + size > L) continue;
+    let entries: ClassEntry[] = [];
+    for (let i = 0; i < size / 40; i++) {
+      const base = p0 + i * 40;
+      const lvl = u64(dv, base + 32);
+      if (lvl > 30) {
+        entries = [];
+        break;
+      }
+      entries.push([guidLeStr(bytes, base), guidLeStr(bytes, base + 16), lvl]);
+    }
+    if (entries.length) out.set(ent, entries);
+  }
+  return out;
+}
