@@ -2070,7 +2070,7 @@ STAT_ITEM_PAKS = ['Shared.pak', 'Gustav.pak', 'GustavX.pak']
 STAT_ITEM_FILE_RE = re.compile(r'/Stats/Generated/Data/(?:Armor|Weapon|Object)\.txt$')
 
 # Bump when the resolver logic changes so a stale cache is not silently reused.
-DISPLAYNAME_SCHEMA_VERSION = 7
+DISPLAYNAME_SCHEMA_VERSION = 8
 
 
 def find_game_data_dir() -> str | None:
@@ -2180,12 +2180,12 @@ def build_displayname_maps(
     data_dir: str,
 ) -> tuple[
     dict[str, str], dict[str, str], dict[str, str],
-    frozenset[str], dict[str, str], frozenset[str],
+    frozenset[str], dict[str, str], frozenset[str], frozenset[str],
 ]:
     """Build display-name and item-stat maps from installed game data.
 
     Returns (guid->name, stats->name, spell_id->name, object_type_stats, stats_to_slot,
-    two_handed_stats).
+    two_handed_stats, sub_spells).
 
     Results are cached under XDG_CACHE_HOME keyed on the source paks' mtime/size,
     so the ~1 s parse only happens after a game update.
@@ -2201,6 +2201,7 @@ def build_displayname_maps(
             frozenset(data.get('object_types', [])),
             data.get('stats_slots', {}),
             frozenset(data.get('two_handed', [])),
+            frozenset(data.get('sub_spells', [])),
         )
     except (OSError, ValueError, KeyError):
         pass
@@ -2285,19 +2286,26 @@ def build_displayname_maps(
                 dn_m = re.search(r'data "DisplayName" "([^";]+)', block_text)
                 using_m = re.search(r'^using "([^"]+)"', block_text, re.MULTILINE)
                 using = using_m.group(1) if using_m and using_m.group(1) != entry_name else None
+                # Sub-spells (e.g. each Disguise Self appearance) declare the
+                # container spell they belong to; '' explicitly detaches.
+                cont_m = re.search(r'data "SpellContainerID" "([^"]*)"', block_text)
                 prev = spell_raw.get(entry_name)
                 if prev is None:
                     spell_raw[entry_name] = {
                         'display': dn_m.group(1) if dn_m else None,
                         'using': using,
+                        'container': cont_m.group(1) if cont_m else None,
                     }
                 else:
                     if prev['display'] is None and dn_m:
                         prev['display'] = dn_m.group(1)
                     if using:
                         prev['using'] = using
+                    if prev['container'] is None and cont_m:
+                        prev['container'] = cont_m.group(1)
 
     spell_name: dict[str, str] = {}
+    sub_spell_list: list[str] = []
     for entry_name in spell_raw:
         cur: str | None = entry_name
         seen: set[str] = set()
@@ -2310,6 +2318,20 @@ def build_displayname_maps(
                 txt = handle_to_text.get(info['display'])
                 if txt:
                     spell_name[entry_name] = txt
+                break
+            cur = info['using']
+        # A spell is a sub-spell if the first SpellContainerID declared along
+        # its using-chain is non-empty.
+        cur = entry_name
+        seen = set()
+        while cur and cur not in seen:
+            seen.add(cur)
+            info = spell_raw.get(cur)
+            if info is None:
+                break
+            if info['container'] is not None:
+                if info['container']:
+                    sub_spell_list.append(entry_name)
                 break
             cur = info['using']
 
@@ -2405,13 +2427,14 @@ def build_displayname_maps(
                 'object_types': object_type_stats_list,
                 'stats_slots': stats_to_slot,
                 'two_handed': two_handed_stats_list,
+                'sub_spells': sub_spell_list,
             }, fh)
     except OSError:
         pass
     return (
         guid_name, stats_name, spell_name,
         frozenset(object_type_stats_list), stats_to_slot,
-        frozenset(two_handed_stats_list),
+        frozenset(two_handed_stats_list), frozenset(sub_spell_list),
     )
 
 
@@ -2426,6 +2449,7 @@ class DisplayNames:
         object_type_stats: frozenset[str]   | None = None,
         stats_to_slot:     dict[str, str]   | None = None,
         two_handed_stats:  frozenset[str]   | None = None,
+        sub_spells:        frozenset[str]   | None = None,
     ):
         self._guid   = guid_name
         self._stats  = stats_name
@@ -2433,6 +2457,7 @@ class DisplayNames:
         self.object_type_stats: frozenset[str] = object_type_stats or frozenset()
         self.stats_to_slot:     dict[str, str] = stats_to_slot     or {}
         self.two_handed_stats:  frozenset[str] = two_handed_stats  or frozenset()
+        self.sub_spells:        frozenset[str] = sub_spells        or frozenset()
         self.verbose = False  # set to True to append (INTERNAL_NAME) after display names
 
     @classmethod
@@ -2715,11 +2740,19 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
         # Spells — exact book when the entity match succeeds, else heuristic
         book = exact_spellbook(char_info)
         if book is not None:
-            distinct = set(book) - COMMON_ACTION_SPELLS
+            distinct = set(book)
+            basics = distinct & COMMON_ACTION_SPELLS
+            # Container variants (each Disguise Self appearance, every Chromatic
+            # Orb element, …) collapse into their container spell by default.
+            subs = distinct & dn.sub_spells
+            if opt('all-spells'):
+                basics = subs = set()
             # Upcast variants share a display name; show each rendering once.
-            shown = sorted({dn.fmt_spell(sid) for sid in distinct})
-            hidden = len(set(book)) - len(distinct)
-            w(f'    Spells/Abilities ({len(shown)}; +{hidden} basic actions):')
+            shown = sorted({dn.fmt_spell(sid) for sid in distinct - basics - subs})
+            extras = [f'+{len(s)} {label}' for s, label in
+                      ((subs, 'sub-spells'), (basics, 'basic actions')) if s]
+            suffix = ('; ' + ', '.join(extras)) if extras else ''
+            w(f'    Spells/Abilities ({len(shown)}{suffix}):')
             for line in shown:
                 w(f'      – {line}')
         elif (spells := spell_map.get(display_name, [])):
@@ -3011,6 +3044,9 @@ def main():
     ap.add_argument('--inspect', metavar='NAME',
                     help='show classification signals and ECS components for party items '
                          'whose internal stats name contains NAME (case-insensitive)')
+    ap.add_argument('--all-spells', action='store_true',
+                    help='list sub-spells (container variants like each Disguise Self '
+                         'appearance) and basic actions instead of folding them away')
     opts = ap.parse_args()
 
     save_path = opts.save

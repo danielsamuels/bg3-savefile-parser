@@ -65,6 +65,12 @@ All notable changes to this project will be documented here.
 - **Display-name inheritance**: stats names resolve through `ParentTemplateId`
   chains and spell names through the stats `using` chain across all item paks
   — every item and all but mod-only spells in the test saves now resolve.
+- **Sub-spell folding**: container variants (each Disguise Self appearance,
+  every Chromatic Orb element, …) are detected via the stats
+  `SpellContainerID` field and folded into their container spell by default,
+  with a count in the header; `--all-spells` lists them (and basic actions).
+- **Ring vs Ring 2** recovered from `ContainerSlotData` row order
+  (ground-truth verified in-game) and shown in the report.
 
 ### Performance
 Full-report time on a representative quicksave dropped from ~4.1s to ~1.9s

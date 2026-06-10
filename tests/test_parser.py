@@ -857,6 +857,14 @@ def test_exact_spellbooks():
     assert 'Shout_Rage' in karlach
 
 
+def test_all_spells_flag():
+    """--all-spells must list everything: no folded sub-spell/basic-action counts."""
+    report = parser.build_report(QUICKSAVE_MAIA, opts=Namespace(all_spells=True))
+    assert 'Spells/Abilities (' in report
+    assert 'sub-spells' not in report
+    assert 'basic actions' not in report
+
+
 def test_parse_lsmf_spellbooks_direct():
     """parse_lsmf_spellbooks must return many non-trivial books from the blob."""
     frames = parser.extract_frames(QUICKSAVE_MAIA)
