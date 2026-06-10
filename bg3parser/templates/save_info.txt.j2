@@ -1,0 +1,17 @@
+
+Save Name  : {{ report.save_info.save_name }}
+Save #     : {{ report.save_info.save_id }}
+Saved At   : {{ report.save_info.saved_at }}
+Game Ver   : {{ report.save_info.game_version }}
+Level      : {{ report.save_info.level }}
+Difficulty : {{ report.save_info.difficulty }}
+Leader     : {{ report.save_info.leader }}
+{% if report.save_info.mods %}
+Mods       : {{ report.save_info.mods | length }} user mod(s){{ '  (flagged unofficial by game)' if report.save_info.has_unofficial_mods else '' }}
+{% for mod_name in report.save_info.mods %}
+             {{ mod_name }}
+{% endfor %}
+{% else %}
+Mods       : none
+{% endif %}
+Item names : {{ 'resolved from game data' if report.names_resolved else 'internal only (game data not found; set BG3_DATA_DIR)' }}

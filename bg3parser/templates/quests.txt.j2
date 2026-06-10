@@ -1,0 +1,36 @@
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+QUEST & STORY STATE  (Osiris / StorySave.bin)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{% if report.quests.failed %}
+
+  (Osiris parse failed or frame not present)
+
+{% else %}
+
+  Osiris version: {{ quests_version }}
+
+  Quests in progress ({{ report.quests.active | length }}):
+{% for name in report.quests.active %}
+    {{ name }}
+{% endfor %}
+
+  Quests closed / resolved ({{ report.quests.closed | length }}):
+  (closed covers completed and failed; no separate failed-quest DB)
+{% for name in report.quests.closed %}
+    {{ name }}
+{% endfor %}
+
+  Finalized goals — flags=0x07 ({{ report.quests.goals_finalized | length }}):
+  (orchestration goals finalize when the act/phase is *entered*, not finished;
+   the presence of "Act2" here means Act 2 was started, not completed)
+{% for name in report.quests.goals_finalized %}
+    {{ name }}
+{% endfor %}
+
+  Story flags — DB_GlobalFlag (first {{ report.quests.global_flags | length }} of {{ report.quests.global_flags_total }} shown):
+{% for name in report.quests.global_flags %}
+    {{ name }}
+{% endfor %}
+
+{% endif %}

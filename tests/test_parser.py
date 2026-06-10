@@ -10,11 +10,14 @@ Run with:
 """
 
 import json
+import os
 import re
 import sys
 from argparse import Namespace
 from pathlib import Path
 from unittest import mock
+
+import pytest
 
 # ---------------------------------------------------------------------------
 # Make the project root importable regardless of working directory
@@ -40,58 +43,49 @@ def build_report(save_path, opts=None):
     return parser.render_text(parser.gather_report(save_path, opts=opts), opts)
 
 
+def gather_model(save_path, opts=None):
+    """Test convenience: gather the report model without rendering."""
+    return parser.gather_report(save_path, opts=opts)
+
+
 # ---------------------------------------------------------------------------
-# Helper: parse the text report into per-character equipped stats names
+# Golden-file helpers for the text render (see TestTextOutputFormat)
 # ---------------------------------------------------------------------------
 
-def extract_equipped_from_report(report: str) -> dict[str, set[str]]:
+GOLDEN_DIR = FIXTURE_DIR / 'expected'
+
+
+def render_golden(save_path, opts=None):
+    """Render the text report deterministically for golden comparison.
+
+    The display-name resolver is pinned to the no-install fallback so the output
+    is byte-identical on any machine (CI has no game data installed, a dev box
+    might), and the Source line's absolute path is normalised to the fixture's
+    basename.
     """
-    Parse the text report and return {character_name: {stats_name, ...}}
-    for items listed under "Equipped (N):" for each character.
+    empty = gamedata.DisplayNames({}, {}, {})
+    with mock.patch.object(gamedata.DisplayNames, 'load', return_value=empty):
+        text = build_report(save_path, opts)
+    return re.sub(r'(?m)^Source: .*$', f'Source: {Path(save_path).name}', text, count=1)
 
-    Stats names are extracted from the "(STATS_NAME)" parenthetical that
-    build_report() appends when game data is available, or from the bare
-    internal name when it isn't.  Either way the stats name is recovered.
+
+def assert_golden(name, text):
+    """Compare `text` to the committed golden fixture `name`.
+
+    Regenerate every golden after an intentional formatting change with:
+        BG3_UPDATE_GOLDEN=1 uv run pytest
     """
-    result: dict[str, set[str]] = {}
-    current_char: str | None = None
-    in_equipped = False
-
-    for line in report.splitlines():
-        # Detect character header lines (two leading spaces, no dash)
-        char_match = re.match(r'^  (\S.*\S|\S+)\s*$', line)
-        if char_match and not line.startswith('    ') and '─' not in line and '━' not in line:
-            current_char = char_match.group(1).strip()
-            in_equipped = False
-            continue
-
-        # Detect "Equipped (N):" section start
-        if re.match(r'\s+Equipped \(\d+\):', line):
-            in_equipped = True
-            if current_char and current_char not in result:
-                result[current_char] = set()
-            continue
-
-        # Any other section header ends the Equipped block
-        if re.match(r'\s+(Carried|Worn or carried|Spells|Race|Class|Level|XP|Location|Equipment)\b',
-                    line):
-            in_equipped = False
-            continue
-
-        # Collect items in the Equipped block
-        if in_equipped and current_char:
-            item_match = re.match(r'\s+–\s+(.+)', line)
-            if item_match:
-                item_text = item_match.group(1).strip()
-                # Strip the optional trailing "[Slot]" annotation, then take
-                # the (STATS_NAME) parenthetical when a display name was
-                # resolved; otherwise the whole token is the stats name.
-                item_text = re.sub(r'\s*\[[^\]]+\]\s*$', '', item_text)
-                paren_match = re.search(r'\(([^)]+)\)\s*$', item_text)
-                stats = paren_match.group(1).strip() if paren_match else item_text.strip()
-                result[current_char].add(stats)
-
-    return result
+    path = GOLDEN_DIR / name
+    if os.environ.get('BG3_UPDATE_GOLDEN'):
+        path.parent.mkdir(exist_ok=True)
+        path.write_text(text, encoding='utf-8')
+        return
+    assert path.exists(), f'missing golden {name}; run BG3_UPDATE_GOLDEN=1 to create it'
+    expected = path.read_text(encoding='utf-8')
+    assert text == expected, (
+        f'{name} differs from its golden fixture; '
+        f're-run with BG3_UPDATE_GOLDEN=1 to regenerate if the change is intended'
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -99,23 +93,24 @@ def extract_equipped_from_report(report: str) -> dict[str, set[str]]:
 # ---------------------------------------------------------------------------
 
 
-def test_smoke_build_report():
-    """build_report() must complete without error and produce a plausible report."""
-    report = build_report(QUICKSAVE_MAIA, opts=Namespace(verbose=True))
-    assert isinstance(report, str)
-    assert len(report) > 1000
-
-    # At least 4 party character names must appear
-    char_names = ['Maia (player)', 'Wyll', 'Karlach', 'Shadowheart']
-    for name in char_names:
-        assert name in report, f'Expected character {name!r} in report'
-
-    # Count total equipped items across all characters
-    equipped = extract_equipped_from_report(report)
-    total_equipped = sum(len(items) for items in equipped.values())
+def test_smoke_model():
+    """gather_report() must complete and return a well-formed model."""
+    model = gather_model(QUICKSAVE_MAIA)
+    char_names = {c.name for c in model.characters}
+    assert {'Maia (player)', 'Wyll', 'Karlach', 'Shadowheart'} <= char_names
+    total_equipped = sum(len(c.equipped) for c in model.characters)
     assert total_equipped >= 30, (
         f'Expected at least 30 total equipped items, got {total_equipped}'
     )
+
+
+def test_smoke_text_output():
+    """render_text() must produce a non-empty report containing character names."""
+    report = build_report(QUICKSAVE_MAIA)
+    assert isinstance(report, str)
+    assert len(report) > 1000
+    for name in ['Maia (player)', 'Wyll', 'Karlach', 'Shadowheart']:
+        assert name in report, f'Expected {name!r} in text output'
 
 
 # ---------------------------------------------------------------------------
@@ -223,8 +218,12 @@ def test_equipped_items_ground_truth():
     as false positives.  The expected set is widened accordingly so the test
     remains exact-equality in both regimes.
     """
-    report = build_report(QUICKSAVE_MAIA, opts=Namespace(verbose=True))
-    actual = extract_equipped_from_report(report)
+    model = gather_model(QUICKSAVE_MAIA)
+    actual = {
+        char.name: {item.stats for item in char.equipped}
+        for char in model.characters
+        if char.name in EXPECTED_EQUIPPED
+    }
     game_data_available = gamedata.DisplayNames.load().available
 
     for char, expected_set in EXPECTED_EQUIPPED.items():
@@ -809,17 +808,18 @@ def test_carried():
 
 
 def test_exact_spellbooks():
-    """Every party member's spells must come from the exact LSMF spell book
-    (no heuristic fallback), and known class abilities must be present."""
-    report = build_report(QUICKSAVE_MAIA, opts=Namespace(verbose=True))
+    """Known class abilities must be present in each character's exact spell book."""
+    model = gather_model(QUICKSAVE_MAIA)
+    chars = {c.name: c for c in model.characters}
+    assert 'Projectile_EldritchBlast' in {s.id for s in chars['Wyll'].spells}
+    assert any('Shout_Rage' in s.id for s in chars['Karlach'].spells)
+
+
+def test_spells_folded_in_text():
+    """Default text output must fold sub-spells and basic actions with a count."""
+    report = build_report(QUICKSAVE_MAIA)
     assert 'heuristic' not in report
     assert 'basic actions' in report
-    # Wyll is a Fiend warlock: Eldritch Blast must be in his exact book.
-    wyll = re.search(r'\n  Wyll\n(.*?)(?:\n  \S|\Z)', report, re.S).group(1)
-    assert 'Projectile_EldritchBlast' in wyll
-    # Karlach is a Totem barbarian.
-    karlach = re.search(r'\n  Karlach\n(.*?)(?:\n  \S|\Z)', report, re.S).group(1)
-    assert 'Shout_Rage' in karlach
 
 
 def test_all_spells_flag():
@@ -890,6 +890,85 @@ def test_main_output_file(tmp_path):
     assert out.exists()
     content = out.read_text(encoding='utf-8')
     assert 'BG3 Save File Report' in content
+
+
+# ---------------------------------------------------------------------------
+# Text output format tests
+# ---------------------------------------------------------------------------
+
+
+ALL_SECTION_OPTS = Namespace(
+    save_info=True, quests=True, all_items=True, carried=True, limits=True,
+)
+
+
+class TestTextOutputFormat:
+    """Golden-file tests for the plain-text render.
+
+    The whole rendered report is compared byte-for-byte against a committed
+    fixture under tests/fixtures/expected/, so any formatting change — spacing,
+    ordering, a moved section — shows up as a reviewable diff rather than slipping
+    past a handful of substring checks.
+
+    Name resolution is pinned to the no-install fallback (internal names), the
+    only output that is identical on every machine. Resolved-name output (friendly
+    names, [Slot] annotations, spell folding) is exercised separately by
+    TestResolvedRender, which is skipped unless a game install is detected.
+
+    Regenerate every golden after an intentional formatting change with:
+        BG3_UPDATE_GOLDEN=1 uv run pytest
+    """
+
+    def test_maia_default(self):
+        assert_golden('maia_default.txt', render_golden(QUICKSAVE_MAIA))
+
+    def test_maia_all_sections(self):
+        assert_golden(
+            'maia_all_sections.txt',
+            render_golden(QUICKSAVE_MAIA, ALL_SECTION_OPTS),
+        )
+
+    def test_shadowheart_default(self):
+        assert_golden(
+            'shadowheart_default.txt',
+            render_golden(SHADOWHEART_TUTORIAL, Namespace(quests=True)),
+        )
+
+
+# ---------------------------------------------------------------------------
+# Enhanced render checks — only where a game install resolves display names.
+# A full golden would drift across game-data versions, so these assert that the
+# resolver-dependent rendering branches fire, not exact bytes.
+# ---------------------------------------------------------------------------
+
+GAME_DATA_AVAILABLE = gamedata.DisplayNames.load().available
+
+
+@pytest.mark.skipif(not GAME_DATA_AVAILABLE, reason='no game install to resolve names')
+class TestResolvedRender:
+    """Exercises the rendering branches that only fire with resolved names."""
+
+    def test_slot_annotations_present(self):
+        report = build_report(QUICKSAVE_MAIA, opts=Namespace(verbose=True))
+        assert re.search(
+            r'\[(?:Breast|Helmet|Cloak|Gloves|Boots|Amulet|Ring|'
+            r'Melee Main Weapon|Ranged Main Weapon)\]',
+            report,
+        )
+
+    def test_friendly_names_replace_internal(self):
+        # With a resolver, equipped lines should not be bare internal stats names.
+        report = build_report(QUICKSAVE_MAIA)
+        assert 'Phalar Aluve' in report
+        assert 'WPN_Phalar_Aluve' not in report
+
+    def test_spell_folding_in_header(self):
+        report = build_report(QUICKSAVE_MAIA)
+        assert re.search(r'Spells/Abilities \(\d+;.*(?:sub-spells|basic actions)', report)
+
+    def test_all_spells_disables_folding(self):
+        report = build_report(QUICKSAVE_MAIA, opts=Namespace(all_spells=True))
+        assert not re.search(r'\+\d+ (?:sub-spells|basic actions)', report)
 
 
 # ---------------------------------------------------------------------------

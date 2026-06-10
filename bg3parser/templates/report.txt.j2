@@ -1,0 +1,23 @@
+BG3 Save File Report
+Source: {{ report.source }}
+========================================================================
+{% if report.save_info is not none %}
+{% include 'save_info.txt.j2' %}
+{% endif %}
+{% if report.quests is not none %}
+{% include 'quests.txt.j2' %}
+{% endif %}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PARTY CHARACTERS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{% for char in report.characters %}
+{% set char_data = chars_data[loop.index0] %}
+{% include 'character.txt.j2' %}
+{% endfor %}
+{% if report.level_items is not none %}
+{% include 'level_items.txt.j2' %}
+{% endif %}
+{% if opts.limits %}
+{% include 'limits.txt.j2' %}
+{% endif %}

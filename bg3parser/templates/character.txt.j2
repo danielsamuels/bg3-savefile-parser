@@ -1,0 +1,50 @@
+
+{{ char.name }}
+  Race      : {{ char.race }}
+  Class     : {{ char.classes | map('fmt_class') | join('; ') if char.classes else '?' }}
+  Level     : {{ char.level }}
+{% if char.xp is not none %}
+  XP        : {{ char.xp }}
+{% endif %}
+{% if char.location %}
+  Location  : {{ char.location }}
+{% endif %}
+{% if char.spells is not none %}
+  Spells/Abilities ({{ char_data.spells_shown | length }}{{ char_data.spells_header_suffix }}):
+{% for line in char_data.spells_shown %}
+    – {{ line }}
+{% endfor %}
+{% else %}
+  Spells/Abilities : {{ spells_notes.get(char.spells_note or 'not-found') }}
+{% endif %}
+{% if char.inspect %}
+  Inspect — items matching {{ inspect_pattern | pyfmt }}:
+{% for entry in char.inspect %}
+    – {{ entry.stats }}
+      eq_bit={{ entry.eq_bit }} flags={{ entry.flags }} mc={{ entry.membership_count }} status={{ entry.has_status }}
+      components ({{ entry.components | length }}):
+{% for c in entry.components %}
+        {{ c }}
+{% endfor %}
+{% endfor %}
+{% endif %}
+{% if char.equipment_note %}
+  Equipment : {{ equipment_notes[char.equipment_note] }}
+{% else %}
+  Equipped ({{ char.equipped | length }}):
+{% for item in char_data.equipped_sorted %}
+    – {{ item | fmt_item(verbose) }}{{ '  [' ~ item.slot ~ ']' if item.slot else '' }}
+{% endfor %}
+{% if char.undetermined %}
+  Worn or carried — undetermined ({{ char.undetermined | length }}):
+{% for item in char.undetermined %}
+    – {{ item | fmt_item(verbose) }}
+{% endfor %}
+{% endif %}
+{% if opts.carried %}
+  Carried / personal inventory ({{ char.carried | length }}):
+{% for item in char.carried %}
+    – {{ item | fmt_item(verbose) }}
+{% endfor %}
+{% endif %}
+{% endif %}
