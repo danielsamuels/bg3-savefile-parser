@@ -14,7 +14,7 @@ const gamedataReady: Promise<void> = fetch('/gamedata.json')
   .then((r) => r.json())
   .then((data) => worker.postMessage({ kind: 'gamedata', data }))
   .catch(() => {
-    setStatus('Name data failed to load — internal names will be shown.', true);
+    setStatus('Name data failed to load; internal names will be shown.', true);
   });
 
 function setStatus(text: string, isError = false): void {
@@ -24,7 +24,7 @@ function setStatus(text: string, isError = false): void {
 
 function parse(file: File): void {
   if (!file.name.toLowerCase().endsWith('.lsv')) {
-    setStatus(`That doesn't look like a BG3 save — expected a .lsv file, got “${file.name}”.`, true);
+    setStatus(`That doesn't look like a BG3 save: expected a .lsv file, got “${file.name}”.`, true);
     return;
   }
   setStatus(`Reading ${file.name}…`);
@@ -114,13 +114,13 @@ const REGION_LABELS: Record<string, string> = {
 
 const EQUIPMENT_NOTES: Record<string, string> = {
   'no-character-node':
-    'No inventory found for this character — usually a summon, or a companion waiting on another level.',
-  'no-items': 'No items attributed — the character may be off the current level.',
+    'No inventory found for this character. Usually a summon, or a companion waiting on another level.',
+  'no-items': 'No items attributed; the character may be off the current level.',
 };
 
 const SPELLS_NOTES: Record<string, string> = {
   'ambiguous-build':
-    'Spell book ambiguous — another party member has an identical class build, and the save does not name spell-book owners.',
+    'Spell book ambiguous: another party member has an identical class build, and the save does not name spell-book owners.',
   'not-found': 'No spell book found in this save.',
 };
 
@@ -214,7 +214,7 @@ function renderCharacter(c: CharacterReport, index: number): string {
   const classes = (c.classes as { Main?: string; Sub?: string }[])
     .map((cl) => {
       const main = camelSplit(cl.Main ?? '');
-      return cl.Sub ? `${main} — ${camelSplit(cl.Sub)}` : main;
+      return cl.Sub ? `${main} / ${camelSplit(cl.Sub)}` : main;
     })
     .join('; ');
   const xp = c.xp !== null ? ` · ${c.xp.toLocaleString('en-GB')} XP` : '';
@@ -248,7 +248,7 @@ function renderCharacter(c: CharacterReport, index: number): string {
     : '';
 
   const undetermined = c.undetermined.length
-    ? `<h4 class="sect-head">Worn or carried — undetermined <span class="count">${c.undetermined.length}</span></h4>
+    ? `<h4 class="sect-head">Worn or carried (undetermined) <span class="count">${c.undetermined.length}</span></h4>
        <ul class="items">${c.undetermined.map((it) => `<li>${itemLabel(it)}</li>`).join('')}</ul>
        <p class="undet-note">The save's equipment signals conflict for these items; they are on the character either way.</p>`
     : '';
@@ -286,16 +286,16 @@ worker.onmessage = (ev: MessageEvent) => {
     | { kind: 'error'; message: string };
   if (msg.kind === 'error') {
     const detail = msg.message.replace(/^Error:\s*/, '').replace(/\s*\([^)]*\)\s*$/, '');
-    setStatus(`Couldn't read that file — ${detail}. Is it a BG3 .lsv save?`, true);
+    setStatus(`Couldn't read that file (${detail}). Is it a BG3 .lsv save?`, true);
     return;
   }
   const r = msg.report;
   const time = msg.ms < 1000 ? `${msg.ms} ms` : `${(msg.ms / 1000).toFixed(1)} s`;
-  setStatus(`Parsed ${r.source} in ${time} — nothing left your machine.`);
+  setStatus(`Parsed ${r.source} in ${time}. Nothing left your machine.`);
 
   const namesNote = r.names_resolved
     ? ''
-    : '<p class="names-note">Display names unavailable — items and spells are shown by their internal names.</p>';
+    : '<p class="names-note">Display names unavailable; items and spells are shown by their internal names.</p>';
 
   reportEl.innerHTML =
     renderSaveHead(r.save_info, r.source) +
