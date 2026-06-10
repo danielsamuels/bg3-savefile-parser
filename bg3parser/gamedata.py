@@ -77,11 +77,11 @@ CLASS_UUID_NAMES = {
 
 # Root-template _merged.lsf files, in load order (later overrides earlier).
 ROOT_TEMPLATE_FILES = [
-    ('Shared.pak',  'Public/Shared/RootTemplates/_merged.lsf'),
-    ('Shared.pak',  'Public/SharedDev/RootTemplates/_merged.lsf'),
-    ('Gustav.pak',  'Public/GustavDev/RootTemplates/_merged.lsf'),
-    ('Gustav.pak',  'Public/Gustav/RootTemplates/_merged.lsf'),
-    ('Gustav.pak',  'Public/Honour/RootTemplates/_merged.lsf'),
+    ('Shared.pak', 'Public/Shared/RootTemplates/_merged.lsf'),
+    ('Shared.pak', 'Public/SharedDev/RootTemplates/_merged.lsf'),
+    ('Gustav.pak', 'Public/GustavDev/RootTemplates/_merged.lsf'),
+    ('Gustav.pak', 'Public/Gustav/RootTemplates/_merged.lsf'),
+    ('Gustav.pak', 'Public/Honour/RootTemplates/_merged.lsf'),
     ('GustavX.pak', 'Public/GustavX/RootTemplates/_merged.lsf'),
 ]
 
@@ -128,7 +128,7 @@ def parse_loca(blob: bytes) -> dict[str, str]:
     pos = 12
     entries = []
     for _ in range(num):
-        key = blob[pos:pos + 64].split(b'\x00')[0].decode('latin1')
+        key = blob[pos : pos + 64].split(b'\x00')[0].decode('latin1')
         pos += 64
         pos += 2  # version (uint16)
         length = struct.unpack_from('<I', blob, pos)[0]
@@ -137,7 +137,7 @@ def parse_loca(blob: bytes) -> dict[str, str]:
     out = {}
     tp = texts_off
     for key, length in entries:
-        out[key] = blob[tp:tp + length - 1].decode('utf-8', 'replace').strip()
+        out[key] = blob[tp : tp + length - 1].decode('utf-8', 'replace').strip()
         tp += length
     return out
 
@@ -164,8 +164,13 @@ def cache_path(data_dir: str) -> str:
 def build_displayname_maps(
     data_dir: str,
 ) -> tuple[
-    dict[str, str], dict[str, str], dict[str, str],
-    frozenset[str], dict[str, str], frozenset[str], frozenset[str],
+    dict[str, str],
+    dict[str, str],
+    dict[str, str],
+    frozenset[str],
+    dict[str, str],
+    frozenset[str],
+    frozenset[str],
 ]:
     """Build display-name and item-stat maps from installed game data.
 
@@ -193,8 +198,8 @@ def build_displayname_maps(
 
     handle_to_text = parse_loca(lspk_extract(os.path.join(data_dir, LOCA_PAK), LOCA_FILE))
 
-    guid_handle: dict[str, str] = {}   # template GUID -> own DisplayName handle ('' if none)
-    guid_parent: dict[str, str] = {}   # template GUID -> ParentTemplateId
+    guid_handle: dict[str, str] = {}  # template GUID -> own DisplayName handle ('' if none)
+    guid_parent: dict[str, str] = {}  # template GUID -> ParentTemplateId
     stats_guids: dict[str, list[str]] = {}  # stats name -> template GUIDs, in file order
     for pak, name in ROOT_TEMPLATE_FILES:
         try:
@@ -336,18 +341,18 @@ def build_displayname_maps(
                     name = bm.group(1)
                     start = bm.end()
                     nb = re.search(r'^new entry', text[start:], re.MULTILINE)
-                    block = text[start: start + (nb.start() if nb else len(text))]
-                    type_m  = re.search(r'^type "([^"]+)"',                  block, re.MULTILINE)
-                    using_m = re.search(r'^using "([^"]+)"',                  block, re.MULTILINE)
-                    slot_m  = re.search(r'^data "Slot" "([^"]+)"',            block, re.MULTILINE)
-                    wp_m    = re.search(r'^data "Weapon Properties" "([^"]+)"', block, re.MULTILINE)
+                    block = text[start : start + (nb.start() if nb else len(text))]
+                    type_m = re.search(r'^type "([^"]+)"', block, re.MULTILINE)
+                    using_m = re.search(r'^using "([^"]+)"', block, re.MULTILINE)
+                    slot_m = re.search(r'^data "Slot" "([^"]+)"', block, re.MULTILINE)
+                    wp_m = re.search(r'^data "Weapon Properties" "([^"]+)"', block, re.MULTILINE)
                     new_using = using_m.group(1) if using_m else None
                     prev = stat_raw.get(name)
                     if prev is None:
                         stat_raw[name] = {
-                            'type':        type_m.group(1) if type_m else None,
-                            'using':       new_using,
-                            'slot':        slot_m.group(1) if slot_m else None,
+                            'type': type_m.group(1) if type_m else None,
+                            'using': new_using,
+                            'slot': slot_m.group(1) if slot_m else None,
                             'weapon_props': wp_m.group(1) if wp_m else None,
                         }
                     else:
@@ -398,28 +403,32 @@ def build_displayname_maps(
             return resolve_weapon_props(parent, depth + 1)
         return None
 
-    two_handed_stats_list = [
-        n for n in stat_raw
-        if 'Twohanded' in (resolve_weapon_props(n) or '')
-    ]
+    two_handed_stats_list = [n for n in stat_raw if 'Twohanded' in (resolve_weapon_props(n) or '')]
 
     try:
         with open(cache, 'w', encoding='utf-8') as fh:
-            json.dump({
-                'guid': guid_name,
-                'stats': stats_name,
-                'spells': spell_name,
-                'object_types': object_type_stats_list,
-                'stats_slots': stats_to_slot,
-                'two_handed': two_handed_stats_list,
-                'sub_spells': sub_spell_list,
-            }, fh)
+            json.dump(
+                {
+                    'guid': guid_name,
+                    'stats': stats_name,
+                    'spells': spell_name,
+                    'object_types': object_type_stats_list,
+                    'stats_slots': stats_to_slot,
+                    'two_handed': two_handed_stats_list,
+                    'sub_spells': sub_spell_list,
+                },
+                fh,
+            )
     except OSError:
         pass
     return (
-        guid_name, stats_name, spell_name,
-        frozenset(object_type_stats_list), stats_to_slot,
-        frozenset(two_handed_stats_list), frozenset(sub_spell_list),
+        guid_name,
+        stats_name,
+        spell_name,
+        frozenset(object_type_stats_list),
+        stats_to_slot,
+        frozenset(two_handed_stats_list),
+        frozenset(sub_spell_list),
     )
 
 
@@ -428,21 +437,21 @@ class DisplayNames:
 
     def __init__(
         self,
-        guid_name:         dict[str, str],
-        stats_name:        dict[str, str],
-        spell_name:        dict[str, str]   | None = None,
-        object_type_stats: frozenset[str]   | None = None,
-        stats_to_slot:     dict[str, str]   | None = None,
-        two_handed_stats:  frozenset[str]   | None = None,
-        sub_spells:        frozenset[str]   | None = None,
+        guid_name: dict[str, str],
+        stats_name: dict[str, str],
+        spell_name: dict[str, str] | None = None,
+        object_type_stats: frozenset[str] | None = None,
+        stats_to_slot: dict[str, str] | None = None,
+        two_handed_stats: frozenset[str] | None = None,
+        sub_spells: frozenset[str] | None = None,
     ):
-        self._guid   = guid_name
-        self._stats  = stats_name
+        self._guid = guid_name
+        self._stats = stats_name
         self._spells = spell_name or {}
         self.object_type_stats: frozenset[str] = object_type_stats or frozenset()
-        self.stats_to_slot:     dict[str, str] = stats_to_slot     or {}
-        self.two_handed_stats:  frozenset[str] = two_handed_stats  or frozenset()
-        self.sub_spells:        frozenset[str] = sub_spells        or frozenset()
+        self.stats_to_slot: dict[str, str] = stats_to_slot or {}
+        self.two_handed_stats: frozenset[str] = two_handed_stats or frozenset()
+        self.sub_spells: frozenset[str] = sub_spells or frozenset()
         self.verbose = False  # set to True to append (INTERNAL_NAME) after display names
 
     @classmethod

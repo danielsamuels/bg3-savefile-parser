@@ -20,6 +20,7 @@ Or import it for spelunking (see FORMAT.md §6 for the structures):
     m.locate(0x15e0b8)                         # offset -> (component, row, byte)
     m.item_entity_rows('Wyll', 'UND_SwordInStone')
 """
+
 import struct
 import sys
 
@@ -60,7 +61,7 @@ class Lsmf:
     def row_bytes(self, name: str, row: int) -> bytes:
         """Raw bytes of one component data row."""
         elem, _rows, off, _owners = self.index[name]
-        return self.blob[off + row * elem: off + (row + 1) * elem]
+        return self.blob[off + row * elem : off + (row + 1) * elem]
 
     def rows_of_entity(self, name: str, entity_row: int) -> list[int]:
         """Data-row indices in component `name` owned by the given entity row
@@ -79,7 +80,7 @@ class Lsmf:
     def entity_guid(self, row: int) -> str:
         """Canonical GUID string stored in an EntityId row."""
         _elem, _rows, off, _owners = self.index['core.v0.EntityId']
-        return lsf.guid_le_str(self.blob[off + row * 16: off + row * 16 + 16])
+        return lsf.guid_le_str(self.blob[off + row * 16 : off + row * 16 + 16])
 
     def item_entity_rows(self, char_name: str, stats: str) -> list[int]:
         """EntityId rows for a specific character's item instance."""
@@ -105,8 +106,7 @@ def main() -> None:
     m = Lsmf(sys.argv[1] if len(sys.argv) > 1 else '')
     print(f'{m.save}: blob={len(m.blob)} bytes, {len(m.index)} components')
     print(f'{"elem":>5} {"rows":>7} {"ownerlist":>9} {"data_off":>10}  name')
-    for name, (elem, rows, off, owners) in sorted(
-            m.index.items(), key=lambda kv: kv[1][2]):
+    for name, (elem, rows, off, owners) in sorted(m.index.items(), key=lambda kv: kv[1][2]):
         print(f'{elem:5d} {rows:7d} {len(owners):9d} {off:#10x}  {name}')
 
 

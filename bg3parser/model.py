@@ -44,32 +44,44 @@ from .party import (
 
 # Basic actions present in every character's spell book; folded out of the
 # default spell list by the text view.
-COMMON_ACTION_SPELLS = frozenset((
-    'Shout_Dash', 'Shout_Dash_NPC', 'Shout_Disengage', 'Shout_Hide',
-    'Target_Shove', 'Target_Help', 'Target_Dip', 'Throw_Throw',
-    'Throw_ImprovisedWeapon', 'Projectile_Jump',
-    'Target_MainHandAttack', 'Projectile_MainHandAttack',
-    'Target_OffhandAttack', 'Projectile_OffhandAttack',
-    'Target_UnarmedAttack',
-))
+COMMON_ACTION_SPELLS = frozenset(
+    (
+        'Shout_Dash',
+        'Shout_Dash_NPC',
+        'Shout_Disengage',
+        'Shout_Hide',
+        'Target_Shove',
+        'Target_Help',
+        'Target_Dip',
+        'Throw_Throw',
+        'Throw_ImprovisedWeapon',
+        'Projectile_Jump',
+        'Target_MainHandAttack',
+        'Projectile_MainHandAttack',
+        'Target_OffhandAttack',
+        'Projectile_OffhandAttack',
+        'Target_UnarmedAttack',
+    )
+)
 
 
 @dataclass
 class ItemRef:
     """One item: resolved display name (None if unresolved) + internal IDs."""
+
     stats: str
     template_guid: str
     name: str | None = None
-    slot: str | None = None        # equipment slot incl. 'Ring 2'; equipped only
-    slot_rank: tuple = ()          # view ordering: (panel position, ring number)
-    category: str = 'misc'         # weapon | armour | consumable | book | misc
+    slot: str | None = None  # equipment slot incl. 'Ring 2'; equipped only
+    slot_rank: tuple = ()  # view ordering: (panel position, ring number)
+    category: str = 'misc'  # weapon | armour | consumable | book | misc
 
 
 @dataclass
 class SpellRef:
     id: str
     name: str | None = None
-    category: str = 'spell'        # 'spell' | 'sub-spell' | 'basic-action'
+    category: str = 'spell'  # 'spell' | 'sub-spell' | 'basic-action'
 
 
 @dataclass
@@ -91,11 +103,11 @@ class CharacterReport:
     xp: int | None
     location: str
     spells: list[SpellRef] | None = None
-    spells_note: str | None = None         # 'ambiguous-build' | 'not-found'
+    spells_note: str | None = None  # 'ambiguous-build' | 'not-found'
     equipped: list[ItemRef] = field(default_factory=list)
     undetermined: list[ItemRef] = field(default_factory=list)
     carried: list[ItemRef] = field(default_factory=list)
-    equipment_note: str | None = None      # 'no-character-node' | 'no-items'
+    equipment_note: str | None = None  # 'no-character-node' | 'no-items'
     inspect: list[InspectEntry] | None = None
 
 
@@ -120,21 +132,31 @@ class SaveReport:
 
 
 ITEM_CATEGORY_BY_PREFIX = {
-    'WPN': '[weapon/magic]', 'MAG': '[weapon/magic]',
+    'WPN': '[weapon/magic]',
+    'MAG': '[weapon/magic]',
     'ARM': '[armour/accessory]',
     'ALCH': '[alchemy]',
-    'BOOK': '[book/scroll]', 'SCR': '[book/scroll]',
-    'FOOD': '[consumable]', 'CONS': '[consumable]',
-    'LOOT': '[misc/loot]', 'MISC': '[misc/loot]', 'OBJ': '[misc/loot]',
+    'BOOK': '[book/scroll]',
+    'SCR': '[book/scroll]',
+    'FOOD': '[consumable]',
+    'CONS': '[consumable]',
+    'LOOT': '[misc/loot]',
+    'MISC': '[misc/loot]',
+    'OBJ': '[misc/loot]',
     'KEY': '[misc/loot]',
 }
 
 # Fallback when an item has no stat-file slot (or no game data is installed).
 ITEM_GROUP_BY_PREFIX = {
-    'WPN': 'weapon', 'MAG': 'weapon',
-    'ARM': 'armour', 'UNI': 'armour',
-    'ALCH': 'consumable', 'CONS': 'consumable', 'FOOD': 'consumable',
-    'BOOK': 'book', 'SCR': 'book',
+    'WPN': 'weapon',
+    'MAG': 'weapon',
+    'ARM': 'armour',
+    'UNI': 'armour',
+    'ALCH': 'consumable',
+    'CONS': 'consumable',
+    'FOOD': 'consumable',
+    'BOOK': 'book',
+    'SCR': 'book',
 }
 
 
@@ -156,23 +178,40 @@ def item_category(stats: str, dn: DisplayNames) -> str:
             return 'book'
     return ITEM_GROUP_BY_PREFIX.get(parts[0], 'misc')
 
+
 # Display order for equipped items, mirroring the in-game panel.
-SLOT_DISPLAY_ORDER: dict[str, int] = {name: i for i, name in enumerate((
-    'Helmet', 'Cloak', 'Breast', 'Gloves', 'Boots', 'Amulet', 'Ring',
-    'Melee Main Weapon', 'Melee Offhand Weapon',
-    'Ranged Main Weapon', 'Ranged Offhand Weapon',
-    'MusicalInstrument', 'Underwear', 'VanityBody', 'VanityBoots',
-))}
+SLOT_DISPLAY_ORDER: dict[str, int] = {
+    name: i
+    for i, name in enumerate(
+        (
+            'Helmet',
+            'Cloak',
+            'Breast',
+            'Gloves',
+            'Boots',
+            'Amulet',
+            'Ring',
+            'Melee Main Weapon',
+            'Melee Offhand Weapon',
+            'Ranged Main Weapon',
+            'Ranged Offhand Weapon',
+            'MusicalInstrument',
+            'Underwear',
+            'VanityBody',
+            'VanityBoots',
+        )
+    )
+}
 
 
-def gather_report(save_path: str, frames: dict[str, bytes] | None = None,
-                  opts=None) -> SaveReport:
+def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=None) -> SaveReport:
     """Run the extraction pipeline and return the structured report model.
 
     `opts` gates the sections with real gathering cost (--save-info, --quests,
     --all-items, --inspect); pure presentation flags (--verbose, --carried,
     --all-spells, --limits) are handled by the views.
     """
+
     def opt(name: str) -> bool:
         return bool(getattr(opts, name.replace('-', '_'), False)) if opts is not None else False
 
@@ -182,9 +221,13 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None,
     dn = DisplayNames.load()
 
     def item_ref(stats: str, guid: str, **kw) -> ItemRef:
-        return ItemRef(stats=stats, template_guid=guid,
-                       name=dn.name_for(stats, guid),
-                       category=item_category(stats, dn), **kw)
+        return ItemRef(
+            stats=stats,
+            template_guid=guid,
+            name=dn.name_for(stats, guid),
+            category=item_category(stats, dn),
+            **kw,
+        )
 
     report = SaveReport(source=save_path, names_resolved=dn.available)
 
@@ -255,9 +298,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None,
         entity_classes = parse_lsmf_classes(lsmf_blob)
 
     def build_key(char_info: dict) -> tuple | None:
-        want = sorted(
-            (c.get('Main', ''), c.get('Sub', '')) for c in char_info.get('Classes', [])
-        )
+        want = sorted((c.get('Main', ''), c.get('Sub', '')) for c in char_info.get('Classes', []))
         level = char_info.get('Level')
         if not want or level is None:
             return None
@@ -278,8 +319,10 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None,
             if ent not in spellbooks:
                 continue
             got = sorted(
-                (CLASS_UUID_NAMES.get(cg, ''),
-                 CLASS_UUID_NAMES.get(sg, '') if sg != NULL_UUID else '')
+                (
+                    CLASS_UUID_NAMES.get(cg, ''),
+                    CLASS_UUID_NAMES.get(sg, '') if sg != NULL_UUID else '',
+                )
                 for cg, sg, _lvl in classes
             )
             if got == want and sum(lvl for _, _, lvl in classes) == level:
@@ -289,9 +332,14 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None,
         return spellbooks[max(candidates, key=lambda e: len(spellbooks[e]))]
 
     lsmf_ecs = parse_lsmf_membership(lsmf_blob) if lsmf_blob else None
-    comp_rows = parse_lsmf_component_rows(
-        lsmf_blob, (OWNED_AS_LOOT_COMP, WIELDED_COMP, GRAVITY_DISABLED_COMP),
-    ) if lsmf_blob else {}
+    comp_rows = (
+        parse_lsmf_component_rows(
+            lsmf_blob,
+            (OWNED_AS_LOOT_COMP, WIELDED_COMP, GRAVITY_DISABLED_COMP),
+        )
+        if lsmf_blob
+        else {}
+    )
     lsmf_owned_loot = comp_rows.get(OWNED_AS_LOOT_COMP)
     lsmf_wielded = comp_rows.get(WIELDED_COMP)
     lsmf_gravity_off = comp_rows.get(GRAVITY_DISABLED_COMP)
@@ -375,24 +423,26 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None,
                 for s, f in matches:
                     eg = char_stats_to_entity.get(s, '')
                     rows = set(guid_to_rows_i.get(eg, []))
-                    char.inspect.append(InspectEntry(
-                        stats=s,
-                        eq_bit=bool(isinstance(f, int) and f & EQUIPPED_FLAG_BIT),
-                        flags=hex(f) if isinstance(f, int) else repr(f),
-                        membership_count=max(
-                            (membership_count_i.get(r, 0) for r in rows), default=0),
-                        has_status=s in status_equipped,
-                        components=sorted(
-                            n for n, rs in all_comp_rows.items() if rows & rs),
-                    ))
+                    char.inspect.append(
+                        InspectEntry(
+                            stats=s,
+                            eq_bit=bool(isinstance(f, int) and f & EQUIPPED_FLAG_BIT),
+                            flags=hex(f) if isinstance(f, int) else repr(f),
+                            membership_count=max(
+                                (membership_count_i.get(r, 0) for r in rows), default=0
+                            ),
+                            has_status=s in status_equipped,
+                            components=sorted(n for n, rs in all_comp_rows.items() if rows & rs),
+                        )
+                    )
 
         if not attributed:
-            char.equipment_note = (
-                'no-character-node' if char_ni is None else 'no-items')
+            char.equipment_note = 'no-character-node' if char_ni is None else 'no-items'
             continue
 
         flags_equipped, carried, undetermined = split_equipped_carried(
-            attributed, status_equipped,
+            attributed,
+            status_equipped,
             object_type_stats=dn.object_type_stats or None,
         )
 
@@ -400,15 +450,22 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None,
         # items, anchored on the uncontested LSF-signalled ones.
         csd_cluster = None
         if dn.stats_to_slot and lsmf_ecs is not None and lsmf_all_csd:
-            csd_cluster = equipment_cluster(cluster_anchor_rows(
-                flags_equipped, dn.stats_to_slot, char_stats_to_entity,
-                lsmf_ecs[0], lsmf_all_csd,
-            ))
+            csd_cluster = equipment_cluster(
+                cluster_anchor_rows(
+                    flags_equipped,
+                    dn.stats_to_slot,
+                    char_stats_to_entity,
+                    lsmf_ecs[0],
+                    lsmf_all_csd,
+                )
+            )
 
         ecs_eq: list[tuple] = []
         if undetermined and lsmf_ecs is not None:
             ecs_eq, ecs_ca, undetermined = ecs_resolve_equipped(
-                undetermined, template_to_instances, *lsmf_ecs,
+                undetermined,
+                template_to_instances,
+                *lsmf_ecs,
                 stats_to_entity=char_stats_to_entity,
                 wielded_rows=lsmf_wielded,
                 csd_cluster=csd_cluster,
@@ -419,9 +476,12 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None,
         if dn.stats_to_slot and lsmf_ecs is not None:
             guid_to_rows, membership_count = lsmf_ecs
             flags_equipped, ecs_eq, demoted = resolve_slot_conflicts(
-                flags_equipped, ecs_eq,
-                dn.stats_to_slot, char_stats_to_entity,
-                guid_to_rows, membership_count,
+                flags_equipped,
+                ecs_eq,
+                dn.stats_to_slot,
+                char_stats_to_entity,
+                guid_to_rows,
+                membership_count,
                 owned_as_loot_rows=lsmf_owned_loot,
                 two_handed_stats=dn.two_handed_stats or None,
                 status_equipped=frozenset(status_equipped) if status_equipped else None,
@@ -440,8 +500,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None,
         def container_rank(stats: str, s2e=char_stats_to_entity) -> int:
             eg = s2e.get(stats, '')
             rows = lsmf_ecs[0].get(eg, []) if lsmf_ecs else []
-            return min((lsmf_csd_pos[r] for r in rows if r in lsmf_csd_pos),
-                       default=1 << 30)
+            return min((lsmf_csd_pos[r] for r in rows if r in lsmf_csd_pos), default=1 << 30)
 
         ring_slot_no: dict[str, int] = {}
         rings = [s for s, _g in equipped if dn.stats_to_slot.get(s) == 'Ring']
@@ -452,8 +511,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None,
         # Two one-handed weapons in "Melee Main Weapon" are a dual-wield pair;
         # as with rings, the earlier ContainerSlotData row is the main hand.
         offhand_weapons: set[str] = set()
-        melee = [s for s, _g in equipped
-                 if dn.stats_to_slot.get(s) == 'Melee Main Weapon']
+        melee = [s for s, _g in equipped if dn.stats_to_slot.get(s) == 'Melee Main Weapon']
         if len(melee) == 2:
             offhand_weapons.add(max(melee, key=container_rank))
 
@@ -464,15 +522,13 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None,
             rank = (SLOT_DISPLAY_ORDER.get(slot, 99), ring_slot_no.get(s, 0))
             if ring_slot_no.get(s, 0) == 2:
                 slot = 'Ring 2'
-            char.equipped.append(
-                item_ref(s, guid, slot=slot or None, slot_rank=rank))
+            char.equipped.append(item_ref(s, guid, slot=slot or None, slot_rank=rank))
         char.undetermined = [item_ref(s, g) for s, g in undetermined]
         char.carried = [item_ref(s, g) for s, g in carried]
 
     # ---- Full level item pool (--all-items) --------------------------------
     if opt('all-items'):
-        inv = [item for lc_nodes in all_lc_node_lists
-               for item in collect_inventory_items(lc_nodes)]
+        inv = [item for lc_nodes in all_lc_node_lists for item in collect_inventory_items(lc_nodes)]
         counts: dict[str, int] = {}
         inv_guid: dict[str, str] = {}
         for item in inv:
@@ -483,13 +539,15 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None,
         entries = []
         for stats_name, count in sorted(counts.items()):
             guid = inv_guid.get(stats_name, '')
-            entries.append(LevelItemEntry(
-                stats=stats_name,
-                template_guid=guid,
-                name=dn.name_for(stats_name, guid),
-                count=count,
-                category=ITEM_CATEGORY_BY_PREFIX.get(stats_name.split('_')[0], ''),
-            ))
+            entries.append(
+                LevelItemEntry(
+                    stats=stats_name,
+                    template_guid=guid,
+                    name=dn.name_for(stats_name, guid),
+                    count=count,
+                    category=ITEM_CATEGORY_BY_PREFIX.get(stats_name.split('_')[0], ''),
+                )
+            )
         report.level_items = {
             'total': len(inv),
             'unique': len(counts),

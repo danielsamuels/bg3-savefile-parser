@@ -57,7 +57,7 @@ def scan_lsmf_blob(blob: bytes) -> tuple | None:
         entry_count = struct.unpack_from('<H', blob, 36)[0]
         if not (0 < names_off < L and 0 < entry_count < 2000):
             return None
-        names_sec = blob[names_off:names_off + names_size]
+        names_sec = blob[names_off : names_off + names_size]
         desc_base = names_off + desc_table_rel
 
         comp_descs: list[tuple[str, int, int, int]] = []
@@ -72,7 +72,7 @@ def scan_lsmf_blob(blob: bytes) -> tuple | None:
             rows_by_comp[i] = row_count
             name = ''
             if 0 < name_len < 200:
-                name = names_sec[name_off:name_off + name_len].decode('utf-8', 'replace')
+                name = names_sec[name_off : name_off + name_len].decode('utf-8', 'replace')
             comp_descs.append((name, elem_size, row_count, data_offset))
 
         # Ownerlist region: each 32-byte record is {start, end, comp_idx, entity_count}.
@@ -82,9 +82,15 @@ def scan_lsmf_blob(blob: bytes) -> tuple | None:
 
         def valid_record(p: int):
             start, end, comp, ec = unpack_rec(blob, p)
-            if (comp < entry_count and ec > 0 and rows_by_comp.get(comp, -1) == ec
-                    and end > start and (end - start) == ec * 4
-                    and end <= L and start < L):
+            if (
+                comp < entry_count
+                and ec > 0
+                and rows_by_comp.get(comp, -1) == ec
+                and end > start
+                and (end - start) == ec * 4
+                and end <= L
+                and start < L
+            ):
                 return comp, start, ec
             return None
 
@@ -94,14 +100,18 @@ def scan_lsmf_blob(blob: bytes) -> tuple | None:
         # entry_count < 2000, so both must be zero — that single-compare
         # prefilter rejects almost every offset before the full validation.
         valid_pos: list[int] = []
-        words = memoryview(blob)[:L - L % 4].cast('I')
+        words = memoryview(blob)[: L - L % 4].cast('I')
         rows_for = rows_by_comp.get
         for i in range((L - 32) // 4 + 1):
             if words[i + 5] == 0 and words[i + 7] == 0:
                 comp = words[i + 4]
                 ec = words[i + 6]
-                if (comp < entry_count and ec > 0 and rows_for(comp, -1) == ec
-                        and valid_record(i * 4) is not None):
+                if (
+                    comp < entry_count
+                    and ec > 0
+                    and rows_for(comp, -1) == ec
+                    and valid_record(i * 4) is not None
+                ):
                     valid_pos.append(i * 4)
 
         # Identify the real ownerlist table as the densest chain of valid positions
@@ -168,7 +178,7 @@ def parse_lsmf_membership(
     guid_to_rows: dict[str, list[int]] = {}
     for i in range(eid_rows):
         off = eid_off + i * 16
-        g = guid_le_str(blob[off:off + 16])
+        g = guid_le_str(blob[off : off + 16])
         guid_to_rows.setdefault(g, []).append(i)
 
     membership_count: Counter[int] = Counter()
@@ -203,8 +213,7 @@ def parse_lsmf_component_rows(
             name = comp_descs[comp][0] if comp < len(comp_descs) else ''
             if not name or (comp_names is not None and name not in result):
                 continue
-            result.setdefault(name, set()).update(
-                struct.unpack_from(f'<{ec}I', blob, start))
+            result.setdefault(name, set()).update(struct.unpack_from(f'<{ec}I', blob, start))
     except Exception:
         return {name: frozenset() for name in comp_names or ()}
 
@@ -274,7 +283,7 @@ def parse_lsmf_spellbooks(blob: bytes) -> dict[int, list[str]]:
             p0 = ptr + LSMF_HEAP_BASE
             if not (0 < ln <= 128 and 0 < p0 <= L - ln):
                 continue
-            s = blob[p0:p0 + ln]
+            s = blob[p0 : p0 + ln]
             if all(0x20 <= ch < 0x7F for ch in s):
                 return s.decode('ascii')
         return None
@@ -327,8 +336,8 @@ def parse_lsmf_classes(blob: bytes) -> dict[int, tuple]:
         entries = []
         for i in range(size // 40):
             base = p0 + i * 40
-            cls = guid_le_str(blob[base:base + 16])
-            sub = guid_le_str(blob[base + 16:base + 32])
+            cls = guid_le_str(blob[base : base + 16])
+            sub = guid_le_str(blob[base + 16 : base + 32])
             lvl = struct.unpack_from('<Q', blob, base + 32)[0]
             if lvl > 30:
                 entries = []

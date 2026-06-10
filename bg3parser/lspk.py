@@ -14,6 +14,7 @@ from .lsf import decomp_frame, parse_lsof
 # LSPK / LSOF low-level helpers
 # ---------------------------------------------------------------------------
 
+
 def extract_frames(path: str) -> dict[str, bytes]:
     """Read a .lsv save file and return its named frames.
 
@@ -29,7 +30,7 @@ def extract_frames(path: str) -> dict[str, bytes]:
         data = fh.read()
     flist = lspk_filelist(io.BytesIO(data))
     sorted_entries = sorted(flist.items(), key=lambda kv: kv[1][0])
-    raw_frames = [data[off:off + sod] for _, (off, _p, _f, sod, _u) in sorted_entries]
+    raw_frames = [data[off : off + sod] for _, (off, _p, _f, sod, _u) in sorted_entries]
     names = [n for n, _ in sorted_entries]
     return normalize_named_frames(raw_frames, names)
 
@@ -54,6 +55,7 @@ def normalize_named_frames(raw_frames: list[bytes], names: list[str]) -> dict[st
 # SaveInfo.json
 # ---------------------------------------------------------------------------
 
+
 def parse_info_json(frames: dict[str, bytes]) -> dict:
     raw = decomp_frame(frames['SaveInfo.json'])
     return json.loads(raw.decode('utf-8'))
@@ -62,6 +64,7 @@ def parse_info_json(frames: dict[str, bytes]) -> dict:
 # ---------------------------------------------------------------------------
 # MetaData  (meta.lsf in the LSPK)
 # ---------------------------------------------------------------------------
+
 
 def parse_metadata(frames: dict[str, bytes]) -> dict:
     """Parse meta.lsf (LSOF MetaData) and return a dict of useful fields.
@@ -102,9 +105,22 @@ def parse_metadata(frames: dict[str, bytes]) -> dict:
     # from entity GUIDs and cannot be used as a canonical mod identifier.
     # The Folder string (e.g. "ImpUI_26922ba9-6018-5252-075d-7ff2ba6ed879")
     # embeds the canonical mod UUID for user mods; use Name+Folder for identity.
-    BASE_MODULES = {'GustavX', 'Shared', 'SharedDev', 'Gustav', 'Halflings',
-                    'Origins', 'Honour', 'DiceSet01', 'DiceSet02', 'DiceSet03',
-                    'DiceSet04', 'DiceSet05', 'DiceSet06', 'DiceSet07'}
+    BASE_MODULES = {
+        'GustavX',
+        'Shared',
+        'SharedDev',
+        'Gustav',
+        'Halflings',
+        'Origins',
+        'Honour',
+        'DiceSet01',
+        'DiceSet02',
+        'DiceSet03',
+        'DiceSet04',
+        'DiceSet05',
+        'DiceSet06',
+        'DiceSet07',
+    }
 
     all_mods: list[dict] = []
     for nd in nodes:
@@ -117,22 +133,23 @@ def parse_metadata(frames: dict[str, bytes]) -> dict:
     user_mods = [m for m in all_mods if m['name'] not in BASE_MODULES]
 
     return {
-        'save_time':           meta_attrs.get('SaveTime'),
-        'save_game_id':        meta_attrs.get('SaveGameID'),
-        'save_game_type':      meta_attrs.get('SaveGameType'),
-        'game_id':             meta_attrs.get('GameID', ''),
-        'game_session_id':     meta_attrs.get('GameSessionID', ''),
-        'leader_name':         meta_attrs.get('LeaderName', ''),
-        'seed':                meta_attrs.get('Seed'),
-        'modded':              bool(meta_attrs.get('Modded', False)),
+        'save_time': meta_attrs.get('SaveTime'),
+        'save_game_id': meta_attrs.get('SaveGameID'),
+        'save_game_type': meta_attrs.get('SaveGameType'),
+        'game_id': meta_attrs.get('GameID', ''),
+        'game_session_id': meta_attrs.get('GameSessionID', ''),
+        'leader_name': meta_attrs.get('LeaderName', ''),
+        'seed': meta_attrs.get('Seed'),
+        'modded': bool(meta_attrs.get('Modded', False)),
         'has_unofficial_mods': bool(meta_attrs.get('HasUnofficialMods', False)),
-        'user_mods':           user_mods,
-        'all_mods':            all_mods,
+        'user_mods': user_mods,
+        'all_mods': all_mods,
     }
 
 
 # Thumbnail extractor  (thumbnail / *.WebP in the LSPK)
 # ---------------------------------------------------------------------------
+
 
 def extract_thumbnail(frames: dict[str, bytes], output_path: str) -> tuple[int, int] | None:
     """Decompress the load-screen thumbnail and write it to output_path.
@@ -158,21 +175,24 @@ def extract_thumbnail(frames: dict[str, bytes], output_path: str) -> tuple[int, 
     # Walk RIFF chunks to find the first VP8x / VP8L / VP8 chunk
     pos = 12
     while pos + 8 <= len(data):
-        chunk_id = data[pos:pos + 4]
+        chunk_id = data[pos : pos + 4]
         chunk_sz = struct.unpack_from('<I', data, pos + 4)[0]
         if chunk_id == b'VP8X':
             # Extended WebP: 24-bit LE (width-1) at +12, (height-1) at +15
             if pos + 18 <= len(data):
-                w = struct.unpack_from('<I', data[pos + 12:pos + 15] + b'\x00')[0] + 1
-                h = struct.unpack_from('<I', data[pos + 15:pos + 18] + b'\x00')[0] + 1
+                w = struct.unpack_from('<I', data[pos + 12 : pos + 15] + b'\x00')[0] + 1
+                h = struct.unpack_from('<I', data[pos + 15 : pos + 18] + b'\x00')[0] + 1
                 return (w, h)
         elif chunk_id == b'VP8L':
             # Lossless WebP: signature byte 0x2F, then packed 14+14-bit dims
             if pos + 13 <= len(data) and data[pos + 8] == 0x2F:
                 v = struct.unpack_from('<I', data, pos + 9)[0]
                 return ((v & 0x3FFF) + 1, ((v >> 14) & 0x3FFF) + 1)
-        elif (chunk_id == b'VP8 ' and pos + 17 <= len(data)
-                and data[pos + 11:pos + 14] == b'\x9d\x01\x2a'):
+        elif (
+            chunk_id == b'VP8 '
+            and pos + 17 <= len(data)
+            and data[pos + 11 : pos + 14] == b'\x9d\x01\x2a'
+        ):
             # Lossy WebP: start code 9d 01 2a at byte 11 of chunk data
             w = struct.unpack_from('<H', data, pos + 14)[0] & 0x3FFF
             h = struct.unpack_from('<H', data, pos + 16)[0] & 0x3FFF
@@ -223,7 +243,7 @@ def lspk_filelist(fh) -> dict[str, tuple]:
     out = {}
     for i in range(num_files):
         b = i * LSPK_FILE_ENTRY
-        name = raw[b:b + 256].split(b'\x00')[0].decode('latin1')
+        name = raw[b : b + 256].split(b'\x00')[0].decode('latin1')
         off_lo, off_hi, part, flags, sod, unc = struct.unpack_from('<IHBBII', raw, b + 256)
         out[name] = ((off_lo | (off_hi << 32)), part, flags, sod, unc)
     return out

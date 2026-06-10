@@ -38,8 +38,8 @@ QUICKSAVE_MAIA = str(FIXTURE_DIR / 'quicksave_maia.lsv')
 SHADOWHEART_TUTORIAL = str(FIXTURE_DIR / 'autosave_shadowheart_tutorial.lsv')
 # Saves bundled by their original quicksave index, so tests can refer to the
 # in-game ground truth for that specific save.
-QUICKSAVE_292 = str(FIXTURE_DIR / 'quicksave_292.lsv')   # Karlach dual-wields
-QUICKSAVE_294 = str(FIXTURE_DIR / 'quicksave_294.lsv')   # Wyll: stale Phalar Aluve
+QUICKSAVE_292 = str(FIXTURE_DIR / 'quicksave_292.lsv')  # Karlach dual-wields
+QUICKSAVE_294 = str(FIXTURE_DIR / 'quicksave_294.lsv')  # Wyll: stale Phalar Aluve
 
 
 def build_report(save_path, opts=None):
@@ -103,9 +103,7 @@ def test_smoke_model():
     char_names = {c.name for c in model.characters}
     assert {'Maia (player)', 'Wyll', 'Karlach', 'Shadowheart'} <= char_names
     total_equipped = sum(len(c.equipped) for c in model.characters)
-    assert total_equipped >= 30, (
-        f'Expected at least 30 total equipped items, got {total_equipped}'
-    )
+    assert total_equipped >= 30, f'Expected at least 30 total equipped items, got {total_equipped}'
 
 
 def test_smoke_text_output():
@@ -210,7 +208,6 @@ EXPECTED_EQUIPPED: dict[str, set[str]] = {
 }
 
 
-
 def test_equipped_items_ground_truth():
     """
     Equipped item sets for QuickSave_242 must exactly match the validated
@@ -247,6 +244,7 @@ def test_equipped_items_ground_truth():
 # ---------------------------------------------------------------------------
 # Unit tests for pure functions (no save file required)
 # ---------------------------------------------------------------------------
+
 
 class TestFmtClass:
     """Tests for fmt_class()."""
@@ -320,6 +318,7 @@ class TestIsEquipmentType:
 # Unit tests for split_equipped_carried (object_type_stats filter)
 # ---------------------------------------------------------------------------
 
+
 class TestSplitEquippedCarried:
     """Tests for split_equipped_carried()."""
 
@@ -328,7 +327,8 @@ class TestSplitEquippedCarried:
     def test_status_equipped_wins(self):
         items = [('WPN_Sword', 0, 'g1')]
         equipped, carried, undetermined = party.split_equipped_carried(
-            items, status_equipped={'WPN_Sword'},
+            items,
+            status_equipped={'WPN_Sword'},
         )
         assert equipped == [('WPN_Sword', 'g1')]
         assert carried == []
@@ -337,14 +337,16 @@ class TestSplitEquippedCarried:
     def test_flag_bit_equipped(self):
         items = [('WPN_Sword', self.EQUIPPED_FLAG, 'g1')]
         equipped, carried, undetermined = party.split_equipped_carried(
-            items, status_equipped=set(),
+            items,
+            status_equipped=set(),
         )
         assert equipped == [('WPN_Sword', 'g1')]
 
     def test_non_equipment_always_carried(self):
         items = [('CONS_Potion', self.EQUIPPED_FLAG, 'g1')]
         equipped, carried, undetermined = party.split_equipped_carried(
-            items, status_equipped=set(),
+            items,
+            status_equipped=set(),
         )
         assert carried == [('CONS_Potion', 'g1')]
         assert equipped == []
@@ -353,7 +355,8 @@ class TestSplitEquippedCarried:
         # A FOR_DangerousBook-like item: has the Flags bit but is type Object.
         items = [('FOR_DangerousBook', self.EQUIPPED_FLAG, 'g1')]
         equipped, carried, undetermined = party.split_equipped_carried(
-            items, status_equipped=set(),
+            items,
+            status_equipped=set(),
             object_type_stats=frozenset({'FOR_DangerousBook'}),
         )
         assert carried == [('FOR_DangerousBook', 'g1')]
@@ -362,7 +365,8 @@ class TestSplitEquippedCarried:
     def test_object_type_overrides_status(self):
         items = [('UNI_CONT_PuzzleBox', 0, 'g1')]
         equipped, carried, undetermined = party.split_equipped_carried(
-            items, status_equipped={'UNI_CONT_PuzzleBox'},
+            items,
+            status_equipped={'UNI_CONT_PuzzleBox'},
             object_type_stats=frozenset({'UNI_CONT_PuzzleBox'}),
         )
         assert carried == [('UNI_CONT_PuzzleBox', 'g1')]
@@ -371,7 +375,8 @@ class TestSplitEquippedCarried:
     def test_equipment_without_signal_is_undetermined(self):
         items = [('ARM_Boots', 0, 'g1')]
         equipped, carried, undetermined = party.split_equipped_carried(
-            items, status_equipped=set(),
+            items,
+            status_equipped=set(),
         )
         assert undetermined == [('ARM_Boots', 'g1')]
         assert equipped == []
@@ -382,6 +387,7 @@ class TestSplitEquippedCarried:
 # Unit tests for resolve_slot_conflicts
 # ---------------------------------------------------------------------------
 
+
 class TestResolveSlotConflicts:
     """Tests for resolve_slot_conflicts()."""
 
@@ -390,7 +396,12 @@ class TestResolveSlotConflicts:
         ecs_eq = [('ARM_Boots', 'g2')]
         stats_to_slot = {'WPN_Sword': 'Melee Main Weapon', 'ARM_Boots': 'Boots'}
         kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
-            flags_eq, ecs_eq, stats_to_slot, {}, {}, {},
+            flags_eq,
+            ecs_eq,
+            stats_to_slot,
+            {},
+            {},
+            {},
         )
         assert set(kept_flags) == {('WPN_Sword', 'g1')}
         assert set(kept_ecs) == {('ARM_Boots', 'g2')}
@@ -402,7 +413,12 @@ class TestResolveSlotConflicts:
         ecs_eq = [('ARM_HalfPlate', 'g2')]
         stats_to_slot = {'ARM_Splint': 'Chest', 'ARM_HalfPlate': 'Chest'}
         kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
-            flags_eq, ecs_eq, stats_to_slot, {}, {}, {},
+            flags_eq,
+            ecs_eq,
+            stats_to_slot,
+            {},
+            {},
+            {},
         )
         assert ('ARM_Splint', 'g1') in kept_flags
         assert ('ARM_HalfPlate', 'g2') in demoted
@@ -413,7 +429,12 @@ class TestResolveSlotConflicts:
         ecs_eq: list = []
         stats_to_slot = {'MAG_Ring1': 'Ring', 'MAG_Ring2': 'Ring'}
         kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
-            flags_eq, ecs_eq, stats_to_slot, {}, {}, {},
+            flags_eq,
+            ecs_eq,
+            stats_to_slot,
+            {},
+            {},
+            {},
         )
         assert len(kept_flags) == 2
         assert demoted == []
@@ -427,7 +448,12 @@ class TestResolveSlotConflicts:
         membership_count = {1: 40, 2: 38, 3: 36}
         stats_to_entity = {'MAG_Ring1': 'g1', 'MAG_Ring2': 'g2', 'MAG_Ring3': 'g3'}
         kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
-            flags_eq, ecs_eq, stats_to_slot, stats_to_entity, guid_to_rows, membership_count,
+            flags_eq,
+            ecs_eq,
+            stats_to_slot,
+            stats_to_entity,
+            guid_to_rows,
+            membership_count,
         )
         assert len(kept_flags) == 2
         assert len(demoted) == 1
@@ -439,7 +465,12 @@ class TestResolveSlotConflicts:
         flags_eq = [('UNK_Item', 'g1')]
         ecs_eq = [('UNK_Item2', 'g2')]
         kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
-            flags_eq, ecs_eq, {}, {}, {}, {},
+            flags_eq,
+            ecs_eq,
+            {},
+            {},
+            {},
+            {},
         )
         assert ('UNK_Item', 'g1') in kept_flags
         assert ('UNK_Item2', 'g2') in kept_ecs
@@ -457,7 +488,12 @@ class TestResolveSlotConflicts:
         # Only e_real (row 20) is in OwnedAsLootComponent
         owned_as_loot_rows = frozenset([20])
         kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
-            flags_eq, ecs_eq, stats_to_slot, stats_to_entity, guid_to_rows, membership_count,
+            flags_eq,
+            ecs_eq,
+            stats_to_slot,
+            stats_to_entity,
+            guid_to_rows,
+            membership_count,
             owned_as_loot_rows=owned_as_loot_rows,
         )
         assert ('MAG_Thunder_Gloves', 'g_real') in kept_flags
@@ -472,7 +508,12 @@ class TestResolveSlotConflicts:
         guid_to_rows = {'e1': [1], 'e2': [2]}
         membership_count = {1: 38, 2: 42}  # e2 has higher MC
         kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
-            flags_eq, ecs_eq, stats_to_slot, stats_to_entity, guid_to_rows, membership_count,
+            flags_eq,
+            ecs_eq,
+            stats_to_slot,
+            stats_to_entity,
+            guid_to_rows,
+            membership_count,
             owned_as_loot_rows=None,
         )
         assert ('ARM_Item2', 'g2') in kept_flags
@@ -491,7 +532,12 @@ class TestResolveSlotConflicts:
         guid_to_rows = {'e_sword': [1], 'e_lantern': [2]}
         membership_count = {1: 40, 2: 41}  # lantern has higher MC but sword has status
         kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
-            flags_eq, ecs_eq, stats_to_slot, stats_to_entity, guid_to_rows, membership_count,
+            flags_eq,
+            ecs_eq,
+            stats_to_slot,
+            stats_to_entity,
+            guid_to_rows,
+            membership_count,
             status_equipped=frozenset(['UND_SwordInStone']),
         )
         assert ('UND_SwordInStone', 'g_sword') in kept_flags
@@ -506,7 +552,12 @@ class TestResolveSlotConflicts:
         guid_to_rows = {'e1': [1], 'e2': [2]}
         membership_count = {1: 40, 2: 38}  # sword has higher MC
         kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
-            flags_eq, ecs_eq, stats_to_slot, stats_to_entity, guid_to_rows, membership_count,
+            flags_eq,
+            ecs_eq,
+            stats_to_slot,
+            stats_to_entity,
+            guid_to_rows,
+            membership_count,
             status_equipped=None,
         )
         assert ('WPN_Sword', 'g1') in kept_flags
@@ -525,13 +576,20 @@ class TestResolveSlotConflicts:
             'WPN_Pitchfork': 'Melee Main Weapon',
         }
         stats_to_entity = {
-            'UND_SwordInStone': 'e_sword', 'Quest_Lantern': 'e_lantern',
-            'WPN_Torch': 'e_torch', 'WPN_Pitchfork': 'e_pitch',
+            'UND_SwordInStone': 'e_sword',
+            'Quest_Lantern': 'e_lantern',
+            'WPN_Torch': 'e_torch',
+            'WPN_Pitchfork': 'e_pitch',
         }
         guid_to_rows = {'e_sword': [1], 'e_lantern': [2], 'e_torch': [3], 'e_pitch': [4]}
         membership_count = {1: 40, 2: 41, 3: 5, 4: 5}  # lantern has higher MC but sword has status
         kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
-            flags_eq, ecs_eq, stats_to_slot, stats_to_entity, guid_to_rows, membership_count,
+            flags_eq,
+            ecs_eq,
+            stats_to_slot,
+            stats_to_entity,
+            guid_to_rows,
+            membership_count,
             status_equipped=frozenset(['UND_SwordInStone']),
         )
         assert ('UND_SwordInStone', 'g_sword') in kept_flags
@@ -553,7 +611,12 @@ class TestResolveSlotConflicts:
         guid_to_rows = {'e_knife': [1], 'e_sword': [2]}
         membership_count = {1: 37, 2: 41}  # stale sword has higher MC
         kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
-            flags_eq, ecs_eq, stats_to_slot, stats_to_entity, guid_to_rows, membership_count,
+            flags_eq,
+            ecs_eq,
+            stats_to_slot,
+            stats_to_entity,
+            guid_to_rows,
+            membership_count,
             owned_as_loot_rows=frozenset([2]),  # only the stale sword is in loot
             wielded_rows=frozenset([1]),
         )
@@ -574,7 +637,12 @@ class TestResolveSlotConflicts:
         guid_to_rows = {'e_halberd': [1], 'e_lantern': [2]}
         membership_count = {1: 36, 2: 40}  # stale lantern has higher MC
         kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
-            flags_eq, ecs_eq, stats_to_slot, stats_to_entity, guid_to_rows, membership_count,
+            flags_eq,
+            ecs_eq,
+            stats_to_slot,
+            stats_to_entity,
+            guid_to_rows,
+            membership_count,
             owned_as_loot_rows=frozenset([2]),  # only the stale lantern is in loot
             gravity_disabled_rows=frozenset([1]),
         )
@@ -589,7 +657,12 @@ class TestResolveSlotConflicts:
         guid_to_rows = {'e_a': [1], 'e_b': [2]}
         membership_count = {1: 30, 2: 40}
         kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
-            flags_eq, [], stats_to_slot, stats_to_entity, guid_to_rows, membership_count,
+            flags_eq,
+            [],
+            stats_to_slot,
+            stats_to_entity,
+            guid_to_rows,
+            membership_count,
             status_equipped=frozenset(['WPN_A']),
             wielded_rows=frozenset([2]),  # B looks attached, but A has the status
         )
@@ -607,7 +680,12 @@ class TestResolveSlotConflicts:
         }
         two_handed_stats = frozenset(['MAG_Greatsword'])
         kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
-            flags_eq, ecs_eq, stats_to_slot, {}, {}, {},
+            flags_eq,
+            ecs_eq,
+            stats_to_slot,
+            {},
+            {},
+            {},
             two_handed_stats=two_handed_stats,
         )
         assert ('MAG_Greatsword', 'g_sword') in kept_flags
@@ -624,7 +702,12 @@ class TestResolveSlotConflicts:
         }
         two_handed_stats = frozenset(['WPN_Greatsword'])  # longsword not in here
         kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
-            flags_eq, ecs_eq, stats_to_slot, {}, {}, {},
+            flags_eq,
+            ecs_eq,
+            stats_to_slot,
+            {},
+            {},
+            {},
             two_handed_stats=two_handed_stats,
         )
         assert ('WPN_Longsword', 'g_sword') in kept_flags
@@ -640,7 +723,12 @@ class TestResolveSlotConflicts:
             'ARM_Shield': 'Melee Offhand Weapon',
         }
         kept_flags, kept_ecs, demoted = party.resolve_slot_conflicts(
-            flags_eq, ecs_eq, stats_to_slot, {}, {}, {},
+            flags_eq,
+            ecs_eq,
+            stats_to_slot,
+            {},
+            {},
+            {},
             two_handed_stats=None,
         )
         assert ('ARM_Shield', 'g_shield') in kept_ecs
@@ -650,6 +738,7 @@ class TestResolveSlotConflicts:
 # ---------------------------------------------------------------------------
 # Unit tests for build_instance_entity_map
 # ---------------------------------------------------------------------------
+
 
 class TestEcsResolveEquipped:
     """Tests for ecs_resolve_equipped(), focusing on the wielded_rows filter."""
@@ -665,7 +754,10 @@ class TestEcsResolveEquipped:
         wielded_rows = frozenset([10])  # row 10 is in WieldedComponent
 
         eq, ca, undet = party.ecs_resolve_equipped(
-            undetermined, {}, guid_to_rows, membership_count,
+            undetermined,
+            {},
+            guid_to_rows,
+            membership_count,
             stats_to_entity=stats_to_entity,
             wielded_rows=wielded_rows,
         )
@@ -684,7 +776,10 @@ class TestEcsResolveEquipped:
         wielded_rows = frozenset([99])  # row 15 is NOT in WieldedComponent
 
         eq, ca, undet = party.ecs_resolve_equipped(
-            undetermined, {}, guid_to_rows, membership_count,
+            undetermined,
+            {},
+            guid_to_rows,
+            membership_count,
             stats_to_entity=stats_to_entity,
             wielded_rows=wielded_rows,
         )
@@ -701,7 +796,10 @@ class TestEcsResolveEquipped:
         membership_count = {10: 38}
 
         eq, ca, undet = party.ecs_resolve_equipped(
-            undetermined, {}, guid_to_rows, membership_count,
+            undetermined,
+            {},
+            guid_to_rows,
+            membership_count,
             stats_to_entity=stats_to_entity,
         )
         assert ('ARM_Shield', 'tmpl-shield') in eq
@@ -727,26 +825,38 @@ class TestBuildInstanceEntityMap:
         nodes.append({'name': 'Items', 'parent': 1, 'children': item_indices, 'attrs': {}})
 
         nodes.extend(
-            {'name': 'Creator', 'parent': 2, 'children': [], 'attrs': {
-                'Entity': d['entity'],
-                'TemplateID': d.get('template', ''),
-            }}
+            {
+                'name': 'Creator',
+                'parent': 2,
+                'children': [],
+                'attrs': {
+                    'Entity': d['entity'],
+                    'TemplateID': d.get('template', ''),
+                },
+            }
             for d in items_data
         )
         nodes.extend(
-            {'name': 'Item', 'parent': 3, 'children': [], 'attrs': {
-                'Translate': d['translate'],
-                'Stats': d['stats'],
-            }}
+            {
+                'name': 'Item',
+                'parent': 3,
+                'children': [],
+                'attrs': {
+                    'Translate': d['translate'],
+                    'Stats': d['stats'],
+                },
+            }
             for d in items_data
         )
         return nodes
 
     def test_basic_mapping(self):
-        nodes = self._make_nodes([
-            {'entity': 'ent-1', 'translate': (1.0, 2.0, 3.0), 'stats': 'WPN_Sword'},
-            {'entity': 'ent-2', 'translate': (4.0, 5.0, 6.0), 'stats': 'ARM_Boots'},
-        ])
+        nodes = self._make_nodes(
+            [
+                {'entity': 'ent-1', 'translate': (1.0, 2.0, 3.0), 'stats': 'WPN_Sword'},
+                {'entity': 'ent-2', 'translate': (4.0, 5.0, 6.0), 'stats': 'ARM_Boots'},
+            ]
+        )
         result = party.build_instance_entity_map(nodes)
         assert result[((1.0, 2.0, 3.0), 'WPN_Sword')] == 'ent-1'
         assert result[((4.0, 5.0, 6.0), 'ARM_Boots')] == 'ent-2'
@@ -757,9 +867,11 @@ class TestBuildInstanceEntityMap:
 
     def test_skips_missing_fields(self):
         # An item with no Stats field should not appear in the result.
-        nodes = self._make_nodes([
-            {'entity': 'ent-1', 'translate': (1.0, 2.0, 3.0), 'stats': ''},
-        ])
+        nodes = self._make_nodes(
+            [
+                {'entity': 'ent-1', 'translate': (1.0, 2.0, 3.0), 'stats': ''},
+            ]
+        )
         result = party.build_instance_entity_map(nodes)
         assert result == {}
 
@@ -777,7 +889,6 @@ def test_save_info():
     assert 'Leader' in report
 
 
-
 def test_quests():
     """--quests must parse the Osiris story state and emit a quests section."""
     report = build_report(QUICKSAVE_MAIA, opts=Namespace(quests=True))
@@ -786,7 +897,6 @@ def test_quests():
     assert 'Osiris version:' in report
     # A mid-campaign save should have at least a handful of in-progress quests.
     assert 'Quests in progress' in report
-
 
 
 def test_thumbnail(tmp_path):
@@ -803,12 +913,10 @@ def test_thumbnail(tmp_path):
     assert w > 0 and h > 0
 
 
-
 def test_carried():
     """--carried must emit a Carried / personal inventory section."""
     report = build_report(QUICKSAVE_MAIA, opts=Namespace(carried=True))
     assert 'Carried / personal inventory' in report
-
 
 
 def test_exact_spellbooks():
@@ -851,8 +959,9 @@ def test_parse_lsmf_spellbooks_direct():
     """parse_lsmf_spellbooks must return many non-trivial books from the blob."""
     frames = parser.extract_frames(QUICKSAVE_MAIA)
     nodes0 = lsf.parse_lsof(lsf.decomp_frame(frames['Globals.lsf']))
-    blob = next(nd['attrs']['NewAge'] for nd in nodes0
-                if nd['name'] == 'NewAge' and nd['parent'] == -1)
+    blob = next(
+        nd['attrs']['NewAge'] for nd in nodes0 if nd['name'] == 'NewAge' and nd['parent'] == -1
+    )
     books = lsmf.parse_lsmf_spellbooks(blob)
     assert len(books) > 100  # party + NPCs all carry spell books
     classes = lsmf.parse_lsmf_classes(blob)
@@ -867,13 +976,11 @@ def test_all_items():
     assert 'items total' in report
 
 
-
 def test_limits():
     """--limits must emit the known-limitations note."""
     report = build_report(QUICKSAVE_MAIA, opts=Namespace(limits=True))
     assert 'LIMITS' in report
     assert 'Spell attribution' in report
-
 
 
 def test_main_stdout(capsys):
@@ -883,7 +990,6 @@ def test_main_stdout(capsys):
     captured = capsys.readouterr()
     assert 'BG3 Save File Report' in captured.out
     assert len(captured.out) > 1000
-
 
 
 def test_main_output_file(tmp_path):
@@ -902,7 +1008,11 @@ def test_main_output_file(tmp_path):
 
 
 ALL_SECTION_OPTS = Namespace(
-    save_info=True, quests=True, all_items=True, carried=True, limits=True,
+    save_info=True,
+    quests=True,
+    all_items=True,
+    carried=True,
+    limits=True,
 )
 
 
@@ -993,14 +1103,12 @@ def test_shadowheart_tutorial_frames():
     assert 'LevelCache/TUT_Avernus_C.lsf' in frames
 
 
-
 def test_shadowheart_tutorial_report():
     """build_report() on the tutorial save must complete and mention Shadowheart."""
     report = build_report(SHADOWHEART_TUTORIAL)
     assert isinstance(report, str)
     assert len(report) > 500
     assert 'Shadowheart' in report
-
 
 
 def test_shadowheart_quests():
@@ -1013,6 +1121,7 @@ def test_shadowheart_quests():
 # ---------------------------------------------------------------------------
 # Equipment-block (ContainerSlotData cluster) classification — saves 292/294
 # ---------------------------------------------------------------------------
+
 
 class TestEquipmentCluster:
     """Unit tests for party.equipment_cluster()."""
@@ -1032,8 +1141,7 @@ class TestEquipmentCluster:
         assert party.equipment_cluster([]) is None
 
 
-@pytest.mark.skipif(not GAME_DATA_AVAILABLE,
-                    reason='cluster anchors need stat-file slots')
+@pytest.mark.skipif(not GAME_DATA_AVAILABLE, reason='cluster anchors need stat-file slots')
 def test_quicksave_292_karlach_dual_wield():
     """In-game ground truth for QuickSave_292: Karlach dual-wields the
     Githyanki Shortsword (main hand) with a Dagger (off hand); Jorgoral's
@@ -1048,8 +1156,7 @@ def test_quicksave_292_karlach_dual_wield():
     assert 'MAG_Colossal_Greatsword' in carried
 
 
-@pytest.mark.skipif(not GAME_DATA_AVAILABLE,
-                    reason='cluster anchors need stat-file slots')
+@pytest.mark.skipif(not GAME_DATA_AVAILABLE, reason='cluster anchors need stat-file slots')
 def test_quicksave_294_wyll_stale_phalar_and_shoes():
     """In-game ground truth for QuickSave_294: Wyll wields the Knife of the
     Undermountain King; Phalar Aluve has a stale equip bit but is in his

@@ -1,8 +1,6 @@
 """Party characters and per-character item classification."""
 
 
-
-
 # ---------------------------------------------------------------------------
 # Character extraction from Globals (frame 0)
 # ---------------------------------------------------------------------------
@@ -97,7 +95,8 @@ def build_entity_template_map(nodes: list[dict], root_name: str) -> dict[str, st
 def build_instance_entity_map(nodes: list[dict]) -> dict[tuple, str]:
     """Return {(translate, stats): entity_guid} from parallel Creators/Items arrays."""
     items_root = next(
-        (i for i, nd in enumerate(nodes) if nd['name'] == 'Items' and nd['parent'] == -1), None)
+        (i for i, nd in enumerate(nodes) if nd['name'] == 'Items' and nd['parent'] == -1), None
+    )
     if items_root is None:
         return {}
     factory_ni = nodes[items_root]['children'][0] if nodes[items_root]['children'] else None
@@ -105,17 +104,19 @@ def build_instance_entity_map(nodes: list[dict]) -> dict[tuple, str]:
         return {}
     factory_children = nodes[factory_ni]['children']
     creators_ni = next((ci for ci in factory_children if nodes[ci]['name'] == 'Creators'), None)
-    items_ni    = next((ci for ci in factory_children if nodes[ci]['name'] == 'Items'),    None)
+    items_ni = next((ci for ci in factory_children if nodes[ci]['name'] == 'Items'), None)
     if creators_ni is None or items_ni is None:
         return {}
     result: dict[tuple, str] = {}
     # The format keeps Creators and Items parallel; tolerate a corrupt tail.
     for creator_ci, item_ci in zip(
-        nodes[creators_ni]['children'], nodes[items_ni]['children'], strict=False,
+        nodes[creators_ni]['children'],
+        nodes[items_ni]['children'],
+        strict=False,
     ):
-        entity    = nodes[creator_ci]['attrs'].get('Entity', '')
+        entity = nodes[creator_ci]['attrs'].get('Entity', '')
         translate = nodes[item_ci]['attrs'].get('Translate')
-        stats     = nodes[item_ci]['attrs'].get('Stats', '')
+        stats = nodes[item_ci]['attrs'].get('Stats', '')
         if entity and translate and stats:
             result[(translate, stats)] = entity
     return result
@@ -181,12 +182,14 @@ def collect_inventory_items(nodes: list[dict]) -> list[dict]:
         item = nodes[ci]
         level = item['attrs'].get('Level', 'X')
         if level == '':
-            result.append({
-                'stats': item['attrs'].get('Stats', ''),
-                'template': item['attrs'].get('CurrentTemplate', ''),
-                'flags': item['attrs'].get('Flags', 0),
-                'prev_level': item['attrs'].get('PreviousLevel', ''),
-            })
+            result.append(
+                {
+                    'stats': item['attrs'].get('Stats', ''),
+                    'template': item['attrs'].get('CurrentTemplate', ''),
+                    'flags': item['attrs'].get('Flags', 0),
+                    'prev_level': item['attrs'].get('PreviousLevel', ''),
+                }
+            )
     return result
 
 
@@ -216,14 +219,30 @@ EQUIPPED_FLAG_BIT = 0x04000000
 
 # Item stats-name prefixes / substrings that are never worn equipment.
 NON_EQUIP_PREFIXES = (
-    'OBJ_', 'CONS_', 'ALCH_', 'FOOD_', 'SCR_', 'SCROLL_', 'BOOK_',
-    'LOOT_', 'KEY_', 'PUZ_', 'PLT_', 'TItem_', 'GOLD_',
+    'OBJ_',
+    'CONS_',
+    'ALCH_',
+    'FOOD_',
+    'SCR_',
+    'SCROLL_',
+    'BOOK_',
+    'LOOT_',
+    'KEY_',
+    'PUZ_',
+    'PLT_',
+    'TItem_',
+    'GOLD_',
 )
 
 
 NON_EQUIP_SUBSTR = (
-    '_Camp_', 'Underwear', 'Keychain', 'GoldPile',
-    'Backpack', 'AlchemyPouch', 'CampSupplies',
+    '_Camp_',
+    'Underwear',
+    'Keychain',
+    'GoldPile',
+    'Backpack',
+    'AlchemyPouch',
+    'CampSupplies',
 )
 
 
@@ -248,8 +267,9 @@ def collect_character_positions(
     return out
 
 
-def collect_items_by_position(node_lists: list[list[dict]],
-                               positions: dict[str, tuple]) -> dict[str, list[tuple]]:
+def collect_items_by_position(
+    node_lists: list[list[dict]], positions: dict[str, tuple]
+) -> dict[str, list[tuple]]:
     """Group Item records by which character's exact Translate they share.
 
     Returns {display_name: [(stats, flags), ...]} deduped per character.
@@ -277,7 +297,8 @@ def collect_items_by_position(node_lists: list[list[dict]],
             guid = nd['attrs'].get('CurrentTemplate', '')
             prev = acc[name].get(stats)
             if prev is None or (
-                isinstance(flags, int) and (flags & EQUIPPED_FLAG_BIT)
+                isinstance(flags, int)
+                and (flags & EQUIPPED_FLAG_BIT)
                 and not (isinstance(prev[0], int) and (prev[0] & EQUIPPED_FLAG_BIT))
             ):
                 acc[name][stats] = (flags, guid)
@@ -308,9 +329,7 @@ def split_equipped_carried(
             carried.append((stats, guid))
             continue
         signalled = stats in status_equipped or (
-            isinstance(flags, int)
-            and (flags & EQUIPPED_FLAG_BIT)
-            and is_equipment_type(stats)
+            isinstance(flags, int) and (flags & EQUIPPED_FLAG_BIT) and is_equipment_type(stats)
         )
         if signalled:
             equipped.append((stats, guid))
@@ -331,8 +350,9 @@ def invert_entity_template_map(
     return result
 
 
-def equipment_cluster(anchor_rows: list[int], *, margin: int = 8,
-                      trim: int = 24) -> tuple[int, int] | None:
+def equipment_cluster(
+    anchor_rows: list[int], *, margin: int = 8, trim: int = 24
+) -> tuple[int, int] | None:
     """Estimate the ContainerSlotData row range holding a character's worn items.
 
     A character's worn items occupy a near-contiguous block of
@@ -385,12 +405,14 @@ def cluster_anchor_rows(
     row_sets: list[tuple[int, ...]] = []
     for stats, _guid in flags_equipped:
         slot = stats_to_slot.get(stats)
-        if (not slot or slot in CLUSTER_EXEMPT_SLOTS
-                or slot_counts[slot] > SLOT_CAPACITY.get(slot, 1)):
+        if (
+            not slot
+            or slot in CLUSTER_EXEMPT_SLOTS
+            or slot_counts[slot] > SLOT_CAPACITY.get(slot, 1)
+        ):
             continue
         eg = stats_to_entity.get(stats, '')
-        rows = sorted({r for er in guid_to_rows.get(eg, [])
-                       for r in all_csd.get(er, ())})
+        rows = sorted({r for er in guid_to_rows.get(eg, []) for r in all_csd.get(er, ())})
         if rows:
             row_sets.append(tuple(rows))
     if not row_sets:
@@ -487,8 +509,7 @@ def ecs_resolve_equipped(
         if in_cluster is not None:
             worn = in_cluster and max_mc >= threshold
         else:
-            in_wielded = wielded_rows is not None and any(
-                r in wielded_rows for r in rows)
+            in_wielded = wielded_rows is not None and any(r in wielded_rows for r in rows)
             worn = max_mc >= threshold and not in_wielded
         if worn:
             now_equipped.append((stats, tmpl_guid))
@@ -502,12 +523,28 @@ SLOT_CAPACITY: dict[str, int] = {'Ring': 2}
 
 # Report display order for equipped items, mirroring the in-game panel
 # (armour top-to-bottom, then weapons, then instrument/vanity).
-SLOT_DISPLAY_ORDER: dict[str, int] = {name: i for i, name in enumerate((
-    'Helmet', 'Cloak', 'Breast', 'Gloves', 'Boots', 'Amulet', 'Ring',
-    'Melee Main Weapon', 'Melee Offhand Weapon',
-    'Ranged Main Weapon', 'Ranged Offhand Weapon',
-    'MusicalInstrument', 'Underwear', 'VanityBody', 'VanityBoots',
-))}
+SLOT_DISPLAY_ORDER: dict[str, int] = {
+    name: i
+    for i, name in enumerate(
+        (
+            'Helmet',
+            'Cloak',
+            'Breast',
+            'Gloves',
+            'Boots',
+            'Amulet',
+            'Ring',
+            'Melee Main Weapon',
+            'Melee Offhand Weapon',
+            'Ranged Main Weapon',
+            'Ranged Offhand Weapon',
+            'MusicalInstrument',
+            'Underwear',
+            'VanityBody',
+            'VanityBoots',
+        )
+    )
+}
 
 
 def resolve_slot_conflicts(
@@ -550,6 +587,7 @@ def resolve_slot_conflicts(
 
     Returns (kept_flags_equipped, kept_ecs_equipped, demoted_to_carried).
     """
+
     def get_mc(stats: str) -> int:
         eg = stats_to_entity.get(stats, '')
         if not eg:
@@ -567,21 +605,22 @@ def resolve_slot_conflicts(
     def in_cluster(stats: str) -> bool | None:
         if csd_cluster is None or all_csd is None:
             return None
-        return csd_cluster_membership(
-            stats, csd_cluster, stats_to_entity, guid_to_rows, all_csd)
+        return csd_cluster_membership(stats, csd_cluster, stats_to_entity, guid_to_rows, all_csd)
 
     slot_candidates: dict[str, list[tuple]] = {}
     no_slot_flags: list[tuple] = []
-    no_slot_ecs:   list[tuple] = []
-    demoted:       list[tuple] = []
+    no_slot_ecs: list[tuple] = []
+    demoted: list[tuple] = []
 
     for stats, guid in flags_equipped:
         # A Flags item whose ContainerSlotData entry lies outside the
         # character's equipment cluster sits in a bag: the equip bit is stale.
         # Virtual slots are exempt — their items stay in the grid while worn.
-        if (in_cluster(stats) is False
-                and stats_to_slot.get(stats) not in CLUSTER_EXEMPT_SLOTS
-                and not (status_equipped and stats in status_equipped)):
+        if (
+            in_cluster(stats) is False
+            and stats_to_slot.get(stats) not in CLUSTER_EXEMPT_SLOTS
+            and not (status_equipped and stats in status_equipped)
+        ):
             demoted.append((stats, guid))
             continue
         slot = stats_to_slot.get(stats)
@@ -597,7 +636,7 @@ def resolve_slot_conflicts(
             no_slot_ecs.append((stats, guid))
 
     kept_flags: list[tuple] = list(no_slot_flags)
-    kept_ecs:   list[tuple] = list(no_slot_ecs)
+    kept_ecs: list[tuple] = list(no_slot_ecs)
 
     def flags_sort_key(sg: tuple) -> tuple:
         attached = in_rows(sg[0], wielded_rows) or in_rows(sg[0], gravity_disabled_rows)
@@ -614,9 +653,13 @@ def resolve_slot_conflicts(
         if slot == 'Melee Main Weapon':
             # Two one-handed Flags items both inside the equipment cluster can
             # only be a dual-wield pair: main and off hand.
-            pair = [s for s, _g, sig in candidates
-                    if sig == 'flags' and in_cluster(s)
-                    and not (two_handed_stats and s in two_handed_stats)]
+            pair = [
+                s
+                for s, _g, sig in candidates
+                if sig == 'flags'
+                and in_cluster(s)
+                and not (two_handed_stats and s in two_handed_stats)
+            ]
             if len(pair) == 2:
                 capacity = 2
         if len(candidates) <= capacity:
@@ -624,7 +667,7 @@ def resolve_slot_conflicts(
                 (kept_flags if signal == 'flags' else kept_ecs).append((stats, guid))
             continue
         flags_cands = [(s, g) for s, g, sig in candidates if sig == 'flags']
-        ecs_cands   = [(s, g) for s, g, sig in candidates if sig == 'ecs']
+        ecs_cands = [(s, g) for s, g, sig in candidates if sig == 'ecs']
         if flags_cands and ecs_cands:
             winners = sorted(flags_cands, key=flags_sort_key)[:capacity]
             kept_flags.extend(winners)
@@ -642,7 +685,8 @@ def resolve_slot_conflicts(
     # 2-handed weapon in Melee Main Weapon blocks the offhand slot entirely.
     if two_handed_stats:
         main_has_twohanded = any(
-            s in two_handed_stats for s, _ in kept_flags
+            s in two_handed_stats
+            for s, _ in kept_flags
             if stats_to_slot.get(s) == 'Melee Main Weapon'
         )
         if main_has_twohanded:

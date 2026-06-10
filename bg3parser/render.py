@@ -29,7 +29,7 @@ def fmt_spell(spell: SpellRef, verbose: bool) -> str:
 
 SPELLS_NOTES = {
     'ambiguous-build': '(identical class build to another party member '
-                       '— spell books cannot be told apart)',
+    '— spell books cannot be told apart)',
     'not-found': '(spell book not found)',
 }
 EQUIPMENT_NOTES = {
@@ -65,9 +65,14 @@ def prepare_char_data(char: CharacterReport, verbose: bool, all_spells: bool) ->
                 shown_refs.append(sp)
         # Upcast variants share a display name; show each rendering once.
         shown = sorted({fmt_spell(sp, verbose) for sp in shown_refs})
-        extras = [f'+{len(group)} {label}' for group, label in
-                  ((folded['sub-spell'], 'sub-spells'),
-                   (folded['basic-action'], 'basic actions')) if group]
+        extras = [
+            f'+{len(group)} {label}'
+            for group, label in (
+                (folded['sub-spell'], 'sub-spells'),
+                (folded['basic-action'], 'basic actions'),
+            )
+            if group
+        ]
         suffix = ('; ' + ', '.join(extras)) if extras else ''
         data['spells_shown'] = shown
         data['spells_header_suffix'] = suffix
@@ -84,8 +89,9 @@ def prepare_char_data(char: CharacterReport, verbose: bool, all_spells: bool) ->
     # Carried inventory grouped by coarse category, empty groups omitted.
     groups: list[tuple[str, list]] = []
     for key, label in CARRIED_GROUP_LABELS:
-        items = sorted((i for i in char.carried if i.category == key),
-                       key=lambda i: fmt_item(i, verbose))
+        items = sorted(
+            (i for i in char.carried if i.category == key), key=lambda i: fmt_item(i, verbose)
+        )
         if items:
             groups.append((label, items))
     data['carried_groups'] = groups
@@ -101,11 +107,13 @@ def prepare_level_items(report: SaveReport, verbose: bool) -> list:
     for e in report.level_items['entries']:
         qty = f'x{e.count}' if e.count > 1 else '   '
         label = (f'{e.name} ({e.stats})' if verbose else e.name) if e.name else e.stats
-        entries.append({
-            'qty_str': f'{qty:<4s}',
-            'label_str': f'{label:<60s}',
-            'category': e.category,
-        })
+        entries.append(
+            {
+                'qty_str': f'{qty:<4s}',
+                'label_str': f'{label:<60s}',
+                'category': e.category,
+            }
+        )
     return entries
 
 
@@ -127,6 +135,7 @@ def make_jinja_env() -> Environment:
 
 def render_text(report: SaveReport, opts=None) -> str:
     """Render the model as the classic plain-text report."""
+
     def opt(name: str) -> bool:
         return bool(getattr(opts, name.replace('-', '_'), False)) if opts is not None else False
 

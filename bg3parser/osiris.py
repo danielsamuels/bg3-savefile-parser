@@ -39,41 +39,41 @@ from .lsf import decomp_frame
 #   bg3se/BG3Extender/Osiris/OsirisExtender.h
 
 # Osiris version constants (version word = (major<<8)|minor)
-OSI_VER_SCRAMBLE    = 0x0104
+OSI_VER_SCRAMBLE = 0x0104
 
 
-OSI_VER_ADD_QUERY   = 0x0106
+OSI_VER_ADD_QUERY = 0x0106
 
 
 OSI_VER_TYPE_ALIASES = 0x0109
 
 
-OSI_VER_ENUMS       = 0x010d
+OSI_VER_ENUMS = 0x010D
 
 
-OSI_VER_VALUE_FLAGS = 0x010e
+OSI_VER_VALUE_FLAGS = 0x010E
 
 
 # Osiris node-type IDs
-OSI_NODE_DATABASE  = 1
+OSI_NODE_DATABASE = 1
 
 
-OSI_NODE_PROC      = 2
+OSI_NODE_PROC = 2
 
 
 OSI_NODE_DIV_QUERY = 3
 
 
-OSI_NODE_AND       = 4
+OSI_NODE_AND = 4
 
 
-OSI_NODE_NOT_AND   = 5
+OSI_NODE_NOT_AND = 5
 
 
-OSI_NODE_REL_OP    = 6
+OSI_NODE_REL_OP = 6
 
 
-OSI_NODE_RULE      = 7
+OSI_NODE_RULE = 7
 
 
 OSI_NODE_INT_QUERY = 8
@@ -85,8 +85,9 @@ OSI_NODE_USER_QUERY = 9
 class OsiReader:
     """Sequential binary reader for the Osiris save format."""
 
-    def __init__(self, data: bytes, ver: int, short_type_ids: bool,
-                 type_aliases: dict | None = None):
+    def __init__(
+        self, data: bytes, ver: int, short_type_ids: bool, type_aliases: dict | None = None
+    ):
         self.data = data
         self.pos = 0
         self.ver = ver
@@ -164,7 +165,7 @@ class OsiReader:
 def osi_read_value(rdr: OsiReader) -> dict:
     """Read a typed Value from the Osiris stream."""
     if rdr.ver >= OSI_VER_VALUE_FLAGS:
-        rdr.i8()           # index (not needed for database queries)
+        rdr.i8()  # index (not needed for database queries)
         flags = rdr.u8()
         if not (flags & 0x08):  # IsValid bit
             return {'is_valid': False, 'value': None}
@@ -210,7 +211,7 @@ def osi_read_typed_value(rdr: OsiReader) -> dict:
 def osi_read_variable(rdr: OsiReader) -> dict:
     v = osi_read_typed_value(rdr)
     if rdr.ver < OSI_VER_VALUE_FLAGS:
-        rdr.i8()    # var_index
+        rdr.i8()  # var_index
         rdr.bool()  # unused
         rdr.bool()  # adapted
     return v
@@ -315,11 +316,11 @@ def osi_read_nodes(rdr: OsiReader) -> dict:
     db_names: dict = {}
     for _ in range(n):
         nt = rdr.u8()
-        rdr.u32()                              # node id
+        rdr.u32()  # node id
         db_ref = rdr.ref_u32()
         nm = rdr.string()
         if nm:
-            rdr.u8()                           # param count (present when name non-empty)
+            rdr.u8()  # param count (present when name non-empty)
         if nm and db_ref:
             db_names[db_ref] = nm
         if nt in (OSI_NODE_DATABASE, OSI_NODE_PROC):
@@ -414,7 +415,7 @@ def osi_read_goals(rdr: OsiReader) -> dict:
     for _ in range(n):
         idx = rdr.u32()
         nm = rdr.string()
-        rdr.u8()                               # SubGoalCombination
+        rdr.u8()  # SubGoalCombination
         pg = rdr.u32()
         for _ in range(pg):
             rdr.ref_u32()
@@ -463,13 +464,13 @@ def parse_osiris(frames: dict[str, bytes]) -> dict | None:
         pos += 1
         while data[pos] != 0:  # skip version string
             pos += 1
-        pos += 1                # consume null terminator
+        pos += 1  # consume null terminator
         major = data[pos]
         minor = data[pos + 1]
         pos += 4
         ver = (major << 8) | minor
-        pos += 0x80             # version buffer
-        pos += 4                # debug flags
+        pos += 0x80  # version buffer
+        pos += 4  # debug flags
 
         rdr = OsiReader(data, ver, short_type_ids=(ver >= OSI_VER_ENUMS))
         rdr.pos = pos
@@ -504,23 +505,20 @@ def parse_osiris(frames: dict[str, bytes]) -> dict | None:
             ]
 
         accepted = set(get_single_col_strings('DB_QuestIsAccepted'))
-        closed   = set(get_single_col_strings('DB_QuestIsClosed'))
-        active   = sorted(accepted - closed)
+        closed = set(get_single_col_strings('DB_QuestIsClosed'))
+        active = sorted(accepted - closed)
         closed_l = sorted(closed)
 
-        goals_done = sorted(
-            g['name'] for g in goals.values()
-            if g['flags'] == 0x07 and g['name']
-        )
+        goals_done = sorted(g['name'] for g in goals.values() if g['flags'] == 0x07 and g['name'])
 
         global_flags = get_single_col_strings('DB_GlobalFlag')
 
         return {
-            'version':           ver,
-            'quests_active':     active,
-            'quests_closed':     closed_l,
-            'goals_finalized':   goals_done,
-            'global_flags':      global_flags[:50],
+            'version': ver,
+            'quests_active': active,
+            'quests_closed': closed_l,
+            'goals_finalized': goals_done,
+            'global_flags': global_flags[:50],
             'global_flags_total': len(global_flags),
         }
 
