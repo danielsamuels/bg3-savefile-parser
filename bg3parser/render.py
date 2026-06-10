@@ -27,28 +27,6 @@ def fmt_spell(spell: SpellRef, verbose: bool) -> str:
     return spell.id
 
 
-LIMITS_NOTE = '''
-  Spell attribution reads each character's exact spell book from the save's
-  ECS blob (SpellBookComponent -> SpellData -> SpellId -> string pool),
-  matching party members by class/subclass/level.  If two members share an
-  identical build, their books cannot be told apart and a note is shown
-  instead.
-
-  Per-character item ownership is recovered from shared world position
-  (each carried/worn item copies its holder's Translate).  Whether an
-  attributed item is *worn* is determined by layered signals: a STATUS
-  on-equip effect; the 0x04000000 Flags bit; ECS component membership; and
-  physical-attachment components, with per-slot conflict resolution.  The
-  displayed [Slot] is derived from item stats — the save stores no explicit
-  ItemSlot field (same-type assignment like Ring vs Ring2 persists via
-  container ordering).  See LIMITS.md.
-
-  Display names are resolved from the installed game data (root templates +
-  english.loca, following ParentTemplateId/using inheritance).  Without a
-  game install (or with BG3_DATA_DIR unset and auto-detect failing) items
-  are shown by their internal names.
-'''
-
 SPELLS_NOTES = {
     'ambiguous-build': '(identical class build to another party member '
                        '— spell books cannot be told apart)',
@@ -167,7 +145,6 @@ def render_text(report: SaveReport, opts=None) -> str:
         level_items_entries=level_items_entries,
         spells_notes=SPELLS_NOTES,
         equipment_notes=EQUIPMENT_NOTES,
-        limits_note=LIMITS_NOTE,
         fmt_item=fmt_item,
         verbose=verbose,
         inspect_pattern=report.inspect_pattern,
