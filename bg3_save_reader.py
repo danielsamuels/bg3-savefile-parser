@@ -1673,6 +1673,15 @@ def ecs_resolve_equipped(
 
 SLOT_CAPACITY: dict[str, int] = {'Ring': 2}
 
+# Report display order for equipped items, mirroring the in-game panel
+# (armour top-to-bottom, then weapons, then instrument/vanity).
+SLOT_DISPLAY_ORDER: dict[str, int] = {name: i for i, name in enumerate((
+    'Helmet', 'Cloak', 'Breast', 'Gloves', 'Boots', 'Amulet', 'Ring',
+    'Melee Main Weapon', 'Melee Offhand Weapon',
+    'Ranged Main Weapon', 'Ranged Offhand Weapon',
+    'MusicalInstrument', 'Underwear', 'VanityBody', 'VanityBoots',
+))}
+
 
 def resolve_slot_conflicts(
     flags_equipped: list[tuple],
@@ -2466,8 +2475,15 @@ def build_report(save_path: str, frames: dict[str, bytes] | None = None, opts=No
 
             equipped = sorted(set(flags_equipped) | set(ecs_eq))
             w(f'    Equipped ({len(equipped)}):')
-            for s, guid in equipped:
-                w(f'      – {dn.fmt(s, guid)}')
+            # Slot is derived from game stat files: the save itself does not
+            # serialise ItemSlot (the game re-derives it from stats on load).
+            def slot_order(sg: tuple) -> tuple:
+                slot = dn.stats_to_slot.get(sg[0], '')
+                return (SLOT_DISPLAY_ORDER.get(slot, 99), dn.fmt(sg[0], sg[1]))
+            for s, guid in sorted(equipped, key=slot_order):
+                slot = dn.stats_to_slot.get(s, '')
+                suffix = f'  [{slot}]' if slot else ''
+                w(f'      – {dn.fmt(s, guid)}{suffix}')
             if undetermined:
                 w(f'    Worn or carried — undetermined ({len(undetermined)}):')
                 for s, guid in undetermined:

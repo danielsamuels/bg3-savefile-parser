@@ -76,8 +76,10 @@ def extract_equipped_from_report(report: str) -> dict[str, set[str]]:
             item_match = re.match(r'\s+–\s+(.+)', line)
             if item_match:
                 item_text = item_match.group(1).strip()
-                # The (STATS_NAME) parenthetical when a display name was
+                # Strip the optional trailing "[Slot]" annotation, then take
+                # the (STATS_NAME) parenthetical when a display name was
                 # resolved; otherwise the whole token is the stats name.
+                item_text = re.sub(r'\s*\[[^\]]+\]\s*$', '', item_text)
                 paren_match = re.search(r'\(([^)]+)\)\s*$', item_text)
                 stats = paren_match.group(1).strip() if paren_match else item_text.strip()
                 result[current_char].add(stats)
