@@ -9,12 +9,12 @@
 {% if char.location %}
   Location  : {{ char.location }}
 {% endif %}
-{% if char.spells is not none %}
+{% if not opts.no_spells and char.spells is not none %}
   Spells/Abilities ({{ char_data.spells_shown | length }}{{ char_data.spells_header_suffix }}):
 {% for line in char_data.spells_shown %}
     – {{ line }}
 {% endfor %}
-{% else %}
+{% elif not opts.no_spells %}
   Spells/Abilities : {{ spells_notes.get(char.spells_note or 'not-found') }}
 {% endif %}
 {% if char.inspect %}

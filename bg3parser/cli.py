@@ -65,6 +65,11 @@ def main():
         'appearance) and basic actions instead of folding them away',
     )
     ap.add_argument(
+        '--no-spells',
+        action='store_true',
+        help='omit the spells/abilities section from the text report',
+    )
+    ap.add_argument(
         '--json',
         action='store_true',
         help='emit the report as JSON instead of text (machine-readable; '

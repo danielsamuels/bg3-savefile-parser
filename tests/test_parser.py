@@ -889,6 +889,14 @@ def test_save_info():
     assert 'Leader' in report
 
 
+def test_no_spells():
+    """--no-spells must omit the spells/abilities section; default keeps it."""
+    assert 'Spells/Abilities' in build_report(QUICKSAVE_MAIA)
+    report = build_report(QUICKSAVE_MAIA, opts=Namespace(no_spells=True))
+    assert 'Spells/Abilities' not in report
+    assert 'Equipped' in report  # the rest of the character section survives
+
+
 def test_quests():
     """--quests must parse the Osiris story state and emit a quests section."""
     report = build_report(QUICKSAVE_MAIA, opts=Namespace(quests=True))
