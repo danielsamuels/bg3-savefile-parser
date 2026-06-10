@@ -28,8 +28,9 @@ New format discoveries land in Python first, get a fixture test, then port.
 
 1. ~~LSPK container, decompression, SaveInfo.json~~ ✅
 2. ~~LSOF node-tree parser (meta.lsf + Globals.lsf, ~260ms for 24MB)~~ ✅
-3. LSMF ECS blob: component directory + ownerlist scan, membership counts,
-   ContainerSlotData positions, stack amounts, spell books, classes
+3. ~~LSMF ECS blob: component directory + ownerlist scan, membership
+   counts, ContainerSlotData positions, stack amounts (34ms)~~ ✅
+   (spell books and classes land with milestone 4)
 4. Classification: party attribution, equipment cluster, slot conflicts,
    per-instance duplicates — full report parity with `bg3save --json`
    (gamedata JSON built by Python and consumed at runtime)
