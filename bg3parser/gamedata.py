@@ -471,6 +471,10 @@ class DisplayNames:
             return f'{dn} ({stats})' if self.verbose else dn
         return stats
 
+    def spell_name_for(self, spell_id: str) -> str | None:
+        """Return the display name for a spell, or None if unresolved."""
+        return self._spells.get(spell_id)
+
     def fmt_spell(self, spell_id: str) -> str:
         dn = self._spells.get(spell_id)
         if dn:

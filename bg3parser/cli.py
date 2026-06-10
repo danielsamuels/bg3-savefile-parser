@@ -6,6 +6,8 @@ import sys
 
 from .discovery import find_latest_save, find_save_by_token
 from .lspk import extract_frames, extract_thumbnail
+from .model import gather_report
+from .render import render_json
 from .report import build_report
 
 # ---------------------------------------------------------------------------
@@ -46,6 +48,9 @@ def main():
     ap.add_argument('--all-spells', action='store_true',
                     help='list sub-spells (container variants like each Disguise Self '
                          'appearance) and basic actions instead of folding them away')
+    ap.add_argument('--json', action='store_true',
+                    help='emit the report as JSON instead of text (machine-readable; '
+                         'includes everything gathered, with no display folding)')
     opts = ap.parse_args()
 
     save_path = opts.save
@@ -72,7 +77,10 @@ def main():
             print(f'Thumbnail written to {opts.thumbnail} (dimensions unknown)', file=sys.stderr)
 
     print(f'Parsing {save_path} …', file=sys.stderr)
-    report = build_report(save_path, frames, opts)
+    if opts.json:
+        report = render_json(gather_report(save_path, frames, opts))
+    else:
+        report = build_report(save_path, frames, opts)
 
     if opts.output:
         with open(opts.output, 'w', encoding='utf-8') as fh:

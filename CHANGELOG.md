@@ -4,6 +4,16 @@ All notable changes to this project will be documented here.
 
 ## Unreleased
 
+### Changed
+- **Restructured into the `bg3parser` package** (modules by format layer:
+  `lspk`, `lsf`, `lsmf`, `osiris`, `party`, `gamedata`, `discovery`,
+  `model`, `render`, `cli`). The entry point is now `bg3save` (console
+  script) or `python -m bg3parser`; `bg3_save_reader.py` is gone.
+- **Model/view split**: `gather_report()` produces a structured
+  `SaveReport` (dataclasses); `render_text()` and `render_json()` are views
+  over it. `--json` emits the full machine-readable report. Text output is
+  byte-identical to the pre-split format.
+
 ### Added
 - **Object-type filter**: Items with `type "Object"` in game stat files (books,
   containers, quest items) are now classified as carried regardless of the

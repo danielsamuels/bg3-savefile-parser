@@ -9,6 +9,7 @@ Run with:
     uv run pytest
 """
 
+import json
 import re
 import sys
 from argparse import Namespace
@@ -821,6 +822,26 @@ def test_all_spells_flag():
     assert 'Spells/Abilities (' in report
     assert 'sub-spells' not in report
     assert 'basic actions' not in report
+
+
+def test_gather_report_model_and_json():
+    """The report model must be JSON-serialisable and structurally complete."""
+    model = parser.gather_report(QUICKSAVE_MAIA, opts=Namespace(save_info=True))
+    data = json.loads(parser.render_json(model))
+    assert data['save_info']['save_name']
+    chars = {c['name'] for c in data['characters']}
+    assert {'Wyll', 'Karlach', 'Shadowheart'} <= chars
+    wyll = next(c for c in data['characters'] if c['name'] == 'Wyll')
+    assert any(s['id'] == 'Projectile_EldritchBlast' for s in wyll['spells'])
+    assert wyll['equipped'] and wyll['carried']
+    assert all('stats' in i and 'template_guid' in i for i in wyll['equipped'])
+
+
+def test_build_report_is_gather_plus_render():
+    """The facade must equal gather_report + render_text composed."""
+    opts = Namespace(verbose=True)
+    composed = parser.render_text(parser.gather_report(QUICKSAVE_MAIA, opts=opts), opts)
+    assert composed == parser.build_report(QUICKSAVE_MAIA, opts=opts)
 
 
 def test_parse_lsmf_spellbooks_direct():

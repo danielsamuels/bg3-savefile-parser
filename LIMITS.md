@@ -184,10 +184,10 @@ Run all checks with:
 
 ```sh
 # Lint
-uvx ruff check bg3_save_reader.py tests/
+uvx ruff check bg3parser/ explore_lsmf.py tests/
 
 # Type check
-uv run ty check bg3_save_reader.py
+uv run ty check bg3parser
 
 # Tests (fixture saves live in tests/fixtures/)
 uv run pytest

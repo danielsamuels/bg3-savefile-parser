@@ -17,23 +17,27 @@ required.
 
 ## Usage
 
-This is a [PEP 723](https://peps.python.org/pep-0723/) single-file script: its
-dependencies (`zstandard`, `lz4`) are declared inline, so
-[`uv`](https://docs.astral.sh/uv/) installs them automatically — no manual setup:
+With [`uv`](https://docs.astral.sh/uv/) installed, run from a clone — the
+project environment (just `zstandard` + `lz4`) is created automatically:
 
 ```sh
 # Parse a specific save (writes to stdout, or to a file if given):
-uv run bg3_save_reader.py /path/to/QuickSave_NNN.lsv [report.txt]
+uv run bg3save /path/to/QuickSave_NNN.lsv [report.txt]
 
 # Or give just the save number (finds the matching save automatically):
-uv run bg3_save_reader.py 286
+uv run bg3save 286
 
 # Or omit the path to auto-detect and use the most recent save:
-uv run bg3_save_reader.py
+uv run bg3save
+
+# Machine-readable output for building on top of the parser:
+uv run bg3save 286 --json
 ```
 
-Without `uv`, install the two dependencies yourself (`pip install zstandard lz4`)
-and run it with `python3 bg3_save_reader.py …` instead.
+Without `uv`: `pip install .` then `bg3save …`, or `python -m bg3parser …`.
+The implementation lives in the `bg3parser` package, organised by format
+layer (`lspk`, `lsf`, `lsmf`, `osiris`, `party`, `gamedata`, `model`,
+`render`).
 
 **Environment overrides**
 

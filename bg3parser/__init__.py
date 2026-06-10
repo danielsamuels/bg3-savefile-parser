@@ -18,6 +18,8 @@ from .gamedata import *  # noqa: F403
 from .lsf import *  # noqa: F403
 from .lsmf import *  # noqa: F403
 from .lspk import *  # noqa: F403
+from .model import *  # noqa: F403
 from .osiris import *  # noqa: F403
 from .party import *  # noqa: F403
+from .render import *  # noqa: F403
 from .report import *  # noqa: F403
