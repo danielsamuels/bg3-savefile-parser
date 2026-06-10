@@ -213,6 +213,11 @@ The parser reads the following from the ECS blob:
 - **Live `EntityHandle` values** (`MemberData.handle_b` and friends): indices
   into the running game's global entity pool with no on-disk translation
   table; anything gated exclusively behind one is unreachable from the save.
+- **The "new item" inventory indicator**: not serialised at all. A controlled
+  experiment (QuickSave_296–301: hover-clearing items, saving, reloading)
+  showed every item reverts to "new" on load — the seen-state is session-only
+  UI memory, so the whole inventory starts unseen each session and no
+  corresponding state exists in the save to decode.
 
 ## Development
 
