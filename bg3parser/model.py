@@ -6,6 +6,7 @@ turn into text or JSON.
 """
 
 import datetime
+import re
 from dataclasses import dataclass, field
 
 from .gamedata import CLASS_UUID_NAMES, DisplayNames
@@ -19,6 +20,7 @@ from .lsmf import (
     parse_lsmf_component_rows,
     parse_lsmf_container_positions,
     parse_lsmf_membership,
+    parse_lsmf_prepared_spells,
     parse_lsmf_spellbooks,
     parse_lsmf_stack_amounts,
 )
@@ -90,6 +92,7 @@ class SpellRef:
     id: str
     name: str | None = None
     category: str = 'spell'  # 'spell' | 'sub-spell' | 'basic-action'
+    prepared: bool | None = None  # None = no preparation data for the entity
 
 
 @dataclass
@@ -316,9 +319,11 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
     # the live character — wins.
     spellbooks: dict[int, list[str]] = {}
     entity_classes: dict[int, tuple] = {}
+    prepared_spells: dict[int, list[tuple]] = {}
     if lsmf_blob:
         spellbooks = parse_lsmf_spellbooks(lsmf_blob)
         entity_classes = parse_lsmf_classes(lsmf_blob)
+        prepared_spells = parse_lsmf_prepared_spells(lsmf_blob)
 
     def build_key(char_info: dict) -> tuple | None:
         want = sorted((c.get('Main', ''), c.get('Sub', '')) for c in char_info.get('Classes', []))
@@ -332,7 +337,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
     party_builds = [k for ci in party_info if (k := build_key(ci)) is not None]
     ambiguous_builds = {k for k in party_builds if party_builds.count(k) > 1}
 
-    def exact_spellbook(char_info: dict) -> list[str] | None:
+    def exact_spell_entity(char_info: dict) -> int | None:
         key = build_key(char_info)
         if key is None or key in ambiguous_builds:
             return None
@@ -352,7 +357,36 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
                 candidates.append(ent)
         if not candidates:
             return None
-        return spellbooks[max(candidates, key=lambda e: len(spellbooks[e]))]
+        return max(candidates, key=lambda e: len(spellbooks[e]))
+
+    def spell_refs(ent: int) -> list[SpellRef]:
+        """Build the SpellRef list for an entity's book, marking prepared spells.
+
+        A book entry is prepared when its base prototype name (upcast _N
+        suffix stripped) appears in the entity's PreparedSpells; entities
+        without preparation data get prepared=None throughout.
+        """
+        prepared = prepared_spells.get(ent)
+        prepared_bases = (
+            {re.sub(r'_\d+$', '', name) for name, _st, _g in prepared}
+            if prepared is not None
+            else None
+        )
+        refs = []
+        for sid in sorted(set(spellbooks[ent])):
+            if sid in COMMON_ACTION_SPELLS:
+                cat = 'basic-action'
+            elif sid in dn.sub_spells:
+                cat = 'sub-spell'
+            else:
+                cat = 'spell'
+            is_prepared = (
+                re.sub(r'_\d+$', '', sid) in prepared_bases if prepared_bases is not None else None
+            )
+            refs.append(
+                SpellRef(id=sid, name=dn.spell_name_for(sid), category=cat, prepared=is_prepared)
+            )
+        return refs
 
     lsmf_ecs = parse_lsmf_membership(lsmf_blob) if lsmf_blob else None
     comp_rows = (
@@ -606,17 +640,9 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         report.characters.append(char)
 
         # Spells — exact book from the ECS blob
-        book = exact_spellbook(char_info)
-        if book is not None:
-            char.spells = []
-            for sid in sorted(set(book)):
-                if sid in COMMON_ACTION_SPELLS:
-                    cat = 'basic-action'
-                elif sid in dn.sub_spells:
-                    cat = 'sub-spell'
-                else:
-                    cat = 'spell'
-                char.spells.append(SpellRef(id=sid, name=dn.spell_name_for(sid), category=cat))
+        ent = exact_spell_entity(char_info)
+        if ent is not None:
+            char.spells = spell_refs(ent)
         elif build_key(char_info) in ambiguous_builds:
             char.spells_note = 'ambiguous-build'
         else:
@@ -688,15 +714,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
                     for cg, sg, _lvl in entity_classes[ent]
                 ]
                 char.level = sum(lvl for _, _, lvl in entity_classes[ent])
-                char.spells = []
-                for sid in sorted(set(spellbooks[ent])):
-                    if sid in COMMON_ACTION_SPELLS:
-                        cat = 'basic-action'
-                    elif sid in dn.sub_spells:
-                        cat = 'sub-spell'
-                    else:
-                        cat = 'spell'
-                    char.spells.append(SpellRef(id=sid, name=dn.spell_name_for(sid), category=cat))
+                char.spells = spell_refs(ent)
             elif base_class and camp_base_classes.count(base_class) > 1:
                 char.spells_note = 'ambiguous-build'
             else:

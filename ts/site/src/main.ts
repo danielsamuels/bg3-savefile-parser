@@ -234,7 +234,16 @@ function renderSpells(spells: SpellRef[]): string {
   const basic = labels('basic-action');
   if (!shown.length && !sub.length && !basic.length) return '';
 
+  // A display name is prepared when any of its refs (upcast variants share
+  // a name) is prepared; null preparation data hides the markers entirely.
+  const preparedNames = new Set(
+    spells.filter((s) => s.prepared && s.category === 'spell').map((s) => s.name ?? s.id),
+  );
+  const hasPrepData = spells.some((s) => s.prepared !== null);
+  const preparedShown = shown.filter((n) => preparedNames.has(n));
+
   const foldNote = [
+    hasPrepData && preparedShown.length ? `${preparedShown.length} prepared` : '',
     sub.length ? `+${sub.length} sub-spells` : '',
     basic.length ? `+${basic.length} basic actions` : '',
   ]
@@ -252,7 +261,12 @@ function renderSpells(spells: SpellRef[]): string {
       foldNote ? `<span class="fold-note">${foldNote}</span>` : ''
     }</summary>
     <div>
-      <ul class="items">${shown.map((n) => `<li>${esc(n)}</li>`).join('')}</ul>
+      <ul class="items">${shown
+        .map(
+          (n) =>
+            `<li${preparedNames.has(n) ? ' class="prep" title="prepared"' : ''}>${esc(n)}</li>`,
+        )
+        .join('')}</ul>
       ${subList('Sub-spells (upcasts & variants)', sub)}
       ${subList('Basic actions', basic)}
     </div>

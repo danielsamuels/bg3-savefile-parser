@@ -245,342 +245,410 @@
     {
      "category": "spell",
      "id": "Projectile_FireBolt",
-     "name": "Fire Bolt"
+     "name": "Fire Bolt",
+     "prepared": true
     },
     {
      "category": "spell",
      "id": "Projectile_GuidingBolt",
-     "name": "Guiding Bolt"
+     "name": "Guiding Bolt",
+     "prepared": true
     },
     {
      "category": "basic-action",
      "id": "Projectile_Jump",
-     "name": "Jump"
+     "name": "Jump",
+     "prepared": true
     },
     {
      "category": "basic-action",
      "id": "Projectile_MainHandAttack",
-     "name": "Ranged Attack"
+     "name": "Ranged Attack",
+     "prepared": true
     },
     {
      "category": "basic-action",
      "id": "Shout_Dash",
-     "name": "Dash"
+     "name": "Dash",
+     "prepared": true
     },
     {
      "category": "basic-action",
      "id": "Shout_Disengage",
-     "name": "Disengage"
+     "name": "Disengage",
+     "prepared": true
     },
     {
      "category": "spell",
      "id": "Shout_DisguiseSelf",
-     "name": "Disguise Self"
+     "name": "Disguise Self",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_Dragonborn_Female",
-     "name": "Disguise Self: Femme Dragonborn"
+     "name": "Disguise Self: Femme Dragonborn",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_Dragonborn_Male",
-     "name": "Disguise Self: Masc Dragonborn"
+     "name": "Disguise Self: Masc Dragonborn",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_Drow_Female",
-     "name": "Disguise Self: Femme Drow"
+     "name": "Disguise Self: Femme Drow",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_Drow_Male",
-     "name": "Disguise Self: Masc Drow"
+     "name": "Disguise Self: Masc Drow",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_Drow_Strong_Female",
-     "name": "Disguise Self: Femme Strong Drow"
+     "name": "Disguise Self: Femme Strong Drow",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_Drow_Strong_Male",
-     "name": "Disguise Self: Masc Strong Drow"
+     "name": "Disguise Self: Masc Strong Drow",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_Dwarf_Female",
-     "name": "Disguise Self: Femme Dwarf"
+     "name": "Disguise Self: Femme Dwarf",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_Dwarf_Male",
-     "name": "Disguise Self: Masc Dwarf"
+     "name": "Disguise Self: Masc Dwarf",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_Elf_Female",
-     "name": "Disguise Self: Femme Elf"
+     "name": "Disguise Self: Femme Elf",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_Elf_Male",
-     "name": "Disguise Self: Masc Elf"
+     "name": "Disguise Self: Masc Elf",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_Elf_Strong_Female",
-     "name": "Disguise Self: Femme Strong Elf"
+     "name": "Disguise Self: Femme Strong Elf",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_Elf_Strong_Male",
-     "name": "Disguise Self: Masc Strong Elf"
+     "name": "Disguise Self: Masc Strong Elf",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_Githyanki_Female",
-     "name": "Disguise Self: Femme Githyanki"
+     "name": "Disguise Self: Femme Githyanki",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_Githyanki_Male",
-     "name": "Disguise Self: Masc Githyanki"
+     "name": "Disguise Self: Masc Githyanki",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_Gnome_Female",
-     "name": "Disguise Self: Femme Gnome"
+     "name": "Disguise Self: Femme Gnome",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_Gnome_Male",
-     "name": "Disguise Self: Masc Gnome"
+     "name": "Disguise Self: Masc Gnome",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_HalfElf_Female",
-     "name": "Disguise Self: Femme Half-Elf"
+     "name": "Disguise Self: Femme Half-Elf",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_HalfElf_Male",
-     "name": "Disguise Self: Masc Half-Elf"
+     "name": "Disguise Self: Masc Half-Elf",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_HalfElf_Strong_Female",
-     "name": "Disguise Self: Femme Strong Half-Elf"
+     "name": "Disguise Self: Femme Strong Half-Elf",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_HalfElf_Strong_Male",
-     "name": "Disguise Self: Masc Strong Half-Elf"
+     "name": "Disguise Self: Masc Strong Half-Elf",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_HalfOrc_Female",
-     "name": "Disguise Self: Femme Half-Orc"
+     "name": "Disguise Self: Femme Half-Orc",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_HalfOrc_Male",
-     "name": "Disguise Self: Masc Half-Orc"
+     "name": "Disguise Self: Masc Half-Orc",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_Halfling_Female",
-     "name": "Disguise Self: Femme Halfling"
+     "name": "Disguise Self: Femme Halfling",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_Halfling_Male",
-     "name": "Disguise Self: Masc Halfling"
+     "name": "Disguise Self: Masc Halfling",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_Human_Female",
-     "name": "Disguise Self: Femme Human"
+     "name": "Disguise Self: Femme Human",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_Human_Male",
-     "name": "Disguise Self: Masc Human"
+     "name": "Disguise Self: Masc Human",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_Human_Strong_Female",
-     "name": "Disguise Self: Femme Strong Human"
+     "name": "Disguise Self: Femme Strong Human",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_Human_Strong_Male",
-     "name": "Disguise Self: Masc Strong Human"
+     "name": "Disguise Self: Masc Strong Human",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_Tiefling_Female",
-     "name": "Disguise Self: Femme Tiefling"
+     "name": "Disguise Self: Femme Tiefling",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_Tiefling_Male",
-     "name": "Disguise Self: Masc Tiefling"
+     "name": "Disguise Self: Masc Tiefling",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_Tiefling_Strong_Female",
-     "name": "Disguise Self: Femme Strong Tiefling"
+     "name": "Disguise Self: Femme Strong Tiefling",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_DisguiseSelf_Tiefling_Strong_Male",
-     "name": "Disguise Self: Masc Strong Tiefling"
+     "name": "Disguise Self: Masc Strong Tiefling",
+     "prepared": true
     },
     {
      "category": "basic-action",
      "id": "Shout_Hide",
-     "name": "Hide"
+     "name": "Hide",
+     "prepared": true
     },
     {
      "category": "spell",
      "id": "Target_Bane",
-     "name": "Bane"
+     "name": "Bane",
+     "prepared": false
     },
     {
      "category": "spell",
      "id": "Target_Bless",
-     "name": "Bless"
+     "name": "Bless",
+     "prepared": false
     },
     {
      "category": "spell",
      "id": "Target_BlessingOfTheTrickster",
-     "name": "Blessing of the Trickster"
+     "name": "Blessing of the Trickster",
+     "prepared": true
     },
     {
      "category": "spell",
      "id": "Target_CharmPerson",
-     "name": "Charm Person"
+     "name": "Charm Person",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Target_Command_Approach",
-     "name": "Command: Approach"
+     "name": "Command: Approach",
+     "prepared": false
     },
     {
      "category": "spell",
      "id": "Target_Command_Container",
-     "name": "Command"
+     "name": "Command",
+     "prepared": false
     },
     {
      "category": "sub-spell",
      "id": "Target_Command_Drop",
-     "name": "Command: Drop"
+     "name": "Command: Drop",
+     "prepared": false
     },
     {
      "category": "sub-spell",
      "id": "Target_Command_Flee",
-     "name": "Command: Flee"
+     "name": "Command: Flee",
+     "prepared": false
     },
     {
      "category": "sub-spell",
      "id": "Target_Command_Grovel",
-     "name": "Command: Grovel"
+     "name": "Command: Grovel",
+     "prepared": false
     },
     {
      "category": "sub-spell",
      "id": "Target_Command_Halt",
-     "name": "Command: Halt"
+     "name": "Command: Halt",
+     "prepared": false
     },
     {
      "category": "spell",
      "id": "Target_CreateDestroyWater",
-     "name": "Create or Destroy Water"
+     "name": "Create or Destroy Water",
+     "prepared": false
     },
     {
      "category": "sub-spell",
      "id": "Target_CreateWater",
-     "name": "Create Water"
+     "name": "Create Water",
+     "prepared": false
     },
     {
      "category": "spell",
      "id": "Target_CureWounds",
-     "name": "Cure Wounds"
+     "name": "Cure Wounds",
+     "prepared": false
     },
     {
      "category": "sub-spell",
      "id": "Target_DestroyWater",
-     "name": "Destroy Water"
+     "name": "Destroy Water",
+     "prepared": false
     },
     {
      "category": "basic-action",
      "id": "Target_Dip",
-     "name": "Dip"
+     "name": "Dip",
+     "prepared": true
     },
     {
      "category": "spell",
      "id": "Target_Guidance",
-     "name": "Guidance"
+     "name": "Guidance",
+     "prepared": true
     },
     {
      "category": "spell",
      "id": "Target_HealingWord",
-     "name": "Healing Word"
+     "name": "Healing Word",
+     "prepared": true
     },
     {
      "category": "basic-action",
      "id": "Target_Help",
-     "name": "Help"
+     "name": "Help",
+     "prepared": true
     },
     {
      "category": "spell",
      "id": "Target_InflictWounds",
-     "name": "Inflict Wounds"
+     "name": "Inflict Wounds",
+     "prepared": true
     },
     {
      "category": "basic-action",
      "id": "Target_MainHandAttack",
-     "name": "Main Hand Attack"
+     "name": "Main Hand Attack",
+     "prepared": true
     },
     {
      "category": "spell",
      "id": "Target_ProtectionFromEvilAndGood",
-     "name": "Protection from Evil and Good"
+     "name": "Protection from Evil and Good",
+     "prepared": false
     },
     {
      "category": "spell",
      "id": "Target_Resistance",
-     "name": "Resistance"
+     "name": "Resistance",
+     "prepared": true
     },
     {
      "category": "spell",
      "id": "Target_SacredFlame",
-     "name": "Sacred Flame"
+     "name": "Sacred Flame",
+     "prepared": true
     },
     {
      "category": "spell",
      "id": "Target_Sanctuary",
-     "name": "Sanctuary"
+     "name": "Sanctuary",
+     "prepared": false
     },
     {
      "category": "spell",
      "id": "Target_ShieldOfFaith",
-     "name": "Shield of Faith"
+     "name": "Shield of Faith",
+     "prepared": true
     },
     {
      "category": "basic-action",
      "id": "Target_Shove",
-     "name": "Shove"
+     "name": "Shove",
+     "prepared": true
     },
     {
      "category": "basic-action",
      "id": "Throw_ImprovisedWeapon",
-     "name": "Improvised Melee Weapon"
+     "name": "Improvised Melee Weapon",
+     "prepared": true
     },
     {
      "category": "basic-action",
      "id": "Throw_Throw",
-     "name": "Throw"
+     "name": "Throw",
+     "prepared": true
     }
    ],
    "spells_note": null,
@@ -607,112 +675,134 @@
     {
      "category": "basic-action",
      "id": "Projectile_Jump",
-     "name": "Jump"
+     "name": "Jump",
+     "prepared": true
     },
     {
      "category": "basic-action",
      "id": "Projectile_MainHandAttack",
-     "name": "Ranged Attack"
+     "name": "Ranged Attack",
+     "prepared": true
     },
     {
      "category": "spell",
      "id": "Projectile_PiercingShot",
-     "name": "Piercing Shot"
+     "name": "Piercing Shot",
+     "prepared": true
     },
     {
      "category": "spell",
      "id": "Shout_AstralKnowledge",
-     "name": "Astral Knowledge"
+     "name": "Astral Knowledge",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_AstralKnowledge_Charisma",
-     "name": "Astral Knowledge: Charisma"
+     "name": "Astral Knowledge: Charisma",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_AstralKnowledge_Dexterity",
-     "name": "Astral Knowledge: Dexterity"
+     "name": "Astral Knowledge: Dexterity",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_AstralKnowledge_Intelligence",
-     "name": "Astral Knowledge: Intelligence"
+     "name": "Astral Knowledge: Intelligence",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_AstralKnowledge_Strength",
-     "name": "Astral Knowledge: Strength"
+     "name": "Astral Knowledge: Strength",
+     "prepared": true
     },
     {
      "category": "sub-spell",
      "id": "Shout_AstralKnowledge_Wisdom",
-     "name": "Astral Knowledge: Wisdom"
+     "name": "Astral Knowledge: Wisdom",
+     "prepared": true
     },
     {
      "category": "basic-action",
      "id": "Shout_Dash",
-     "name": "Dash"
+     "name": "Dash",
+     "prepared": true
     },
     {
      "category": "basic-action",
      "id": "Shout_Disengage",
-     "name": "Disengage"
+     "name": "Disengage",
+     "prepared": true
     },
     {
      "category": "basic-action",
      "id": "Shout_Hide",
-     "name": "Hide"
+     "name": "Hide",
+     "prepared": true
     },
     {
      "category": "spell",
      "id": "Shout_SecondWind",
-     "name": "Second Wind"
+     "name": "Second Wind",
+     "prepared": true
     },
     {
      "category": "spell",
      "id": "Target_ConcussiveSmash",
-     "name": "Concussive Smash"
+     "name": "Concussive Smash",
+     "prepared": false
     },
     {
      "category": "basic-action",
      "id": "Target_Dip",
-     "name": "Dip"
+     "name": "Dip",
+     "prepared": true
     },
     {
      "category": "basic-action",
      "id": "Target_Help",
-     "name": "Help"
+     "name": "Help",
+     "prepared": true
     },
     {
      "category": "spell",
      "id": "Target_MageHand_GithyankiPsionics",
-     "name": "Githyanki Psionics: Mage Hand"
+     "name": "Githyanki Psionics: Mage Hand",
+     "prepared": true
     },
     {
      "category": "basic-action",
      "id": "Target_MainHandAttack",
-     "name": "Main Hand Attack"
+     "name": "Main Hand Attack",
+     "prepared": true
     },
     {
      "category": "basic-action",
      "id": "Target_Shove",
-     "name": "Shove"
+     "name": "Shove",
+     "prepared": true
     },
     {
      "category": "spell",
      "id": "Target_Slash_New",
-     "name": "Lacerate"
+     "name": "Lacerate",
+     "prepared": true
     },
     {
      "category": "basic-action",
      "id": "Throw_ImprovisedWeapon",
-     "name": "Improvised Melee Weapon"
+     "name": "Improvised Melee Weapon",
+     "prepared": true
     },
     {
      "category": "basic-action",
      "id": "Throw_Throw",
-     "name": "Throw"
+     "name": "Throw",
+     "prepared": true
     }
    ],
    "spells_note": null,

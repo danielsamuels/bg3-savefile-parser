@@ -12,6 +12,7 @@ import {
   parseLsmfComponentRows,
   parseLsmfContainerPositions,
   parseLsmfMembership,
+  parseLsmfPreparedSpells,
   parseLsmfSpellbooks,
   parseLsmfStackAmounts,
   WIELDED_COMP,
@@ -75,6 +76,7 @@ export interface SpellRef {
   id: string;
   name: string | null;
   category: string;
+  prepared: boolean | null;
 }
 
 export interface CharacterReport {
@@ -290,6 +292,9 @@ export function gatherReport(
 
   const spellbooks = lsmfBlob ? parseLsmfSpellbooks(lsmfBlob) : new Map<number, string[]>();
   const entityClasses = lsmfBlob ? parseLsmfClasses(lsmfBlob) : new Map();
+  const preparedSpells = lsmfBlob
+    ? parseLsmfPreparedSpells(lsmfBlob)
+    : new Map<number, [string, number, string][]>();
   const classNames = dn.classUuidNames;
 
   const buildKey = (ci: InfoCharacter): string | null => {
@@ -302,7 +307,7 @@ export function gatherReport(
     partyBuilds.filter((k, _i, a) => a.filter((x) => x === k).length > 1),
   );
 
-  const exactSpellbook = (ci: InfoCharacter): string[] | null => {
+  const exactSpellEntity = (ci: InfoCharacter): number | null => {
     const key = buildKey(ci);
     if (key === null || ambiguousBuilds.has(key)) return null;
     const want = (ci.Classes ?? []).map((c) => `${c.Main ?? ''}\x00${c.Sub ?? ''}`).sort();
@@ -329,10 +334,28 @@ export function gatherReport(
       }
     }
     if (!candidates.length) return null;
-    const best = candidates.reduce((a, b) =>
+    return candidates.reduce((a, b) =>
       (spellbooks.get(b)?.length ?? 0) > (spellbooks.get(a)?.length ?? 0) ? b : a,
     );
-    return spellbooks.get(best)!;
+  };
+
+  // A book entry is prepared when its base prototype name (upcast _N suffix
+  // stripped) appears in the entity's PreparedSpells; entities without
+  // preparation data get prepared=null throughout.
+  const stripUpcast = (sid: string): string => sid.replace(/_\d+$/, '');
+  const spellRefs = (ent: number): SpellRef[] => {
+    const prepared = preparedSpells.get(ent);
+    const preparedBases = prepared ? new Set(prepared.map(([n]) => stripUpcast(n))) : null;
+    return [...new Set(spellbooks.get(ent)!)].sort().map((sid) => ({
+      id: sid,
+      name: dn.spellNameFor(sid),
+      category: COMMON_ACTION_SPELLS.has(sid)
+        ? 'basic-action'
+        : dn.subSpells.has(sid)
+          ? 'sub-spell'
+          : 'spell',
+      prepared: preparedBases ? preparedBases.has(stripUpcast(sid)) : null,
+    }));
   };
 
   const lsmfEcs = lsmfBlob ? parseLsmfMembership(lsmfBlob) : null;
@@ -635,17 +658,9 @@ export function gatherReport(
     };
     report.characters.push(char);
 
-    const book = exactSpellbook(charInfo);
-    if (book !== null) {
-      char.spells = [...new Set(book)].sort().map((sid) => ({
-        id: sid,
-        name: dn.spellNameFor(sid),
-        category: COMMON_ACTION_SPELLS.has(sid)
-          ? 'basic-action'
-          : dn.subSpells.has(sid)
-            ? 'sub-spell'
-            : 'spell',
-      }));
+    const spellEnt = exactSpellEntity(charInfo);
+    if (spellEnt !== null) {
+      char.spells = spellRefs(spellEnt);
     } else if (buildKey(charInfo) !== null && ambiguousBuilds.has(buildKey(charInfo)!)) {
       char.spells_note = 'ambiguous-build';
     } else {
@@ -727,15 +742,7 @@ export function gatherReport(
           (acc: number, [, , lvl]: [string, string, number]) => acc + lvl,
           0,
         );
-        char.spells = [...new Set(spellbooks.get(ent)!)].sort().map((sid) => ({
-          id: sid,
-          name: dn.spellNameFor(sid),
-          category: COMMON_ACTION_SPELLS.has(sid)
-            ? 'basic-action'
-            : dn.subSpells.has(sid)
-              ? 'sub-spell'
-              : 'spell',
-        }));
+        char.spells = spellRefs(ent);
       } else if (baseClass && sameClass > 1) {
         char.spells_note = 'ambiguous-build';
       } else {

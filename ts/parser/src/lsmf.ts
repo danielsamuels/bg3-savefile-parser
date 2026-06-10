@@ -272,6 +272,113 @@ export function parseLsmfAllContainerPositions(blob: Uint8Array): Map<number, nu
 }
 
 /** Entity row -> first ContainerSlotData row (ring/hand ordering). */
+/** Extract prepared spells: entity row -> [spell ID, source type, source GUID][].
+ *
+ *  game.spell.v0.SpellBookPrepares rows are 80 bytes (five {begin, end} heap
+ *  ranges); the fourth range is the PreparedSpells array of 24-byte
+ *  SpellMetaId records {string pointer, length, pad, detail pointer}. The
+ *  detail record holds a pointer into the game.spell.v0.ESourceType value
+ *  pool (the SpellSourceType) followed by the ProgressionSource GUID.
+ *
+ *  The prepares ownerlist is written in an older entity numbering than the
+ *  spell-book ownerlists, so rows are realigned by the dominant per-save
+ *  delta between each prepares row and the unique spell book containing its
+ *  spell names. Mirrors bg3parser/lsmf.py parse_lsmf_prepared_spells.
+ */
+export function parseLsmfPreparedSpells(blob: Uint8Array): Map<number, [string, number, string][]> {
+  const idx = lsmfComponentIndex(blob);
+  const sp = idx.get('game.spell.v0.SpellBookPrepares');
+  const et = idx.get('game.spell.v0.ESourceType');
+  if (!sp || !et || sp.elemSize !== 80) return new Map();
+  const { bytes, dv } = align(blob);
+  const L = bytes.length;
+
+  const sourcePool = new Map<number, number>();
+  for (let r = 0; r < et.rowCount; r++) {
+    const off = et.dataOffset + r * et.elemSize;
+    if (off + et.elemSize > L) break;
+    sourcePool.set(off - LSMF_HEAP_BASE, u64(dv, off));
+  }
+
+  const heapStr = (ptr: number, ln: number): string | null => {
+    const p0 = ptr + LSMF_HEAP_BASE;
+    if (!(ln > 0 && ln <= 128 && p0 > 0 && p0 <= L - ln)) return null;
+    for (let i = 0; i < ln; i++) {
+      const ch = bytes[p0 + i]!;
+      if (ch < 0x20 || ch >= 0x7f) return null;
+    }
+    return new TextDecoder().decode(bytes.subarray(p0, p0 + ln));
+  };
+
+  const raw = new Map<number, [string, number, string][]>();
+  for (let k = 0; k < sp.rowCount; k++) {
+    const ent = sp.ownerRows[k]!;
+    const base = sp.dataOffset + k * sp.elemSize;
+    const begin = u64(dv, base + 48);
+    const end = u64(dv, base + 56);
+    const size = end - begin;
+    if (!(begin >= 0 && begin < end && end <= L && size % 24 === 0 && size <= 24 * 4096)) {
+      continue;
+    }
+    const entries: [string, number, string][] = [];
+    for (let p = begin + LSMF_HEAP_BASE; p < end + LSMF_HEAP_BASE; p += 24) {
+      const sptr = u64(dv, p);
+      const ln = dv.getUint32(p + 8, true);
+      const detail = u64(dv, p + 16);
+      const name = heapStr(sptr, ln);
+      if (name === null) continue;
+      let sourceType = -1;
+      let sourceGuid = '';
+      const d0 = detail + LSMF_HEAP_BASE;
+      if (d0 > 0 && d0 <= L - 24) {
+        const eptr = u64(dv, d0);
+        const st = sourcePool.get(eptr);
+        if (st !== undefined) {
+          sourceType = st;
+          sourceGuid = guidLeStr(bytes, d0 + 8);
+        }
+      }
+      entries.push([name, sourceType, sourceGuid]);
+    }
+    if (entries.length && entries.length > (raw.get(ent)?.length ?? 0)) raw.set(ent, entries);
+  }
+
+  // Realign the stale prepares numbering against the spell-book numbering.
+  const books = parseLsmfSpellbooks(blob);
+  const bookSets = new Map<number, Set<string>>();
+  for (const [e, v] of books) bookSets.set(e, new Set(v));
+  const deltas = new Map<number, number>();
+  for (const [ent, entries] of raw) {
+    const names = new Set(entries.map(([n]) => n));
+    if (names.size < 8) continue;
+    const cands: number[] = [];
+    for (const [be, bs] of bookSets) {
+      let overlap = 0;
+      for (const n of names) if (bs.has(n)) overlap++;
+      if (overlap >= 0.85 * names.size) cands.push(be);
+    }
+    if (cands.length === 1) {
+      const d = cands[0]! - ent;
+      deltas.set(d, (deltas.get(d) ?? 0) + 1);
+    }
+  }
+  if (!deltas.size) return new Map();
+  let delta = 0;
+  let votes = 0;
+  let total = 0;
+  for (const [d, v] of deltas) {
+    total += v;
+    if (v > votes) {
+      votes = v;
+      delta = d;
+    }
+  }
+  if (votes < 3 || votes < 0.5 * total) delta = 0;
+  const out = new Map<number, [string, number, string][]>();
+  for (const [ent, entries] of raw) out.set(ent + delta, entries);
+  return out;
+}
+
 export function parseLsmfContainerPositions(blob: Uint8Array): Map<number, number> {
   const out = new Map<number, number>();
   for (const [ent, rows] of parseLsmfAllContainerPositions(blob)) out.set(ent, rows[0]!);

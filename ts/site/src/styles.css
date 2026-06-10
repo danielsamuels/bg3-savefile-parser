@@ -474,6 +474,18 @@ details.sub ul {
   margin: var(--space-xs) 0 0;
 }
 
+/* Prepared spells carry a small gold marker */
+.items li.prep::before {
+  content: "";
+  display: inline-block;
+  width: 0.35em;
+  height: 0.35em;
+  border-radius: 50%;
+  background: var(--gold);
+  margin-right: 0.45em;
+  vertical-align: 0.15em;
+}
+
 /* Quest log: nested sub-quests under their parent */
 .quest-obj {
   color: var(--mute);

@@ -348,6 +348,90 @@ def parse_lsmf_classes(blob: bytes) -> dict[int, tuple]:
     return out
 
 
+def parse_lsmf_prepared_spells(blob: bytes) -> dict[int, list[tuple[str, int, str]]]:
+    """Extract prepared spells: entity row -> [(spell ID, source type, source GUID), ...].
+
+    game.spell.v0.SpellBookPrepares rows are 80 bytes (five {begin, end} heap
+    ranges); the fourth range is the PreparedSpells array of 24-byte
+    SpellMetaId records {string pointer, length, pad, detail pointer}. The
+    detail record holds a pointer into the game.spell.v0.ESourceType value
+    pool (the SpellSourceType: 0/1/2 progression = class/subclass/race,
+    3 = item boost, 6 = base spell set, 7 = weapon attack) followed by the
+    ProgressionSource GUID.
+
+    The prepares ownerlist is written in an older entity numbering than the
+    spell-book/classes ownerlists (rows shift as entities are created), so
+    rows are realigned by the dominant per-save delta between each prepares
+    row and the unique spell book containing its spell names.
+    """
+    idx = lsmf_component_index(blob)
+    sp = idx.get('game.spell.v0.SpellBookPrepares')
+    et = idx.get('game.spell.v0.ESourceType')
+    if not (sp and et):
+        return {}
+    elem, rows, off, owners = sp
+    if elem != 80:
+        return {}
+    L = len(blob)
+
+    e_elem, e_rows, e_off, _ = et
+    source_pool = {
+        e_off + r * e_elem - LSMF_HEAP_BASE: struct.unpack_from('<Q', blob, e_off + r * e_elem)[0]
+        for r in range(e_rows)
+        if e_off + (r + 1) * e_elem <= L
+    }
+
+    def heap_str(ptr: int, ln: int) -> str | None:
+        p0 = ptr + LSMF_HEAP_BASE
+        if not (0 < ln <= 128 and 0 < p0 <= L - ln):
+            return None
+        raw = blob[p0 : p0 + ln]
+        return raw.decode('ascii') if all(0x20 <= ch < 0x7F for ch in raw) else None
+
+    raw_map: dict[int, list[tuple[str, int, str]]] = {}
+    for k, ent in enumerate(owners):
+        if k >= rows:
+            break
+        begin, end = struct.unpack_from('<QQ', blob, off + k * elem + 48)
+        size = end - begin
+        if not (0 <= begin < end <= L and size % 24 == 0 and size <= 24 * 4096):
+            continue
+        entries = []
+        for ptr in range(begin + LSMF_HEAP_BASE, end + LSMF_HEAP_BASE, 24):
+            sptr, ln, _pad, detail = struct.unpack_from('<QIIQ', blob, ptr)
+            name = heap_str(sptr, ln)
+            if name is None:
+                continue
+            source_type, source_guid = -1, ''
+            d0 = detail + LSMF_HEAP_BASE
+            if 0 < d0 <= L - 24:
+                eptr = struct.unpack_from('<Q', blob, d0)[0]
+                if eptr in source_pool:
+                    source_type = source_pool[eptr]
+                    source_guid = guid_le_str(blob[d0 + 8 : d0 + 24])
+            entries.append((name, source_type, source_guid))
+        if entries and len(entries) > len(raw_map.get(ent, ())):
+            raw_map[ent] = entries
+
+    # Realign the stale prepares numbering against the spell-book numbering.
+    books = parse_lsmf_spellbooks(blob)
+    book_sets = {e: set(v) for e, v in books.items()}
+    deltas: Counter = Counter()
+    for ent, entries in raw_map.items():
+        names = {n for n, _st, _g in entries}
+        if len(names) < 8:
+            continue
+        cands = [be for be, bs in book_sets.items() if len(names & bs) >= 0.85 * len(names)]
+        if len(cands) == 1:
+            deltas[cands[0] - ent] += 1
+    if not deltas:
+        return {}
+    delta, votes = deltas.most_common(1)[0]
+    if votes < 3 or votes < 0.5 * sum(deltas.values()):
+        delta = 0
+    return {ent + delta: entries for ent, entries in raw_map.items()}
+
+
 def parse_lsmf_container_positions(blob: bytes) -> dict[int, int]:
     """Map entity row -> its game.inventory.v0.ContainerSlotData row index.
 
