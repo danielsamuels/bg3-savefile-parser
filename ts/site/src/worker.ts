@@ -1,5 +1,7 @@
 /// <reference lib="webworker" />
 import { DisplayNames, type GamedataJson } from '@bg3save/parser/src/gamedata.ts';
+import { parseLsof } from '@bg3save/parser/src/lsf.ts';
+import { parseLsmfPortraits } from '@bg3save/parser/src/lsmf.ts';
 import { decompFrame, extractFrames } from '@bg3save/parser/src/lspk.ts';
 import { gatherReport } from '@bg3save/parser/src/model.ts';
 
@@ -14,6 +16,39 @@ function thumbnailBytes(bytes: Uint8Array): ArrayBuffer | null {
     return d.buffer.slice(d.byteOffset, d.byteOffset + d.byteLength) as ArrayBuffer;
   } catch {
     return null;
+  }
+}
+
+/** Embedded character portraits, keyed by created-character name. */
+function portraitBytes(bytes: Uint8Array): {
+  portraits: { name: string; buf: ArrayBuffer }[];
+  guardian: ArrayBuffer | null;
+} {
+  try {
+    const globals = extractFrames(bytes).get('Globals.lsf');
+    if (!globals) return { portraits: [], guardian: null };
+    const nodes = parseLsof(decompFrame(globals));
+    const blobNode = nodes.find((nd) => nd.name === 'NewAge' && nd.parent === -1);
+    const blob = blobNode?.attrs.NewAge;
+    if (!(blob instanceof Uint8Array)) return { portraits: [], guardian: null };
+    const { portraits, guardian } = parseLsmfPortraits(blob);
+    return {
+      portraits: portraits.map((pt) => ({
+        name: pt.name,
+        buf: pt.webp.buffer.slice(
+          pt.webp.byteOffset,
+          pt.webp.byteOffset + pt.webp.byteLength,
+        ) as ArrayBuffer,
+      })),
+      guardian: guardian
+        ? (guardian.buffer.slice(
+            guardian.byteOffset,
+            guardian.byteOffset + guardian.byteLength,
+          ) as ArrayBuffer)
+        : null,
+    };
+  } catch {
+    return { portraits: [], guardian: null };
   }
 }
 
@@ -32,9 +67,22 @@ self.onmessage = (ev: MessageEvent) => {
       quests: true,
     });
     const thumbnail = thumbnailBytes(bytes);
+    const { portraits, guardian } = portraitBytes(bytes);
+    const transfers = [
+      ...(thumbnail ? [thumbnail] : []),
+      ...portraits.map((pt) => pt.buf),
+      ...(guardian ? [guardian] : []),
+    ];
     self.postMessage(
-      { kind: 'report', report, ms: Math.round(performance.now() - t0), thumbnail },
-      thumbnail ? [thumbnail] : [],
+      {
+        kind: 'report',
+        report,
+        ms: Math.round(performance.now() - t0),
+        thumbnail,
+        portraits,
+        guardian,
+      },
+      transfers,
     );
   } catch (err) {
     self.postMessage({ kind: 'error', message: String(err) });

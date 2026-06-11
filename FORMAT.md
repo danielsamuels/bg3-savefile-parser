@@ -62,6 +62,7 @@ All integers are little-endian.
   - [Concentration and spell cooldowns (✅ decoded 2026-06)](#concentration-and-spell-cooldowns--decoded-2026-06)
   - [Level-ups, feats, and passives (✅ decoded 2026-06)](#level-ups-feats-and-passives--decoded-2026-06)
   - [The character → stats-entity link (✅ solved 2026-06)](#the-character--stats-entity-link--solved-2026-06)
+  - [Embedded character portraits (✅ decoded 2026-06-11)](#embedded-character-portraits--decoded-2026-06-11)
   - [Party recipes (✅ decoded 2026-06)](#party-recipes--decoded-2026-06)
   - [Character-state namespaces (✅ surveyed 2026-06; mostly negative)](#character-state-namespaces--surveyed-2026-06-mostly-negative)
   - [Component census (✅ surveyed 2026-06)](#component-census--surveyed-2026-06)
@@ -1150,6 +1151,19 @@ player's name, not for linking); `core.v0.EntityId` GUIDs for stats
 entities never appear in LSF attributes; `OriginComponent` GUIDs are
 CC-session-local.
 
+### Embedded character portraits (✅ decoded 2026-06-11)
+
+The save embeds each created character's CC portrait as a 300×300 WebP
+directly in the LSMF heap. `game.icon.v0.CharacterCreationCustomIconComponent`
+rows (behind the usual 3-row metadata prefix) are `{begin, end}` ranges over
+the image bytes, one per created character in CREATION order; the prefix's
+middle row is the range of the Dream Guardian's portrait. Identity comes
+from the CC stats rows, which chain names in the same creation order: the
+first created character's name pointer sits at row0+56, then each row k's
++80 pointer names creation slot k+1 (an origin avatar minutes into a run
+may have no name string yet). Ground-truth verified by eye against three
+saves and 16 portraits. The ownerlist values are unreliable, as usual.
+
 ### Party recipes (✅ decoded 2026-06)
 
 `game.party.v0.RecipeData` rows are 24 bytes: `{u64 string pointer (+48
@@ -1299,6 +1313,7 @@ handle indexes straight into this table.
 | Party recipes | ✅ decoded (`RecipeData` string pool refs; see §6) |
 | Character → stats-entity link | ✅ solved (`stats = world + 1`, world via TemplateComponent GUID; see §6) |
 | Subregion display names | ✅ decoded (V3 localization key files → loca; "SHA_Temple_SUB" → "Gauntlet of Shar") |
+| Embedded character portraits | ✅ decoded (WebP ranges in creation order + the Dream Guardian; see §6) |
 | Action resources (spell slots, rage, ki, …) | ✅ decoded (rotated ownerlist; see §6) |
 | Feats + level-up picks | ✅ decoded (`LevelUpComponent` chain; build-matched; see §6) |
 | Concentration + spell cooldowns | ✅ decoded (see §6) |

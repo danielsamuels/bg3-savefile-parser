@@ -357,6 +357,43 @@ body.has-report .drop-hint {
   color: var(--ink);
 }
 
+.char-head {
+  display: flex;
+  gap: var(--space-md);
+  align-items: center;
+}
+
+.char-head > div {
+  min-width: 0;
+}
+
+.char-head .char-name {
+  margin-top: 0;
+}
+
+.char-portrait {
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  flex-shrink: 0;
+  object-fit: cover;
+}
+
+.guardian {
+  margin: 0;
+  text-align: center;
+}
+
+.guardian img {
+  border-radius: 6px;
+  border: 1px solid var(--line);
+}
+
+.guardian figcaption {
+  font-size: 0.75rem;
+  color: var(--mute);
+  margin-top: 0.3rem;
+}
+
 .char-resources,
 .char-feats {
   margin-top: -0.5rem;

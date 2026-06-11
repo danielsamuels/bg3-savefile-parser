@@ -279,6 +279,32 @@ function renderSpells(spells: SpellRef[]): string {
   </details>`;
 }
 
+/** Object URLs for the save-embedded character portraits, by created name. */
+let portraitUrls = new Map<string, string>();
+let guardianUrl: string | null = null;
+
+function setPortraits(
+  portraits: { name: string; buf: ArrayBuffer }[],
+  guardian: ArrayBuffer | null,
+): void {
+  for (const url of portraitUrls.values()) URL.revokeObjectURL(url);
+  if (guardianUrl) URL.revokeObjectURL(guardianUrl);
+  portraitUrls = new Map();
+  for (const pt of portraits) {
+    if (!pt.name) continue;
+    portraitUrls.set(
+      pt.name.toLowerCase(),
+      URL.createObjectURL(new Blob([pt.buf], { type: 'image/webp' })),
+    );
+  }
+  guardianUrl = guardian ? URL.createObjectURL(new Blob([guardian], { type: 'image/webp' })) : null;
+}
+
+function portraitFor(charName: string): string | null {
+  const base = charName.replace(/ \((player|hireling)\)$/, '').toLowerCase();
+  return portraitUrls.get(base) ?? null;
+}
+
 function renderCharacter(c: CharacterReport, index: number): string {
   const isPlayer = c.name.endsWith(' (player)');
   const displayName = isPlayer ? c.name.slice(0, -' (player)'.length) : c.name;
@@ -337,8 +363,13 @@ function renderCharacter(c: CharacterReport, index: number): string {
     : '';
 
   const tag = isPlayer ? 'player' : c.at_camp ? 'at camp' : '';
-  const head = `<h3 class="char-name">${esc(displayName)}${tag ? `<span class="who">${tag}</span>` : ''}</h3>
-    <p class="char-meta">${meta}</p>${stats}${resources}${feats}`;
+  const portraitUrl = portraitFor(c.name);
+  const portrait = portraitUrl
+    ? `<img class="char-portrait" src="${esc(portraitUrl)}" alt="" width="72" height="72" loading="lazy">`
+    : '';
+  const head = `<div class="char-head${portrait ? ' has-portrait' : ''}">${portrait}<div>
+    <h3 class="char-name">${esc(displayName)}${tag ? `<span class="who">${tag}</span>` : ''}</h3>
+    <p class="char-meta">${meta}</p></div></div>${stats}${resources}${feats}`;
 
   if (c.equipment_note && !c.equipped.length && !c.carried.length && !c.undetermined.length) {
     return `<section class="char" style="--i:${index}">${head}
@@ -522,9 +553,13 @@ function renderCampaign(story: StoryState, index: number): string {
     : '';
   const counter = (label: string, value: string): string =>
     value ? `<div><dt>${label}</dt><dd>${value}</dd></div>` : '';
+  const guardian = guardianUrl
+    ? `<figure class="guardian"><img src="${esc(guardianUrl)}" alt="The Dream Guardian" width="84" height="84"><figcaption>Dream Guardian</figcaption></figure>`
+    : '';
   return `<section class="char campaign" style="--i:${index}">
     <h3 class="char-name">Campaign</h3>
     <div class="campaign-grid">
+      ${guardian}
       ${approval}
       <dl class="save-meta campaign-counters">
         ${counter('Long rests', String(story.long_rests))}
@@ -648,7 +683,14 @@ if (watchSupported()) {
 
 worker.onmessage = (ev: MessageEvent) => {
   const msg = ev.data as
-    | { kind: 'report'; report: SaveReport; ms: number; thumbnail: ArrayBuffer | null }
+    | {
+        kind: 'report';
+        report: SaveReport;
+        ms: number;
+        thumbnail: ArrayBuffer | null;
+        portraits?: { name: string; buf: ArrayBuffer }[];
+        guardian?: ArrayBuffer | null;
+      }
     | { kind: 'error'; message: string };
   if (msg.kind === 'error') {
     const detail = msg.message.replace(/^Error:\s*/, '').replace(/\s*\([^)]*\)\s*$/, '');
@@ -657,6 +699,7 @@ worker.onmessage = (ev: MessageEvent) => {
   }
   const r = msg.report;
   const time = msg.ms < 1000 ? `${msg.ms} ms` : `${(msg.ms / 1000).toFixed(1)} s`;
+  setPortraits(msg.portraits ?? [], msg.guardian ?? null);
   showReport(r, `Parsed ${r.source} in ${time}. Nothing left your machine.`, msg.thumbnail);
   currentCampaign = r.save_info.leader;
   recordSave(r, msg.thumbnail)

@@ -1032,6 +1032,44 @@ def test_quicksave_328_identical_builds_and_hireling():
     assert '52/52' in maia and '59/59' in sh
 
 
+def test_portraits_ground_truth():
+    """Embedded portraits pair with creation-order names (Dan verified by eye)."""
+    from bg3parser.lsmf import parse_lsmf_portraits
+
+    def blob_of(path):
+        frames = parser.extract_frames(path)
+        nodes0 = lsf.parse_lsof(lsf.decomp_frame(frames['Globals.lsf']))
+        return next(
+            nd['attrs']['NewAge'] for nd in nodes0 if nd['name'] == 'NewAge' and nd['parent'] == -1
+        )
+
+    ports, guardian = parse_lsmf_portraits(blob_of(str(FIXTURE_DIR / 'quicksave_328.lsv')))
+    assert [n for n, _ in ports] == [
+        'Gale',
+        'Maia',
+        'Shadowheart',
+        'Wyll',
+        'Astarion',
+        'Sir Fuzzalump',
+        'Karlach',
+        "Lae'zel",
+    ]
+    assert all(img[:4] == b'RIFF' for _, img in ports)
+    assert guardian is not None and guardian[:4] == b'RIFF'
+
+    ports, guardian = parse_lsmf_portraits(blob_of(QUICKSAVE_MAIA))
+    assert [n for n, _ in ports] == [
+        'Astarion',
+        'Wyll',
+        'Gale',
+        'Maia',
+        'Karlach',
+        'Shadowheart',
+        "Lae'zel",
+    ]
+    assert guardian is not None
+
+
 def test_all_items():
     """--all-items must emit the full level inventory section."""
     report = build_report(QUICKSAVE_MAIA, opts=Namespace(all_items=True))

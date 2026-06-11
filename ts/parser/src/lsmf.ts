@@ -578,6 +578,74 @@ export function parseLsmfConcentration(blob: Uint8Array): Map<number, string> {
   return out;
 }
 
+export interface Portrait {
+  name: string;
+  webp: Uint8Array;
+}
+
+/**
+ * Custom character portraits embedded in the save (creation order) plus the
+ * Dream Guardian's. CCCI data rows are {begin,end} ranges over WebP bytes
+ * behind the 3-row metadata prefix; the prefix's middle row is the Guardian.
+ * Names chain in creation order through the CC stats rows (row0+56, then
+ * each row's +80). Ground-truth verified by eye across three saves.
+ */
+export function parseLsmfPortraits(blob: Uint8Array): {
+  portraits: Portrait[];
+  guardian: Uint8Array | null;
+} {
+  const idx = lsmfComponentIndex(blob);
+  const icon = idx.get('game.icon.v0.CharacterCreationCustomIconComponent');
+  if (icon?.elemSize !== 16) return { portraits: [], guardian: null };
+  const { dv } = align(blob);
+  const L = blob.length;
+
+  const webpAt = (p: number): Uint8Array | null => {
+    if (p + 16 > L) return null;
+    const b = u64(dv, p);
+    const e = u64(dv, p + 8);
+    if (!(b > 0 && b < e && e + LSMF_HEAP_BASE <= L)) return null;
+    const img = blob.slice(b + LSMF_HEAP_BASE, e + LSMF_HEAP_BASE);
+    return img[0] === 0x52 && img[1] === 0x49 && img[2] === 0x46 && img[3] === 0x46 ? img : null;
+  };
+
+  const guardian = webpAt(icon.dataOffset + 16);
+  const names = parseLsmfCcCreationNames(blob);
+  const portraits: Portrait[] = [];
+  const base = icon.dataOffset + 48;
+  for (let k = 0; k < icon.rowCount; k++) {
+    const img = webpAt(base + k * icon.elemSize);
+    if (img) portraits.push({ name: names[k] ?? '', webp: img });
+  }
+  return { portraits, guardian };
+}
+
+/** Created characters' names in creation order (see parseLsmfPortraits). */
+export function parseLsmfCcCreationNames(blob: Uint8Array): string[] {
+  const idx = lsmfComponentIndex(blob);
+  const comp = idx.get('game.character_creation.v1.CharacterCreationStatsComponent');
+  if (comp?.elemSize !== 88) return [];
+  const { dv } = align(blob);
+  const L = blob.length;
+  const base = comp.dataOffset + 48;
+  const nameAt = (p: number): string => {
+    if (p + 8 > L) return '';
+    const p0 = u64(dv, p) + LSMF_HEAP_BASE;
+    if (!(p0 > 0 && p0 < L - 1)) return '';
+    let name = '';
+    for (let i = p0; i < Math.min(p0 + 80, L); i++) {
+      const c = blob[i]!;
+      if (c === 0) return name;
+      if (c < 0x20 || c >= 0x7f) return '';
+      name += String.fromCharCode(c);
+    }
+    return '';
+  };
+  const out = [nameAt(base + 56)];
+  for (let k = 0; k < comp.rowCount - 1; k++) out.push(nameAt(base + k * comp.elemSize + 80));
+  return out;
+}
+
 /**
  * Character names from CharacterCreationStatsComponent rows (88B behind a
  * 48-byte prefix; name pointer at +80), in row order. Covers the player,

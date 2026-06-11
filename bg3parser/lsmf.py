@@ -612,6 +612,74 @@ def parse_lsmf_concentration(blob: bytes) -> dict[int, str]:
     return out
 
 
+def parse_lsmf_portraits(blob: bytes) -> tuple[list[tuple[str, bytes]], bytes | None]:
+    """Custom character portraits embedded in the save, with the Dream Guardian.
+
+    game.icon.v0.CharacterCreationCustomIconComponent rows (behind the usual
+    3-row metadata prefix) are {begin, end} ranges over WebP image bytes, one
+    per created character in creation order; the prefix's middle row is the
+    range of the Dream Guardian's portrait. Names come from the CC stats
+    rows, which chain the same creation order: the first created name sits at
+    row0+56, then each row k's +80 pointer names creation slot k+1.
+
+    Ground-truth verified by eye against three saves (16 portraits).
+    Returns ([(name, webp bytes), ...], guardian webp bytes or None).
+    """
+    idx = lsmf_component_index(blob)
+    icon = idx.get('game.icon.v0.CharacterCreationCustomIconComponent')
+    if not icon or icon[0] != 16:
+        return [], None
+    elem, rows, off, _owners = icon
+    L = len(blob)
+
+    def webp_at(p: int) -> bytes | None:
+        if p + 16 > L:
+            return None
+        b, e = struct.unpack_from('<QQ', blob, p)
+        img = blob[b + LSMF_HEAP_BASE : e + LSMF_HEAP_BASE] if 0 < b < e <= L else b''
+        return bytes(img) if img[:4] == b'RIFF' else None
+
+    guardian = webp_at(off + 16)  # the prefix's middle row
+
+    names = parse_lsmf_cc_creation_names(blob)
+    out: list[tuple[str, bytes]] = []
+    base = off + 48
+    for k in range(rows):
+        img = webp_at(base + k * elem)
+        if img is None:
+            continue
+        name = names[k] if k < len(names) else ''
+        out.append((name, img))
+    return out, guardian
+
+
+def parse_lsmf_cc_creation_names(blob: bytes) -> list[str]:
+    """Created characters' names in creation order (see parse_lsmf_portraits)."""
+    idx = lsmf_component_index(blob)
+    comp = idx.get('game.character_creation.v1.CharacterCreationStatsComponent')
+    if not comp or comp[0] != 88:
+        return []
+    elem, rows, off, _owners = comp
+    L = len(blob)
+    base = off + 48
+
+    def name_at(p: int) -> str:
+        if p + 8 > L:
+            return ''
+        (ptr,) = struct.unpack_from('<Q', blob, p)
+        p0 = ptr + LSMF_HEAP_BASE
+        if not (0 < p0 < L - 1):
+            return ''
+        end = blob.find(b'\x00', p0, p0 + 80)
+        raw = blob[p0:end] if end > p0 else b''
+        ok = raw and all(0x20 <= c < 0x7F for c in raw)
+        return raw.decode('ascii') if ok else ''
+
+    out = [name_at(base + 56)]
+    out.extend(name_at(base + k * elem + 80) for k in range(rows - 1))
+    return out
+
+
 def parse_lsmf_cc_names(blob: bytes) -> list[str]:
     """Character names from CharacterCreationStatsComponent, in row order.
 
