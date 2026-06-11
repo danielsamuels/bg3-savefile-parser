@@ -578,6 +578,106 @@ export function parseLsmfConcentration(blob: Uint8Array): Map<number, string> {
   return out;
 }
 
+const LEVELUP_NULL_GUID = '00000000-0000-0000-0000-000000000000';
+const NULL_PTR = 0xffffffffffffffffn;
+
+const ABILITY_ENUM = [
+  'None',
+  'Strength',
+  'Dexterity',
+  'Constitution',
+  'Intelligence',
+  'Wisdom',
+  'Charisma',
+];
+
+export interface LevelUpRecord {
+  levels: [string, string][];
+  feats: { guid: string; level: number; picks: string[] }[];
+}
+
+/**
+ * Level-up history per created character: classes taken and feats picked.
+ * See lsmf.py parse_lsmf_feats for the layout; this component's data section
+ * starts 48 bytes after the descriptor's data_offset.
+ */
+export function parseLsmfFeats(blob: Uint8Array): LevelUpRecord[] {
+  const idx = lsmfComponentIndex(blob);
+  const comp = idx.get('game.character_creation.v3.LevelUpComponent');
+  if (comp?.elemSize !== 16) return [];
+  const { dv } = align(blob);
+  const L = blob.length;
+
+  const abilityPool = new Map<number, number>();
+  const ea = idx.get('game.character_creation.v1.EAbility');
+  if (ea) {
+    for (let r = 0; r < ea.rowCount; r++) {
+      const p = ea.dataOffset + 48 + r * ea.elemSize;
+      if (p + 8 <= L) abilityPool.set(ea.dataOffset + r * ea.elemSize, u64(dv, p));
+    }
+  }
+
+  const abilityPicks = (begin: number, end: number): string[] => {
+    const picks: string[] = [];
+    if (!(begin > 0 && begin < end && end <= L && (end - begin) % 8 === 0)) return picks;
+    for (let i = 0; i < (end - begin) / 8; i++) {
+      const ptr = u64(dv, begin + LSMF_HEAP_BASE + 8 * i);
+      const val = abilityPool.get(ptr);
+      if (val !== undefined && val >= 0 && val < ABILITY_ENUM.length) {
+        picks.push(ABILITY_ENUM[val]!);
+      }
+    }
+    return picks;
+  };
+
+  const featPicks = (selPtr: number): string[] => {
+    const p = selPtr + LSMF_HEAP_BASE;
+    if (!(p > 0 && p <= L - 112)) return [];
+    const fb = dv.getBigUint64(p, true);
+    const fe = u64(dv, p + 8);
+    if (fb === NULL_PTR || Number(fb) >= fe) return [];
+    const out: string[] = [];
+    for (let i = 0; i < (fe - Number(fb)) / 8; i++) {
+      const sel = u64(dv, Number(fb) + LSMF_HEAP_BASE + 8 * i);
+      const sp = sel + LSMF_HEAP_BASE;
+      if (!(sp > 0 && sp <= L - 40)) continue;
+      const pb = u64(dv, sp + 24);
+      const pe = u64(dv, sp + 32);
+      out.push(...abilityPicks(pb, pe));
+    }
+    return out;
+  };
+
+  const out: LevelUpRecord[] = [];
+  const dataBase = comp.dataOffset + 48;
+  for (let j = 0; j < comp.rowCount; j++) {
+    const row = dataBase + j * comp.elemSize;
+    if (row + comp.elemSize > L) break;
+    const bRaw = dv.getBigUint64(row, true);
+    const e = u64(dv, row + 8);
+    if (bRaw === NULL_PTR) continue;
+    const b = Number(bRaw);
+    if (b >= e || e - b > 8 * 64) continue;
+    const levels: [string, string][] = [];
+    const feats: { guid: string; level: number; picks: string[] }[] = [];
+    for (let k = 0; k < (e - b) / 8; k++) {
+      const ptr = u64(dv, b + LSMF_HEAP_BASE + 8 * k);
+      const p = ptr + LSMF_HEAP_BASE;
+      if (!(p > 0 && p <= L - 96)) continue;
+      const cls = guidLeStr(blob, p);
+      const sub = guidLeStr(blob, p + 16);
+      const feat = guidLeStr(blob, p + 32);
+      levels.push([cls, sub]);
+      if (feat !== LEVELUP_NULL_GUID) {
+        const selPtr = u64(dv, p + 72);
+        feats.push({ guid: feat, level: levels.length, picks: featPicks(selPtr) });
+      }
+    }
+    if (levels.length) out.push({ levels, feats });
+  }
+  return out;
+}
+
 /**
  * Map known characters to their stats-entity rows via the template link:
  * stats_entity = world_entity + 1, wrapping modulo the character-entity

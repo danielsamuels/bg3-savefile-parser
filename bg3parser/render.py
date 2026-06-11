@@ -102,6 +102,16 @@ def prepare_char_data(char: CharacterReport, verbose: bool, all_spells: bool) ->
             line_parts.append(f'{name} {bits}')
     data['resources_line'] = '; '.join(line_parts)
 
+    # Feats: "Ability Improvement (L6: +2 Strength)"; picks counted per ability.
+    feat_parts: list[str] = []
+    for f in char.feats or ():
+        label = f['name'] or f['guid']
+        picks = Counter(f['picks'])
+        picks_str = ', '.join(f'+{n} {a}' for a, n in picks.items())
+        detail = f'L{f["level"]}' + (f': {picks_str}' if picks_str else '')
+        feat_parts.append(f'{label} ({detail})')
+    data['feats_line'] = '; '.join(feat_parts)
+
     # Pre-sort equipped items — sort key depends on verbose, so must be Python-side.
     data['equipped_sorted'] = sorted(
         char.equipped,

@@ -2814,6 +2814,23 @@
      "template_guid": "1001f28b-5ea3-4257-864c-f60c812aecf0"
     }
    ],
+   "feats": [
+    {
+     "guid": "c09815f7-282b-4ccf-bd89-a51caa1b550f",
+     "level": 4,
+     "name": "Great Weapon Master",
+     "picks": []
+    },
+    {
+     "guid": "d215b9ad-9753-4d74-8ff9-24bf1dce53d6",
+     "level": 6,
+     "name": "Ability Improvement",
+     "picks": [
+      "Strength",
+      "Strength"
+     ]
+    }
+   ],
    "hp": {
     "current": 67,
     "max": 67,
@@ -3438,6 +3455,16 @@
      "template_guid": "467ddb4f-6791-41fa-99f7-ee8620d63bbe"
     }
    ],
+   "feats": [
+    {
+     "guid": "be0889d2-f9aa-472d-b942-592bff0f1ef3",
+     "level": 4,
+     "name": "Tavern Brawler",
+     "picks": [
+      "Constitution"
+     ]
+    }
+   ],
    "hp": {
     "current": 75,
     "max": 75,
@@ -3967,6 +3994,14 @@
      ],
      "stats": "UNI_MassHealRing",
      "template_guid": "4aef9bb0-38a8-428e-8b87-6e462d612dd6"
+    }
+   ],
+   "feats": [
+    {
+     "guid": "ed4e367d-d136-4285-abac-077147e84cf2",
+     "level": 4,
+     "name": "War Caster",
+     "picks": []
     }
    ],
    "hp": {
@@ -5885,6 +5920,14 @@
      "template_guid": "674bef93-9008-45ce-85b5-9632f9f92ed2"
     }
    ],
+   "feats": [
+    {
+     "guid": "cdcbc538-883b-401c-a8ed-1373fb6d1720",
+     "level": 4,
+     "name": "Actor",
+     "picks": []
+    }
+   ],
    "hp": {
     "current": 52,
     "max": 52,
@@ -6216,6 +6259,7 @@
    "concentration": null,
    "equipment_note": "no-character-node",
    "equipped": [],
+   "feats": null,
    "hp": null,
    "inspect": null,
    "level": 1,
@@ -6398,6 +6442,17 @@
      ],
      "stats": "WPN_Shortsword",
      "template_guid": "467ddb4f-6791-41fa-99f7-ee8620d63bbe"
+    }
+   ],
+   "feats": [
+    {
+     "guid": "d215b9ad-9753-4d74-8ff9-24bf1dce53d6",
+     "level": 4,
+     "name": "Ability Improvement",
+     "picks": [
+      "Wisdom",
+      "Dexterity"
+     ]
     }
    ],
    "hp": {
@@ -6689,6 +6744,17 @@
      ],
      "stats": "ARM_Shoes",
      "template_guid": "97f37571-35e8-4cc8-8b0d-ff92d20ae0bb"
+    }
+   ],
+   "feats": [
+    {
+     "guid": "d215b9ad-9753-4d74-8ff9-24bf1dce53d6",
+     "level": 4,
+     "name": "Ability Improvement",
+     "picks": [
+      "Constitution",
+      "Intelligence"
+     ]
     }
    ],
    "hp": {
@@ -7470,6 +7536,7 @@
      "template_guid": "b5c85eb7-ed4f-4e90-a317-5547ddaf3650"
     }
    ],
+   "feats": null,
    "hp": {
     "current": 27,
     "max": 38,

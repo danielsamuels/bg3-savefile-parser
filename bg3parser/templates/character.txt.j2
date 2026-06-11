@@ -18,6 +18,9 @@
 {% if char_data.resources_line %}
   Resources : {{ char_data.resources_line }}
 {% endif %}
+{% if char_data.feats_line %}
+  Feats     : {{ char_data.feats_line }}
+{% endif %}
 {% if char.concentration %}
   Concentrating : {{ char.concentration.name or char.concentration.id }}
 {% endif %}

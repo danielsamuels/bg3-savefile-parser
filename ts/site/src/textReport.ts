@@ -90,6 +90,15 @@ function characterLines(char: CharacterReport): string[] {
   }
   const resourcesLine = buildResourcesLine(char.resources);
   if (resourcesLine) out.push(`  Resources : ${resourcesLine}`);
+  if (char.feats?.length) {
+    const parts = char.feats.map((f) => {
+      const counts = new Map<string, number>();
+      for (const a of f.picks) counts.set(a, (counts.get(a) ?? 0) + 1);
+      const picksStr = [...counts].map(([a, n]) => `+${n} ${a}`).join(', ');
+      return `${f.name ?? f.guid} (L${f.level}${picksStr ? `: ${picksStr}` : ''})`;
+    });
+    out.push(`  Feats     : ${parts.join('; ')}`);
+  }
   if (char.concentration) {
     out.push(`  Concentrating : ${char.concentration.name ?? char.concentration.id}`);
   }

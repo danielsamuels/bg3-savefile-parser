@@ -245,6 +245,7 @@
      "template_guid": "3186796d-3ab3-4d49-bfc2-cba1aff0cf5a"
     }
    ],
+   "feats": null,
    "hp": {
     "current": 10,
     "max": 10,
@@ -732,6 +733,7 @@
    "concentration": null,
    "equipment_note": "no-character-node",
    "equipped": [],
+   "feats": null,
    "hp": {
     "current": 12,
     "max": 12,

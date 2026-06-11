@@ -612,6 +612,115 @@ def parse_lsmf_concentration(blob: bytes) -> dict[int, str]:
     return out
 
 
+LEVELUP_NULL_GUID = '00000000-0000-0000-0000-000000000000'
+
+ABILITY_ENUM = (
+    'None',
+    'Strength',
+    'Dexterity',
+    'Constitution',
+    'Intelligence',
+    'Wisdom',
+    'Charisma',
+)
+
+
+def parse_lsmf_feats(blob: bytes) -> list[dict]:
+    """Level-up history per created character: classes taken and feats picked.
+
+    game.character_creation.v3.LevelUpComponent rows are a {begin, end} heap
+    range of u64 pointers, one per level-up event, each pointing at a 96-byte
+    LevelUpComponentData record: {16B class GUID, 16B subclass GUID, 16B feat
+    GUID, 16B unknown GUID, u64 abilities ptr, u64 selectors ptr, u64 spell
+    range begin, u64 end}. The selectors block is seven {begin, end} ranges
+    (Feats, AbilityBonuses, Skills, SkillExpertise, Spells, Passives,
+    Equipment) of pointers into the selector-record tables; the Feats range
+    holds the ability picks made inside a feat (an ASI's +2/+1 choices).
+
+    NOTE: this component's data section starts 48 bytes after the
+    descriptor's data_offset (the +48 rule applies to it), unlike most
+    row-aligned components. The owning character-creation entities live in
+    their own numbering; callers match records to characters by class build.
+    Camp companions recruited by script (Halsin) have no record. The sibling
+    game.progression.v3.LevelUpComponent has stale ownerlists; do not use it.
+
+    Returns one dict per character: {'levels': [(class_guid, subclass_guid)],
+    'feats': [{'guid', 'level', 'picks': [ability name, ...]}]}.
+    """
+    idx = lsmf_component_index(blob)
+    comp = idx.get('game.character_creation.v3.LevelUpComponent')
+    if not comp or comp[0] != 16:
+        return []
+    elem, rows, off, _owners = comp
+    L = len(blob)
+
+    # The EAbility enum-value pool, for resolving ability picks.
+    ability_pool: dict[int, int] = {}
+    ea = idx.get('game.character_creation.v1.EAbility')
+    if ea:
+        e_elem, e_rows, e_off, _ = ea
+        for r in range(e_rows):
+            p = e_off + 48 + r * e_elem
+            if p + 8 <= L:
+                ability_pool[e_off + r * e_elem] = struct.unpack_from('<Q', blob, p)[0]
+
+    def ability_picks(begin: int, end: int) -> list[str]:
+        picks = []
+        if not (0 < begin < end <= L and (end - begin) % 8 == 0):
+            return picks
+        for i in range((end - begin) // 8):
+            ptr = struct.unpack_from('<Q', blob, begin + LSMF_HEAP_BASE + 8 * i)[0]
+            val = ability_pool.get(ptr)
+            if val is not None and 0 <= val < len(ABILITY_ENUM):
+                picks.append(ABILITY_ENUM[val])
+        return picks
+
+    def feat_picks(sel_ptr: int) -> list[str]:
+        """Ability picks from the Feats selector range (range index 0)."""
+        p = sel_ptr + LSMF_HEAP_BASE
+        if not (0 < p <= L - 112):
+            return []
+        fb, fe = struct.unpack_from('<QQ', blob, p)
+        if fb == 0xFFFFFFFFFFFFFFFF or fb >= fe:
+            return []
+        out: list[str] = []
+        for i in range((fe - fb) // 8):
+            sel = struct.unpack_from('<Q', blob, fb + LSMF_HEAP_BASE + 8 * i)[0]
+            sp = sel + LSMF_HEAP_BASE
+            if not (0 < sp <= L - 40):
+                continue
+            pb, pe = struct.unpack_from('<QQ', blob, sp + 24)
+            out += ability_picks(pb, pe)
+        return out
+
+    out: list[dict] = []
+    data_base = off + 48  # the +48 rule applies to this component's section
+    for j in range(rows):
+        row = data_base + j * elem
+        if row + elem > L:
+            break
+        b, e = struct.unpack_from('<QQ', blob, row)
+        if b == 0xFFFFFFFFFFFFFFFF or b >= e or e - b > 8 * 64:
+            continue
+        levels: list[tuple] = []
+        feats: list[dict] = []
+        for k in range((e - b) // 8):
+            ptr = struct.unpack_from('<Q', blob, b + LSMF_HEAP_BASE + 8 * k)[0]
+            p = ptr + LSMF_HEAP_BASE
+            if not (0 < p <= L - 96):
+                continue
+            cls = guid_le_str(blob[p : p + 16])
+            sub = guid_le_str(blob[p + 16 : p + 32])
+            feat = guid_le_str(blob[p + 32 : p + 48])
+            levels.append((cls, sub))
+            if feat != LEVELUP_NULL_GUID:
+                (sel_ptr,) = struct.unpack_from('<Q', blob, p + 72)
+                feats.append({'guid': feat, 'level': len(levels), 'picks': feat_picks(sel_ptr)})
+        if levels:
+            out.append({'levels': levels, 'feats': feats})
+    return out
+
+
 def parse_lsmf_stats_entities(blob: bytes, templates: dict[str, str]) -> dict[str, int]:
     """Map known characters to their stats-entity rows via the template link.
 

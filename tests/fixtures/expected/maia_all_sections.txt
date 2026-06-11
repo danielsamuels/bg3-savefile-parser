@@ -121,6 +121,7 @@ Maia (player)
   Location  : HAV_IsobelRoom_SUB
   Abilities : STR 18  DEX 14  CON 16  INT 8  WIS 10  CHA 10
   HP        : 67/67
+  Feats     : c09815f7-282b-4ccf-bd89-a51caa1b550f (L4); d215b9ad-9753-4d74-8ff9-24bf1dce53d6 (L6: +2 Strength)
   Spells/Abilities (36; +11 basic actions):
     – Projectile_DisarmingAttack
     – Projectile_FireBolt
@@ -187,6 +188,7 @@ Wyll
   Location  : HAV_IsobelRoom_SUB
   Abilities : STR 8  DEX 13  CON 14  INT 13  WIS 10  CHA 18
   HP        : 52/52
+  Feats     : cdcbc538-883b-401c-a8ed-1373fb6d1720 (L4)
   Spells/Abilities (30; +11 basic actions):
     – Projectile_EldritchBlast
     – Projectile_Fireball_4
@@ -253,6 +255,7 @@ Karlach
   Location  : HAV_IsobelRoom_SUB
   Abilities : STR 19  DEX 13  CON 16  INT 8  WIS 12  CHA 10
   HP        : 75/75
+  Feats     : be0889d2-f9aa-472d-b942-592bff0f1ef3 (L4: +1 Constitution)
   Spells/Abilities (16; +13 basic actions):
     – Projectile_PiercingShot
     – Projectile_Smite_Branding_ZarielTiefling
@@ -300,6 +303,7 @@ Shadowheart
   Location  : HAV_IsobelRoom_SUB
   Abilities : STR 13  DEX 18  CON 14  INT 10  WIS 18  CHA 8
   HP        : 62/62
+  Feats     : d215b9ad-9753-4d74-8ff9-24bf1dce53d6 (L4: +1 Dexterity, +1 Wisdom)
   Spells/Abilities (278; +11 basic actions):
     – Projectile_FireBolt
     – Projectile_GuidingBolt
@@ -630,6 +634,7 @@ Astarion
   Location  : camp
   Abilities : STR 8  DEX 18  CON 14  INT 13  WIS 14  CHA 10
   HP        : 45/45
+  Feats     : d215b9ad-9753-4d74-8ff9-24bf1dce53d6 (L4: +1 Wisdom, +1 Dexterity)
   Spells/Abilities (8; +12 basic actions):
     – Projectile_FireBolt
     – Projectile_PiercingShot
@@ -668,6 +673,7 @@ Gale
   Location  : camp
   Abilities : STR 8  DEX 13  CON 16  INT 18  WIS 10  CHA 12
   HP        : 44/44
+  Feats     : d215b9ad-9753-4d74-8ff9-24bf1dce53d6 (L4: +1 Constitution, +1 Intelligence)
   Spells/Abilities (83; +11 basic actions):
     – Projectile_FireBolt
     – Projectile_Fireball

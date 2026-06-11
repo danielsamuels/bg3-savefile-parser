@@ -23,6 +23,7 @@ from .lsmf import (
     parse_lsmf_component_rows,
     parse_lsmf_concentration,
     parse_lsmf_container_positions,
+    parse_lsmf_feats,
     parse_lsmf_health,
     parse_lsmf_membership,
     parse_lsmf_prepared_spells,
@@ -134,6 +135,7 @@ class CharacterReport:
     hp: dict | None = None  # {current,max,temp,temp_max}
     resources: list[dict] | None = None  # action resources (slots, rage, ki...)
     concentration: dict | None = None  # {id, name} of the concentration spell
+    feats: list[dict] | None = None  # [{guid, name, level, picks}]
 
 
 @dataclass
@@ -340,6 +342,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
     stats_entities: dict[str, int] = {}
     action_resources: dict[int, list[tuple]] = {}
     concentration: dict[int, str] = {}
+    levelup_records: list[dict] = []
     if lsmf_blob:
         spellbooks = parse_lsmf_spellbooks(lsmf_blob)
         entity_classes = parse_lsmf_classes(lsmf_blob)
@@ -355,6 +358,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         stats_entities = parse_lsmf_stats_entities(lsmf_blob, wanted)
         action_resources = parse_lsmf_action_resources(lsmf_blob)
         concentration = parse_lsmf_concentration(lsmf_blob)
+        levelup_records = parse_lsmf_feats(lsmf_blob)
 
     def build_key(char_info: dict) -> tuple | None:
         want = sorted((c.get('Main', ''), c.get('Sub', '')) for c in char_info.get('Classes', []))
@@ -407,6 +411,42 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         else:
             ent = stats_ent_by_norm.get(norm_name(origin))
         return ent if ent is not None and ent in spellbooks else None
+
+    # Level-up records carry no entity link (their owners live in the
+    # character-creation subsystem's numbering); match by class build, and
+    # only when the build is unique among the records.
+    def cc_build_key(rec: dict) -> tuple | None:
+        per_class: dict[str, tuple[str, int]] = {}
+        for cls_guid, sub_guid in rec['levels']:
+            main = CLASS_UUID_NAMES.get(cls_guid, '')
+            sub = CLASS_UUID_NAMES.get(sub_guid, '') if sub_guid != NULL_UUID else ''
+            prev = per_class.get(main, ('', 0))
+            per_class[main] = (sub or prev[0], prev[1] + 1)
+        if not per_class:
+            return None
+        want = sorted((main, sub) for main, (sub, _n) in per_class.items())
+        return (tuple(want), len(rec['levels']))
+
+    feats_by_build: dict[tuple, list[dict] | None] = {}
+    for rec in levelup_records:
+        key = cc_build_key(rec)
+        if key is None:
+            continue
+        # None marks a duplicate build: ambiguous, never attached.
+        feats_by_build[key] = None if key in feats_by_build else rec['feats']
+
+    def attach_feats(char: CharacterReport, key: tuple | None) -> None:
+        feats = feats_by_build.get(key) if key is not None else None
+        if feats:
+            char.feats = [
+                {
+                    'guid': f['guid'],
+                    'name': dn.feat_name_for(f['guid']),
+                    'level': f['level'],
+                    'picks': f['picks'],
+                }
+                for f in feats
+            ]
 
     def attach_sheet(char: CharacterReport, ent: int) -> None:
         """Attach the character sheet read through the entity's ECS rows:
@@ -727,6 +767,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         else:
             char.spells_note = 'not-found'
 
+        attach_feats(char, build_key(char_info))
         attach_items(char, display_name)
 
     # ---- Camp companions & camp chest ---------------------------------------
@@ -797,6 +838,11 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
                 char.level = sum(lvl for _, _, lvl in entity_classes[ent])
                 char.spells = spell_refs(ent)
                 attach_sheet(char, ent)
+                camp_key = (
+                    tuple(sorted((c.get('Main', ''), c.get('Sub', '')) for c in char.classes)),
+                    char.level,
+                )
+                attach_feats(char, camp_key)
             elif base_class and camp_base_classes.count(base_class) > 1:
                 char.spells_note = 'ambiguous-build'
             else:

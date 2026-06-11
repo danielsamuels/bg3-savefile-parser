@@ -60,6 +60,7 @@ All integers are little-endian.
   - [Camp supplies: a cached value (✅ decoded 2026-06)](#camp-supplies-a-cached-value--decoded-2026-06)
   - [Action resources (✅ decoded 2026-06)](#action-resources--decoded-2026-06)
   - [Concentration and spell cooldowns (✅ decoded 2026-06)](#concentration-and-spell-cooldowns--decoded-2026-06)
+  - [Level-ups, feats, and passives (✅ decoded 2026-06)](#level-ups-feats-and-passives--decoded-2026-06)
   - [The character → stats-entity link (✅ solved 2026-06)](#the-character--stats-entity-link--solved-2026-06)
   - [Party recipes (✅ decoded 2026-06)](#party-recipes--decoded-2026-06)
   - [Component census (✅ surveyed 2026-06)](#component-census--surveyed-2026-06)
@@ -1047,6 +1048,48 @@ len}, u64 pool ptr, u64 pool ptr, f32 cooldown (-1 = available, else turns
 remaining), u32 type flags, 16 B SpellCastGuid}`. The spell name sits two
 pointer hops away.
 
+### Level-ups, feats, and passives (✅ decoded 2026-06)
+
+`game.character_creation.v3.LevelUpComponent` rows (elem=16) are a heap
+range of u64 pointers, one per level-up event, each to a 96-byte
+LevelUpComponentData record:
+
+| Offset | Type | Field |
+|-------:|------|-------|
+| 0 | GUID | class |
+| 16 | GUID | subclass (null until chosen) |
+| 32 | GUID | feat (null = no feat this level) |
+| 48 | GUID | unknown |
+| 64 | u64 | pointer to LevelUpComponentAbilities |
+| 72 | u64 | pointer to LevelUpComponentSelectors |
+| 80 | u64+u64 | spell range |
+
+LevelUpComponentSelectors is seven `{begin, end}` ranges, in order: Feats,
+AbilityBonuses, Skills, SkillExpertise, Spells, Passives, Equipment; each
+range holds pointers into the selector-record tables (PassiveSelector,
+SpellSelector: 16-byte string views at +24; AbilityBonusSelector /
+AbilitySelector: pointers into the `EAbility` enum pool at +24, amounts at
++40; Skill selectors: pointers into `ESkill`). An ASI feat's +2/+1 choices
+sit in the Feats range as AbilitySelector picks. Validated against the
+ability-score stream (Maia's +2 STR at L6, Karlach's +1 CON at L4) and the
+zero-feat tutorial save.
+
+Two caveats: this component's data section starts 48 bytes AFTER the
+descriptor's data_offset (most row-aligned components read at data_offset
+directly; whether the descriptor `flags` field encodes the difference is an
+open question), and its owners live in the character-creation subsystem's
+own entity numbering, so records are matched to characters by class build.
+Script-recruited companions (Halsin) have no record. The sibling
+`game.progression.v3.LevelUpComponent` has stale ownerlists; do not use it.
+
+Passive components, all sharing the parallel key/value map shape
+`{keys_begin, keys_end = vals_begin, vals_begin, vals_end}` with 16-byte
+string-view keys: `ToggledPassivesComponent` (u8 bool values: passive
+toggled on), `v1.UsageCountComponent` (10-byte counter packs),
+`ScriptPassivesComponent` (a plain string-view range).
+`PersistentDataComponent` is `{f32, f32}` per entity (an accumulator;
+semantics unconfirmed).
+
 ### The character → stats-entity link (✅ solved 2026-06)
 
 Each playable character occupies two consecutive entity slots, allocated as
@@ -1191,6 +1234,7 @@ handle indexes straight into this table.
 | Party recipes | ✅ decoded (`RecipeData` string pool refs; see §6) |
 | Character → stats-entity link | ✅ solved (`stats = world + 1`, world via TemplateComponent GUID; see §6) |
 | Action resources (spell slots, rage, ki, …) | ✅ decoded (rotated ownerlist; see §6) |
+| Feats + level-up picks | ✅ decoded (`LevelUpComponent` chain; build-matched; see §6) |
 | Concentration + spell cooldowns | ✅ decoded (see §6) |
 | LSMF inventory container web | ✅ decoded (`OwnerComponent`, `IsOwnedComponent`, `ContainerComponent`, `ContainerSlotData`) |
 | LSMF `MemberComponent` / `MemberData` structure | ✅ traced (8-byte pointer + 16-byte {ptr\_a, EntityHandle}); historical-ownership bookkeeping, not live location |

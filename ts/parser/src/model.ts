@@ -15,6 +15,7 @@ import {
   parseLsmfComponentRows,
   parseLsmfConcentration,
   parseLsmfContainerPositions,
+  parseLsmfFeats,
   parseLsmfHealth,
   parseLsmfMembership,
   parseLsmfPreparedSpells,
@@ -26,6 +27,9 @@ import {
 } from './lsmf.js';
 import { decompFrame, extractFrames, parseInfoJson } from './lspk.js';
 import type { StoryState } from './osiris.js';
+
+type LevelUpRecordFeats = import('./lsmf.js').LevelUpRecord['feats'];
+
 import { parseOsiris } from './osiris.js';
 import {
   type AttributedItem,
@@ -108,6 +112,14 @@ export interface CharacterReport {
   hp: Record<string, number> | null;
   resources: ResourceEntry[] | null;
   concentration: { id: string; name: string | null } | null;
+  feats: FeatEntry[] | null;
+}
+
+export interface FeatEntry {
+  guid: string;
+  name: string | null;
+  level: number;
+  picks: string[];
 }
 
 export interface ResourceEntry {
@@ -336,6 +348,7 @@ export function gatherReport(
     : new Map<string, number>();
   const actionResources = lsmfBlob ? parseLsmfActionResources(lsmfBlob) : new Map();
   const concentration = lsmfBlob ? parseLsmfConcentration(lsmfBlob) : new Map<number, string>();
+  const levelupRecords = lsmfBlob ? parseLsmfFeats(lsmfBlob) : [];
   const normName = (s: string): string => s.toLowerCase().replace(/[^a-z]/g, '');
   const statsEntByNorm = new Map<string, number>(
     [...statsEntities].filter(([k]) => k !== '__player__').map(([k, v]) => [normName(k), v]),
@@ -385,6 +398,37 @@ export function gatherReport(
     if (!want.length || ci.Level === undefined || ci.Level === null) return null;
     return `${want.join('\x01')}|${ci.Level}`;
   };
+  // Level-up records carry no entity link; match by class build, unique only.
+  const ccBuildKey = (rec: import('./lsmf.js').LevelUpRecord): string | null => {
+    const perClass = new Map<string, [string, number]>();
+    for (const [clsGuid, subGuid] of rec.levels) {
+      const main = dn.classUuidNames[clsGuid] ?? '';
+      const sub = subGuid !== NULL_UUID ? (dn.classUuidNames[subGuid] ?? '') : '';
+      const prev = perClass.get(main) ?? ['', 0];
+      perClass.set(main, [sub || prev[0], prev[1] + 1]);
+    }
+    if (!perClass.size) return null;
+    const want = [...perClass].map(([main, [sub]]) => `${main}\x00${sub}`).sort();
+    return `${want.join('\x01')}|${rec.levels.length}`;
+  };
+  const featsByBuild = new Map<string, LevelUpRecordFeats | null>();
+  for (const rec of levelupRecords) {
+    const key = ccBuildKey(rec);
+    if (key === null) continue;
+    featsByBuild.set(key, featsByBuild.has(key) ? null : rec.feats);
+  }
+  const attachFeats = (char: CharacterReport, key: string | null): void => {
+    const feats = key !== null ? featsByBuild.get(key) : undefined;
+    if (feats?.length) {
+      char.feats = feats.map((f) => ({
+        guid: f.guid,
+        name: dn.featNameFor(f.guid),
+        level: f.level,
+        picks: f.picks,
+      }));
+    }
+  };
+
   const partyBuilds = partyInfo.map(buildKey).filter((k): k is string => k !== null);
   const ambiguousBuilds = new Set(
     partyBuilds.filter((k, _i, a) => a.filter((x) => x === k).length > 1),
@@ -744,6 +788,7 @@ export function gatherReport(
       hp: null,
       resources: null,
       concentration: null,
+      feats: null,
     };
     report.characters.push(char);
 
@@ -763,6 +808,7 @@ export function gatherReport(
       char.spells_note = 'not-found';
     }
 
+    attachFeats(char, buildKey(charInfo));
     attachItems(char, displayName);
   }
 
@@ -826,6 +872,7 @@ export function gatherReport(
         hp: null,
         resources: null,
         concentration: null,
+        feats: null,
       };
       report.characters.push(char);
 
@@ -846,6 +893,10 @@ export function gatherReport(
         );
         char.spells = spellRefs(ent);
         attachSheet(char, ent);
+        const campWant = (char.classes as { Main?: string; Sub?: string }[])
+          .map((c) => `${c.Main ?? ''}\x00${c.Sub ?? ''}`)
+          .sort();
+        attachFeats(char, `${campWant.join('\x01')}|${char.level}`);
       } else if (baseClass && sameClass > 1) {
         char.spells_note = 'ambiguous-build';
       } else {
