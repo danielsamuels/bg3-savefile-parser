@@ -14,6 +14,11 @@
 | **Exact per-character spell books** | LSMF `SpellBookComponent → SpellData → SpellId → string pool`, matched to party members by `ClassesComponent` (class/subclass/level) |
 | Full level item pool (internal names) | `Item` nodes in frame 0 + level-cache frame |
 | **Human-readable item names** | **resolved from the installed game data** (root-template `_merged.lsf` → `DisplayName` handle → `english.loca`, following `ParentTemplateId` inheritance) |
+| Ability scores, HP, action resources, concentration | LSMF packed streams and heap ranges, attributed exactly via the template→entity link |
+| Feats and ASI picks | the character-creation level-up chain, matched by class build |
+| Story state (approval, romance, rests, waypoints, tadpoles, recipes) | Osiris databases + LSMF party components |
+| Subregion display names | LSF V3 localization key files ("SHA_Temple_SUB" → "Gauntlet of Shar") |
+| Honour Mode, Dark Urge avatars, hirelings | no format drift; Durge is a player template; hirelings match by position, custom names from the CC stats rows |
 
 ### How display names work
 
@@ -169,9 +174,15 @@ chain proved reliable across saves.)
   display-name variant rather than the exact variant; see "How display names
   work" above.
 - Identical hireling builds. The player and origin companions attribute
-  exactly via the template link, but custom hirelings fall back to class
+  exactly via the template link (ground-truth proven on a save with two
+  identical Cleric/Light 7 builds), but custom hirelings fall back to class
   matching; two hirelings with the same class, subclass, *and* level cannot
   be told apart, and the report says so explicitly instead of guessing.
+- Feats match by class build, so two party members with identical builds
+  lose their feat lines (the level-up records cannot be told apart); a
+  single hireling's custom name resolves, several stay under preset labels.
+- Script-recruited companions (Halsin) have no character-creation record,
+  so their feats are unknown.
 
 ## The ECS blob (NewAge / LSMF)
 
