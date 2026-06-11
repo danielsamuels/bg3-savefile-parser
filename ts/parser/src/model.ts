@@ -11,6 +11,7 @@ import {
   parseLsmfActionResources,
   parseLsmfAllContainerPositions,
   parseLsmfCampSupplies,
+  parseLsmfCcNames,
   parseLsmfClasses,
   parseLsmfComponentRows,
   parseLsmfConcentration,
@@ -45,6 +46,7 @@ import {
   ecsResolveEquipped,
   equipmentCluster,
   findCampChest,
+  findCharacterNodeAt,
   findPartyCharacterNodes,
   type ItemPair,
   invertEntityTemplateMap,
@@ -55,6 +57,7 @@ import {
   PLAYER_CHAR_TEMPLATES,
   PLAYER_ORIGINS,
   parseJournalObjectives,
+  posKey,
   resolveSlotConflicts,
   splitEquippedCarried,
 } from './party.js';
@@ -255,6 +258,7 @@ function sortedUnion(...lists: ItemPair[][]): ItemPair[] {
 
 interface InfoCharacter {
   Origin?: string;
+  Position?: number[];
   Race?: string;
   Classes?: { Main?: string; Sub?: string }[];
   Level?: unknown;
@@ -318,9 +322,23 @@ export function gatherReport(
 
   const nodes0 = parseLsof(decompFrame(frames.get('Globals.lsf')!));
   const partyNodes = findPartyCharacterNodes(nodes0, playerDisplayName);
+  // (position fallback for unknown-template party members is added after
+  // charPositions below)
   const entityToTemplate0 = buildEntityTemplateMap(nodes0, 'Items');
   const templateToStats0 = buildTemplateStatsMap(nodes0);
   const charPositions = collectCharacterPositions(nodes0, partyNodes);
+  for (const ci of partyInfo) {
+    const originI = ci.Origin ?? 'Generic';
+    const dname = PLAYER_ORIGINS.has(originI) ? playerDisplayName : originI;
+    const posI = ci.Position;
+    if (charPositions.has(dname) || !Array.isArray(posI) || posI.length !== 3) continue;
+    const ni = findCharacterNodeAt(nodes0, posI as [number, number, number]);
+    if (ni !== null) {
+      partyNodes.set(dname, ni);
+      const k = posKey(posI);
+      if (k !== null) charPositions.set(dname, k);
+    }
+  }
 
   let lsmfBlob: Uint8Array | null = null;
   for (const nd of nodes0) {
@@ -349,7 +367,21 @@ export function gatherReport(
   const actionResources = lsmfBlob ? parseLsmfActionResources(lsmfBlob) : new Map();
   const concentration = lsmfBlob ? parseLsmfConcentration(lsmfBlob) : new Map<number, string>();
   const levelupRecords = lsmfBlob ? parseLsmfFeats(lsmfBlob) : [];
+  const ccNames = lsmfBlob ? parseLsmfCcNames(lsmfBlob) : [];
   const normName = (s: string): string => s.toLowerCase().replace(/[^a-z]/g, '');
+
+  // Hirelings' custom names exist only in the CC stats rows; unambiguous
+  // only with a single hireling and a single unrecognised created name.
+  const hirelingNames = new Map<string, string>();
+  const hirelingOrigins = partyInfo
+    .map((ci) => ci.Origin ?? '')
+    .filter((o) => o.startsWith('Hireling_'));
+  if (hirelingOrigins.length === 1 && ccNames.length) {
+    const known = new Set(Object.values(PARTY_ORIGINS).map(normName));
+    known.add(normName(leaderName ?? ''));
+    const extras = ccNames.filter((n) => !known.has(normName(n)));
+    if (extras.length === 1) hirelingNames.set(hirelingOrigins[0]!, extras[0]!);
+  }
   const statsEntByNorm = new Map<string, number>(
     [...statsEntities].filter(([k]) => k !== '__player__').map(([k, v]) => [normName(k), v]),
   );
@@ -768,7 +800,12 @@ export function gatherReport(
 
   for (const charInfo of partyInfo) {
     const origin = charInfo.Origin ?? 'Generic';
-    const displayName = PLAYER_ORIGINS.has(origin) ? playerDisplayName : origin;
+    let displayName = PLAYER_ORIGINS.has(origin) ? playerDisplayName : origin;
+    const posKeyName = displayName;
+    if (origin.startsWith('Hireling_')) {
+      const custom = hirelingNames.get(origin);
+      if (custom) displayName = `${custom} (hireling)`;
+    }
     const char: CharacterReport = {
       name: displayName,
       race: charInfo.Race ?? '?',
@@ -808,7 +845,7 @@ export function gatherReport(
     }
 
     attachFeats(char, buildKey(charInfo));
-    attachItems(char, displayName);
+    attachItems(char, posKeyName);
   }
 
   // ---- Camp companions & camp chest ---------------------------------------

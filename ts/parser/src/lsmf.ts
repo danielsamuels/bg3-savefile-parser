@@ -578,6 +578,40 @@ export function parseLsmfConcentration(blob: Uint8Array): Map<number, string> {
   return out;
 }
 
+/**
+ * Character names from CharacterCreationStatsComponent rows (88B behind a
+ * 48-byte prefix; name pointer at +80), in row order. Covers the player,
+ * origin companions, and hirelings' custom names.
+ */
+export function parseLsmfCcNames(blob: Uint8Array): string[] {
+  const idx = lsmfComponentIndex(blob);
+  const comp = idx.get('game.character_creation.v1.CharacterCreationStatsComponent');
+  if (comp?.elemSize !== 88) return [];
+  const { dv } = align(blob);
+  const L = blob.length;
+  const base = comp.dataOffset + 48;
+  const out: string[] = [];
+  for (let k = 0; k < comp.rowCount; k++) {
+    const p = base + k * comp.elemSize;
+    if (p + comp.elemSize > L) break;
+    const p0 = u64(dv, p + 80) + LSMF_HEAP_BASE;
+    if (!(p0 > 0 && p0 < L - 1)) continue;
+    let name = '';
+    let ok = true;
+    for (let i = p0; i < Math.min(p0 + 80, L); i++) {
+      const c = blob[i]!;
+      if (c === 0) break;
+      if (c < 0x20 || c >= 0x7f) {
+        ok = false;
+        break;
+      }
+      name += String.fromCharCode(c);
+    }
+    if (ok && name) out.push(name);
+  }
+  return out;
+}
+
 const LEVELUP_NULL_GUID = '00000000-0000-0000-0000-000000000000';
 const NULL_PTR = 0xffffffffffffffffn;
 

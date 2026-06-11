@@ -149,6 +149,33 @@ def find_party_character_nodes(nodes: list[dict], player_name: str = 'Player') -
     return found
 
 
+def find_character_node_at(nodes: list[dict], pos: tuple) -> int | None:
+    """The character node whose Translate equals `pos` exactly, or None.
+
+    Fallback identification for party members without a known template
+    (hirelings); Info.json positions are copied bit-exact into the node.
+    """
+    chars_root = next(
+        (i for i, nd in enumerate(nodes) if nd['name'] == 'Characters' and nd['parent'] == -1),
+        None,
+    )
+    if chars_root is None:
+        return None
+    found: list[int] = []
+
+    def walk(ni: int):
+        nd = nodes[ni]
+        t = nd['attrs'].get('Translate')
+        if isinstance(t, tuple) and t == pos:
+            found.append(ni)
+        for ci in nd['children']:
+            walk(ci)
+
+    for ci in nodes[chars_root]['children']:
+        walk(ci)
+    return found[0] if len(found) == 1 else None
+
+
 def collect_status_equipped_items(nodes: list[dict], char_ni: int) -> list[dict]:
     result = []
 

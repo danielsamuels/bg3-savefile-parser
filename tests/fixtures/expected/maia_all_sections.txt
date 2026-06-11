@@ -621,7 +621,7 @@ Imp_Summon
   XP        : 0
   Location  : HAV_IsobelRoom_SUB
   Spells/Abilities : (spell book not found)
-  Equipment : character node not found
+  Equipment : no items attributed (character off current level?)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CAMP COMPANIONS

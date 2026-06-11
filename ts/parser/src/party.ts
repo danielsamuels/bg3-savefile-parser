@@ -130,6 +130,31 @@ export function findPartyCharacterNodes(
   return found;
 }
 
+/** The character node whose Translate equals pos exactly, or null. */
+export function findCharacterNodeAt(
+  nodes: LsofNode[],
+  pos: [number, number, number],
+): number | null {
+  const charsRoot = nodes.findIndex((nd) => nd.name === 'Characters' && nd.parent === -1);
+  if (charsRoot < 0) return null;
+  const found: number[] = [];
+  const walk = (ni: number): void => {
+    const t = nodes[ni]!.attrs.Translate;
+    if (
+      Array.isArray(t) &&
+      t.length === 3 &&
+      t[0] === pos[0] &&
+      t[1] === pos[1] &&
+      t[2] === pos[2]
+    ) {
+      found.push(ni);
+    }
+    for (const c of nodes[ni]!.children) walk(c);
+  };
+  for (const c of nodes[charsRoot]!.children) walk(c);
+  return found.length === 1 ? found[0]! : null;
+}
+
 export function collectStatusEquippedItems(
   nodes: LsofNode[],
   charNi: number,

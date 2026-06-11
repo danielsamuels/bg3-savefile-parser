@@ -612,6 +612,38 @@ def parse_lsmf_concentration(blob: bytes) -> dict[int, str]:
     return out
 
 
+def parse_lsmf_cc_names(blob: bytes) -> list[str]:
+    """Character names from CharacterCreationStatsComponent, in row order.
+
+    Rows are 88 bytes behind a 48-byte metadata prefix; the u64 at row
+    offset +80 points (stored form, +48 rule) at the character's
+    NUL-terminated display name in the heap. Covers created characters:
+    the player, origin companions, and hirelings (whose custom names live
+    nowhere else that has been found).
+    """
+    idx = lsmf_component_index(blob)
+    comp = idx.get('game.character_creation.v1.CharacterCreationStatsComponent')
+    if not comp or comp[0] != 88:
+        return []
+    elem, rows, off, _owners = comp
+    L = len(blob)
+    base = off + 48
+    out: list[str] = []
+    for k in range(rows):
+        p = base + k * elem
+        if p + elem > L:
+            break
+        (ptr,) = struct.unpack_from('<Q', blob, p + 80)
+        p0 = ptr + LSMF_HEAP_BASE
+        if not (0 < p0 < L - 1):
+            continue
+        end = blob.find(b'\x00', p0, p0 + 80)
+        raw = blob[p0:end] if end > p0 else b''
+        if raw and all(0x20 <= c < 0x7F for c in raw):
+            out.append(raw.decode('ascii'))
+    return out
+
+
 LEVELUP_NULL_GUID = '00000000-0000-0000-0000-000000000000'
 
 ABILITY_ENUM = (

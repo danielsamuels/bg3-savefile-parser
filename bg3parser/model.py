@@ -19,6 +19,7 @@ from .lsmf import (
     parse_lsmf_action_resources,
     parse_lsmf_all_container_positions,
     parse_lsmf_camp_supplies,
+    parse_lsmf_cc_names,
     parse_lsmf_classes,
     parse_lsmf_component_rows,
     parse_lsmf_concentration,
@@ -54,6 +55,7 @@ from .party import (
     ecs_resolve_equipped,
     equipment_cluster,
     find_camp_chest,
+    find_character_node_at,
     find_party_character_nodes,
     invert_entity_template_map,
     is_equipment_type,
@@ -295,6 +297,19 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
     template_to_stats0 = build_template_stats_map(nodes0)
     char_positions = collect_character_positions(nodes0, party_nodes)
 
+    # Party members without a known template (hirelings) match their node by
+    # the bit-exact position Info.json carries.
+    for ci in info.get('Active Party', {}).get('Characters', []):
+        origin_i = ci.get('Origin', 'Generic')
+        dname = player_display_name if origin_i in PLAYER_ORIGINS else origin_i
+        pos_i = ci.get('Position')
+        if dname in char_positions or not isinstance(pos_i, list) or len(pos_i) != 3:
+            continue
+        ni = find_character_node_at(nodes0, tuple(pos_i))
+        if ni is not None:
+            party_nodes[dname] = ni
+            char_positions[dname] = tuple(pos_i)
+
     # Quests need the journal (Globals) for current objectives, so this runs
     # after nodes0 is parsed.
     if opt('quests'):
@@ -344,6 +359,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
     action_resources: dict[int, list[tuple]] = {}
     concentration: dict[int, str] = {}
     levelup_records: list[dict] = []
+    cc_names: list[str] = []
     if lsmf_blob:
         spellbooks = parse_lsmf_spellbooks(lsmf_blob)
         entity_classes = parse_lsmf_classes(lsmf_blob)
@@ -360,6 +376,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         action_resources = parse_lsmf_action_resources(lsmf_blob)
         concentration = parse_lsmf_concentration(lsmf_blob)
         levelup_records = parse_lsmf_feats(lsmf_blob)
+        cc_names = parse_lsmf_cc_names(lsmf_blob)
 
     def build_key(char_info: dict) -> tuple | None:
         want = sorted((c.get('Main', ''), c.get('Sub', '')) for c in char_info.get('Classes', []))
@@ -397,6 +414,22 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
 
     def norm_name(s: str) -> str:
         return re.sub(r'[^a-z]', '', s.lower())
+
+    # Hirelings' custom names exist only in the CC stats rows. With a single
+    # hireling and a single unrecognised created-character name, the pairing
+    # is unambiguous; several hirelings stay under their preset labels.
+    hireling_names: dict[str, str] = {}
+    hireling_origins = [
+        ci.get('Origin', '')
+        for ci in party_info
+        if str(ci.get('Origin', '')).startswith('Hireling_')
+    ]
+    if len(hireling_origins) == 1 and cc_names:
+        known_names = {norm_name(n) for n in PARTY_ORIGINS.values()}
+        known_names.add(norm_name(leader_name or ''))
+        extras = [n for n in cc_names if norm_name(n) not in known_names]
+        if len(extras) == 1:
+            hireling_names[hireling_origins[0]] = extras[0]
 
     stats_ent_by_norm = {norm_name(k): v for k, v in stats_entities.items() if k != '__player__'}
 
@@ -745,6 +778,11 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
     for char_info in party_info:
         origin = char_info.get('Origin', 'Generic')
         display_name = player_display_name if origin in PLAYER_ORIGINS else origin
+        pos_key = display_name
+        if origin.startswith('Hireling_'):
+            custom = hireling_names.get(origin)
+            if custom:
+                display_name = f'{custom} (hireling)'
         char = CharacterReport(
             name=display_name,
             race=char_info.get('Race', '?'),
@@ -771,7 +809,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
             char.spells_note = 'not-found'
 
         attach_feats(char, build_key(char_info))
-        attach_items(char, display_name)
+        attach_items(char, pos_key)
 
     # ---- Camp companions & camp chest ---------------------------------------
     # Companions outside the active party are recognised by proximity to the

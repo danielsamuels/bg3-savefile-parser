@@ -1018,6 +1018,20 @@ def test_honour_mode_dark_urge():
     assert 'DarkUrge' not in report  # raw origin string never shown
 
 
+def test_quicksave_328_identical_builds_and_hireling():
+    """Save 328 ground truth: Maia and Shadowheart share an identical build
+    (Cleric/LightDomain 7) yet get distinct sheets via the entity link, and
+    the hireling resolves to his custom name with items attributed."""
+    report = build_report(str(FIXTURE_DIR / 'quicksave_328.lsv'), opts=Namespace(save_info=True))
+    assert 'Sir Fuzzalump (hireling)' in report
+    assert 'ambiguous' not in report.split('CAMP COMPANIONS')[0]  # party section
+    maia = report.split('Maia (player)')[1].split('Karlach')[0]
+    sh = report.split('Shadowheart')[1].split('Sir Fuzzalump')[0]
+    assert 'Cleric / LightDomain' in maia and 'Cleric / LightDomain' in sh
+    assert 'WIS 18' in maia and 'DEX 18' in sh  # distinct sheets, same build
+    assert '52/52' in maia and '59/59' in sh
+
+
 def test_all_items():
     """--all-items must emit the full level inventory section."""
     report = build_report(QUICKSAVE_MAIA, opts=Namespace(all_items=True))

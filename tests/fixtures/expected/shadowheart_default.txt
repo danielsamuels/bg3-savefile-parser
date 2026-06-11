@@ -125,4 +125,11 @@ Laezel
     – Target_ConcussiveSmash
     – Target_MageHand_GithyankiPsionics
     – Target_Slash_New
-  Equipment : character node not found
+  Equipped (7):
+    – ARM_Boots_Metal_Githyanki
+    – ARM_HalfPlate_Body_Githyanki
+    – ARM_Shield
+    – WPN_LightCrossbow
+    – WPN_Longsword
+    – WPN_Scimitar
+    – WPN_Shortbow

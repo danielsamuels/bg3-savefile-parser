@@ -723,7 +723,116 @@
     "wis": 12
    },
    "at_camp": false,
-   "carried": [],
+   "carried": [
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Lae'zel's Clothes",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Camp_Body_Laezel",
+     "template_guid": "54de4a07-c57c-421e-912c-7e8bd93ca0c4"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Tasteful Boots",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Camp_Shoes_Wyll",
+     "template_guid": "b307af36-a2da-4c01-aac3-a31771edd407"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Lae'zel's Underwear",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Underwear_Laezel",
+     "template_guid": "185ab1be-e93d-4518-b053-d6d4d7168d68"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Memory Brain Jar",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "COL_BrainJar_Memory",
+     "template_guid": "f938e0a4-fb50-4d69-8b40-18e9bba30a22"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Camp Supply Sack",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Backpack_CampSupplies",
+     "template_guid": "efcb70b7-868b-4214-968a-e23f6ad586bc"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Alchemy Pouch",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Bag_AlchemyPouch",
+     "template_guid": "b7543ff4-5010-4c01-9bcd-4da1047aebfc"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Supply Pack",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Camp_Pack",
+     "template_guid": "398e7328-ce90-4c02-94a2-93341fac499a"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Keychain",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Keychain",
+     "template_guid": "ee329627-dbee-405f-b9a6-b260de9ad34c"
+    },
+    {
+     "category": "consumable",
+     "count": 2,
+     "name": "Potion of Healing",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Potion_Healing",
+     "template_guid": "d47006e9-8a51-453d-b200-9e0d42e9bbab"
+    },
+    {
+     "category": "book",
+     "count": 1,
+     "name": "Scroll of Revivify",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Scroll_Revivify",
+     "template_guid": "c1c3e4fb-d68c-4e10-afdc-d4550238d50e"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Nautiloid Tank",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_VolatileBladder_B",
+     "template_guid": "29a36662-ccd9-4599-b2a1-16fb2cb31366"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Shortbow",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "WPN_Shortbow",
+     "template_guid": "c5403c1d-f372-43e1-927a-9189e9e3545d"
+    }
+   ],
    "classes": [
     {
      "Main": "Fighter",
@@ -731,8 +840,81 @@
     }
    ],
    "concentration": null,
-   "equipment_note": "no-character-node",
-   "equipped": [],
+   "equipment_note": null,
+   "equipped": [
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Githyanki Boots",
+     "slot": "Boots",
+     "slot_rank": [
+      4,
+      0
+     ],
+     "stats": "ARM_Boots_Metal_Githyanki",
+     "template_guid": "319c625a-cfb7-4e44-ac3f-370a00c0d4ef"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Githyanki Half Plate",
+     "slot": "Breast",
+     "slot_rank": [
+      2,
+      0
+     ],
+     "stats": "ARM_HalfPlate_Body_Githyanki",
+     "template_guid": "38c63f49-3c50-46d0-90d3-68b247542c36"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Studded Shield",
+     "slot": "Melee Offhand Weapon",
+     "slot_rank": [
+      8,
+      0
+     ],
+     "stats": "ARM_Shield",
+     "template_guid": "d2af60ea-1b72-4d25-a188-6d8bc4fe255b"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Light Crossbow",
+     "slot": "Ranged Main Weapon",
+     "slot_rank": [
+      9,
+      0
+     ],
+     "stats": "WPN_LightCrossbow",
+     "template_guid": "43b7fbf5-7f6e-4e9e-bce7-c679eea44593"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Longsword",
+     "slot": "Melee Main Weapon",
+     "slot_rank": [
+      7,
+      0
+     ],
+     "stats": "WPN_Longsword",
+     "template_guid": "1865323f-b428-4791-a0a9-578841e57463"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Scimitar",
+     "slot": "Melee Offhand Weapon",
+     "slot_rank": [
+      8,
+      0
+     ],
+     "stats": "WPN_Scimitar",
+     "template_guid": "868217db-9dcb-414c-bb88-e321ab3e0349"
+    }
+   ],
    "feats": null,
    "hp": {
     "current": 12,
