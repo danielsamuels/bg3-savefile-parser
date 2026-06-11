@@ -6,8 +6,8 @@ export const GOLD_STATS = new Set(['OBJ_GoldCoin', 'OBJ_GoldPile']);
 
 /** Bump when the report gains fields, so history entries parsed by an
  *  older site version can invite a re-drop. v2: story state, resources,
- *  feats, concentration, recipes (2026-06-11). */
-export const REPORT_VERSION = 2;
+ *  feats, concentration, recipes; v3: embedded portraits (2026-06-11). */
+export const REPORT_VERSION = 3;
 
 export interface HistoryRecord {
   id: string;
@@ -21,6 +21,8 @@ export interface HistoryRecord {
   leaderXp: number | null;
   report: SaveReport;
   thumbnail?: ArrayBuffer | null;
+  portraits?: { name: string; buf: ArrayBuffer }[];
+  guardian?: ArrayBuffer | null;
   version?: number;
 }
 
@@ -53,7 +55,12 @@ function tx<T>(
   );
 }
 
-export function toRecord(report: SaveReport, thumbnail?: ArrayBuffer | null): HistoryRecord {
+export function toRecord(
+  report: SaveReport,
+  thumbnail?: ArrayBuffer | null,
+  portraits?: { name: string; buf: ArrayBuffer }[],
+  guardian?: ArrayBuffer | null,
+): HistoryRecord {
   const si = report.save_info;
   let gold = 0;
   let partyLevel = 0;
@@ -75,13 +82,20 @@ export function toRecord(report: SaveReport, thumbnail?: ArrayBuffer | null): Hi
     partyLevel,
     leaderXp,
     report,
+    portraits,
+    guardian,
     version: REPORT_VERSION,
     thumbnail: thumbnail ?? null,
   };
 }
 
-export const recordSave = (report: SaveReport, thumbnail?: ArrayBuffer | null): Promise<unknown> =>
-  tx('readwrite', (s) => s.put(toRecord(report, thumbnail)));
+export const recordSave = (
+  report: SaveReport,
+  thumbnail?: ArrayBuffer | null,
+  portraits?: { name: string; buf: ArrayBuffer }[],
+  guardian?: ArrayBuffer | null,
+): Promise<unknown> =>
+  tx('readwrite', (s) => s.put(toRecord(report, thumbnail, portraits, guardian)));
 
 export const allSaves = (): Promise<HistoryRecord[]> =>
   tx<HistoryRecord[]>('readonly', (s) => s.getAll() as IDBRequest<HistoryRecord[]>);

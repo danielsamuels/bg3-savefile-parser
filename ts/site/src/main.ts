@@ -55,6 +55,7 @@ function parse(file: File): void {
     return;
   }
   setStatus(`Reading ${file.name}…`);
+  (document.activeElement as HTMLElement | null)?.blur?.();
   document.body.classList.add('busy');
   reportEl.innerHTML = '';
   Promise.all([file.arrayBuffer(), gamedataReady]).then(([buffer]) => {
@@ -636,6 +637,7 @@ historyEl.addEventListener('click', (e) => {
     void allSaves().then((records) => {
       const rec = records.find((r) => r.id === btn.dataset.id);
       if (rec) {
+        setPortraits(rec.portraits ?? [], rec.guardian ?? null);
         showReport(
           rec.report,
           `Loaded ${rec.saveName} from history (saved ${rec.savedAt}).`,
@@ -711,7 +713,7 @@ worker.onmessage = (ev: MessageEvent) => {
   setPortraits(msg.portraits ?? [], msg.guardian ?? null);
   showReport(r, `Parsed ${r.source} in ${time}. Nothing left your machine.`, msg.thumbnail);
   currentCampaign = r.save_info.leader;
-  recordSave(r, msg.thumbnail)
+  recordSave(r, msg.thumbnail, msg.portraits ?? [], msg.guardian ?? null)
     .then(refreshHistory)
     .catch((err) => console.error('History store failed:', err));
 };

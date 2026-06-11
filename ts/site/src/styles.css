@@ -120,20 +120,89 @@ code {
 }
 
 /* Keep the input focusable for keyboard users (display:none would not be). */
-body.busy .drop {
-  border-color: var(--gold);
-  animation: drop-pulse 1.2s ease-in-out infinite;
+body.busy .drop,
+body.busy .drop:focus-within,
+body.busy .drop:hover {
+  outline: none;
+  border-color: var(--line);
+  position: relative;
+  overflow: hidden;
+  pointer-events: none;
 }
 
-@keyframes drop-pulse {
-  50% {
-    box-shadow: 0 0 0 7px oklch(0.8 0.1 85 / 0.16);
+body.busy .drop > label {
+  opacity: 0.35;
+}
+
+/* Variant 1: scrying sweep — a thin gold bar tracking along the top edge. */
+body[data-busy-variant="1"].busy .drop::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 3px;
+  width: 34%;
+  background: linear-gradient(90deg, transparent, var(--gold-hi), transparent);
+  animation: busy-sweep 1.1s ease-in-out infinite;
+}
+
+@keyframes busy-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(394%);
+  }
+}
+
+/* Variant 2: conjuring ring — a spinner centred over the dimmed drop zone. */
+body[data-busy-variant="2"].busy .drop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 2px solid oklch(0.8 0.1 85 / 0.25);
+  border-top-color: var(--gold-hi);
+  animation: busy-spin 0.9s linear infinite;
+}
+
+@keyframes busy-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Variant 3: arcane shimmer — the border itself glows around the frame. */
+body[data-busy-variant="3"].busy .drop::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(from 0deg, transparent 12%, var(--gold-hi), transparent 30%);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: busy-orbit 1.6s linear infinite;
+}
+
+@keyframes busy-orbit {
+  to {
+    transform: rotate(360deg);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  body.busy .drop {
+  body.busy .drop::before,
+  body.busy .drop::after {
     animation: none;
+  }
+
+  body.busy .drop {
     box-shadow: 0 0 0 4px oklch(0.8 0.1 85 / 0.16);
   }
 }
