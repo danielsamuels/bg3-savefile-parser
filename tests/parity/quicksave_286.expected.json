@@ -8125,7 +8125,7 @@
   "version": 271
  },
  "save_info": {
-  "camp_supplies": null,
+  "camp_supplies": 180,
   "difficulty": "DifficultyMedium, RulesetLarian",
   "game_id": "a1f110a9-ee5b-1303-0eab-62bf51bcb402",
   "game_version": "4.1.1.7209685",

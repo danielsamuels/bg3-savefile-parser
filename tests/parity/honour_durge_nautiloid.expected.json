@@ -423,7 +423,7 @@
   "version": 271
  },
  "save_info": {
-  "camp_supplies": null,
+  "camp_supplies": 40,
   "difficulty": "DifficultyHard, RulesetHonour",
   "game_id": "ae425374-2ac1-f2ce-b08c-957d9f57621e",
   "game_version": "4.1.1.7209685",

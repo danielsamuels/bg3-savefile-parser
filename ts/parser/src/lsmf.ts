@@ -746,8 +746,9 @@ export function parseLsmfCampSupplies(blob: Uint8Array): number | null {
   const ts = idx.get('game.camp.v0.TotalSuppliesComponent');
   if (ts?.elemSize !== 4 || ts.rowCount !== 1) return null;
   const { bytes, dv } = align(blob);
-  if (ts.dataOffset + 4 > bytes.length) return null;
-  return dv.getUint32(ts.dataOffset, true);
+  // The u32 sits after a 48-byte metadata prefix (ground-truth verified).
+  if (ts.dataOffset + 52 > bytes.length) return null;
+  return dv.getUint32(ts.dataOffset + 48, true);
 }
 
 export function parseLsmfPreparedSpells(blob: Uint8Array): Map<number, [string, number, string][]> {

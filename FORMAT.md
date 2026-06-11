@@ -1009,14 +1009,20 @@ book, record the row delta; the majority delta across the save (minimum 3
 votes and a 50% share) realigns every row. Assume the same stale-numbering
 pattern is possible for any component whose ownerlist looks shifted.
 
-### Camp supplies: a cached value (✅ decoded 2026-06)
+### Camp supplies (✅ decoded 2026-06; corrected 2026-06-11)
 
-`game.camp.v0.TotalSuppliesComponent` is a single u32 row holding the
-camp-supply total shown next to the Long Rest button. It is a cache: the
-engine zeroes it and only recomputes when the camp/rest system runs, so 0
-means "not cached", not "no supplies". Treat 0 as absent. This is the
-clearest proof that some blob components persist stale or invalidated data;
-expect the same of other cached aggregates.
+`game.camp.v0.TotalSuppliesComponent` is a single u32 holding the
+camp-supply total shown in the rest UI, preceded by a 48-byte metadata
+prefix: the value sits at `data_offset + 48`. Ground-truth verified
+in-game (QuickSave_302 shows 220 in both the rest UI and the component)
+and plausible across the full corpus (fresh Durge save 40, tutorial 120,
+campaign 80–220 with dips after rests). An earlier reading at
+`data_offset` landed in the prefix, whose junk values (often 0, sometimes
+pool-tag constants like 0x354) produced a now-retracted "zeroed cache"
+theory. The metadata-prefix pattern thus has at least two members
+(LevelUpComponent, TotalSupplies); a section's prefix exists even when
+`rows * elem` alone would not leave room for it, so the descriptor's
+nominal size understates such sections.
 
 ### Action resources (✅ decoded 2026-06)
 
@@ -1192,9 +1198,11 @@ four reusable patterns:
   types): one u64 per distinct enum value in use, referenced by absolute
   pointer from sibling components; the `ESourceType` mechanism generalises
   to a quarter of the directory.
-- Caches: the calendar singletons (`StartingDateComponent`,
-  `DaysPassedComponent`) join `TotalSuppliesComponent` in holding stale or
-  dangling heap pointers between system runs.
+- Caches and prefixes: the calendar singletons (`StartingDateComponent`,
+  `DaysPassedComponent`) hold stale or dangling values between system runs.
+  `TotalSuppliesComponent`, once thought a member of this family, turned
+  out to be a correct value behind a 48-byte metadata prefix; suspect the
+  same before declaring a singleton a cache.
 - The directory is dynamic: types appear only while some entity carries
   them (309 types in the tutorial save, 355 mid-campaign, 344 late;
   summons/escort/cutscene components are transient).
@@ -1272,7 +1280,7 @@ handle indexes straight into this table.
 | LSMF spell books / classes / templates / origins | ✅ decoded (see §6) |
 | LSMF ability scores + hit points | ✅ decoded (packed streams with phantom-owner realignment; see §6) |
 | LSMF prepared spells | ✅ decoded (`SpellBookPrepares`, stale-ownerlist realignment; see §6) |
-| LSMF camp supplies | ✅ decoded (`TotalSuppliesComponent`, a cache; 0 = unknown) |
+| LSMF camp supplies | ✅ decoded (`TotalSuppliesComponent` at data_offset+48; ground-truth verified) |
 | Current quest objectives | ✅ decoded (LSF `Journal → QuestsProgress`, see §9) |
 | Story state (approval, romance, rests, waypoints, tadpoles) | ✅ decoded (Osiris databases, see §9) |
 | Party recipes | ✅ decoded (`RecipeData` string pool refs; see §6) |

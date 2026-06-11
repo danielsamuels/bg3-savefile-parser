@@ -790,18 +790,21 @@ def parse_lsmf_recipes(blob: bytes) -> list[str]:
 def parse_lsmf_camp_supplies(blob: bytes) -> int | None:
     """The camp-supply total shown next to the Long Rest button, or None.
 
-    game.camp.v0.TotalSuppliesComponent holds one u32 — but it is a cache the
-    engine zeroes and only recomputes when the camp/rest system runs, so 0
-    means "not cached", not "no supplies"; callers should treat 0 as absent.
+    game.camp.v0.TotalSuppliesComponent holds one u32, preceded by a
+    48-byte metadata prefix (the same prefix pattern as LevelUpComponent;
+    the value sits at data_offset + 48). Ground-truth verified in-game
+    (QuickSave_302 shows 220 in the rest UI and here) and plausible across
+    the whole corpus. An earlier read at data_offset hit prefix bytes,
+    which produced the now-retracted "zeroed cache" theory.
     """
     idx = lsmf_component_index(blob)
     ts = idx.get('game.camp.v0.TotalSuppliesComponent')
     if not ts:
         return None
     elem, rows, off, _owners = ts
-    if elem != 4 or rows != 1 or off + 4 > len(blob):
+    if elem != 4 or rows != 1 or off + 52 > len(blob):
         return None
-    return struct.unpack_from('<I', blob, off)[0]
+    return struct.unpack_from('<I', blob, off + 48)[0]
 
 
 def parse_lsmf_prepared_spells(blob: bytes) -> dict[int, list[tuple[str, int, str]]]:

@@ -8222,7 +8222,7 @@
   "version": 271
  },
  "save_info": {
-  "camp_supplies": null,
+  "camp_supplies": 220,
   "difficulty": "DifficultyMedium, RulesetLarian",
   "game_id": "c52c5dfb-14d0-ddd0-5116-d356cb98d1bc",
   "game_version": "4.1.1.7209685",

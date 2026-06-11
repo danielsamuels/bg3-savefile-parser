@@ -351,7 +351,6 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         supplies = parse_lsmf_camp_supplies(lsmf_blob)
         ability_scores = parse_lsmf_ability_scores(lsmf_blob)
         health = parse_lsmf_health(lsmf_blob, ability_scores, CLASS_UUID_NAMES)
-        # The engine zeroes this cache between camp visits; 0 is "unknown".
         report.save_info['camp_supplies'] = supplies if supplies else None
         report.save_info['recipes'] = parse_lsmf_recipes(lsmf_blob)
         wanted = {g.lower(): n for g, n in PARTY_ORIGINS.items()}

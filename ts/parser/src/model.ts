@@ -336,7 +336,6 @@ export function gatherReport(
   const preparedSpells = lsmfBlob
     ? parseLsmfPreparedSpells(lsmfBlob)
     : new Map<number, [string, number, string][]>();
-  // The engine zeroes this cache between camp visits; 0 is "unknown".
   const supplies = lsmfBlob ? parseLsmfCampSupplies(lsmfBlob) : null;
   saveInfo.camp_supplies = supplies || null;
   saveInfo.recipes = lsmfBlob ? parseLsmfRecipes(lsmfBlob) : [];
