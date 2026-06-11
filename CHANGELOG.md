@@ -4,6 +4,25 @@ All notable changes to this project will be documented here.
 
 ## Unreleased
 
+### Added
+- **Item rarity table**: `gamedata.json` now carries a `rarity` map (stats
+  name to Uncommon/Rare/VeryRare/Legendary, resolved through the `using`
+  chain; absent means common). `DisplayNames.rarity_for()` exposes it.
+  `tests/generate_gamedata.py` regenerates the committed table and the site
+  copy from a local game install.
+- **Sized MCP reports** (`report_views.py`): `parse_save` now takes
+  `sections` (meta/party/camp/camp_chest/quests), `detail`
+  (summary/full), `items` (magic/equipment/all), and `quests`
+  (active/all/none). The summary view keys worn gear by slot with empty
+  slots explicit as null (two-handed weapons mark the offhand they cover),
+  trims spell books to prepared class spells, folds gold stacks into one
+  number, and annotates items with slot and rarity. Default output on a
+  mid-campaign save dropped from ~214k to ~34k characters.
+- **MCP parse cache**: the server keeps the last few parsed saves keyed on
+  path and fingerprinted on mtime+size, so follow-up calls about the same
+  save skip the multi-second parse; a quest-less cached report upgrades in
+  place when quests are requested.
+
 ### Changed
 - **Restructured into the `bg3parser` package** (modules by format layer:
   `lspk`, `lsf`, `lsmf`, `osiris`, `party`, `gamedata`, `discovery`,

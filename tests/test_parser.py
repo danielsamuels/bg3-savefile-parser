@@ -27,7 +27,7 @@ PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 import bg3parser as parser  # noqa: E402
-from bg3parser import gamedata, lsf, lsmf, lspk, party, render  # noqa: E402
+from bg3parser import gamedata, lsf, lsmf, lspk, party, render, report_views  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Save-file fixture paths
@@ -1354,13 +1354,103 @@ def test_quicksave_302_multi_member_stacks():
     assert coins == [1, 1, 1]
 
 
+@pytest.mark.skipif(not GAME_DATA_AVAILABLE, reason='item filters need slots and rarity')
+def test_report_views_item_filters():
+    """The magic/equipment filters and the slot-keyed equipped view."""
+    model = gather_model(QUICKSAVE_MAIA)
+    dn = gamedata.DisplayNames.load()
+
+    magic = report_views.save_view(model, dn, ('party', 'camp_chest'), 'summary', 'magic', 'none')
+    equip = report_views.save_view(
+        model, dn, ('party', 'camp_chest'), 'summary', 'equipment', 'none'
+    )
+    every = report_views.save_view(model, dn, ('party', 'camp_chest'), 'summary', 'all', 'none')
+
+    # Filters nest: magic ⊆ equipment ⊆ all.
+    def chest_names(view):
+        return [i['name'] for i in view['camp_chest']['items']]
+
+    assert set(chest_names(magic)) <= set(chest_names(equip))
+    assert len(chest_names(equip)) <= len(chest_names(every))
+    # Every magic-filtered item is equippable and rarer than common.
+    for item in magic['camp_chest']['items']:
+        assert item.get('slot') and item.get('rarity')
+
+    for char in magic['party']:
+        eq = char['equipped']
+        # Canonical slots always reported; entries carry names.
+        assert set(report_views.CANONICAL_SLOTS) <= set(eq)
+        worn = [v for v in eq.values() if isinstance(v, dict)]
+        assert all(v.get('name') for v in worn)
+        # Gold is folded into one number, never listed as an item.
+        assert all(i['name'] not in ('Gold', 'Gold Pile') for i in char.get('carried', []))
+        assert isinstance(char.get('gold', 0), int)
+        # Ability scores ride along in the summary.
+        assert set(char.get('abilities', {})) in (set(), {'str', 'dex', 'con', 'int', 'wis', 'cha'})
+
+
 def test_mcp_server_tools():
-    """The MCP tools resolve fixtures and return the report shape."""
+    """The MCP tools resolve fixtures and return the view shape."""
     pytest.importorskip('mcp')
     from bg3parser import mcp_server
 
     report = mcp_server.parse_save(QUICKSAVE_MAIA, quests=False)
     assert report['save_info']['save_name'] == 'QuickSave_242'
-    assert any(c['at_camp'] for c in report['characters'])
+    assert report['party'] and report['camp_companions']
+    assert all(not c.get('at_camp') for c in report['party'])
+    assert all(c['at_camp'] for c in report['camp_companions'])
+    assert 'quests' not in report
     with pytest.raises(FileNotFoundError):
         mcp_server.parse_save('no-such-save-xyz')
+    with pytest.raises(ValueError, match='sections'):
+        mcp_server.parse_save(QUICKSAVE_MAIA, sections=['no-such-section'])
+    with pytest.raises(ValueError, match='detail'):
+        mcp_server.parse_save(QUICKSAVE_MAIA, detail='everything')
+
+
+def test_mcp_server_sections_and_detail():
+    """Sections gate the output; summary trims what full keeps."""
+    pytest.importorskip('mcp')
+    from bg3parser import mcp_server
+
+    meta_only = mcp_server.parse_save(QUICKSAVE_MAIA, sections=['meta'], quests=False)
+    assert 'save_info' in meta_only
+    assert 'party' not in meta_only and 'camp_chest' not in meta_only
+
+    summary = mcp_server.parse_save(QUICKSAVE_MAIA, sections=['party'], quests=False)
+    full = mcp_server.parse_save(QUICKSAVE_MAIA, sections=['party'], detail='full', quests=False)
+    s_maia = next(c for c in summary['party'] if c['name'].startswith('Maia'))
+    f_maia = next(c for c in full['party'] if c['name'].startswith('Maia'))
+    # Summary keys gear by slot; canonical slots are always present.
+    assert set(report_views.CANONICAL_SLOTS) <= set(s_maia['equipped'])
+    assert 'spells' not in s_maia and 'template_guid' not in str(s_maia)
+    # Full keeps the dataclass shape: spell book entries with prepared flags.
+    assert isinstance(f_maia['equipped'], list)
+    assert any(s.get('prepared') is not None for s in f_maia['spells'] or [])
+
+
+def test_mcp_server_parse_cache():
+    """A second call on the same save reuses the parsed report; a changed
+    fingerprint or a quest upgrade reparses."""
+    pytest.importorskip('mcp')
+    from bg3parser import mcp_server
+
+    mcp_server.parse_cache.clear()
+    calls = []
+    real_gather = mcp_server.gather_report
+
+    def counting_gather(path, frames=None, opts=None):
+        calls.append(getattr(opts, 'quests', False))
+        return real_gather(path, frames=frames, opts=opts)
+
+    with mock.patch.object(mcp_server, 'gather_report', counting_gather):
+        mcp_server.parse_save(QUICKSAVE_MAIA, quests=False)
+        mcp_server.parse_save(QUICKSAVE_MAIA, detail='full', items='magic', quests=False)
+        assert calls == [False]
+        # Wanting quests upgrades the cached quest-less report...
+        mcp_server.parse_save(QUICKSAVE_MAIA, sections=['quests'])
+        assert calls == [False, True]
+        # ...and the upgraded report serves quest-less calls too.
+        mcp_server.parse_save(QUICKSAVE_MAIA, quests=False)
+        assert calls == [False, True]
+    mcp_server.parse_cache.clear()
