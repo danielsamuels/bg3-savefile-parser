@@ -58,6 +58,7 @@ All integers are little-endian.
   - [Ability scores and hit points: packed streams (✅ decoded 2026-06)](#ability-scores-and-hit-points-packed-streams--decoded-2026-06)
   - [Prepared spells (✅ decoded 2026-06)](#prepared-spells--decoded-2026-06)
   - [Camp supplies: a cached value (✅ decoded 2026-06)](#camp-supplies-a-cached-value--decoded-2026-06)
+  - [Component census (✅ surveyed 2026-06)](#component-census--surveyed-2026-06)
   - [Also in the blob](#also-in-the-blob)
 - [7. Localisation (`.loca`)](#7-localisation-loca)
 - [8. Status / open problems](#8-status--open-problems)
@@ -1005,6 +1006,40 @@ engine zeroes it and only recomputes when the camp/rest system runs, so 0
 means "not cached", not "no supplies". Treat 0 as absent. This is the
 clearest proof that some blob components persist stale or invalidated data;
 expect the same of other cached aggregates.
+
+### Component census (✅ surveyed 2026-06)
+
+Every one of the 355 component types has been classified by an automated
+byte-level pass (payload class, pointer/range/GUID/string detection) and
+cross-referenced against bg3se struct names: the full table is in
+[COMPONENTS.md](COMPONENTS.md). The survey collapsed several mysteries into
+four reusable patterns:
+
+- Tag components (element size 1, bg3se `DEFINE_TAG_COMPONENT`): the byte
+  content is uninitialised junk; ownerlist presence is the entire payload.
+  About 25 components (`ItemComponent`, `SavegameComponent`,
+  `IsGlobalComponent`, `OffStageComponent`, …) carry no data at all.
+- Enum-value pools (`E*` / `T*` names, element size 8, no ownerlist, ~85
+  types): one u64 per distinct enum value in use, referenced by absolute
+  pointer from sibling components; the `ESourceType` mechanism generalises
+  to a quarter of the directory.
+- Caches: the calendar singletons (`StartingDateComponent`,
+  `DaysPassedComponent`) join `TotalSuppliesComponent` in holding stale or
+  dangling heap pointers between system runs.
+- The directory is dynamic: types appear only while some entity carries
+  them (309 types in the tutorial save, 355 mid-campaign, 344 late;
+  summons/escort/cutscene components are transient).
+
+Notable decodable-but-unread payloads found by the survey: the party's
+known alchemy recipes (`party.v0.RecipeData`: pool-string stat names such
+as `ALCH_Potion_Healing_RoguesMorsel`), unlocked waypoints
+(`party.v0.WaypointsComponent`), keys held (`lock.v0.KeyComponent`),
+background-goal/Inspiration events (`background.v0.GoalRecord`), NPC
+attitude toward players (`attitude.v0.AttitudeEntry`, i32 at +40), live
+script timers (`game_timer.v1.GameTimerComponent`), per-character interrupt
+ask/auto preferences (`interrupt.v0.PreferencesComponent`), and custom
+character portraits embedded as WebP images directly in the heap
+(`icons.v1.Icon` → RIFF data).
 
 ### Also in the blob
 
