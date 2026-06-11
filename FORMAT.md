@@ -10,13 +10,13 @@ BG3 save, `QuickSave_242`, game version 4.1.1.7209685) unless noted. Field
 names and the parts not yet decoded are cross-checked against two upstream
 projects, neither of which is required to run this parser:
 
-- **LSLib** (Norbyte) — the canonical C# reader for LSPK / LSF / `.loca`.
+- LSLib (Norbyte): the canonical C# reader for LSPK / LSF / `.loca`.
   Paths below like `LSLib/LS/Resources/LSF/LSFCommon.cs` refer to it.
-- **bg3se** (Norbyte's Script Extender) — C++ definitions of the ECS
+- bg3se (Norbyte's Script Extender): C++ definitions of the ECS
   *components* as they exist in live game memory (`BG3Extender/GameDefinitions/`).
   bg3se does **not** read the on-disk save; it reads RAM. LSLib reads the save
   but treats the `LSMF` blob as opaque bytes. So no existing tool decodes the
-  ECS blob from a save — see [§6](#6-the-lsmf-ecs-blob-newage).
+  ECS blob from a save; see [§6](#6-the-lsmf-ecs-blob-newage).
 
 All integers are little-endian.
 
@@ -96,18 +96,18 @@ nibble): `0` = none, `1` = zlib, `2` = LZ4 (block, `uncompressed_size` known),
 
 | Frame | Magic | Decomp | Status | Contents |
 |------:|-------|-------:|:------:|----------|
-| 0 | LSOF | 3.1 MB | ✅ | **Globals** — `Characters`, `Items`, item `Creators` (Entity→TemplateID), and the `NewAge` LSMF blob; ~30 root regions including `Story`, `Journal`, `Waypoints`, `GameControl` |
-| 1 | LSOF | 153 KB | ❌ | **Secondary level LSF** — 14 root regions (`Characters`, `Items`, `ItemMover`, `Triggers`, `Projectiles`, `Constellations`, `ConstellationHelpers`, `VariableManagers`, `AnubisFramework`, `SavedStates`, `Splines`, `CacheTemplates`, `NewAge`, `ModuleSettings`); 32 Character nodes (NPC-only, no party origin GUIDs), 79 Item nodes (world loot, no Translate or Stats matching any party position). A background/secondary area level cache. Contains no party character data and no party-owned items — not useful for the report. |
-| 2 | LSOF | 2.1 MB | ❌ | **`CRE_Main_A` level cache** — 123 Character nodes, 2,024 Item nodes (world entities for a secondary area); no party-owned items |
-| 3 | LSOF | 10.8 MB | ✅ | **Level cache** (`SCL_Main_A`) — `Characters`, `Items`, `Surfaces`, AI state, `CrimeHandler`; ~11.8 k live `Item` nodes with `Stats` and world transforms |
-| 4 | LSOF | 24 KB | ❌ | **Compact snapshot** — 37 root regions (most unresolved names `?XXXXXXXX`; resolved: `Characters`, `Items`, `Projectiles`, `Constellations`, `AtmosphereOverrides`, `AITurnData`, `CrimeHandler`, `Level`, `ModuleSettings`); 1 Character node (empty attrs, no template GUID), 0 Item nodes. Likely a minimal respawn-point or transition-screen state. No party data, no items. |
-| 5 | LSOF | 14.7 MB | ❌ | **`WLD_Main_A` level cache** — 669 Character nodes, 14,833 Item nodes (world entities for the main open area); no party-owned items |
-| 6 | LSOF | 2 KB | ✅ | **`MetaData`** — save metadata: wall-clock save time (Unix epoch), save number, campaign/session UUIDs, party leader name, RNG seed, mod list (`ModuleShortDesc` nodes), difficulty code, active ruleset UUIDs, game version, camera state |
-| 7 | RIFF | ~1.7 MB | ✅ | **Load-screen thumbnail** — RIFF/WebP (lossy VP8), 1280×720 px; extracted by `extract_thumbnail` with `--thumbnail PATH` |
-| 8 | JSON | 2.5 KB | ✅ | **`Info.json`** — save name, game version, difficulty, current level, active party (class/level/XP) |
-| 9 | Osiris | 47.7 MB | ❌ | **Osiris database** — scripting engine state (`Osiris save file, Version 1.8`): quest flags, story counters, dialogue state |
+| 0 | LSOF | 3.1 MB | ✅ | **Globals**: `Characters`, `Items`, item `Creators` (Entity→TemplateID), and the `NewAge` LSMF blob; ~30 root regions including `Story`, `Journal`, `Waypoints`, `GameControl` |
+| 1 | LSOF | 153 KB | ❌ | **Secondary level LSF**: 14 root regions (`Characters`, `Items`, `ItemMover`, `Triggers`, `Projectiles`, `Constellations`, `ConstellationHelpers`, `VariableManagers`, `AnubisFramework`, `SavedStates`, `Splines`, `CacheTemplates`, `NewAge`, `ModuleSettings`); 32 Character nodes (NPC-only, no party origin GUIDs), 79 Item nodes (world loot, no Translate or Stats matching any party position). A background/secondary area level cache. Contains no party character data and no party-owned items; not useful for the report. |
+| 2 | LSOF | 2.1 MB | ❌ | **`CRE_Main_A` level cache**: 123 Character nodes, 2,024 Item nodes (world entities for a secondary area); no party-owned items |
+| 3 | LSOF | 10.8 MB | ✅ | **Level cache** (`SCL_Main_A`): `Characters`, `Items`, `Surfaces`, AI state, `CrimeHandler`; ~11.8 k live `Item` nodes with `Stats` and world transforms |
+| 4 | LSOF | 24 KB | ❌ | **Compact snapshot**: 37 root regions (most unresolved names `?XXXXXXXX`; resolved: `Characters`, `Items`, `Projectiles`, `Constellations`, `AtmosphereOverrides`, `AITurnData`, `CrimeHandler`, `Level`, `ModuleSettings`); 1 Character node (empty attrs, no template GUID), 0 Item nodes. Likely a minimal respawn-point or transition-screen state. No party data, no items. |
+| 5 | LSOF | 14.7 MB | ❌ | **`WLD_Main_A` level cache**: 669 Character nodes, 14,833 Item nodes (world entities for the main open area); no party-owned items |
+| 6 | LSOF | 2 KB | ✅ | **`MetaData`**: save metadata: wall-clock save time (Unix epoch), save number, campaign/session UUIDs, party leader name, RNG seed, mod list (`ModuleShortDesc` nodes), difficulty code, active ruleset UUIDs, game version, camera state |
+| 7 | RIFF | ~1.7 MB | ✅ | **Load-screen thumbnail**: RIFF/WebP (lossy VP8), 1280×720 px; extracted by `extract_thumbnail` with `--thumbnail PATH` |
+| 8 | JSON | 2.5 KB | ✅ | **`Info.json`**: save name, game version, difficulty, current level, active party (class/level/XP) |
+| 9 | Osiris | 47.7 MB | ❌ | **Osiris database**: scripting engine state (`Osiris save file, Version 1.8`): quest flags, story counters, dialogue state |
 
-### Frame 6 — `MetaData` node attributes (fully decoded, 2 KB LSOF)
+### Frame 6: `MetaData` node attributes (fully decoded, 2 KB LSOF)
 
 Frame 6 decompresses to ~2 077 bytes and contains a single `MetaData` root with
 one child `MetaData` node that carries all attributes, plus several child nodes
@@ -118,16 +118,16 @@ one child `MetaData` node that carries all attributes, plus several child nodes
 | Attribute | Type | Observed value | Notes |
 |-----------|------|---------------|-------|
 | `SaveTime` | UInt (5) | `1780520898` | Wall-clock save time, Unix epoch seconds (verified: `datetime.utcfromtimestamp(1780520898)` → 2026-06-03 21:08:18 UTC) |
-| `SaveGameID` | Int (4) | `242` | Save slot number — matches the filename |
-| `SaveGameType` | Int (4) | `1` | Save type code; `1` observed for QuickSave — mapping unverified beyond one save |
+| `SaveGameID` | Int (4) | `242` | Save slot number; matches the filename |
+| `SaveGameType` | Int (4) | `1` | Save type code; `1` observed for QuickSave; mapping unverified beyond one save |
 | `GameID` | UUID (31) | `bd8ccd4d-…` | Persistent campaign identity |
 | `GameSessionID` | UUID (31) | `ea7c1dd2-…` | Per-session identity (changes each play session) |
 | `LeaderName` | String (20) | `"Maia"` | Party leader display name |
 | `Seed` | UInt (5) | `176876464` | RNG seed for this save |
 | `Modded` | Bool (19) | `true` | True when any non-base modules are listed in the mod table |
-| `HasUnofficialMods` | Bool (19) | `false` | BG3's own "tainted" flag; observed False when only UI/cosmetic mods are installed alongside GustavX — exact triggering conditions unverified beyond one save |
+| `HasUnofficialMods` | Bool (19) | `false` | BG3's own "tainted" flag; observed False when only UI/cosmetic mods are installed alongside GustavX; exact triggering conditions unverified beyond one save |
 | `Difficulty` | Int (4) | `2` | Difficulty code (2 observed with `DifficultyMedium` per `Info.json`; full enum unknown) |
-| `Level` | FixedString (22) | `"SCL_Main_A"` | Current level — same as `Info.json "Current Level"` |
+| `Level` | FixedString (22) | `"SCL_Main_A"` | Current level; same as `Info.json "Current Level"` |
 | `CurrentSubRegion` | FixedString (22) | `""` | Current sub-region (may be empty) |
 | `TutorialFinished` | Bool (19) | `true` | |
 | `Sanity` | Bool (19) | `true` | |
@@ -135,15 +135,15 @@ one child `MetaData` node that carries all attributes, plus several child nodes
 | `DisabledSingleSave` | Bool (19) | `false` | |
 | `DishonorDifficultySelection` | UUID (31) | null UUID | Honour-mode tracking (null UUID = not in Honour mode) |
 | `TimeStamp` | UInt (5) | `147905` | In-game time counter; units unverified |
-| `OriginalPlatform` | Int (4) | `7` | Platform code; `7` observed for Steam — full enum unknown |
+| `OriginalPlatform` | Int (4) | `7` | Platform code; `7` observed for Steam; full enum unknown |
 
 **Redundant with `Info.json`:** `Level`, `Difficulty` code, game version (under
 `GameVersions/GameVersion.Object`).
 
 **Child nodes of interest:**
 
-- `ModuleSettings/Mods/ModuleShortDesc` — one entry per active mod: `Name`,
-  `Folder`, `MD5`, `Version64`, `PublishHandle`, and a `UUID` field.
+- `ModuleSettings/Mods/ModuleShortDesc`: one entry per active mod (`Name`,
+  `Folder`, `MD5`, `Version64`, `PublishHandle`, and a `UUID` field).
   **UUID byte-order warning:** the `UUID` field in `ModuleShortDesc` does not
   follow the standard UUID byte-layout used elsewhere in LSF (the last two
   groups of bytes are swapped compared to the canonical form embedded in the
@@ -152,16 +152,16 @@ one child `MetaData` node that carries all attributes, plus several child nodes
   `Folder` string for canonical mod identity, not the parsed `UUID` attr.
   GustavX is always present (base game module); additional entries are
   user-installed mods.
-- `GameVersions/GameVersion.Object` — `FixedString` game version, e.g.
+- `GameVersions/GameVersion.Object`: `FixedString` game version, e.g.
   `"4.1.1.7209685"`.
-- `Rulesets` — two `FixedString` ruleset UUIDs (one per `Rulesets` node);
+- `Rulesets`: two `FixedString` ruleset UUIDs (one per `Rulesets` node);
   the second corresponds to `RulesetLarian` per `Info.json`.
-- `PartyMetaData/CharacterMetaData` — per-character icon IDs and name
+- `PartyMetaData/CharacterMetaData`: per-character icon IDs and name
   handle refs (loca/runtime handles; not resolved by this parser).
-- `ClientDatas/ClientData` — UI state: `Slot`, `HotbarLocked`,
-  `GameCameraDistance`, `GameCameraRotation`.
+- `ClientDatas/ClientData`: UI state (`Slot`, `HotbarLocked`,
+  `GameCameraDistance`, `GameCameraRotation`).
 
-### §1a. Frame 2 — `CRE_Main_A` level state
+### §1a. Frame 2: `CRE_Main_A` level state
 
 47,201 nodes, 27 root regions (V2 12-byte layout; `keys_unc`/`keys_disk` != 0
 but `MetadataFormat = 0`). Structure is identical to frame 3: the same 27
@@ -209,7 +209,7 @@ ShroudData   ScratchBuffer   213,088 bytes
 
 **`NewAge` LSMF blob:** 3,581,032 bytes (same ECS format as frame 0; see §6).
 
-### §1b. Frame 5 — `WLD_Main_A` level state
+### §1b. Frame 5: `WLD_Main_A` level state
 
 330,830 nodes, 27 root regions (V2 12-byte layout; same caveat as §1a).
 Structure is identical to frames 2/3.
@@ -242,7 +242,7 @@ Grid bounds: X ∈ [−3150, 1081], Z ∈ [−1117, 1319].
 | max_z | 1319 |
 
 **`NewAge` LSMF blob:** 24,720,344 bytes (same ECS format as frame 0 but
-larger — `WLD_Main_A` is the main open-world level).
+larger; `WLD_Main_A` is the main open-world level).
 
 ---
 
@@ -263,16 +263,16 @@ Then the metadata block (`LSFMetadataV6`, 10 × u32 of section sizes) at offset 
 
 | Offset | Type | Field |
 |-------:|------|-------|
-| 16 | u32 | strings — uncompressed size |
-| 20 | u32 | strings — size on disk |
-| 24 | u32 | **keys** — uncompressed size |
-| 28 | u32 | **keys** — size on disk |
-| 32 | u32 | nodes — uncompressed size |
-| 36 | u32 | nodes — size on disk |
-| 40 | u32 | attributes — uncompressed size |
-| 44 | u32 | attributes — size on disk |
-| 48 | u32 | values — uncompressed size |
-| 52 | u32 | values — size on disk |
+| 16 | u32 | strings: uncompressed size |
+| 20 | u32 | strings: size on disk |
+| 24 | u32 | **keys**: uncompressed size |
+| 28 | u32 | **keys**: size on disk |
+| 32 | u32 | nodes: uncompressed size |
+| 36 | u32 | nodes: size on disk |
+| 40 | u32 | attributes: uncompressed size |
+| 44 | u32 | attributes: size on disk |
+| 48 | u32 | values: uncompressed size |
+| 52 | u32 | values: size on disk |
 | 56 | u8 | compression flags (low nibble = method, high nibble = level) |
 | 57 | u8 | unknown (0) |
 | 58 | u16 | unknown |
@@ -281,7 +281,7 @@ Then the metadata block (`LSFMetadataV6`, 10 × u32 of section sizes) at offset 
 The four data sections (**strings, nodes, attributes, values**) follow
 immediately, in that order, starting at offset 64. A section's on-disk byte
 count is `sizeOnDisk` when compressed, or the **uncompressed size when
-`sizeOnDisk == 0`** (uncompressed sections — common in the game's
+`sizeOnDisk == 0`** (uncompressed sections, common in the game's
 `_merged.lsf`). Compression per the flags byte: `0` none, `2` LZ4 (frame-mode
 "chunked" when `version ≥ 2`, otherwise block-mode). A keys section exists only
 in the extended layout below.
@@ -297,7 +297,7 @@ layout is used.
 
 > **Gotcha (this cost two bugs):** observed files use `MetadataFormat` `0`
 > (saves) or `2` (the game's root-template `_merged.lsf`). Both are the **V2**
-> layout — `2` is *not* extended. Keying the node width off `mfmt != 0` wrongly
+> layout; `2` is *not* extended. Keying the node width off `mfmt != 0` wrongly
 > picks 16-byte nodes for the `_merged.lsf`, corrupting the node table. An
 > intermediate fix keyed off the keys-section sizes (`keys_unc/keys_disk != 0`),
 > but save frames 2/4/5 have a non-empty keys section with `mfmt=0` (V2 layout),
@@ -317,7 +317,7 @@ A name handle `nh` resolves as `names[nh >> 16][nh & 0xFFFF]`.
 
 ### Node entries (nodes section)
 
-**V2 — 12 bytes:**
+**V2, 12 bytes:**
 
 | Offset | Type | Field |
 |-------:|------|-------|
@@ -325,7 +325,7 @@ A name handle `nh` resolves as `names[nh >> 16][nh & 0xFFFF]`.
 | 4 | i32 | first attribute index (`-1` = none) |
 | 8 | i32 | parent index (`-1` = root region) |
 
-**V3 — 16 bytes** (`KeysAndAdjacency` only):
+**V3, 16 bytes** (`KeysAndAdjacency` only):
 
 | Offset | Type | Field |
 |-------:|------|-------|
@@ -336,7 +336,7 @@ A name handle `nh` resolves as `names[nh >> 16][nh & 0xFFFF]`.
 
 ### Attribute entries (attributes section)
 
-**V2 — 12 bytes** (used by saves & `_merged.lsf`):
+**V2, 12 bytes** (used by saves & `_merged.lsf`):
 
 | Offset | Type | Field |
 |-------:|------|-------|
@@ -347,7 +347,7 @@ A name handle `nh` resolves as `names[nh >> 16][nh & 0xFFFF]`.
 V2 attribute **values** are stored back-to-back in the values section in
 attribute order; walk a running offset, advancing by each attribute's `length`.
 
-**V3 — 16 bytes** (`KeysAndAdjacency` only): name handle (u32), type-and-length
+**V3, 16 bytes** (`KeysAndAdjacency` only): name handle (u32), type-and-length
 (u32), next-attribute index (i32), explicit value **offset** (u32). Attributes
 are chained per node from the node's `first attribute index`.
 
@@ -357,7 +357,7 @@ Full type enum (`LSLib/LS/NodeAttribute.cs`); ✓ = decoded by this parser:
 
 | ID | Type | ID | Type | ID | Type |
 |---:|------|---:|------|---:|------|
-| 0 | None | 13 | Vec4 | 25 | ScratchBuffer ✓ (opaque bytes — the LSMF blob) |
+| 0 | None | 13 | Vec4 | 25 | ScratchBuffer ✓ (opaque bytes: the LSMF blob) |
 | 1 | Byte ✓ | 14 | Mat2 | 26 | Long/Int64 ✓ |
 | 2 | Short ✓ | 15 | Mat3 | 27 | Int8 |
 | 3 | UShort ✓ | 16 | Mat3x4 | 28 | TranslatedString ✓ (u16 version, i32 len, handle) |
@@ -367,7 +367,7 @@ Full type enum (`LSLib/LS/NodeAttribute.cs`); ✓ = decoded by this parser:
 | 7 | Double | 20 | String ✓ | 32 | Int64 ✓ |
 | 8–10 | IVec2–4 | 21 | Path ✓ | 33 | TranslatedFSString |
 | 11 | Vec2 | 22 | FixedString ✓ | | |
-| 12 | **Vec3 ✓** (3 × float — used for `Translate`) | 23 | LSString ✓ | 24 | ULongLong ✓ |
+| 12 | **Vec3 ✓** (3 × float, used for `Translate`) | 23 | LSString ✓ | 24 | ULongLong ✓ |
 
 String types (20–23, 29, 30) store `length` bytes including a trailing NUL.
 `TranslatedString` (28) stores a localisation **handle** (e.g.
@@ -379,10 +379,10 @@ String types (20–23, 29, 30) store `length` bytes including a trailing NUL.
 
 Within frame 0 / frame 3 LSF trees:
 
-- **Party characters** are `Character` nodes whose `CurrentTemplate` GUID is one
+- Party characters are `Character` nodes whose `CurrentTemplate` GUID is one
   of the known origin template GUIDs (Maia/Wyll/Karlach/Shadowheart in the test
   save). Each has a `Translate` (Vec3 world position).
-- **Items** are `Item` nodes with `Stats` (internal name, e.g.
+- Items are `Item` nodes with `Stats` (internal name, e.g.
   `UND_SwordInStone`), `CurrentTemplate` (a per-save **runtime** GUID),
   `Translate`, `Flags`, `Level`, etc. There is **no slot or owner field**.
 - Item `Creators` map `Entity` → `TemplateID`; templates map to `Stats`.
@@ -407,7 +407,7 @@ three buckets: positively-signalled **Equipped**, definitely non-equipment
 **Carried**, and **"worn or carried — undetermined"**.
 
 **Multiple Item nodes for the same stats name.** A single stats name can appear
-in multiple `Item` nodes in frame 0 — once per actual instance (equipped copy,
+in multiple `Item` nodes in frame 0, once per actual instance (equipped copy,
 spare, world spawn). For example, `ARM_Instrument_Lute` has three frame-0 nodes
 in the test save: one with the equip bit (the equipped MusicalInstrument-slot
 instance), one without (a spare), and one marked `UnsoldGenerated` (a vendor
@@ -424,10 +424,10 @@ QuickSave_242 ground truth (34 worn items across 4 characters):
 | Bits (mask) | Meaning (observed) |
 |------------:|--------------------|
 | `0x0000000c` | baseline, present on essentially every item |
-| `0x04000000` | worn-equipment signal — present on 32/34 worn items; **absent** on 2 worn items (Evasive Shoes, Pearl of Power Amulet) and **present** on at least 1 inventory item (`DEN_HellridersPride`) as a false positive |
+| `0x04000000` | worn-equipment signal: present on 32/34 worn items; **absent** on 2 worn items (Evasive Shoes, Pearl of Power Amulet) and **present** on at least 1 inventory item (`DEN_HellridersPride`) as a false positive |
 | `0x00000100` / `0x00200000` | seen on bags/containers (AlchemyPouch, Keychain) |
 | `0x00040000` | seen on some items with `PreviousLevel` set (items moved between areas) |
-| high bits (`0x80000000_0000…`) | consumables, quest items, some unequipped spares — **never** seen on any of the 34 verified worn items; useful as a negative signal |
+| high bits (`0x80000000_0000…`) | consumables, quest items, some unequipped spares; **never** seen on any of the 34 verified worn items; useful as a negative signal |
 
 ---
 
@@ -444,7 +444,7 @@ item Stats name  ─►  root-template DisplayName handle  ─►  english.loca 
 Root templates are the `_merged.lsf` files inside `Shared.pak` / `Gustav.pak` /
 `GustavX.pak` (e.g. `Public/Shared/RootTemplates/_merged.lsf`). Each
 `GameObjects` node has: `MapKey` (template GUID), `Name`, `Stats`,
-`ParentTemplateId` (inheritance — follow it when `DisplayName` is absent), and
+`ParentTemplateId` (inheritance; follow it when `DisplayName` is absent), and
 `DisplayName` (a `TranslatedString` handle).
 
 > In a live save, items use a **per-save local** `CurrentTemplate` GUID that is
@@ -457,7 +457,7 @@ Root templates are the `_merged.lsf` files inside `Shared.pak` / `Gustav.pak` /
 ## 6. The `LSMF` ECS blob ("NewAge")
 
 The single biggest piece of live state. It is stored as one LSF attribute of
-type **ScratchBuffer (25)** on the root `NewAge` node of frame 0 — an opaque
+type **ScratchBuffer (25)** on the root `NewAge` node of frame 0: an opaque
 ~4 MB byte buffer that LSLib does **not** decode. It is a **columnar
 Entity-Component-System dump**.
 
@@ -466,8 +466,8 @@ Entity-Component-System dump**.
 > for `4C 53 4D 46` (`LSMF`) magic bytes will find a **false positive** in the
 > LSF strings section at approximately offset 1 730 992 (the ASCII text `LSMF`
 > appears there as part of a node name). The actual blob is only reachable by
-> fully parsing the LSF — decompressing the values section and reading the
-> `NewAge → ScratchBuffer` attribute value — as `parse_lsof` does.
+> fully parsing the LSF (decompressing the values section and reading the
+> `NewAge → ScratchBuffer` attribute value), as `parse_lsof` does.
 
 ### Header
 
@@ -475,16 +475,16 @@ Entity-Component-System dump**.
 |-------:|------|-------|
 | 0 | char[4] + 4 | magic `4C 53 4D 46 01 01 00 08` (`LSMF` + version-ish) |
 | 8 | u64 | (unidentified; looks like a hash/build id) |
-| 16 | **u64** | **dir_off** — raw directory pointer; `names_off` (actual directory start) = `dir_off + 48` |
-| 24 | **u64** | **names_size** — byte length of the component-names blob |
-| 32 | **u32** | **desc_table_rel** — descriptor-table offset, relative to `names_off` |
-| 36 | **u16** | **entry_count** — number of component descriptors (355 in QuickSave_242) |
+| 16 | **u64** | **dir_off**: raw directory pointer; `names_off` (actual directory start) = `dir_off + 48` |
+| 24 | **u64** | **names_size**: byte length of the component-names blob |
+| 32 | **u32** | **desc_table_rel**: descriptor-table offset, relative to `names_off` |
+| 36 | **u16** | **entry_count**: number of component descriptors (355 in QuickSave_242) |
 | 48… | | component column data, then the directory region |
 
 ### Component-type directory (✅ decoded)
 
 `blob[16:24]` stores `dir_off`; the directory starts at `names_off = dir_off + 48`.
-It lists **every component type present** — 355 entries in `QuickSave_242`. Names
+It lists **every component type present**: 355 entries in `QuickSave_242`. Names
 are stored **without** the `eoc::` / `ls::` prefix (so a search for the full bg3se
 name like `eoc::inventory::MemberComponent` fails; the substring `MemberComponent`
 is present). The directory fields `desc_table_rel` (u32) and `entry_count` (u16)
@@ -512,7 +512,7 @@ struct ComponentDesc {
 ```
 
 This is a complete `name → {elem_size, row_count, data_offset}` index for all
-~350 types, e.g. `core.v0.EntityId` (elem=16 — one entity-instance GUID per
+~350 types, e.g. `core.v0.EntityId` (elem=16: one entity-instance GUID per
 row), `game.inventory.v0.MemberData` (#125, elem=16, rows=1314,
 data_off=0x166010), `game.inventory.v0.MemberComponent` (#126, elem=8,
 rows=1314, data_off=0x16b230). The inventory cluster is contiguous in the
@@ -544,7 +544,7 @@ struct OwnerlistRecord {
 entity that owns this component (i.e., has a column-data row for it).
 
 **Critical indexing rule.** An entity's **position `P`** in the ownerlist array
-(0-based) is its column index into the component's data — *not* its
+(0-based) is its column index into the component's data, *not* its
 `core.v0.EntityId` row number. To read the component data for entity at
 `EntityId` row `er`: scan the ownerlist for the position `P` where
 `ownerlist[P] == er`, then read
@@ -560,12 +560,12 @@ LIMITS.md).
 ### Cross-component references: absolute byte-pointers (✅ decoded)
 
 Where one component's row references another entity, the on-disk value is a
-**direct absolute byte offset into the blob** — not a handle, not a GUID. A
+**direct absolute byte offset into the blob**: not a handle, not a GUID. A
 `locate(offset)` helper (scan all `ComponentDesc` entries for
 `data_offset <= off < data_offset + elem_size*row_count`) resolves any such
 value to `(component_name, row_index, byte_in_row)`. Every
 `MemberData.ptr_a` (below) resolves with `byte_in_row == 0` against
-`core.v0.EntityId` — i.e. it points at the start of an entity's 16-byte GUID
+`core.v0.EntityId`: i.e. it points at the start of an entity's 16-byte GUID
 record, the closest thing to a stable cross-reference the on-disk format has.
 
 ### Heap arrays and the string pool (✅ decoded)
@@ -582,12 +582,12 @@ regions outside the fixed-size column data:
   referenced as `{pointer, length}` pairs.
 
 **Pointer base quirk:** pointers into the heap and string pool are stored as
-`(absolute offset − 48)` — the same convention as the header's `dir_off` —
+`(absolute offset − 48)`, the same convention as the header's `dir_off`,
 while pointers into component column data are plain absolute offsets (they
 resolve against descriptor `data_offset` values with `byte_in_row == 0`).
 Add 48 before dereferencing a heap/pool pointer.
 
-### Spell books (✅ decoded — exact per-character spell lists)
+### Spell books (✅ decoded: exact per-character spell lists)
 
 The complete chain from a character to its spells:
 
@@ -602,8 +602,8 @@ the concatenated spell-ID string pool   →  "Shout_ActionSurge", …
 
 Each character's `SpellData` rows are contiguous, so books are `{begin, end}`
 slices. `SpellId` records appear in (at least) three shapes across save
-versions — `{meta_ptr, str_ptr, len}`, `{str_ptr, len|flags, src_ptr}`, and
-`{meta_ptr, str_ptr, len|generation}` — so a robust reader tries both
+versions: `{meta_ptr, str_ptr, len}`, `{str_ptr, len|flags, src_ptr}`, and
+`{meta_ptr, str_ptr, len|generation}`: so a robust reader tries both
 `(pointer, length)` pairings and accepts the one yielding printable ASCII.
 Other `SpellData` fields: `[1]`/`[3]` point at enum singletons
 (`ECooldownType`, `EAbility`), `[4]`/`[5]` are a `{begin, end}` slice into
@@ -615,15 +615,15 @@ and disappear when it is removed), and mod-added spells all show up.
 
 ### Character classes, templates, and origins (✅ decoded)
 
-- **`game.stats.v0.ClassesComponent`** (elem=16): `{begin, end}` heap range of
-  40-byte entries `{16B class GUID, 16B subclass GUID, u64 level}` — one entry
+- `game.stats.v0.ClassesComponent` (elem=16): `{begin, end}` heap range of
+  40-byte entries `{16B class GUID, 16B subclass GUID, u64 level}`: one entry
   per class in a multiclass build. The GUIDs are the static UUIDs from the
   game's `ClassDescriptions.lsx`, so a save-side entity can be matched to
   `Info.json`'s per-member `(Main, Sub, Level)` without heuristics.
-- **`game.templates.v0.TemplateComponent`** (elem=24):
-  `{u64 ptr, u32 len=36, u32 idx, u64 ptr2}` — the entity's template GUID
+- `game.templates.v0.TemplateComponent` (elem=24):
+  `{u64 ptr, u32 len=36, u32 idx, u64 ptr2}`: the entity's template GUID
   stored as a 36-char ASCII string in the pool (pointer needs +48).
-- **`game.character_creation.v0.OriginComponent`** (elem=16): the character's
+- `game.character_creation.v0.OriginComponent` (elem=16): the character's
   origin, stored either as a `{ptr, len}` pool string (`"Lae'zel"`) or as the
   inline 16-byte origin UUID from `Origins.lsx` (e.g.
   `efc9d114-0296-4a30-b701-365fc07d44fb` = Wyll).
@@ -641,53 +641,53 @@ party member to its spell-state entity is **class matching**: the entity whose
 largest book among candidates (the origin-pool stand-ins are strictly
 smaller).
 
-### Inventory containers (✅ decoded — ownership web)
+### Inventory containers (✅ decoded: ownership web)
 
-- **`game.inventory.v0.OwnerComponent`** (elem=24, on characters):
-  `{begin, end, u64 primary}` — an Inventories array in the heap plus
+- `game.inventory.v0.OwnerComponent` (elem=24, on characters):
+  `{begin, end, u64 primary}`: an Inventories array in the heap plus
   `primary` pointing at the `core.v0.EntityId` row of the character's
   **primary inventory** pseudo-entity. Confirmed: the party leader's primary
   inventory is the container holding their carried items.
-- **`game.inventory.v1.IsOwnedComponent`** (elem=8, on inventory entities):
+- `game.inventory.v1.IsOwnedComponent` (elem=8, on inventory entities):
   pointer to the owner's `EntityId` row.
-- **`game.inventory.v1.ContainerComponent`** (elem=32, on inventory entities
+- `game.inventory.v1.ContainerComponent` (elem=32, on inventory entities
   and containers): two `{begin, end}` heap ranges (empty = `FF…FF`).
-- **`game.inventory.v0.ContainerSlotData`** (elem=16, no ownerlist —
+- `game.inventory.v0.ContainerSlotData` (elem=16, no ownerlist;
   referenced by pointer): `{u64 ptr → item EntityId row, u32 slot,
   u32 generation}`. `slot` is the position **within that container**
   (inventory-grid cell, *not* the `ItemSlot` enum); `generation` reads as a
   small epoch counter on old rows but as uninitialised garbage (string-pool
-  fragments) on fresh ones — don't rely on it. An item that has moved between
+  fragments) on fresh ones; don't rely on it. An item that has moved between
   containers can retain **stale rows** alongside its current one, and a slot
   row is **reused in place** when one item replaces another in the same
   container slot (observed when swapping amulets between saves 292→294).
-- **`game.inventory.v0.MemberData.ptr_a`** points at single-item shadow
-  inventories whose `IsOwnedComponent` names *other characters* — historical
+- `game.inventory.v0.MemberData.ptr_a` points at single-item shadow
+  inventories whose `IsOwnedComponent` names *other characters*: historical
   ownership bookkeeping (loot source), not current location. Treat
   `MemberComponent`/`MemberData` as a "has been in an inventory" signal, not
   a live container assignment.
 
 **Stack amounts** (✅ decoded): each `game.inventory.v0.NewStackComponent`
-row points at a stack record — a `{begin, end}` heap range of member-item
+row points at a stack record: a `{begin, end}` heap range of member-item
 `EntityId` pointers, followed at +16 by a `{begin, end}` range of
 `game.inventory.v0.StackEntry` rows, whose 8-byte entries are
 `{u32 id, u32 amount}` inline; the record's total is their sum. Verified
 against in-game gold piles of 766 and 2017 and a 2-potion stack
 (QuickSave_296/297). Items without a record are single. Note the records sit
 in the `Stack` component's data region but are **not aligned to its 32-byte
-rows** — row-aligned reads produce chimeras; always navigate from the
+rows**: row-aligned reads produce chimeras; always navigate from the
 `NewStackComponent` pointer.
 
 Containers are inventory **grid pages** (~13–16 slots for characters), and a
-character's containers freely mix worn and carried items — container identity
+character's containers freely mix worn and carried items; container identity
 alone does **not** mark equipment. The camp **Traveller's Chest** is simply
 the largest container (256 slots); its contents are fully listable, with item
 identity recovered through `ContainerSlotData → EntityId` and names through
 the LSF instance map or, for items with no Creators entry in the current
-level, `game.templates.v0.TemplateComponent` — whose pool string is a
+level, `game.templates.v0.TemplateComponent`: whose pool string is a
 *static* root-template GUID, so the GUID→DisplayName path works for it.
 
-### The equipment cluster (✅ decoded — worn items form a row block)
+### The equipment cluster (✅ decoded: worn items form a row block)
 
 Each character's worn items occupy a **near-contiguous block of
 `ContainerSlotData` rows** (their slots in the character's own containers,
@@ -706,32 +706,32 @@ and uses membership in that window as the dominant worn/carried signal
 (`party.equipment_cluster`). Within the block, row order resolves what the
 stat files cannot: Ring vs Ring 2 (QuickSave_291) and main- vs off-hand for
 a dual-wield pair (QuickSave_292: Githyanki Shortsword row 954 = main hand,
-Dagger row 957 = off hand) — earlier row = first/upper slot in both cases.
+Dagger row 957 = off hand); earlier row = first/upper slot in both cases.
 
 Two refinements, both in-game verified:
 
-- **Virtual slots.** An equipped instrument stays in the backpack grid — the
+- Virtual slots. An equipped instrument stays in the backpack grid; the
   MusicalInstrument slot is a UI view, so the item's row sits mid-backpack
   while genuinely worn (QuickSave_294/295). Such slots are exempt from
   cluster demotion. The **light-source slot** (a torch on the paper doll) is
   the same phenomenon taken further: it is a view of an inventory item with
-  *no* equip bit and no save-side slot at all — dropping the inventory item
+  *no* equip bit and no save-side slot at all; dropping the inventory item
   clears the slot (QuickSave_296). The parser reports such torches as
   carried.
-- **Per-instance classification.** Several copies of one item type on a
+- Per-instance classification. Several copies of one item type on a
   character share `(Translate, stats)` *and* often one local template
-  (QuickSave_296: four identical Shortswords — two dual-wielded, two in a
+  (QuickSave_296: four identical Shortswords: two dual-wielded, two in a
   bag). The Creators/Items parallel arrays still give one entity per copy,
   and each copy's own ContainerSlotData rows against the cluster classify it
   individually.
 
-### Entity-GUID bridge — corrects an earlier "no link exists" claim (✅ found)
+### Entity-GUID bridge: corrects an earlier "no link exists" claim (✅ found)
 
 A prior pass concluded that LSF item/character GUIDs never appear in the LSMF
-blob's entity tables — and used that to argue the worn/carried question was
+blob's entity tables, and used that to argue the worn/carried question was
 structurally unrecoverable. **That conclusion compared the wrong GUID
 namespace.** `CurrentTemplate` on an `Item`/`Character` LSF node is a
-*template/content* GUID; `core.v0.EntityId` rows hold *entity-instance* GUIDs —
+*template/content* GUID; `core.v0.EntityId` rows hold *entity-instance* GUIDs:
 two disjoint spaces. The bridge between them is the existing
 `build_entity_template_map(nodes, root_name)` helper (`entity_guid →
 template_guid`); inverted and chained:
@@ -741,7 +741,7 @@ item.CurrentTemplate ──(invert map for 'Items')──► entity_guid ──(
 ```
 
 this resolves cleanly for every item tested (Wyll's 7 known-equipped items each
-land 5–8 `EntityId` row instances — entities are re-listed multiple times,
+land 5–8 `EntityId` row instances; entities are re-listed multiple times,
 seemingly once per save "epoch"/frame). **So entity identity for a known item
 *is* recoverable from the blob.** What is *not* recoverable (next section) is
 which inventory/slot that entity sits in.
@@ -751,11 +751,11 @@ which inventory/slot that entity sits in.
 **Controlled equip/unequip diff (saves 242 vs 243).** Comparing saves where
 Wyll's Evasive Shoes were equipped (save 242, entity row 1597) vs in his bag
 (save 243, entity row 1679) identified **35 components whose ownerlist included
-entity 1597 but not entity 1679** — components present only when the item is
+entity 1597 but not entity 1679**: components present only when the item is
 equipped. `game.inventory.v0.MemberComponent` is one of them. The parser uses
 **aggregate membership count** across all ownerlist records (equipped items have
 ~35–41 memberships; backpack items ~3–6; threshold 15) as its
-equipped/carried signal — `MemberComponent` is a cross-check, not the sole
+equipped/carried signal; `MemberComponent` is a cross-check, not the sole
 indicator. `MemberComponent` has 1314 rows in save 242 because it covers all
 equipped entities in the scene (party, NPCs, world), not just party items.
 
@@ -764,7 +764,7 @@ in-memory struct is:
 ```cpp
 struct MemberComponent { EntityHandle Inventory; int16_t EquipmentSlot; };
 ```
-but the on-disk element is only 8 bytes — an **absolute byte-pointer into
+but the on-disk element is only 8 bytes: an **absolute byte-pointer into
 `MemberData`'s data region**. The `EquipmentSlot` field is absent from the
 on-disk representation.
 
@@ -774,7 +774,7 @@ on-disk representation.
 Prior analysis found that `ptr_a` resolves (via the byte-pointer scheme above)
 to a `core.v0.EntityId` row-start; collapsed across duplicates, only **262
 distinct GUIDs** appear. **None of the 1419 known item-entity GUIDs is among
-those 262** — they are **inventory-container pseudo-entities** (one per
+those 262**: they are **inventory-container pseudo-entities** (one per
 character/container/shop; 262 is a plausible count for a full save), consistent
 with `MemberComponent` recording "item entity X belongs to inventory entity Y".
 The `ptr_a` values (~78 K–98 K) were separately confirmed to **not** fall in
@@ -791,7 +791,7 @@ lower 16 bits of Salt (852/853); `top = 0` because Salt < 2¹⁶; `mid` (30
 distinct values) is the upper 16 bits of the Index field; `low` spans the full
 `u16` range. In the test save, bytes 12–15 of every `handle_b` read as
 `54 03 00 00` (LE) → Salt = 852 = 0x354, Type = 0. `Index` values are in the
-billions — positions in the **live game's global entity pool**, not the save's
+billions: positions in the **live game's global entity pool**, not the save's
 local `core.v0.EntityId` table (~17 K rows). **No handle → GUID translation
 table exists anywhere in the on-disk LSF tree** (confirmed by exhaustive
 whole-tree search). `handle_b` is therefore unresolvable without live game state,
@@ -829,26 +829,26 @@ struct EquipableComponent { Guid EquipmentTypeID; ItemSlot Slot; };
 
 Character world `Translate` triples (`<fff`) appear in the blob 5–8× each
 (presumably `MemberTransformComponent`), bracketed by a recurring `5D 02 5D 02`
-(= `605, 605` as two u16 — entity-index-like markers) with `FF`-filled
+(= `605, 605` as two u16, entity-index-like markers) with `FF`-filled
 rotation/scale fields. These give a known-value entry point into entity framing.
 
 ### What blocks a full decode
 
 The directory is now decoded (any component's `{elem_size, row_count,
-data_offset}` is a lookup away — see above), and entity identity for a *known*
+data_offset}` is a lookup away; see above), and entity identity for a *known*
 item is recoverable via the `CurrentTemplate → entity_guid → EntityId` bridge.
 What remains genuinely blocked:
 
 1. **`EntityHandle` decoding.** `MemberData.handle_b` is a well-formed
    `EntityHandle` (`uint64 = Index(32) | Salt(22)<<32 | Type(10)<<54`; Salt≈852,
-   Type=0 — confirmed from bg3se source and byte inspection). Its `Index` field
-   is in the billions — a position in the live game's global entity pool, not the
+   Type=0, confirmed from bg3se source and byte inspection). Its `Index` field
+   is in the billions: a position in the live game's global entity pool, not the
    save's local table. There is **no handle → GUID / handle → row table anywhere
    in the on-disk LSF tree** (confirmed by exhaustive whole-tree search). Any
    information gated behind a live `EntityHandle` is unresolvable from the save
    file alone.
 2. **Exact equipment slot** (Helmet / Boots / Amulet / …). The save stores no
-   *explicit* `ItemSlot` value — established by a byte-level sweep: for 12
+   *explicit* `ItemSlot` value, established by a byte-level sweep: for 12
    simultaneously-equipped items whose slots were known, no byte position in
    any LSMF component owned by those items consistently equalled the expected
    `ItemSlot` enum value, and `EquipmentVisualComponent` serialises as a null
@@ -856,11 +856,11 @@ What remains genuinely blocked:
    does the same: stat-file `Slot` via the `using` chain). What the save does
    preserve is **ordering**: each worn item has a `ContainerSlotData` entry
    with a stable per-container position, which is how assignments the stats
-   cannot express — which of two rings sits in Ring vs Ring2, main- vs
-   off-hand for dual-wielded weapons — survive a save/load round trip.
-   **Ground-truth verified** for both cases: QuickSave_291 (two worn rings —
+   cannot express (which of two rings sits in Ring vs Ring2, main- vs
+   off-hand for dual-wielded weapons) survive a save/load round trip.
+   **Ground-truth verified** for both cases: QuickSave_291 (two worn rings:
    the ring with the earlier `ContainerSlotData` **row** sits in the first
-   (upper) UI ring slot) and QuickSave_292 (dual-wielded weapons — the
+   (upper) UI ring slot) and QuickSave_292 (dual-wielded weapons: the
    earlier row is the main hand). The `position` field within the entry is
    the inventory-grid cell and does *not* track the UI order.
 3. The blob contains no slot-name or full-component-name strings to anchor on
@@ -870,7 +870,7 @@ What remains genuinely blocked:
 > per-component GUID arrays as ownership lists (they're ordered by entity handle
 > = creation order); co-occurrence / run-segmentation / run-header scans of the
 > column data; comparing `CurrentTemplate` GUIDs directly against `EntityId`
-> rows (wrong namespace — use the inverted `build_entity_template_map` bridge
+> rows (wrong namespace; use the inverted `build_entity_template_map` bridge
 > instead); interpreting `MemberData.ptr_a` as a pointer into `ContainerSlotData`
 > (confirmed not: ptr_a values ~78 K–98 K fall outside CSD's range
 > [1 409 808, 1 430 288), verified against 17 equipped items); attempting to
@@ -879,7 +879,7 @@ What remains genuinely blocked:
 > `mid` values are the high-16-bits of the Index field, not slot numbers).
 > The viable path for recovering exact slot numbers: observe a controlled
 > equip-to-different-slot experiment and diff which byte in `MemberData` (or
-> a related component) changes per slot — or use Script Extender
+> a related component) changes per slot, or use Script Extender
 > (`Ext.Entity.Get(...)` in Lua) to read the live `EquipmentSlot` value directly.
 
 ### Also in the blob
@@ -888,13 +888,13 @@ What remains genuinely blocked:
   `Projectile_EldritchBlast`, `Shout_SecondWind`). These are read exactly via
   the spell-book chain above.
 - Earlier analysis suggested some unique items (Shifting Corpus Ring, Spidersilk
-  Armour) had no LSF `Item` node — this was incorrect. Ground-truth verification
+  Armour) had no LSF `Item` node; this was incorrect. Ground-truth verification
   shows both `MAG_FlamingFist_ScoutRing` (Shifting Corpus Ring) and
   `GOB_DrowCommander_Leather_Armor` (Wyll's chest piece, confirmed worn, probable
   Spidersilk Armour by context) have full frame-0 Item nodes with the equip bit
   set and are attributed correctly by the position-matching approach. The display
   name for `GOB_DrowCommander_Leather_Armor` is not in the root templates scanned,
-  so it remains unresolved — the related template `GOB_DrowCommander_Armor_Leather`
+  so it remains unresolved: the related template `GOB_DrowCommander_Armor_Leather`
   (Stats `ARM_StuddedLeather_Body_Drow`) resolves as "Spidersilk Armour" and
   likely shares an inheritance chain.
 
@@ -937,7 +937,7 @@ handle indexes straight into this table.
 | Display names | ✅ (root templates + `.loca`; stats and spells resolve through `ParentTemplateId` / `using` inheritance chains) |
 | **Spell lists** | ✅ exact per-character books (`SpellBookComponent → SpellData → SpellId → string pool`; characters matched by `ClassesComponent`) |
 | **Worn-vs-carried** | ✅ union of `Flags` bit, STATUS signal, ECS membership count, and physical-attachment components (`WieldedComponent` / `GravityDisabledComponent`), with slot-conflict resolution |
-| Exact equipment slot (Boots / Amulet / Cloak / …) | ✅ derived from item stats (`Slot` via `using` chain) — no explicit `ItemSlot` field exists in the save (byte-sweep verified); Ring vs Ring2 recovered from `ContainerSlotData` row order (ground-truth verified) |
+| Exact equipment slot (Boots / Amulet / Cloak / …) | ✅ derived from item stats (`Slot` via `using` chain); no explicit `ItemSlot` field exists in the save (byte-sweep verified); Ring vs Ring2 recovered from `ContainerSlotData` row order (ground-truth verified) |
 | LSMF component-type directory | ✅ decoded (≈350 entries: name → elem\_size / row\_count / data\_offset) |
 | LSMF ownerlist region (equipped/carried signal) | ✅ decoded (membership count per entity; threshold 15) |
 | LSMF heap arrays + string pool | ✅ decoded (`{begin,end}` ranges; pointers stored as absolute−48) |
@@ -953,7 +953,7 @@ handle indexes straight into this table.
 
 Frame 9 is the Osiris scripting-engine save: ~47 MB flat binary (no offset
 table). All sections must be read sequentially in fixed order. Verified against
-`QuickSave_242` — parser consumed all 47,731,506 bytes with 0 remaining.
+`QuickSave_242`: parser consumed all 47,731,506 bytes with 0 remaining.
 
 ### File header (unscrambled, 193 bytes total)
 
@@ -1046,7 +1046,7 @@ A `(db_ref, name)` pair with both non-zero is the database-name record.
 
 | Database | Schema | Contents |
 |----------|--------|---------|
-| `DB_QuestIsAccepted` | `(quest_id: string)` | All quests ever accepted — superset of in-progress **and** closed quests |
+| `DB_QuestIsAccepted` | `(quest_id: string)` | All quests ever accepted: superset of in-progress **and** closed quests |
 | `DB_QuestIsClosed` | `(quest_id: string)` | All resolved quests (completed or failed; no separate failed-quest DB exists) |
 | `DB_QuestIsOpened` | `(quest_id: string)` | Quests that appeared in the journal (a smaller tracking set) |
 | `DB_GlobalFlag` | `(flag_guid: string)` | Story-state flags with GUID suffixes; 1034 facts in test save |
@@ -1072,7 +1072,7 @@ The `Flags` byte in each Goal record:
 > **`0x07` does not mean "player finished this content."** In Osiris,
 > orchestration goals (e.g. `Act2`, `Act2_CMB_StatusOnInit`,
 > `BG3_CleanUpDBs_SavegamePatch`) call `GoalCompleted()` in their **init**
-> block — they finalize immediately after spawning sub-goals. So `flags=0x07`
+> block; they finalize immediately after spawning sub-goals. So `flags=0x07`
 > means "this goal's lifetime has ended," which for act/system goals fires
 > when the act is *entered*, not when the player finishes it. In `QuickSave_242`
 > (mid-Act-2), `Act2` appears in the finalized set while Act-2 quests are still
@@ -1084,11 +1084,11 @@ The `Flags` byte in each Goal record:
 
 ## References
 
-- LSLib — `LSLib/LS/Resources/LSF/LSFCommon.cs` (structs), `LSFReader.cs`
+- LSLib: `LSLib/LS/Resources/LSF/LSFCommon.cs` (structs), `LSFReader.cs`
   (V2/V3 selection), `NodeAttribute.cs` (type enum), `LSPKReader` (package).
-- LSLib Osiris — `LSLib/LS/Story/Story.cs` (section order), `Common.cs`
+- LSLib Osiris: `LSLib/LS/Story/Story.cs` (section order), `Common.cs`
   (`OsiReader`, header, version constants), `Value.cs` (value encoding),
   `DataNode.cs`, `Rule.cs`, `RelOp.cs`, `Join.cs`, `Rel.cs`, `Adapter.cs`,
   `Database.cs`, `Goal.cs`, `Call.cs`, `Function.cs` (node/section layouts).
-- bg3se — `BG3Extender/GameDefinitions/Components/Inventory.h`, `Stats.h`
+- bg3se: `BG3Extender/GameDefinitions/Components/Inventory.h`, `Stats.h`
   (component layouts), `Enumerations/Stats.inl` (`ItemSlot`).
