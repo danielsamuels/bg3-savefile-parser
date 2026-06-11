@@ -357,6 +357,79 @@ body.has-report .drop-hint {
   color: var(--ink);
 }
 
+.char-resources,
+.char-feats {
+  margin-top: -0.5rem;
+}
+
+.char-resources .spent {
+  color: var(--gold-hi);
+}
+
+.conc {
+  color: var(--gold-hi);
+  font-style: italic;
+}
+
+.campaign-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-lg) var(--space-xl);
+  align-items: start;
+}
+
+.approval-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+  min-width: min(24rem, 100%);
+}
+
+.approval-list li {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(6rem, 1fr) 2.2rem auto;
+  align-items: center;
+  gap: 0.6rem;
+  max-width: 26rem;
+}
+
+.ap-name {
+  font-size: 0.875rem;
+  color: var(--mute);
+}
+
+.ap-bar {
+  height: 4px;
+  background: var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.ap-bar span {
+  display: block;
+  height: 100%;
+  background: var(--gold);
+}
+
+.ap-val {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  font-size: 0.875rem;
+  color: var(--ink);
+}
+
+.ap-dating {
+  color: var(--gold-hi);
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+}
+
+.campaign-counters {
+  margin: 0;
+}
+
 .char-note {
   color: var(--mute);
   font-style: italic;

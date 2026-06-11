@@ -7,6 +7,7 @@ import type {
   SaveReport,
   SpellRef,
 } from '@bg3save/parser/src/model.ts';
+import type { StoryState } from '@bg3save/parser/src/osiris.ts';
 
 import './styles.css';
 import {
@@ -196,6 +197,8 @@ function itemGroups(items: ItemRef[]): string {
   }).join('');
 }
 
+const SKIP_RESOURCES = new Set(['Action', 'Bonus Action', 'Reaction', 'Movement Speed']);
+
 function renderSaveHead(si: SaveInfo, sourceName: string, thumbUrl: string | null): string {
   const metaRow = (label: string, value: string): string =>
     value ? `<div><dt>${label}</dt><dd>${value}</dd></div>` : '';
@@ -218,6 +221,7 @@ function renderSaveHead(si: SaveInfo, sourceName: string, thumbUrl: string | nul
         ${metaRow('Region', si.level === '?' ? '' : labelled(si.level, REGION_LABELS))}
         ${metaRow('Difficulty', friendlyDifficulty(si.difficulty))}
         ${metaRow('Supplies', si.camp_supplies ? String(si.camp_supplies) : '')}
+        ${metaRow('Recipes', si.recipes.length ? `${si.recipes.length} known` : '')}
         ${metaRow('Saved', si.saved_at === '?' ? '' : esc(si.saved_at))}
         ${metaRow('Game version', si.game_version === '?' ? '' : esc(si.game_version))}
       </dl>
@@ -289,16 +293,51 @@ function renderCharacter(c: CharacterReport, index: number): string {
       ? ` · <span class="loc" title="subregion">${esc(c.location)}</span>`
       : '';
   const hp = c.hp ? ` · ${c.hp.current}/${c.hp.max} HP${c.hp.temp ? ` (+${c.hp.temp})` : ''}` : '';
-  const meta = `${labelled(c.race, RACE_LABELS)} · ${esc(classes)} · Level ${esc(String(c.level))}${xp}${hp}${loc}`;
+  const conc = c.concentration
+    ? ` · <span class="conc">concentrating on ${esc(c.concentration.name ?? c.concentration.id)}</span>`
+    : '';
+  const meta = `${labelled(c.race, RACE_LABELS)} · ${esc(classes)} · Level ${esc(String(c.level))}${xp}${hp}${loc}${conc}`;
   const stats = c.abilities
     ? `<p class="char-stats">${(['str', 'dex', 'con', 'int', 'wis', 'cha'] as const)
         .map((k) => `<span><b>${k.toUpperCase()}</b> ${c.abilities![k]}</span>`)
         .join('')}</p>`
     : '';
 
+  const resourceGroups = new Map<string, NonNullable<CharacterReport['resources']>>();
+  for (const r of c.resources ?? []) {
+    if (!r.name || SKIP_RESOURCES.has(r.name) || r.name.includes('_') || r.max <= 0) continue;
+    if (!resourceGroups.has(r.name)) resourceGroups.set(r.name, []);
+    resourceGroups.get(r.name)!.push(r);
+  }
+  const resources = resourceGroups.size
+    ? `<p class="char-stats char-resources">${[...resourceGroups]
+        .map(([name, rs]) => {
+          rs.sort((a, b) => a.level - b.level);
+          const bits = rs
+            .map(
+              (r) =>
+                `${r.level ? `L${r.level} ` : ''}<span class="${r.current < r.max ? 'spent' : ''}">${r.current}/${r.max}</span>`,
+            )
+            .join(' · ');
+          return `<span><b>${esc(name)}</b> ${bits}</span>`;
+        })
+        .join('')}</p>`
+    : '';
+
+  const feats = c.feats?.length
+    ? `<p class="char-stats char-feats"><span><b>Feats</b> ${c.feats
+        .map((f) => {
+          const counts = new Map<string, number>();
+          for (const a of f.picks) counts.set(a, (counts.get(a) ?? 0) + 1);
+          const picks = [...counts].map(([a, n]) => `+${n} ${a}`).join(', ');
+          return esc(`${f.name ?? f.guid} (L${f.level}${picks ? `: ${picks}` : ''})`);
+        })
+        .join(' · ')}</span></p>`
+    : '';
+
   const tag = isPlayer ? 'player' : c.at_camp ? 'at camp' : '';
   const head = `<h3 class="char-name">${esc(displayName)}${tag ? `<span class="who">${tag}</span>` : ''}</h3>
-    <p class="char-meta">${meta}</p>${stats}`;
+    <p class="char-meta">${meta}</p>${stats}${resources}${feats}`;
 
   if (c.equipment_note && !c.equipped.length && !c.carried.length && !c.undetermined.length) {
     return `<section class="char" style="--i:${index}">${head}
@@ -462,6 +501,40 @@ function renderQuests(q: QuestsReport, index: number): string {
   </section>`;
 }
 
+function renderCampaign(story: StoryState, index: number): string {
+  const approval = story.approval.length
+    ? `<div class="approval">
+        <h4 class="sect-head">Companion approval</h4>
+        <ul class="approval-list">${story.approval
+          .map((a) => {
+            const pct = Math.max(0, Math.min(100, a.rating));
+            const dating = story.dating.includes(a.name)
+              ? '<span class="ap-dating">dating</span>'
+              : '';
+            return `<li><span class="ap-name">${esc(a.name)}</span><span class="ap-bar"><span style="width:${pct}%"></span></span><span class="ap-val">${a.rating}</span>${dating}</li>`;
+          })
+          .join('')}</ul>
+      </div>`
+    : '';
+  const tadpoles = story.tadpoles.length
+    ? story.tadpoles.map((t) => `${esc(t.name)} ×${t.count}`).join(', ')
+    : '';
+  const counter = (label: string, value: string): string =>
+    value ? `<div><dt>${label}</dt><dd>${value}</dd></div>` : '';
+  return `<section class="char campaign" style="--i:${index}">
+    <h3 class="char-name">Campaign</h3>
+    <div class="campaign-grid">
+      ${approval}
+      <dl class="save-meta campaign-counters">
+        ${counter('Long rests', String(story.long_rests))}
+        ${counter('Waypoints', String(story.waypoints.length))}
+        ${counter('Traders met', String(story.traders_met))}
+        ${counter('Tadpoles', tadpoles)}
+      </dl>
+    </div>
+  </section>`;
+}
+
 let thumbUrl: string | null = null;
 
 function showReport(r: SaveReport, statusText: string, thumbnail?: ArrayBuffer | null): void {
@@ -479,7 +552,8 @@ function showReport(r: SaveReport, statusText: string, thumbnail?: ArrayBuffer |
     namesNote +
     r.characters.map((c, i) => renderCharacter(c, i + 1)).join('') +
     (r.camp_chest ? renderCampChest(r.camp_chest, r.characters.length + 1) : '') +
-    (r.quests ? renderQuests(r.quests, r.characters.length + 2) : '');
+    (r.quests ? renderQuests(r.quests, r.characters.length + 2) : '') +
+    (r.story ? renderCampaign(r.story, r.characters.length + 3) : '');
 
   document.body.classList.add('has-report');
   dropLabel.innerHTML =
