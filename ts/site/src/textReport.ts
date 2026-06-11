@@ -1,6 +1,12 @@
 /** Plain-text report renderer: mirrors the Python text view
  *  (bg3parser/templates/*.txt.j2) with save-info and carried sections on. */
-import type { CharacterReport, ItemRef, SaveReport, SpellRef } from '@bg3save/parser/src/model.ts';
+import type {
+  CharacterReport,
+  FeatEntry,
+  ItemRef,
+  SaveReport,
+  SpellRef,
+} from '@bg3save/parser/src/model.ts';
 
 const BAR_HEAVY = '━'.repeat(72);
 const BAR_EQ = '='.repeat(72);
@@ -11,7 +17,7 @@ const SPELLS_NOTES: Record<string, string> = {
   'not-found': '(spell book not found)',
 };
 
-const EQUIPMENT_NOTES: Record<string, string> = {
+export const EQUIPMENT_NOTES: Record<string, string> = {
   'no-character-node': 'character node not found',
   'no-items': 'no items attributed (character off current level?)',
 };
@@ -24,14 +30,40 @@ const CARRIED_GROUP_LABELS: [string, string][] = [
   ['misc', 'Everything else'],
 ];
 
-const fmtItem = (it: ItemRef): string => it.name ?? it.stats;
-const fmtSpell = (sp: SpellRef): string => sp.name ?? sp.id;
+export const fmtItem = (it: ItemRef): string => it.name ?? it.stats;
+export const fmtSpell = (sp: SpellRef): string => sp.name ?? sp.id;
 
-const fmtClass = (cl: { Main?: string; Sub?: string }): string =>
+export const fmtClass = (cl: { Main?: string; Sub?: string }): string =>
   cl.Sub ? `${cl.Main ?? ''} / ${cl.Sub}` : (cl.Main ?? '');
 
+export const fmtFeat = (f: FeatEntry): string => {
+  const counts = new Map<string, number>();
+  for (const a of f.picks) counts.set(a, (counts.get(a) ?? 0) + 1);
+  const picksStr = [...counts].map(([a, n]) => `+${n} ${a}`).join(', ');
+  return `${f.name ?? f.guid} (L${f.level}${picksStr ? `: ${picksStr}` : ''})`;
+};
+
+/** Fold sub-spells and basic actions into counts; the rest sorted by name. */
+export function foldSpells(spells: SpellRef[]): {
+  shown: string[];
+  subSpells: number;
+  basicActions: number;
+} {
+  const folded: Record<string, number> = { 'sub-spell': 0, 'basic-action': 0 };
+  const shownSet = new Set<string>();
+  for (const sp of spells) {
+    if (sp.category in folded) folded[sp.category]!++;
+    else shownSet.add(fmtSpell(sp));
+  }
+  return {
+    shown: [...shownSet].sort(),
+    subSpells: folded['sub-spell']!,
+    basicActions: folded['basic-action']!,
+  };
+}
+
 // Python tuple ordering: (slot_rank, formatted name).
-const equippedSorted = (items: ItemRef[]): ItemRef[] =>
+export const equippedSorted = (items: ItemRef[]): ItemRef[] =>
   [...items].sort((a, b) => {
     const ra = a.slot_rank;
     const rb = b.slot_rank;
@@ -50,7 +82,7 @@ function fmtAmount(x: number): string {
   return Number.isInteger(x) ? String(x) : String(x);
 }
 
-function buildResourcesLine(resources: CharacterReport['resources']): string {
+export function buildResourcesLine(resources: CharacterReport['resources']): string {
   if (!resources) return '';
   const groups = new Map<string, NonNullable<CharacterReport['resources']>>();
   for (const r of resources) {
@@ -91,29 +123,17 @@ function characterLines(char: CharacterReport): string[] {
   const resourcesLine = buildResourcesLine(char.resources);
   if (resourcesLine) out.push(`  Resources : ${resourcesLine}`);
   if (char.feats?.length) {
-    const parts = char.feats.map((f) => {
-      const counts = new Map<string, number>();
-      for (const a of f.picks) counts.set(a, (counts.get(a) ?? 0) + 1);
-      const picksStr = [...counts].map(([a, n]) => `+${n} ${a}`).join(', ');
-      return `${f.name ?? f.guid} (L${f.level}${picksStr ? `: ${picksStr}` : ''})`;
-    });
-    out.push(`  Feats     : ${parts.join('; ')}`);
+    out.push(`  Feats     : ${char.feats.map(fmtFeat).join('; ')}`);
   }
   if (char.concentration) {
     out.push(`  Concentrating : ${char.concentration.name ?? char.concentration.id}`);
   }
 
   if (char.spells !== null) {
-    const folded: Record<string, number> = { 'sub-spell': 0, 'basic-action': 0 };
-    const shownSet = new Set<string>();
-    for (const sp of char.spells) {
-      if (sp.category in folded) folded[sp.category]!++;
-      else shownSet.add(fmtSpell(sp));
-    }
-    const shown = [...shownSet].sort();
+    const { shown, subSpells, basicActions } = foldSpells(char.spells);
     const extras = [
-      folded['sub-spell'] ? `+${folded['sub-spell']} sub-spells` : '',
-      folded['basic-action'] ? `+${folded['basic-action']} basic actions` : '',
+      subSpells ? `+${subSpells} sub-spells` : '',
+      basicActions ? `+${basicActions} basic actions` : '',
     ].filter(Boolean);
     const suffix = extras.length ? `; ${extras.join(', ')}` : '';
     out.push(`  Spells/Abilities (${shown.length}${suffix}):`);

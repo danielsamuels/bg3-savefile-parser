@@ -256,7 +256,9 @@ body.has-report .drop-hint {
   gap: var(--space-md);
 }
 
-#download {
+.downloads {
+  display: flex;
+  gap: var(--space-md);
   font-size: 0.9375rem;
   white-space: nowrap;
 }

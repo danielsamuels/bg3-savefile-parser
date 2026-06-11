@@ -10,6 +10,7 @@ import type {
 import type { StoryState } from '@bg3save/parser/src/osiris.ts';
 
 import './styles.css';
+import { renderAiBriefing } from './aiBriefing.ts';
 import { type EffectsTable, effectLines } from './effects.ts';
 import {
   allSaves,
@@ -21,6 +22,13 @@ import {
   recordSave,
   renderHistoryHtml,
 } from './history.ts';
+import {
+  camelSplit,
+  DIFFICULTY_LABELS,
+  RACE_LABELS,
+  REGION_LABELS,
+  SLOT_LABELS,
+} from './labels.ts';
 import {
   buildItemIndex,
   type ItemPlace,
@@ -105,61 +113,6 @@ const esc = (s: string): string =>
   s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
 
 /* ---- Friendly labels (raw value always kept in the title attribute) ---- */
-
-// 'BattleMaster' → 'Battle Master'
-const camelSplit = (s: string): string => s.replace(/([a-z])([A-Z])/g, '$1 $2');
-
-const RACE_LABELS: Record<string, string> = {
-  Human: 'Human',
-  Githyanki: 'Githyanki',
-  HalfOrc: 'Half-Orc',
-  Elf_HighElf: 'High Elf',
-  Elf_WoodElf: 'Wood Elf',
-  Drow_LolthSworn: 'Lolth-Sworn Drow',
-  Drow_Seldarine: 'Seldarine Drow',
-  HalfElf_High: 'High Half-Elf',
-  HalfElf_Wood: 'Wood Half-Elf',
-  HalfElf_Drow: 'Drow Half-Elf',
-  Halfling_Lightfoot: 'Lightfoot Halfling',
-  Halfling_Strongheart: 'Strongheart Halfling',
-  Dwarf_Gold: 'Gold Dwarf',
-  Dwarf_Shield: 'Shield Dwarf',
-  Dwarf_Duergar: 'Duergar',
-  Gnome_Rock: 'Rock Gnome',
-  Gnome_Forest: 'Forest Gnome',
-  Gnome_Deep: 'Deep Gnome',
-  Tiefling_Asmodeus: 'Asmodeus Tiefling',
-  Tiefling_Mephistopheles: 'Mephistopheles Tiefling',
-  Tiefling_Zariel: 'Zariel Tiefling',
-};
-
-const SLOT_LABELS: Record<string, string> = {
-  Helmet: 'Headwear',
-  Breast: 'Armour',
-  'Melee Main Weapon': 'Main Hand',
-  'Melee Offhand Weapon': 'Off Hand',
-  'Ranged Main Weapon': 'Ranged Main',
-  'Ranged Offhand Weapon': 'Ranged Off',
-  MusicalInstrument: 'Instrument',
-  VanityBody: 'Camp Clothes',
-  VanityBoots: 'Camp Shoes',
-};
-
-const DIFFICULTY_LABELS: Record<string, string> = {
-  DifficultyEasy: 'Explorer',
-  DifficultyMedium: 'Balanced',
-  DifficultyHard: 'Tactician',
-  DifficultyHonour: 'Honour Mode',
-};
-
-const REGION_LABELS: Record<string, string> = {
-  TUT_Avernus_C: 'The Nautiloid',
-  WLD_Main_A: 'The Wilderness (Act 1)',
-  CRE_Main_A: 'Rosymorn Monastery & Crèche (Act 1)',
-  SCL_Main_A: 'Shadow-Cursed Lands (Act 2)',
-  BGO_Main_A: 'Wyrm’s Crossing & Rivington (Act 3)',
-  CTY_Main_A: 'Baldur’s Gate (Act 3)',
-};
 
 const EQUIPMENT_NOTES: Record<string, string> = {
   'no-character-node':
@@ -666,11 +619,19 @@ function showReport(r: SaveReport, statusText: string, thumbnail?: ArrayBuffer |
   dropLabel.innerHTML =
     '<strong>Drop another save</strong> <span class="drop-or">or click to browse</span>';
 
+  const base =
+    r.save_info.save_name !== '?' ? r.save_info.save_name : r.source.replace(/\.lsv$/i, '');
   const dl = document.querySelector('#download') as HTMLAnchorElement;
   if (dl.href) URL.revokeObjectURL(dl.href);
   dl.href = URL.createObjectURL(new Blob([renderTextReport(r)], { type: 'text/plain' }));
-  dl.download = `${r.save_info.save_name !== '?' ? r.save_info.save_name : r.source.replace(/\.lsv$/i, '')}.txt`;
+  dl.download = `${base}.txt`;
   dl.hidden = false;
+
+  const dlAi = document.querySelector('#download-ai') as HTMLAnchorElement;
+  if (dlAi.href) URL.revokeObjectURL(dlAi.href);
+  dlAi.href = URL.createObjectURL(new Blob([renderAiBriefing(r)], { type: 'text/plain' }));
+  dlAi.download = `${base} - AI briefing.txt`;
+  dlAi.hidden = false;
 }
 
 /* ---- Local history ------------------------------------------------------ */
