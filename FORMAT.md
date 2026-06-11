@@ -603,7 +603,7 @@ the concatenated spell-ID string pool   →  "Shout_ActionSurge", …
 Each character's `SpellData` rows are contiguous, so books are `{begin, end}`
 slices. `SpellId` records appear in (at least) three shapes across save
 versions — `{meta_ptr, str_ptr, len}`, `{str_ptr, len|flags, src_ptr}`, and
-`{meta_ptr, str_ptr, len|generation}` — so a robust reader tries both
+`{meta_ptr, str_ptr, len|generation}` — so a tolerant reader tries both
 `(pointer, length)` pairings and accepts the one yielding printable ASCII.
 Other `SpellData` fields: `[1]`/`[3]` point at enum singletons
 (`ECooldownType`, `EAbility`), `[4]`/`[5]` are a `{begin, end}` slice into
