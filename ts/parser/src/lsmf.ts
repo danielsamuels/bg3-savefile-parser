@@ -598,7 +598,8 @@ export interface LevelUpRecord {
 
 /**
  * Level-up history per created character: classes taken and feats picked.
- * See lsmf.py parse_lsmf_feats for the layout; this component's data section
+ * See lsmf.py parse_lsmf_feats for the layout; the first three rows are
+ * metadata (type GUID, heap-range header, sentinel), so per-character data
  * starts 48 bytes after the descriptor's data_offset.
  */
 export function parseLsmfFeats(blob: Uint8Array): LevelUpRecord[] {

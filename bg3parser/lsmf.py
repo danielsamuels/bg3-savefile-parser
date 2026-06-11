@@ -637,10 +637,11 @@ def parse_lsmf_feats(blob: bytes) -> list[dict]:
     Equipment) of pointers into the selector-record tables; the Feats range
     holds the ability picks made inside a feat (an ASI's +2/+1 choices).
 
-    NOTE: this component's data section starts 48 bytes after the
-    descriptor's data_offset (the +48 rule applies to it), unlike most
-    row-aligned components. The owning character-creation entities live in
-    their own numbering; callers match records to characters by class build.
+    NOTE: the first three rows of this component's data are metadata (type
+    GUID, heap-range header, all-FF sentinel), so per-character ranges start
+    3 rows (48 bytes) after data_offset. The owning character-creation
+    entities live in their own numbering; callers match records to
+    characters by class build.
     Camp companions recruited by script (Halsin) have no record. The sibling
     game.progression.v3.LevelUpComponent has stale ownerlists; do not use it.
 
@@ -694,7 +695,7 @@ def parse_lsmf_feats(blob: bytes) -> list[dict]:
         return out
 
     out: list[dict] = []
-    data_base = off + 48  # the +48 rule applies to this component's section
+    data_base = off + 48  # skip the three metadata rows (GUID, header, sentinel)
     for j in range(rows):
         row = data_base + j * elem
         if row + elem > L:

@@ -159,7 +159,7 @@ nibble): `0` = none, `1` = zlib, `2` = LZ4 (block, `uncompressed_size` known),
 | 1 | LSOF | 153 KB | ❌ | **Secondary level LSF**: 14 root regions (`Characters`, `Items`, `ItemMover`, `Triggers`, `Projectiles`, `Constellations`, `ConstellationHelpers`, `VariableManagers`, `AnubisFramework`, `SavedStates`, `Splines`, `CacheTemplates`, `NewAge`, `ModuleSettings`); 32 Character nodes (NPC-only, no party origin GUIDs), 79 Item nodes (world loot, no Translate or Stats matching any party position). A background/secondary area level cache. Contains no party character data and no party-owned items; not useful for the report. |
 | 2 | LSOF | 2.1 MB | ❌ | **`CRE_Main_A` level cache**: 123 Character nodes, 2,024 Item nodes (world entities for a secondary area); no party-owned items |
 | 3 | LSOF | 10.8 MB | ✅ | **Level cache** (`SCL_Main_A`): `Characters`, `Items`, `Surfaces`, AI state, `CrimeHandler`; ~11.8 k live `Item` nodes with `Stats` and world transforms |
-| 4 | LSOF | 24 KB | ❌ | **Compact snapshot**: 37 root regions (most unresolved names `?XXXXXXXX`; resolved: `Characters`, `Items`, `Projectiles`, `Constellations`, `AtmosphereOverrides`, `AITurnData`, `CrimeHandler`, `Level`, `ModuleSettings`); 1 Character node (empty attrs, no template GUID), 0 Item nodes. Likely a minimal respawn-point or transition-screen state. No party data, no items. |
+| 4 | LSOF | 24 KB | ❌ | **Compact snapshot**: 37 root regions (historic captures showed unresolved `?XXXXXXXX` names; in current Patch-8 saves every region name resolves; resolved: `Characters`, `Items`, `Projectiles`, `Constellations`, `AtmosphereOverrides`, `AITurnData`, `CrimeHandler`, `Level`, `ModuleSettings`); 1 Character node (empty attrs, no template GUID), 0 Item nodes. Likely a minimal respawn-point or transition-screen state. No party data, no items. |
 | 5 | LSOF | 14.7 MB | ❌ | **`WLD_Main_A` level cache**: 669 Character nodes, 14,833 Item nodes (world entities for the main open area); no party-owned items |
 | 6 | LSOF | 2 KB | ✅ | **`MetaData`**: save metadata: wall-clock save time (Unix epoch), save number, campaign/session UUIDs, party leader name, RNG seed, mod list (`ModuleShortDesc` nodes), difficulty code, active ruleset UUIDs, game version, camera state |
 | 7 | RIFF | ~1.7 MB | ✅ | **Load-screen thumbnail**: RIFF/WebP (lossy VP8), 1280×720 px; extracted by `extract_thumbnail` with `--thumbnail PATH` |
@@ -185,7 +185,7 @@ one child `MetaData` node that carries all attributes, plus several child nodes
 | `Seed` | UInt (5) | `176876464` | RNG seed for this save |
 | `Modded` | Bool (19) | `true` | True when any non-base modules are listed in the mod table |
 | `HasUnofficialMods` | Bool (19) | `false` | BG3's own "tainted" flag; observed False when only UI/cosmetic mods are installed alongside GustavX; exact triggering conditions unverified beyond one save |
-| `Difficulty` | Int (4) | `2` | Difficulty code (2 observed with `DifficultyMedium` per `Info.json`; full enum unknown) |
+| `Difficulty` | Int (4) | `2` | NOT the difficulty: code 2 observed for both `DifficultyMedium`/`RulesetLarian` and `DifficultyHard`/`RulesetHonour` saves; the authoritative difficulty/ruleset strings live in `Info.json` |
 | `Level` | FixedString (22) | `"SCL_Main_A"` | Current level; same as `Info.json "Current Level"` |
 | `CurrentSubRegion` | FixedString (22) | `""` | Current sub-region (may be empty) |
 | `TutorialFinished` | Bool (19) | `true` | |
@@ -333,8 +333,8 @@ Then the metadata block (`LSFMetadataV6`, 10 × u32 of section sizes) at offset 
 | 48 | u32 | values: uncompressed size |
 | 52 | u32 | values: size on disk |
 | 56 | u8 | compression flags (low nibble = method, high nibble = level) |
-| 57 | u8 | unknown (0) |
-| 58 | u16 | unknown |
+| 57 | u8 | reserved (always 0; checked across every frame of 80 saves) |
+| 58 | u16 | reserved (always 0; checked across every frame of 80 saves) |
 | 60 | u32 | **MetadataFormat** (see below) |
 
 The four data sections (**strings, nodes, attributes, values**) follow
@@ -534,6 +534,7 @@ Entity-Component-System dump**.
 |-------:|------|-------|
 | 0 | char[4] + 4 | magic `4C 53 4D 46 01 01 00 08` (`LSMF` + version-ish) |
 | 8 | u64 | (unidentified; looks like a hash/build id) |
+| 8 | u64 | per-save unique identifier (random; distinct across all 80 saves examined; not a content hash) |
 | 16 | **u64** | **dir_off**: raw directory pointer; `names_off` (actual directory start) = `dir_off + 48` |
 | 24 | **u64** | **names_size**: byte length of the component-names blob |
 | 32 | **u32** | **desc_table_rel**: descriptor-table offset, relative to `names_off` |
@@ -991,6 +992,10 @@ SpellMetaId records:
 | 12 | u32 | pad |
 | 16 | u64 | detail pointer (+48) |
 
+(In the bare `game.spell.v0.SpellId` rows the third u64 is an EntityHandle
+referencing the paired `MetaId` row, its high 32 bits a per-save generation
+counter; not needed by the spell-book chain.)
+
 The detail record is `{u64 pointer into the game.spell.v0.ESourceType value
 pool, 16-byte ProgressionSource GUID}`. Observed SpellSourceType values:
 0/1/2 = class/subclass/race progression, 3 = item boost, 6 = base spell set,
@@ -1075,11 +1080,15 @@ sit in the Feats range as AbilitySelector picks. Validated against the
 ability-score stream (Maia's +2 STR at L6, Karlach's +1 CON at L4) and the
 zero-feat tutorial save.
 
-Two caveats: this component's data section starts 48 bytes AFTER the
-descriptor's data_offset (most row-aligned components read at data_offset
-directly; whether the descriptor `flags` field encodes the difference is an
-open question), and its owners live in the character-creation subsystem's
-own entity numbering, so records are matched to characters by class build.
+Two caveats: the first three rows of this component's data section are not
+entity data but metadata (a 16-byte type GUID, one heap-range header row,
+and an all-FF sentinel), so per-character ranges start 48 bytes (3 rows)
+after data_offset; and its owners live in the character-creation
+subsystem's own entity numbering, so records are matched to characters by
+class build. The descriptor `flags` field does NOT encode the metadata
+prefix (flags 0 and 3 both occur with and without one). The sibling
+`game.progression.v3.LevelUpComponent` is a sparse pre-allocated array of
+the same row shape (all-FF rows for inactive slots) with stale owners.
 Script-recruited companions (Halsin) have no record. The sibling
 `game.progression.v3.LevelUpComponent` has stale ownerlists; do not use it.
 
@@ -1153,9 +1162,11 @@ elsewhere, plus two patterns worth knowing:
   and `death.v4.DeathData`. For these, ownerlist membership is the only
   usable signal.
 
-Proven layouts: `experience.v0.ExperienceComponent` (12 B × 4: TotalXP
-twice + garbage; records start 48 bytes after data_offset; rows are the
-four active party members; agrees with Info.json XP 15/15 saves);
+Proven layouts: per-entity XP is `experience.v0.ExperienceGaveOutComponent`
+read directly at its data_offset (4-byte i32 per row; agrees with Info.json
+XP 15/15 saves). `ExperienceComponent`'s own four rows are stream metadata,
+not entity data; an earlier +48 reading of it produced correct XP values
+only because it strayed into ExperienceGaveOut's section next door.
 `death.v1.StateComponent` (u32 ServerDeathState; 0 = dead, 7 = dead and
 moved; the ownerlist holds only NPC corpses, so a party entity's absence
 means alive).
@@ -1269,6 +1280,9 @@ handle indexes straight into this table.
 | Action resources (spell slots, rage, ki, …) | ✅ decoded (rotated ownerlist; see §6) |
 | Feats + level-up picks | ✅ decoded (`LevelUpComponent` chain; build-matched; see §6) |
 | Concentration + spell cooldowns | ✅ decoded (see §6) |
+| LSMF blob header u64@8 | ✅ per-save unique identifier (not a content hash) |
+| LSF node-header bytes 57–59 | ✅ reserved, always 0 |
+| LSMF descriptor `hash` field | ❌ a static engine type ID; matches no standard hash of any name form; cracking it needs the game binary's type registry |
 | LSMF inventory container web | ✅ decoded (`OwnerComponent`, `IsOwnedComponent`, `ContainerComponent`, `ContainerSlotData`) |
 | LSMF `MemberComponent` / `MemberData` structure | ✅ traced (8-byte pointer + 16-byte {ptr\_a, EntityHandle}); historical-ownership bookkeeping, not live location |
 | LSMF `EntityHandle` → GUID translation | ❌ no on-disk table; requires live game state |
