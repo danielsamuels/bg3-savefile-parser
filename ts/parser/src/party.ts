@@ -734,5 +734,10 @@ export function collectContainerContents(
     if (!next.length) break;
     frontier = next;
   }
+
+  // Layer 4: chest-positioned entities no container claims (fresh deposits).
+  for (const g of [...anchorGuids].sort()) {
+    if (!guidToInv.has(g)) add(g);
+  }
   return out;
 }
