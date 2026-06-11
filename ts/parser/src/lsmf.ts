@@ -956,6 +956,126 @@ export function parseLsmfContainerPositions(blob: Uint8Array): Map<number, numbe
 /** Item entity GUID -> stack amount; see the Python docstring for the record
  *  layout. StackEntry is {u16 member-index, u16 pad, u32 amount}: a member's
  *  amount is the sum of its entries, so per-member amounts are exact. */
+/** Inventory-entity row -> contained item GUIDs, from the container maps.
+ *  Mirrors bg3parser.lsmf.parse_lsmf_container_pages (see its docstring). */
+export function parseLsmfContainerPages(blob: Uint8Array): Map<number, string[]> {
+  const out = new Map<number, string[]>();
+  const idx = lsmfComponentIndex(blob);
+  const cc = idx.get('game.inventory.v1.ContainerComponent');
+  const csd = idx.get('game.inventory.v0.ContainerSlotData');
+  const eid = idx.get('core.v0.EntityId');
+  if (!cc || !csd || !eid) return out;
+  const { bytes, dv } = align(blob);
+  // The all-ones sentinel exceeds 2**53; every real offset/tag is < 2**48.
+  const isFull = (v: number) => v >= 2 ** 63;
+  const hi32 = (v: number) => Math.floor(v / 2 ** 32);
+
+  const entityGuidAt = (ptr: number): string | null => {
+    const rel = ptr - eid.dataOffset;
+    if (rel >= 0 && rel % 16 === 0 && rel / 16 < eid.rowCount) return guidLeStr(bytes, ptr);
+    return null;
+  };
+
+  for (let r = 0; r < cc.rowCount; r++) {
+    const owner = cc.ownerRows[r];
+    if (owner === undefined) continue;
+    const vals = [0, 1, 2, 3].map((j) => u64(dv, cc.dataOffset + r * cc.elemSize + j * 8));
+    const guids: string[] = [];
+    const isTag = (v: number) => !isFull(v) && hi32(v) !== 0 && v < 2 ** 48;
+    if (isTag(vals[1]!)) {
+      // Inline form: the second u64 is a gen<<32|slot tag, not a range end.
+      const candidates = [vals[0]!];
+      if (isTag(vals[3]!)) candidates.push(vals[2]!);
+      for (const ptr of candidates) {
+        const g = entityGuidAt(ptr);
+        if (g) guids.push(g);
+      }
+    } else {
+      for (const [lo, hi] of [
+        [vals[0]!, vals[1]!],
+        [vals[2]!, vals[3]!],
+      ] as const) {
+        if (isFull(lo) || isFull(hi) || hi <= lo || (hi - lo) % 8 !== 0) continue;
+        if (hi - lo > 2 ** 20 || hi > bytes.length) continue;
+        for (let i = 0; i < (hi - lo) / 8; i++) {
+          const v = u64(dv, lo + i * 8);
+          const rel = v - csd.dataOffset;
+          if (rel >= 0 && rel % csd.elemSize === 0 && rel / csd.elemSize < csd.rowCount) {
+            const g = entityGuidAt(u64(dv, csd.dataOffset + rel));
+            if (g) guids.push(g);
+          }
+        }
+      }
+    }
+    if (guids.length) {
+      const prev = out.get(owner);
+      if (prev) prev.push(...guids);
+      else out.set(owner, guids);
+    }
+  }
+  return out;
+}
+
+/** Inventory-entity row -> owner entity GUID (IsOwnedComponent). */
+export function parseLsmfInventoryOwners(blob: Uint8Array): Map<number, string> {
+  const out = new Map<number, string>();
+  const idx = lsmfComponentIndex(blob);
+  const io = idx.get('game.inventory.v1.IsOwnedComponent');
+  const eid = idx.get('core.v0.EntityId');
+  if (!io || !eid) return out;
+  const { bytes, dv } = align(blob);
+  for (let r = 0; r < io.rowCount; r++) {
+    const inv = io.ownerRows[r];
+    if (inv === undefined) continue;
+    const ptr = u64(dv, io.dataOffset + r * io.elemSize);
+    const rel = ptr - eid.dataOffset;
+    if (rel >= 0 && rel % 16 === 0 && rel / 16 < eid.rowCount) {
+      out.set(inv, guidLeStr(bytes, ptr));
+    }
+  }
+  return out;
+}
+
+/** Item entity GUID -> its stack record's co-member GUIDs; see the Python
+ *  docstring for why unanchored members ride with their anchor. */
+export function parseLsmfStackGroups(blob: Uint8Array): Map<string, string[]> {
+  const out = new Map<string, string[]>();
+  const idx = lsmfComponentIndex(blob);
+  const ns = idx.get('game.inventory.v0.NewStackComponent');
+  const eid = idx.get('core.v0.EntityId');
+  if (!ns || !eid) return out;
+  const { bytes, dv } = align(blob);
+  const L = bytes.length;
+  for (let k = 0; k < ns.rowCount; k++) {
+    const ptr = u64(dv, ns.dataOffset + k * ns.elemSize) + LSMF_HEAP_BASE;
+    if (!(ptr >= 32 && ptr <= L - 32)) continue;
+    const memLo = u64(dv, ptr);
+    const memHi = u64(dv, ptr + 8);
+    const n = memHi > memLo ? (memHi - memLo) / 8 : 0;
+    if (!(n > 1 && n <= 256) || (memHi - memLo) % 8 !== 0 || memLo + LSMF_HEAP_BASE + n * 8 > L) {
+      continue;
+    }
+    const members: string[] = [];
+    for (let i = 0; i < n; i++) {
+      const a = u64(dv, memLo + LSMF_HEAP_BASE + i * 8) + LSMF_HEAP_BASE;
+      if (
+        a >= eid.dataOffset &&
+        a < eid.dataOffset + eid.rowCount * 16 &&
+        (a - eid.dataOffset) % 16 === 0
+      ) {
+        members.push(guidLeStr(bytes, a));
+      }
+    }
+    for (const m of members) {
+      out.set(
+        m,
+        members.filter((g) => g !== m),
+      );
+    }
+  }
+  return out;
+}
+
 export function parseLsmfStackAmounts(blob: Uint8Array): Map<string, number> {
   const out = new Map<string, number>();
   const idx = lsmfComponentIndex(blob);

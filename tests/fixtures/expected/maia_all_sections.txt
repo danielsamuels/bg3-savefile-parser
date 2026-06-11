@@ -809,7 +809,7 @@ Halsin
       – OBJ_Backpack_CampSupplies
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CAMP CHEST  (223 item types)
+CAMP CHEST  (253 item types)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   Weapons & magic items:
@@ -820,12 +820,15 @@ CAMP CHEST  (223 item types)
     – MAG_ChargedLightning_Resistance_Ring
     – MAG_ElementalGish_CantripBooster_Amulet
     – MAG_ElementalGish_ElementalInfusion_Ring
+    – MAG_Ketheric_Warhammer
     – MAG_MeleeDebuff_AttackDebuff1_OnDamage_ScaleMail
+    – MAG_PHB_CloakOfProtection_Cloak
     – MAG_Paladin_LayOnHandsSupport_Gloves
     – MAG_Thunder_ThunderClap_Quarterstaff
+    – MAG_WYRM_Commander_Longsword
     – MAG_WoodWoad_Nature_Shield
     – WPN_Club x2
-    – WPN_Dagger x3
+    – WPN_Dagger x4
     – WPN_Dagger_1
     – WPN_Goblin_Quarterstaff
     – WPN_Goblin_Scimitar x2
@@ -834,15 +837,19 @@ CAMP CHEST  (223 item types)
     – WPN_HandCrossbow_1
     – WPN_Handaxe x2
     – WPN_Javelin x2
+    – WPN_Longbow x3
     – WPN_Longsword x2
     – WPN_Longsword_Gith
     – WPN_Mace
     – WPN_MeatCleaver
+    – WPN_MinePickaxe
     – WPN_Pitchfork
     – WPN_Rapier
     – WPN_Shortbow
     – WPN_Shortsword x13
     – WPN_Shortsword_Gith x5
+    – WPN_Torch
+    – WPN_Warhammer
   Armour & accessories:
     – ARM_Amulet_Necklace_B_Silver_A
     – ARM_Boots_Leather
@@ -860,12 +867,13 @@ CAMP CHEST  (223 item types)
     – ARM_Hat
     – ARM_Hat_MuffinHat_B
     – ARM_Helmet_Metal
-    – ARM_Leather_Body x3
+    – ARM_Leather_Body x4
     – ARM_Padded_Body
+    – ARM_RingMail_Body
     – ARM_Ring_E_Silver_A
     – ARM_Ring_G_Silver_A
     – ARM_Robe_Body x7
-    – ARM_ScaleMail_Body
+    – ARM_ScaleMail_Body x2
     – ARM_Vanity_Body_Citizen x2
     – ARM_Vanity_Body_Citizen_C_Blue
     – ARM_Vanity_Body_Citizen_C_Green
@@ -873,25 +881,25 @@ CAMP CHEST  (223 item types)
     – ARM_Vanity_Body_Shirt_Red
     – UNI_ARM_OfMissileSnaring_Gloves
     – UNI_Astarion_StarterArmor
+    – UNI_DaisyPlaysuit
+    – UNI_Daisy_Boots
+    – UNI_Daisy_Gloves
+    – UNI_Daisy_Plate
     – UNI_GOB_SeluneAmulet
     – UNI_Karlach_StarterArmor
     – UNI_LOOT_AdamantineForge_MaceMold
     – UNI_LOOT_AdamantineForge_ScimitarMold
     – UNI_LOOT_AdamantineForge_SplintMold
+    – UNI_OrpheusChains_Gloves
+    – UNI_OrpheusChains_Helmet
     – UNI_UND_RingOfMindShielding
   Potions & consumables:
-    – ALCH_Ingredient_Loot_HillGiantFinger
     – ALCH_Ingredient_Loot_PegasusFeather x3
-    – ALCH_Ingredient_Mushroom_ShadowrootSac x2
     – ALCH_Ingredient_Part_GremishkaTail x2
     – ALCH_Ingredient_Part_HyenaEar x16
     – ALCH_Ingredient_Part_MagmaMephitHeart x6
-    – ALCH_Ingredient_Part_MudMephitWing x4
-    – ALCH_Ingredient_Part_MyconidSpore_Haste
-    – ALCH_Ingredient_Part_MyconidSpore_Poison x2
-    – ALCH_Ingredient_Part_OchreJellySlime
+    – ALCH_Ingredient_Part_MudMephitWing x3
     – ALCH_Ingredient_Part_ScryingEye
-    – ALCH_Ingredient_Part_SpiderGland
     – ALCH_Ingredient_Part_WoodBark x6
     – ALCH_Ingredient_Part_WorgFang x2
     – ALCH_Solution_Elixir_Alertness
@@ -914,21 +922,16 @@ CAMP CHEST  (223 item types)
     – CONS_FOOD_RoastedPig
     – CONS_GEN_Alcohol_Bottle_Cheap_B
     – CONS_Herbs_Autumncrocus x3
-    – CONS_Herbs_Balsam
+    – CONS_Herbs_Balsam x2
     – CONS_Herbs_Belladonna x3
     – CONS_Herbs_Daggeroot x2
     – CONS_Herbs_Mergrass x4
     – CONS_Herbs_Mugwort x4
-    – CONS_Herbs_Weavemoss x3
     – CONS_Herbs_Wispweed x2
-    – CONS_Mushrooms_Bonecap x2
-    – CONS_Mushrooms_BullywugTrumpet x4
     – CONS_Mushrooms_DragonEggMushroom
     – CONS_Mushrooms_Nightlight_Piece x2
     – CONS_Mushrooms_RoguesMorsel x6
     – CONS_Mushrooms_SporeTimmask x2
-    – CONS_Mushrooms_SwarmingToadstool x2
-    – CONS_Mushrooms_TongueOfMadness x4
     – OBJ_Potion_Healing x22
     – OBJ_Potion_Healing_Greater x7
     – OBJ_Potion_Of_Animal_Speaking
@@ -961,13 +964,11 @@ CAMP CHEST  (223 item types)
   Everything else:
     – COL_BrainJar_Memory x2
     – CRE_MAG_Githborn_Amulet
-    – Cup_Silver_G
     – DLC_OBJ_Dye_Larian x5
     – DiningPlate_Silver_G
     – FOR_OgresForHire_HeadbandOfIntellect
     – FOR_SchoolOgres_Horn
     – Food_Beholder_Eyes
-    – Food_Giant_Hamster
     – Food_Neogi_Rolls
     – GLO_SoulCoin x2
     – GOB_DrowCommander_Leather_Gloves
@@ -976,7 +977,7 @@ CAMP CHEST  (223 item types)
     – HAG_EyeballNecklace
     – HAG_PoisonApple x8
     – HAG_SwampedHero_OldFancyHelmet
-    – LOOT_Underdark_HookHorrorClaw
+    – MOO_Ketheric_Armor
     – OBJ_AcidBottle x2
     – OBJ_Agate
     – OBJ_Amethyst
@@ -991,7 +992,7 @@ CAMP CHEST  (223 item types)
     – OBJ_Bag_AlchemyPouch x3
     – OBJ_BasicPoison x2
     – OBJ_Bloodstone
-    – OBJ_Bomb
+    – OBJ_Bomb x2
     – OBJ_Bone x6
     – OBJ_Bottle x3
     – OBJ_Bowl
@@ -999,23 +1000,19 @@ CAMP CHEST  (223 item types)
     – OBJ_Camp_Pack x3
     – OBJ_Candle_Gold
     – OBJ_Chest_Wood
-    – OBJ_Crystal_ChasmCreeper x2
     – OBJ_Crystal_Laculite
-    – OBJ_Crystal_LolthsCandle
     – OBJ_Crystal_Viridian x5
     – OBJ_Dye_Golden x2
     – OBJ_Dye_RichRed x3
-    – OBJ_Feather x2
     – OBJ_GenericLootItem x2
     – OBJ_Generic_Light
     – OBJ_GithyankiEgg
     – OBJ_Goblet_Rich_Silver
     – OBJ_GreaseBottle x3
-    – OBJ_ImmutableContainer
     – OBJ_Indestructible_Light x3
     – OBJ_InkPot x3
     – OBJ_Jade
-    – OBJ_Keychain x2
+    – OBJ_Keychain x3
     – OBJ_Kit_ThievesTools x5
     – OBJ_Kit_TrapDisarm x3
     – OBJ_Laboratory_Glass
@@ -1035,7 +1032,7 @@ CAMP CHEST  (223 item types)
     – OBJ_Tool_Tong
     – OBJ_WyvernPoison
     – PLA_WPN_SwordOfJustice
-    – PUZ_Key x14
+    – PUZ_Key x7
     – QUEST_HAG_GrenadeFire x4
     – Quest_UND_Moonlantern_Broken
     – SCL_SpidersLyre x2

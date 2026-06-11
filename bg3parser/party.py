@@ -85,6 +85,103 @@ def camp_distance(a: tuple, b: tuple) -> float:
     return sum((x - y) ** 2 for x, y in zip(a, b, strict=False)) ** 0.5
 
 
+def collect_container_contents(
+    anchor_guids: set[str],
+    container_pages: dict[int, list[str]],
+    inventory_owners: dict[int, str],
+    world_guids: frozenset[str],
+    guid_positions: dict[str, tuple],
+    chest_pos: tuple,
+    stack_groups: dict[str, tuple[str, ...]] | None = None,
+    max_depth: int = 4,
+) -> list[str] | None:
+    """Item entity GUIDs in the camp chest, walked through the container maps.
+
+    Three layers, each ground-truthed against controlled saves (346-354):
+
+    1. The chest's own inventory, anchored by majority vote of the
+       position-attributed chest items (`anchor_guids`); the container map
+       is then authoritative for all its members, including items whose
+       ItemFactory position went stale when they were moved in.
+    2. Nested containers (pouches, sacks stored in the chest). Their content
+       inventories are owned by bridge-less ECS twin entities, so they are
+       recognised by where their members sit: an inventory not owned by a
+       world item, the majority of whose positioned members sit at the
+       chest, is a chest-side pouch (carried pouches' contents re-anchor to
+       their carrier, so they vote for the character instead).
+    3. Stack co-members: a member of an included item's stack record with no
+       container slot of its own rides with the anchored member (two of the
+       chest's three Revivify entities in QuickSave_341 exist only in the
+       stack record).
+
+    Returns None when no anchor appears in any container map; the caller
+    falls back to pure position attribution.
+    """
+    guid_to_inv: dict[str, int] = {}
+    for inv, guids in container_pages.items():
+        for g in guids:
+            guid_to_inv.setdefault(g, inv)
+    votes: dict[int, int] = {}
+    for g in anchor_guids:
+        inv = guid_to_inv.get(g)
+        if inv is not None:
+            votes[inv] = votes.get(inv, 0) + 1
+    if not votes:
+        return None
+    chest_inv = max(votes, key=lambda i: votes[i])
+
+    owner_to_invs: dict[str, list[int]] = {}
+    for inv, owner in inventory_owners.items():
+        owner_to_invs.setdefault(owner, []).append(inv)
+
+    # Chest-side orphan inventories (layer 2).
+    chest_side: set[int] = {chest_inv}
+    for inv, guids in container_pages.items():
+        owner = inventory_owners.get(inv, '')
+        if inv == chest_inv or owner in world_guids:
+            continue
+        at_chest = positioned = 0
+        for g in guids:
+            pos = guid_positions.get(g)
+            if pos is None:
+                continue
+            positioned += 1
+            at_chest += pos == chest_pos
+        if positioned and at_chest * 2 > positioned:
+            chest_side.add(inv)
+
+    out: list[str] = []
+    seen: set[str] = set()
+    seen_inv: set[int] = set()
+    slotted = frozenset(guid_to_inv)
+
+    def add(g: str) -> None:
+        if g in seen:
+            return
+        seen.add(g)
+        out.append(g)
+        # Layer 3: unanchored co-members of this item's stack record.
+        for mate in (stack_groups or {}).get(g, ()):
+            if mate not in slotted and mate not in seen:
+                seen.add(mate)
+                out.append(mate)
+
+    frontier = sorted(chest_side)
+    for _ in range(max_depth):
+        next_frontier: list[int] = []
+        for inv in frontier:
+            if inv in seen_inv:
+                continue
+            seen_inv.add(inv)
+            for g in container_pages.get(inv, []):
+                add(g)
+                next_frontier.extend(owner_to_invs.get(g, []))
+        if not next_frontier:
+            break
+        frontier = next_frontier
+    return out
+
+
 def parse_journal_objectives(nodes: list[dict]) -> dict[str, str]:
     """quest_id -> current ObjectiveID, from the Journal's QuestsProgress map.
 

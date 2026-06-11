@@ -2,15 +2,6 @@
  "camp_chest": [
   {
    "category": "consumable",
-   "count": 1,
-   "name": "Hill Giant Finger",
-   "slot": null,
-   "slot_rank": [],
-   "stats": "ALCH_Ingredient_Loot_HillGiantFinger",
-   "template_guid": "f4ed5a49-9b95-4e99-b58e-a0a85bf1fc2d"
-  },
-  {
-   "category": "consumable",
    "count": 3,
    "name": "Pegasus Feather",
    "slot": null,
@@ -74,15 +65,6 @@
   },
   {
    "category": "consumable",
-   "count": 2,
-   "name": "Poison Spore",
-   "slot": null,
-   "slot_rank": [],
-   "stats": "ALCH_Ingredient_Part_MyconidSpore_Poison",
-   "template_guid": "e9d39b0d-bcd6-4b5b-9d54-c68b3b650b54"
-  },
-  {
-   "category": "consumable",
    "count": 1,
    "name": "Ochre Jelly Slime",
    "slot": null,
@@ -128,7 +110,7 @@
   },
   {
    "category": "consumable",
-   "count": 1,
+   "count": 2,
    "name": "Elixir of Vigilance",
    "slot": null,
    "slot_rank": [],
@@ -164,6 +146,15 @@
   },
   {
    "category": "consumable",
+   "count": 1,
+   "name": "Elixir of Guileful Movement",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Solution_Elixir_Freedom",
+   "template_guid": "b8a2f9e4-3b5e-4418-af05-5ca3cd40dd71"
+  },
+  {
+   "category": "consumable",
    "count": 2,
    "name": "Elixir of Arcane Cultivation",
    "slot": null,
@@ -183,11 +174,38 @@
   {
    "category": "consumable",
    "count": 1,
+   "name": "Oil of Bane",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Solution_Oil_Bane",
+   "template_guid": "08789f74-3f63-4e7c-8288-b8d873542c15"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Diluted Oil of Sharpness",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Solution_Oil_DamageAttackBuff",
+   "template_guid": "955d3880-3d10-4fb5-845b-96b6b52aef9a"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
    "name": "Oil of Diminution",
    "slot": null,
    "slot_rank": [],
    "stats": "ALCH_Solution_Oil_Reduce",
    "template_guid": "01985597-fceb-47d1-93ae-9cc9928ed9e7"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Wizardsbane Oil",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Solution_Oil_Wizardsbane",
+   "template_guid": "e4f7cb7f-1cb3-411b-b078-f4ac25b750a8"
   },
   {
    "category": "consumable",
@@ -264,6 +282,15 @@
   {
    "category": "armour",
    "count": 1,
+   "name": "Homely Clothes",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Camp_Body",
+   "template_guid": "f369f4fa-2da7-4693-a147-16cfaf02bca5"
+  },
+  {
+   "category": "armour",
+   "count": 1,
    "name": "Lae'zel's Clothes",
    "slot": null,
    "slot_rank": [],
@@ -291,11 +318,11 @@
   {
    "category": "armour",
    "count": 1,
-   "name": "Breezy Sandals",
+   "name": "Tasteful Boots",
    "slot": null,
    "slot_rank": [],
-   "stats": "ARM_Camp_Sandals_B_Red",
-   "template_guid": "697a6021-ff43-43d5-b9c9-a432bb3ea59d"
+   "stats": "ARM_Camp_Shoes",
+   "template_guid": "6bb7a595-7646-48a9-9c44-d39f16c1c5cb"
   },
   {
    "category": "armour",
@@ -305,6 +332,15 @@
    "slot_rank": [],
    "stats": "ARM_Camp_Shoes_C",
    "template_guid": "c6db137e-b61c-418f-9785-b0beb6e6de0f"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Tasteful Boots",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Camp_Shoes_Gale",
+   "template_guid": "cb28ea7d-2838-43e7-a807-11277c44facb"
   },
   {
    "category": "armour",
@@ -371,6 +407,24 @@
   },
   {
    "category": "armour",
+   "count": 2,
+   "name": "Lute",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Instrument_Lute",
+   "template_guid": "8f98a7e7-c773-4b58-9127-5cf79b9206e9"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Lute",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Instrument_Lute_B",
+   "template_guid": "f2487101-548f-4494-9ec8-b20fa3ad6f7b"
+  },
+  {
+   "category": "armour",
    "count": 3,
    "name": "Leather Armour",
    "slot": null,
@@ -416,12 +470,30 @@
   },
   {
    "category": "armour",
-   "count": 1,
+   "count": 2,
    "name": "Scale Mail",
    "slot": null,
    "slot_rank": [],
    "stats": "ARM_ScaleMail_Body",
    "template_guid": "ca0aafad-0f1e-4d76-8e3b-925397bb436b"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Underwear",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Underwear_Elves",
+   "template_guid": "0ec7d956-e65f-4bfa-b677-22f399f81a32"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Minthara's Underwear",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Underwear_Minthara",
+   "template_guid": "73874ef8-a3c4-4a68-8d2a-ed3d580dfb52"
   },
   {
    "category": "armour",
@@ -488,12 +560,21 @@
   },
   {
    "category": "misc",
-   "count": 2,
+   "count": 1,
    "name": "Memory Brain Jar",
    "slot": null,
    "slot_rank": [],
    "stats": "COL_BrainJar_Memory",
    "template_guid": "2c5bca7e-8649-4217-9ebb-52b20a506e99"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Memory Brain Jar",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "COL_BrainJar_Memory",
+   "template_guid": "f938e0a4-fb50-4d69-8b40-18e9bba30a22"
   },
   {
    "category": "consumable",
@@ -503,6 +584,15 @@
    "slot_rank": [],
    "stats": "CONS_DRINK_Oil",
    "template_guid": "cbbfb594-d3ba-4519-8c15-5c35df5892e0"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Esmeltar Red",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_DRINK_Wine_Bottle_Wicker",
+   "template_guid": "3525b96e-81ef-4411-960a-b1b305e139c6"
   },
   {
    "category": "consumable",
@@ -524,21 +614,21 @@
   },
   {
    "category": "consumable",
-   "count": 1,
-   "name": "Starburst Shandy",
-   "slot": null,
-   "slot_rank": [],
-   "stats": "CONS_GEN_Alcohol_Bottle_Cheap_B",
-   "template_guid": "829f190b-e54b-4dfa-96c5-a554ac79518e"
-  },
-  {
-   "category": "consumable",
-   "count": 3,
+   "count": 2,
    "name": "Autumncrocus",
    "slot": null,
    "slot_rank": [],
    "stats": "CONS_Herbs_Autumncrocus",
    "template_guid": "06f3a0c4-af50-4a79-8c1a-1ace6d1282f2"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Autumncrocus",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Herbs_Autumncrocus",
+   "template_guid": "691da3f8-0fca-4aa9-b5cd-89bc96e3cc74"
   },
   {
    "category": "consumable",
@@ -551,7 +641,7 @@
   },
   {
    "category": "consumable",
-   "count": 3,
+   "count": 2,
    "name": "Belladonna",
    "slot": null,
    "slot_rank": [],
@@ -560,7 +650,25 @@
   },
   {
    "category": "consumable",
-   "count": 2,
+   "count": 1,
+   "name": "Belladonna",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Herbs_Belladonna",
+   "template_guid": "897f5ff9-d889-4b78-a1d7-afa88ccaadb3"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Daggerroot",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Herbs_Daggeroot",
+   "template_guid": "12126dc3-50ce-48cd-836f-c4d769a85134"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
    "name": "Daggerroot",
    "slot": null,
    "slot_rank": [],
@@ -569,7 +677,16 @@
   },
   {
    "category": "consumable",
-   "count": 4,
+   "count": 1,
+   "name": "Mergrass",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Herbs_Mergrass",
+   "template_guid": "0a494c98-84c0-4055-8208-0e363bd53ed3"
+  },
+  {
+   "category": "consumable",
+   "count": 3,
    "name": "Mergrass",
    "slot": null,
    "slot_rank": [],
@@ -578,21 +695,12 @@
   },
   {
    "category": "consumable",
-   "count": 2,
+   "count": 1,
    "name": "Mugwort",
    "slot": null,
    "slot_rank": [],
    "stats": "CONS_Herbs_Mugwort",
    "template_guid": "e03b8342-3c50-4cec-b34c-c50ce1968bc3"
-  },
-  {
-   "category": "consumable",
-   "count": 3,
-   "name": "Weavemoss",
-   "slot": null,
-   "slot_rank": [],
-   "stats": "CONS_Herbs_Weavemoss",
-   "template_guid": "0a64fa93-9123-4810-a656-2c8b27c87563"
   },
   {
    "category": "consumable",
@@ -602,24 +710,6 @@
    "slot_rank": [],
    "stats": "CONS_Herbs_Wispweed",
    "template_guid": "4faa8cef-27ee-4085-aa90-78fcf8e2e72d"
-  },
-  {
-   "category": "consumable",
-   "count": 2,
-   "name": "Bonecap",
-   "slot": null,
-   "slot_rank": [],
-   "stats": "CONS_Mushrooms_Bonecap",
-   "template_guid": "e9f6d6d3-bd95-414d-903a-b697bb222ae7"
-  },
-  {
-   "category": "consumable",
-   "count": 4,
-   "name": "Bullywug Trumpet",
-   "slot": null,
-   "slot_rank": [],
-   "stats": "CONS_Mushrooms_BullywugTrumpet",
-   "template_guid": "4c7df0ef-2262-472f-af6e-9289a78cf371"
   },
   {
    "category": "consumable",
@@ -641,12 +731,21 @@
   },
   {
    "category": "consumable",
-   "count": 3,
+   "count": 1,
    "name": "Rogue's Morsel",
    "slot": null,
    "slot_rank": [],
    "stats": "CONS_Mushrooms_RoguesMorsel",
    "template_guid": "93705907-9366-478f-8ff7-a23862e1884b"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Rogue's Morsel",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Mushrooms_RoguesMorsel",
+   "template_guid": "a09f8033-f5d8-44de-97ad-09499d967989"
   },
   {
    "category": "consumable",
@@ -676,15 +775,6 @@
    "template_guid": "714a8375-9eb4-438d-a191-f5b4b1e86cc3"
   },
   {
-   "category": "armour",
-   "count": 1,
-   "name": "Aberration Hunters' Amulet",
-   "slot": null,
-   "slot_rank": [],
-   "stats": "CRE_MAG_Githborn_Amulet",
-   "template_guid": "1310524f-408e-405d-8d75-7a6d3cb18bcc"
-  },
-  {
    "category": "misc",
    "count": 1,
    "name": "Silver Glass",
@@ -692,6 +782,15 @@
    "slot_rank": [],
    "stats": "Cup_Silver_G",
    "template_guid": "c37d61c4-b1b4-4068-9475-3e659a4d8443"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "'Magic' Ring",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "DEN_Thiefling_Ring5",
+   "template_guid": "2f8e7e4d-e62a-431c-ae3e-84c45af15742"
   },
   {
    "category": "misc",
@@ -710,6 +809,15 @@
    "slot_rank": [],
    "stats": "DiningPlate_Silver_G",
    "template_guid": "91ea5049-b91f-4de8-a9a4-7be02e801b3f"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Disintegrating Night Walkers",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "FOR_NightWalkers",
+   "template_guid": "e7f24f6d-4d73-4f04-94ef-d8e7042ce6a2"
   },
   {
    "category": "armour",
@@ -737,15 +845,6 @@
    "slot_rank": [],
    "stats": "Food_Beholder_Eyes",
    "template_guid": "d0e9c5c0-4757-45d9-9311-0f178139c181"
-  },
-  {
-   "category": "misc",
-   "count": 2,
-   "name": "Grilled Miniature Giant Space Hamster",
-   "slot": null,
-   "slot_rank": [],
-   "stats": "Food_Giant_Hamster",
-   "template_guid": "c6910189-d120-42cd-9277-1e6c7d7bb772"
   },
   {
    "category": "misc",
@@ -811,13 +910,13 @@
    "template_guid": "910ed403-38b3-4128-b07b-0de5d14da8f8"
   },
   {
-   "category": "misc",
+   "category": "armour",
    "count": 1,
-   "name": "Hook",
+   "name": "Caustic Band",
    "slot": null,
    "slot_rank": [],
-   "stats": "LOOT_Underdark_HookHorrorClaw",
-   "template_guid": "38808280-6ae5-4d99-b3c5-6381633df693"
+   "stats": "MAG_Acid_AcidDamageOnWeaponAttack_Ring",
+   "template_guid": "463b0a81-1fc3-4db1-bafe-a915f9a8e028"
   },
   {
    "category": "weapon",
@@ -867,20 +966,38 @@
   {
    "category": "armour",
    "count": 1,
-   "name": "Necklace of Elemental Augmentation",
-   "slot": null,
-   "slot_rank": [],
-   "stats": "MAG_ElementalGish_CantripBooster_Amulet",
-   "template_guid": "a92cec2f-3a86-4aa1-a7e9-1d6dc9e12957"
-  },
-  {
-   "category": "armour",
-   "count": 1,
    "name": "Ring of Elemental Infusion",
    "slot": null,
    "slot_rank": [],
    "stats": "MAG_ElementalGish_ElementalInfusion_Ring",
    "template_guid": "9ce563ca-82b0-4c28-bd82-8640fd0a5be3"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Staff of Cherished Necromancy",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "MAG_GreaterNecromancy_Staff",
+   "template_guid": "ecb02247-a407-445e-8046-856133d198bf"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Amulet of the Harpers",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "MAG_Harpers_HarpersAmulet",
+   "template_guid": "ddc9ac0b-8e68-422b-8d9d-c081629ab4ad"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Grymskull Helm",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "MAG_MeleeDebuff_AttackDebuff1_OnDamage_Helmet",
+   "template_guid": "6b1c4d55-e0d1-4b58-a26d-57d807bca488"
   },
   {
    "category": "armour",
@@ -894,11 +1011,38 @@
   {
    "category": "armour",
    "count": 1,
+   "name": "Adamantine Splint Armour",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "MAG_MeleeDebuff_AttackDebuff2_OnDamage_SplintMail",
+   "template_guid": "ea3cf349-19ab-4104-9253-8e182bdbf538"
+  },
+  {
+   "category": "armour",
+   "count": 1,
    "name": "Gloves of Heroism",
    "slot": null,
    "slot_rank": [],
    "stats": "MAG_Paladin_LayOnHandsSupport_Gloves",
    "template_guid": "110144ac-db1d-4db8-a907-92f642086d0d"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Halberd of Vigilance",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "MAG_PoR_OfVigilance_Halberd",
+   "template_guid": "187691ba-7027-49a8-ba74-d0dc5cafbe12"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Titanstring Bow",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "MAG_StrongString_Longbow",
+   "template_guid": "13236988-83df-4bf2-8005-b4ac31f21ff4"
   },
   {
    "category": "weapon",
@@ -910,17 +1054,17 @@
    "template_guid": "4708068e-542a-4dfb-b8a0-56e1ee371600"
   },
   {
-   "category": "weapon",
+   "category": "armour",
    "count": 1,
-   "name": "Wood Woad Shield",
+   "name": "Gloves of the Growling Underdog",
    "slot": null,
    "slot_rank": [],
-   "stats": "MAG_WoodWoad_Nature_Shield",
-   "template_guid": "90ba50bd-3e65-42ec-9f21-6e07d3ed89ab"
+   "stats": "MAG_ZOC_AdvantageOnMeleeAttackWhileSurounded_Gloves",
+   "template_guid": "1001f28b-5ea3-4257-864c-f60c812aecf0"
   },
   {
    "category": "misc",
-   "count": 2,
+   "count": 3,
    "name": "Acid Vial",
    "slot": null,
    "slot_rank": [],
@@ -974,7 +1118,7 @@
   },
   {
    "category": "misc",
-   "count": 2,
+   "count": 3,
    "name": "Arrow of Lightning",
    "slot": null,
    "slot_rank": [],
@@ -983,7 +1127,7 @@
   },
   {
    "category": "misc",
-   "count": 1,
+   "count": 2,
    "name": "Arrow of Many Targets",
    "slot": null,
    "slot_rank": [],
@@ -992,7 +1136,7 @@
   },
   {
    "category": "misc",
-   "count": 1,
+   "count": 2,
    "name": "Arrow of Ilmater",
    "slot": null,
    "slot_rank": [],
@@ -1064,7 +1208,61 @@
   },
   {
    "category": "book",
-   "count": 6,
+   "count": 1,
+   "name": "Book",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Book",
+   "template_guid": "283d7eff-f6e5-401f-852e-7ad7fb728b88"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "Book",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Book",
+   "template_guid": "3efd8f10-2e7d-40ba-ae3f-aab65e693be7"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "Book",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Book",
+   "template_guid": "623c1d86-4d4e-4120-986c-bda7cf6350ed"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "Book",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Book",
+   "template_guid": "7433e496-3463-4266-a1e5-70f4fc1b5c6c"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "Book",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Book",
+   "template_guid": "8287fe56-0e69-4a53-9854-5de0ed4352bd"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "Book",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Book",
+   "template_guid": "b437af92-c9f1-4657-961b-32ad0dbf39d9"
+  },
+  {
+   "category": "book",
+   "count": 1,
    "name": "Book",
    "slot": null,
    "slot_rank": [],
@@ -1100,7 +1298,7 @@
   },
   {
    "category": "misc",
-   "count": 3,
+   "count": 2,
    "name": "Supply Pack",
    "slot": null,
    "slot_rank": [],
@@ -1127,7 +1325,7 @@
   },
   {
    "category": "misc",
-   "count": 2,
+   "count": 1,
    "name": "Chasm Creeper",
    "slot": null,
    "slot_rank": [],
@@ -1154,7 +1352,7 @@
   },
   {
    "category": "misc",
-   "count": 5,
+   "count": 4,
    "name": "Viridian Crystal",
    "slot": null,
    "slot_rank": [],
@@ -1190,7 +1388,25 @@
   },
   {
    "category": "misc",
-   "count": 2,
+   "count": 1,
+   "name": "Alchemist's Fire",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_FireBottle",
+   "template_guid": "0b1aa718-fe45-4e4c-8811-ced51c581075"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "White King Piece",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_GenericLootItem",
+   "template_guid": "1f23ba5b-f11e-4b70-a637-83ecf8794c1a"
+  },
+  {
+   "category": "misc",
+   "count": 1,
    "name": "White King Piece",
    "slot": null,
    "slot_rank": [],
@@ -1226,7 +1442,16 @@
   },
   {
    "category": "misc",
-   "count": 3,
+   "count": 1101,
+   "name": "Gold",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_GoldPile",
+   "template_guid": "1c3c9c74-34a1-4685-989e-410dc080be6f"
+  },
+  {
+   "category": "misc",
+   "count": 4,
    "name": "Grease Bottle",
    "slot": null,
    "slot_rank": [],
@@ -1235,21 +1460,21 @@
   },
   {
    "category": "misc",
-   "count": 1,
-   "name": "Traveller's Chest",
-   "slot": null,
-   "slot_rank": [],
-   "stats": "OBJ_ImmutableContainer",
-   "template_guid": "96eab9d1-74b1-42f7-b1ad-061a9fcea8c4"
-  },
-  {
-   "category": "misc",
-   "count": 3,
+   "count": 2,
    "name": "Earthen Bottle",
    "slot": null,
    "slot_rank": [],
    "stats": "OBJ_Indestructible_Light",
    "template_guid": "b30c8fc1-f008-44d1-96bd-d79c5a66920c"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Cup",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Indestructible_Light",
+   "template_guid": "eb0ea240-698a-42ef-80a9-05dd5d32689a"
   },
   {
    "category": "misc",
@@ -1280,7 +1505,7 @@
   },
   {
    "category": "misc",
-   "count": 5,
+   "count": 9,
    "name": "Thieves' Tools",
    "slot": null,
    "slot_rank": [],
@@ -1289,7 +1514,7 @@
   },
   {
    "category": "misc",
-   "count": 3,
+   "count": 6,
    "name": "Trap Disarm Toolkit",
    "slot": null,
    "slot_rank": [],
@@ -1361,7 +1586,7 @@
   },
   {
    "category": "consumable",
-   "count": 22,
+   "count": 23,
    "name": "Potion of Healing",
    "slot": null,
    "slot_rank": [],
@@ -1415,7 +1640,7 @@
   },
   {
    "category": "consumable",
-   "count": 1,
+   "count": 3,
    "name": "Potion of Invisibility",
    "slot": null,
    "slot_rank": [],
@@ -1430,6 +1655,15 @@
    "slot_rank": [],
    "stats": "OBJ_Potion_Of_Lightning_Resistance",
    "template_guid": "05257244-ab59-4eab-9745-d1fea7b8cd10"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Elixir of Necrotic Resistance",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Potion_Of_Necrotic_Resistance",
+   "template_guid": "f3c0aefb-a399-42c6-8d85-7fdceb6d18f5"
   },
   {
    "category": "consumable",
@@ -1478,12 +1712,93 @@
   },
   {
    "category": "book",
-   "count": 10,
+   "count": 1,
+   "name": "Parchment",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Scroll",
+   "template_guid": "06332bc8-19b5-4f9c-9013-6d433abd78a0"
+  },
+  {
+   "category": "book",
+   "count": 1,
    "name": "Orders",
    "slot": null,
    "slot_rank": [],
    "stats": "OBJ_Scroll",
    "template_guid": "130b4eb0-e432-4fce-9fd9-34fe8cb1a52d"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "Parchment",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Scroll",
+   "template_guid": "14ed5f04-c524-41a1-976e-4a857b326e6a"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "Parchment",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Scroll",
+   "template_guid": "1a888682-1e41-4b58-af24-f339688d9936"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "Parchment",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Scroll",
+   "template_guid": "4c5bbc63-61f4-43f1-b2a1-de29071fd87c"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "Goblin's Drawing",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Scroll",
+   "template_guid": "711d3410-e033-4cc1-b3e2-0e3b3abc9a85"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "Open Call for Adventurers on Behalf of the Society",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Scroll",
+   "template_guid": "78016091-632f-42eb-81bd-f7223da8ee5a"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "Parchment",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Scroll",
+   "template_guid": "833be3b9-9492-4c28-aee4-21c64af4e675"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "Parchment",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Scroll",
+   "template_guid": "a10cb81b-ba44-446b-b736-f26d55475150"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "Parchment",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Scroll",
+   "template_guid": "e47c6aa6-415a-4fd8-a12b-14014a50edf2"
   },
   {
    "category": "book",
@@ -1613,7 +1928,16 @@
   },
   {
    "category": "misc",
-   "count": 4,
+   "count": 3,
+   "name": "Skull",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Skull",
+   "template_guid": "231afb29-b79c-4efd-af23-2e433dea313d"
+  },
+  {
+   "category": "misc",
+   "count": 1,
    "name": "Skull",
    "slot": null,
    "slot_rank": [],
@@ -1640,12 +1964,21 @@
   },
   {
    "category": "misc",
-   "count": 3,
+   "count": 2,
    "name": "Shovel",
    "slot": null,
    "slot_rank": [],
    "stats": "OBJ_Tool_Shovel",
    "template_guid": "73efd1f7-5616-4ca8-84e6-6128aa6efaea"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Shovel",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Tool_Shovel",
+   "template_guid": "c4a7aa86-90b4-4207-b594-90383f4d9f1b"
   },
   {
    "category": "misc",
@@ -1676,12 +2009,138 @@
   },
   {
    "category": "misc",
-   "count": 14,
+   "count": 1,
+   "name": "Gold Key",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "PUZ_Key",
+   "template_guid": "16cb6f4c-306a-4d4a-9cbf-d8dd522fb327"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Gold Key",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "PUZ_Key",
+   "template_guid": "1cd81705-496e-4b0b-adc7-3c14ab2eedb4"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Gold Key",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "PUZ_Key",
+   "template_guid": "1faf4f45-94bd-4464-850b-5865ca351a69"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Gold Key",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "PUZ_Key",
+   "template_guid": "2ce28af9-743e-440f-a82b-be73e7285de6"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Storage Key",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "PUZ_Key",
+   "template_guid": "3576ad38-6d0d-4e22-b5b4-4cabb937a167"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Gold Key",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "PUZ_Key",
+   "template_guid": "4030d903-9ea7-4017-b712-7aab6130da67"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Gold Key",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "PUZ_Key",
+   "template_guid": "67410085-0865-4b5d-9d65-2e7b7ed80697"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Gold Key",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "PUZ_Key",
+   "template_guid": "7d5eab5e-4ec0-4b40-8714-f85b2f8c8a0c"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Gold Key",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "PUZ_Key",
+   "template_guid": "82df88e8-f42f-4dd7-bb11-34b8bed5e622"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Gold Key",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "PUZ_Key",
+   "template_guid": "90c30dfe-fde3-4bc9-8772-253cdea75c28"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Gold Key",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "PUZ_Key",
+   "template_guid": "9c7c13b1-1507-4193-a0bd-e8137cd7abd1"
+  },
+  {
+   "category": "misc",
+   "count": 1,
    "name": "Gold Key",
    "slot": null,
    "slot_rank": [],
    "stats": "PUZ_Key",
    "template_guid": "9d3de6ea-df9e-4eda-ac2d-939bc1149223"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Gold Key",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "PUZ_Key",
+   "template_guid": "a74d15b3-8bf9-4468-a5c2-d53f205e02ec"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Gold Key",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "PUZ_Key",
+   "template_guid": "bf5db144-53f2-4e90-b8ce-72a40b780c3c"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Gold Key",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "PUZ_Key",
+   "template_guid": "f79eeb06-bdc2-4b43-8a56-f15fa00cc716"
   },
   {
    "category": "misc",
@@ -1703,7 +2162,16 @@
   },
   {
    "category": "armour",
-   "count": 2,
+   "count": 1,
+   "name": "Spider's Lyre",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "SCL_SpidersLyre",
+   "template_guid": "0054e844-cc8a-4b4e-89f0-b79dafcef0e5"
+  },
+  {
+   "category": "armour",
+   "count": 1,
    "name": "Spider's Lyre",
    "slot": null,
    "slot_rank": [],
@@ -1718,15 +2186,6 @@
    "slot_rank": [],
    "stats": "UND_DrowDisguiseCowl",
    "template_guid": "85f6aec3-a6df-458c-8ef4-b3fa58d85a56"
-  },
-  {
-   "category": "armour",
-   "count": 1,
-   "name": "Gloves of Missile Snaring",
-   "slot": null,
-   "slot_rank": [],
-   "stats": "UNI_ARM_OfMissileSnaring_Gloves",
-   "template_guid": "687cc55b-77a3-4893-a7d7-cfbafdc2737c"
   },
   {
    "category": "armour",
@@ -1781,6 +2240,24 @@
    "slot_rank": [],
    "stats": "UNI_LOOT_AdamantineForge_SplintMold",
    "template_guid": "e3526b0a-b74f-43c5-9466-334c08de88fe"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Metallic Gloves",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "UNI_OrpheusChains_Gloves",
+   "template_guid": "35c0a291-fe35-4a3e-94d5-adbf31b269d4"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Infernal Mask",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "UNI_OrpheusChains_Helmet",
+   "template_guid": "520666df-5f1b-4fd9-983e-c0753f224855"
   },
   {
    "category": "armour",
@@ -1844,6 +2321,24 @@
    "slot_rank": [],
    "stats": "WPN_Goblin_Shortbow",
    "template_guid": "fd6f48fc-b153-4e6b-9a7f-86ac2963c95f"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Greataxe",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Greataxe",
+   "template_guid": "d5712e24-ce9e-42ce-8fad-6e049b62c28c"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Greataxe +1",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Greataxe_1",
+   "template_guid": "afbfaee7-e2cd-48e7-8c46-d2377c7320e3"
   },
   {
    "category": "weapon",
@@ -1937,6 +2432,15 @@
   },
   {
    "category": "weapon",
+   "count": 2,
+   "name": "Scimitar",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Scimitar",
+   "template_guid": "868217db-9dcb-414c-bb88-e321ab3e0349"
+  },
+  {
+   "category": "weapon",
    "count": 1,
    "name": "Shortbow",
    "slot": null,
@@ -1946,7 +2450,7 @@
   },
   {
    "category": "weapon",
-   "count": 13,
+   "count": 14,
    "name": "Shortsword",
    "slot": null,
    "slot_rank": [],
@@ -1961,6 +2465,15 @@
    "slot_rank": [],
    "stats": "WPN_Shortsword_Gith",
    "template_guid": "4b54911a-a32d-48ad-8691-ff28801e1275"
+  },
+  {
+   "category": "weapon",
+   "count": 4,
+   "name": "Torch",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Torch",
+   "template_guid": "50c43f27-a12e-412c-88f0-56e15eba692a"
   }
  ],
  "characters": [

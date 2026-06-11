@@ -1029,6 +1029,128 @@ def parse_lsmf_all_container_positions(blob: bytes) -> dict[int, tuple[int, ...]
     return {ent: tuple(rows) for ent, rows in out.items()}
 
 
+def parse_lsmf_container_pages(blob: bytes) -> dict[int, list[str]]:
+    """Map inventory-entity row -> contained item GUIDs, from container maps.
+
+    Each game.inventory.v1.ContainerComponent row is one page of an
+    inventory's item hashmap (an inventory can span several pages; the
+    ContainerComponent ownerlist names the owning inventory entity). Two
+    on-disk forms: up to two inline {EntityId-ptr, gen<<32|slot} entries,
+    or {begin, end} heap-range pairs whose words are pointers to the
+    inventory's ContainerSlotData rows (validated word by word — the key
+    arrays interleave and are skipped by validation). This is the
+    authoritative containment, independent of ItemFactory positions, which
+    go stale when items move between containers (QuickSave_341 ground
+    truth: a pouch's 15-ear stack still carries the camp-chest position).
+    """
+    idx = lsmf_component_index(blob)
+    cc = idx.get('game.inventory.v1.ContainerComponent')
+    csd = idx.get('game.inventory.v0.ContainerSlotData')
+    eid = idx.get('core.v0.EntityId')
+    if not (cc and csd and eid):
+        return {}
+    cc_elem, cc_rows, cc_off, cc_owners = cc
+    csd_elem, csd_rows, csd_off, _ = csd
+    _eid_elem, eid_rows, eid_off, _ = eid
+    full = 0xFFFFFFFFFFFFFFFF
+
+    def entity_guid_at(ptr: int) -> str | None:
+        rel = ptr - eid_off
+        if rel >= 0 and rel % 16 == 0 and rel // 16 < eid_rows:
+            return guid_le_str(blob[ptr : ptr + 16])
+        return None
+
+    out: dict[int, list[str]] = {}
+    for r in range(cc_rows):
+        owner = cc_owners[r] if cc_owners else None
+        if owner is None:
+            continue
+        vals = struct.unpack_from('<4Q', blob, cc_off + r * cc_elem)
+        guids: list[str] = []
+        if vals[1] != full and vals[1] >> 32 not in (0, 0xFFFFFFFF) and vals[1] < 1 << 48:
+            # Inline form: the second u64 is a gen<<32|slot tag, not a range end.
+            candidates = [vals[0]]
+            if vals[3] != full and vals[3] >> 32 not in (0, 0xFFFFFFFF) and vals[3] < 1 << 48:
+                candidates.append(vals[2])
+            for p in candidates:
+                g = entity_guid_at(p)
+                if g:
+                    guids.append(g)
+        else:
+            for lo, hi in ((vals[0], vals[1]), (vals[2], vals[3])):
+                if lo == full or hi == full or hi <= lo or (hi - lo) % 8 or hi - lo > 1 << 20:
+                    continue
+                if hi > len(blob):
+                    continue
+                for i in range((hi - lo) // 8):
+                    v = struct.unpack_from('<Q', blob, lo + i * 8)[0]
+                    rel = v - csd_off
+                    if rel >= 0 and rel % csd_elem == 0 and rel // csd_elem < csd_rows:
+                        item_ptr = struct.unpack_from('<Q', blob, csd_off + rel)[0]
+                        g = entity_guid_at(item_ptr)
+                        if g:
+                            guids.append(g)
+        if guids:
+            out.setdefault(owner, []).extend(guids)
+    return out
+
+
+def parse_lsmf_inventory_owners(blob: bytes) -> dict[int, str]:
+    """Map inventory-entity row -> owner entity GUID (IsOwnedComponent)."""
+    idx = lsmf_component_index(blob)
+    io = idx.get('game.inventory.v1.IsOwnedComponent')
+    eid = idx.get('core.v0.EntityId')
+    if not (io and eid):
+        return {}
+    io_elem, io_rows, io_off, io_owners = io
+    _eid_elem, eid_rows, eid_off, _ = eid
+    out: dict[int, str] = {}
+    for r in range(io_rows):
+        inv = io_owners[r] if io_owners else None
+        if inv is None:
+            continue
+        ptr = struct.unpack_from('<Q', blob, io_off + r * io_elem)[0]
+        rel = ptr - eid_off
+        if rel >= 0 and rel % 16 == 0 and rel // 16 < eid_rows:
+            out[inv] = guid_le_str(blob[ptr : ptr + 16])
+    return out
+
+
+def parse_lsmf_stack_groups(blob: bytes) -> dict[str, tuple[str, ...]]:
+    """Map item entity GUID -> its stack record's co-member GUIDs.
+
+    Members of one record are one logical stack; a member without its own
+    container slot rides with whichever co-member is anchored (QuickSave_341:
+    two of the chest's three Revivify entities have no slot row of their
+    own, yet the in-game stack shows all five scrolls).
+    """
+    idx = lsmf_component_index(blob)
+    ns = idx.get('game.inventory.v0.NewStackComponent')
+    eid = idx.get('core.v0.EntityId')
+    if not (ns and eid):
+        return {}
+    ns_elem, ns_rows, ns_off, _ns_owners = ns
+    _eid_elem, eid_rows, eid_off, _eid_owners = eid
+    L = len(blob)
+    out: dict[str, tuple[str, ...]] = {}
+    for k in range(ns_rows):
+        ptr = struct.unpack_from('<Q', blob, ns_off + k * ns_elem)[0] + LSMF_HEAP_BASE
+        if not (0 <= ptr <= L - 32):
+            continue
+        mem_lo, mem_hi, _sl, _sh = struct.unpack_from('<QQQQ', blob, ptr)
+        n = (mem_hi - mem_lo) // 8 if mem_hi > mem_lo else 0
+        if not (1 < n <= 256) or (mem_hi - mem_lo) % 8 or mem_lo + LSMF_HEAP_BASE + n * 8 > L:
+            continue
+        members = []
+        for w in struct.unpack_from(f'<{n}Q', blob, mem_lo + LSMF_HEAP_BASE):
+            a = w + LSMF_HEAP_BASE
+            if eid_off <= a < eid_off + eid_rows * 16 and (a - eid_off) % 16 == 0:
+                members.append(guid_le_str(blob[a : a + 16]))
+        for m in members:
+            out[m] = tuple(g for g in members if g != m)
+    return out
+
+
 def parse_lsmf_stack_amounts(blob: bytes) -> dict[str, int]:
     """Map item entity GUID -> stack amount from the Stack component records.
 

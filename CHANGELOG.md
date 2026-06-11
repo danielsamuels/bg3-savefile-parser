@@ -5,6 +5,16 @@ All notable changes to this project will be documented here.
 ## Unreleased
 
 ### Fixed
+- **Camp chest attribution rebuilt on container maps** (both parsers):
+  chest contents now come from the save's inventory hashmaps
+  (`ContainerComponent` pages, anchored by majority vote of the
+  position-attributed items) instead of raw world positions, which go
+  stale when items move between containers. Chest-side pouches are
+  recognised by where their members sit, and stack members without their
+  own container slot ride with their anchored co-member. Ground-truthed
+  against controlled in-game experiments (saves 346-354): a pouch's
+  16-ear stack, a 21+1 potion stack, 8 apples, and a vendor's separate
+  stock all now land exactly where the game shows them.
 - **Multi-member stack counts**: StackEntry's first field is a u16 index
   into the stack record's member array (previously misread as a u32 id),
   so per-member stack amounts decode exactly. A camp chest stack the game

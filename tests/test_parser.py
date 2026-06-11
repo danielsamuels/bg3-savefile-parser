@@ -1450,14 +1450,22 @@ def test_mcp_summary_spell_noise_and_feats():
     assert isinstance(maia.get('xp'), int)
 
 
-def test_quicksave_341_chest_stack_total():
-    """In-game ground truth for QuickSave_341: the camp chest holds a stack
-    of 5 Scrolls of Revivify, stored as a 3-member stack record whose entry
-    amounts sum to 5 — the record total is the in-game count, with the
-    surplus credited to the first member (was reported as 3)."""
+def test_quicksave_341_chest_container_walk():
+    """In-game ground truth for QuickSave_341's camp chest, exercising every
+    layer of container-map attribution: per-member stack amounts (5 Revivify
+    as members [1,3,1]), unanchored co-members riding their anchor (21+1
+    healing potions), nested chest-side pouches recognised by member
+    position vote (16 hyena ears in an alchemy pouch whose inventory is
+    owned by a bridge-less twin entity), and the vendor's separate stock
+    staying out."""
     model = gather_model(str(FIXTURE_DIR / 'quicksave_341.lsv'))
-    scrolls = sum(it.count for it in model.camp_chest or [] if it.stats == 'OBJ_Scroll_Revivify')
-    assert scrolls == 5
+    counts: dict[str, int] = {}
+    for it in model.camp_chest or []:
+        counts[it.stats] = counts.get(it.stats, 0) + it.count
+    assert counts.get('OBJ_Scroll_Revivify') == 5
+    assert counts.get('OBJ_Potion_Healing') == 22
+    assert counts.get('OBJ_Potion_Healing_Greater') == 7
+    assert counts.get('ALCH_Ingredient_Part_HyenaEar') == 16
 
 
 def test_mcp_server_tools():

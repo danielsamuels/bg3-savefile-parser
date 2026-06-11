@@ -15,14 +15,17 @@ import {
   parseLsmfClasses,
   parseLsmfComponentRows,
   parseLsmfConcentration,
+  parseLsmfContainerPages,
   parseLsmfContainerPositions,
   parseLsmfFeats,
   parseLsmfHealth,
+  parseLsmfInventoryOwners,
   parseLsmfMembership,
   parseLsmfPreparedSpells,
   parseLsmfRecipes,
   parseLsmfSpellbooks,
   parseLsmfStackAmounts,
+  parseLsmfStackGroups,
   parseLsmfStatsEntities,
   WIELDED_COMP,
 } from './lsmf.js';
@@ -41,6 +44,7 @@ import {
   campDistance,
   clusterAnchorRows,
   collectCharacterPositions,
+  collectContainerContents,
   collectItemsByPosition,
   collectStatusEquippedItems,
   ecsResolveEquipped,
@@ -942,35 +946,97 @@ export function gatherReport(
       attachItems(char, name);
     }
 
-    // Chest contents: every item at the chest's exact position.
-    const chestItems =
-      collectItemsByPosition(
-        [nodes0, ...allLcNodeLists],
-        new Map([['__camp_chest__', chestPos]]),
-      ).get('__camp_chest__') ?? [];
+    // Chest contents: the container maps are authoritative (positions go
+    // stale when items move between containers); the chest's inventory is
+    // anchored by majority vote of the position-attributed items, which
+    // also serve as the fallback when the maps are unavailable.
+    const anchorGuids = new Set<string>();
+    const guidPositions = new Map<string, string>();
+    for (const [key, ents] of instanceEntityLists) {
+      const pos = key.slice(0, key.lastIndexOf('|'));
+      for (const eg of ents) {
+        guidPositions.set(eg, pos);
+        if (pos === chestPos) anchorGuids.add(eg);
+      }
+    }
+    const containerGuids =
+      lsmfBlob && anchorGuids.size
+        ? collectContainerContents(
+            anchorGuids,
+            parseLsmfContainerPages(lsmfBlob),
+            parseLsmfInventoryOwners(lsmfBlob),
+            new Set(entityToTemplate0.keys()),
+            guidPositions,
+            chestPos,
+            parseLsmfStackGroups(lsmfBlob),
+          )
+        : null;
 
-    const chestCount = (stats: string): number => {
-      const ents = instanceEntityLists.get(`${chestPos}|${stats}`) ?? [];
-      if (ents.length === 1) return lsmfStackAmounts.get(ents[0]!) ?? 1;
-      let total = 0;
-      for (const eg of ents) total += lsmfStackAmounts.get(eg) ?? 1;
-      return total || 1;
-    };
-
-    report.camp_chest = [...chestItems]
-      .sort((a, b) =>
-        a[0] < b[0]
-          ? -1
-          : a[0] > b[0]
-            ? 1
-            : a[1] !== b[1]
-              ? Number(a[1]) - Number(b[1])
-              : a[2] < b[2]
+    if (containerGuids !== null) {
+      // The instance lists carry each entity's exact stats name; the template
+      // map is the fallback (lossy where several stats share one template,
+      // e.g. OBJ_GoldCoin vs OBJ_GoldPile).
+      const entityStats = new Map<string, string>();
+      for (const [key, ents] of instanceEntityLists) {
+        const stats = key.slice(key.lastIndexOf('|') + 1);
+        for (const eg of ents) entityStats.set(eg, stats);
+      }
+      const perItem = new Map<string, number>();
+      for (const eg of containerGuids) {
+        const tmpl = entityToTemplate0.get(eg) ?? '';
+        const statsName = entityStats.get(eg) || (templateToStats.get(tmpl) ?? '');
+        if (!statsName) continue; // entity outside the item maps (e.g. a stack twin)
+        const key = `${statsName}|${tmpl}`;
+        perItem.set(key, (perItem.get(key) ?? 0) + (lsmfStackAmounts.get(eg) ?? 1));
+      }
+      report.camp_chest = [...perItem.entries()]
+        .map(([key, count]) => {
+          const sep = key.indexOf('|');
+          return { stats: key.slice(0, sep), tmpl: key.slice(sep + 1), count };
+        })
+        .sort((a, b) =>
+          a.stats < b.stats
+            ? -1
+            : a.stats > b.stats
+              ? 1
+              : a.tmpl < b.tmpl
                 ? -1
-                : 1,
-      )
-      .filter(([stats]) => stats)
-      .map(([stats, , guid]) => itemRef(stats, guid, { count: chestCount(stats) }));
+                : a.tmpl > b.tmpl
+                  ? 1
+                  : 0,
+        )
+        .map(({ stats, tmpl, count }) => itemRef(stats, tmpl, { count }));
+    } else {
+      // Position fallback: every item at the chest's exact position.
+      const chestItems =
+        collectItemsByPosition(
+          [nodes0, ...allLcNodeLists],
+          new Map([['__camp_chest__', chestPos]]),
+        ).get('__camp_chest__') ?? [];
+
+      const chestCount = (stats: string): number => {
+        const ents = instanceEntityLists.get(`${chestPos}|${stats}`) ?? [];
+        if (ents.length === 1) return lsmfStackAmounts.get(ents[0]!) ?? 1;
+        let total = 0;
+        for (const eg of ents) total += lsmfStackAmounts.get(eg) ?? 1;
+        return total || 1;
+      };
+
+      report.camp_chest = [...chestItems]
+        .sort((a, b) =>
+          a[0] < b[0]
+            ? -1
+            : a[0] > b[0]
+              ? 1
+              : a[1] !== b[1]
+                ? Number(a[1]) - Number(b[1])
+                : a[2] < b[2]
+                  ? -1
+                  : 1,
+        )
+        .filter(([stats]) => stats)
+        .map(([stats, , guid]) => itemRef(stats, guid, { count: chestCount(stats) }));
+    }
   }
 
   return report;

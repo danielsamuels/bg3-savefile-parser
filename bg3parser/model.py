@@ -23,14 +23,17 @@ from .lsmf import (
     parse_lsmf_classes,
     parse_lsmf_component_rows,
     parse_lsmf_concentration,
+    parse_lsmf_container_pages,
     parse_lsmf_container_positions,
     parse_lsmf_feats,
     parse_lsmf_health,
+    parse_lsmf_inventory_owners,
     parse_lsmf_membership,
     parse_lsmf_prepared_spells,
     parse_lsmf_recipes,
     parse_lsmf_spellbooks,
     parse_lsmf_stack_amounts,
+    parse_lsmf_stack_groups,
     parse_lsmf_stats_entities,
 )
 from .lspk import extract_frames, parse_info_json, parse_metadata
@@ -49,6 +52,7 @@ from .party import (
     camp_distance,
     cluster_anchor_rows,
     collect_character_positions,
+    collect_container_contents,
     collect_inventory_items,
     collect_items_by_position,
     collect_status_equipped_items,
@@ -891,25 +895,71 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
 
             attach_items(char, name)
 
-        # Chest contents: every item at the chest's exact position.
-        chest_items = collect_items_by_position(
-            [nodes0] + all_lc_node_lists, {'__camp_chest__': chest_pos}
-        ).get('__camp_chest__', [])
+        # Chest contents: the container maps are authoritative (positions go
+        # stale when items move between containers); the chest's inventory is
+        # anchored by majority vote of the position-attributed items, which
+        # also serve as the fallback when the maps are unavailable.
+        anchor_guids = {
+            eg
+            for (pos, _stats), ents in instance_entity_lists.items()
+            if pos == chest_pos
+            for eg in ents
+        }
+        guid_positions = {
+            eg: pos for (pos, _stats), ents in instance_entity_lists.items() for eg in ents
+        }
+        container_guids = (
+            collect_container_contents(
+                anchor_guids,
+                parse_lsmf_container_pages(lsmf_blob),
+                parse_lsmf_inventory_owners(lsmf_blob),
+                frozenset(entity_to_template0),
+                guid_positions,
+                chest_pos,
+                parse_lsmf_stack_groups(lsmf_blob),
+            )
+            if lsmf_blob and anchor_guids
+            else None
+        )
+        if container_guids is not None:
+            # The instance lists carry each entity's exact stats name; the
+            # template map is the fallback (and is lossy where several stats
+            # share one template, e.g. OBJ_GoldCoin vs OBJ_GoldPile).
+            entity_stats = {
+                eg: stats for (_pos, stats), ents in instance_entity_lists.items() for eg in ents
+            }
+            per_item: dict[tuple[str, str], int] = {}
+            for eg in container_guids:
+                tmpl = entity_to_template0.get(eg, '')
+                stats_name = entity_stats.get(eg) or template_to_stats.get(tmpl, '')
+                if not stats_name:
+                    continue  # entity outside the item maps (e.g. a stack twin)
+                key = (stats_name, tmpl)
+                per_item[key] = per_item.get(key, 0) + lsmf_stack_amounts.get(eg, 1)
+            report.camp_chest = [
+                item_ref(stats, guid, count=count)
+                for (stats, guid), count in sorted(per_item.items())
+            ]
+        else:
+            # Position fallback: every item at the chest's exact position.
+            chest_items = collect_items_by_position(
+                [nodes0] + all_lc_node_lists, {'__camp_chest__': chest_pos}
+            ).get('__camp_chest__', [])
 
-        def chest_count(stats: str, guid: str) -> int:
-            ents = instance_entity_lists.get((chest_pos, stats), ())
-            if len(ents) == 1:
-                return lsmf_stack_amounts.get(ents[0], 1)
-            total = 0
-            for eg in ents:
-                total += lsmf_stack_amounts.get(eg, 1)
-            return total or 1
+            def chest_count(stats: str, guid: str) -> int:
+                ents = instance_entity_lists.get((chest_pos, stats), ())
+                if len(ents) == 1:
+                    return lsmf_stack_amounts.get(ents[0], 1)
+                total = 0
+                for eg in ents:
+                    total += lsmf_stack_amounts.get(eg, 1)
+                return total or 1
 
-        report.camp_chest = [
-            item_ref(stats, guid, count=chest_count(stats, guid))
-            for stats, _flags, guid in sorted(chest_items)
-            if stats
-        ]
+            report.camp_chest = [
+                item_ref(stats, guid, count=chest_count(stats, guid))
+                for stats, _flags, guid in sorted(chest_items)
+                if stats
+            ]
 
     # ---- Full level item pool (--all-items) --------------------------------
     if opt('all-items'):

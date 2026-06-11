@@ -648,3 +648,91 @@ export function resolveSlotConflicts(
 
   return { keptFlags, keptEcs, demoted };
 }
+
+/** Item entity GUIDs in the camp chest, walked through the container maps.
+ *  Mirrors bg3parser.party.collect_container_contents — see its docstring
+ *  for the three ground-truthed layers (anchored chest inventory, chest-side
+ *  pouches by member position vote, unanchored stack co-members). Returns
+ *  null when no anchor appears in any container map. */
+export function collectContainerContents(
+  anchorGuids: Set<string>,
+  containerPages: Map<number, string[]>,
+  inventoryOwners: Map<number, string>,
+  worldGuids: Set<string>,
+  guidPositions: Map<string, string>,
+  chestPos: string,
+  stackGroups: Map<string, string[]>,
+  maxDepth = 4,
+): string[] | null {
+  const guidToInv = new Map<string, number>();
+  for (const [inv, guids] of containerPages) {
+    for (const g of guids) if (!guidToInv.has(g)) guidToInv.set(g, inv);
+  }
+  const votes = new Map<number, number>();
+  for (const g of anchorGuids) {
+    const inv = guidToInv.get(g);
+    if (inv !== undefined) votes.set(inv, (votes.get(inv) ?? 0) + 1);
+  }
+  if (!votes.size) return null;
+  let chestInv = -1;
+  let best = -1;
+  for (const [inv, v] of votes) {
+    if (v > best) {
+      best = v;
+      chestInv = inv;
+    }
+  }
+
+  const ownerToInvs = new Map<string, number[]>();
+  for (const [inv, owner] of inventoryOwners) {
+    const prev = ownerToInvs.get(owner);
+    if (prev) prev.push(inv);
+    else ownerToInvs.set(owner, [inv]);
+  }
+
+  const chestSide = new Set<number>([chestInv]);
+  for (const [inv, guids] of containerPages) {
+    const owner = inventoryOwners.get(inv) ?? '';
+    if (inv === chestInv || worldGuids.has(owner)) continue;
+    let atChest = 0;
+    let positioned = 0;
+    for (const g of guids) {
+      const pos = guidPositions.get(g);
+      if (pos === undefined) continue;
+      positioned += 1;
+      if (pos === chestPos) atChest += 1;
+    }
+    if (positioned && atChest * 2 > positioned) chestSide.add(inv);
+  }
+
+  const out: string[] = [];
+  const seen = new Set<string>();
+  const seenInv = new Set<number>();
+  const add = (g: string): void => {
+    if (seen.has(g)) return;
+    seen.add(g);
+    out.push(g);
+    for (const mate of stackGroups.get(g) ?? []) {
+      if (!guidToInv.has(mate) && !seen.has(mate)) {
+        seen.add(mate);
+        out.push(mate);
+      }
+    }
+  };
+
+  let frontier = [...chestSide].sort((a, b) => a - b);
+  for (let depth = 0; depth < maxDepth; depth++) {
+    const next: number[] = [];
+    for (const inv of frontier) {
+      if (seenInv.has(inv)) continue;
+      seenInv.add(inv);
+      for (const g of containerPages.get(inv) ?? []) {
+        add(g);
+        next.push(...(ownerToInvs.get(g) ?? []));
+      }
+    }
+    if (!next.length) break;
+    frontier = next;
+  }
+  return out;
+}
