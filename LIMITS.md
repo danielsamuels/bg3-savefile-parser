@@ -155,19 +155,23 @@ string pool (see FORMAT.md §6). Party members are matched to their spell-book
 entity by class/subclass/level from `game.stats.v0.ClassesComponent`. The
 resulting lists are complete and current: class abilities, racial and
 illithid powers, item-granted spells, and mod-added spells all attribute to
-the right character. If two party members have identical class, subclass,
-*and* level, their books cannot be told apart; the report says so explicitly
-for those members instead of guessing. (An earlier string-pool + class-rule
-heuristic was retired once the exact chain proved reliable across saves.)
+the right character. Since 2026-06 attribution is exact for the player and
+all origin companions via the template link (the stats entity is allocated
+immediately after the character's world entity; see FORMAT.md §6), so even
+identical builds resolve. Class-build matching remains only as the fallback
+for custom hirelings, where identical builds still cannot be told apart.
+(An earlier string-pool + class-rule heuristic was retired once the exact
+chain proved reliable across saves.)
 
 ## Known limitations
 
 - Shared stats names (~9% of stats names) resolve to the first/base
   display-name variant rather than the exact variant; see "How display names
   work" above.
-- Identical party builds. If two party members have the same class,
-  subclass, *and* level, their spell books cannot be told apart; the report
-  says so explicitly for those members instead of guessing.
+- Identical hireling builds. The player and origin companions attribute
+  exactly via the template link, but custom hirelings fall back to class
+  matching; two hirelings with the same class, subclass, *and* level cannot
+  be told apart, and the report says so explicitly instead of guessing.
 
 ## The ECS blob (NewAge / LSMF)
 

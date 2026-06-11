@@ -27,6 +27,7 @@ from .lsmf import (
     parse_lsmf_recipes,
     parse_lsmf_spellbooks,
     parse_lsmf_stack_amounts,
+    parse_lsmf_stats_entities,
 )
 from .lspk import extract_frames, parse_info_json, parse_metadata
 from .osiris import parse_osiris
@@ -35,6 +36,8 @@ from .party import (
     EQUIPPED_FLAG_BIT,
     NULL_UUID,
     ORIGIN_INFO,
+    PARTY_ORIGINS,
+    PLAYER_CHAR_TEMPLATE,
     build_entity_template_map,
     build_instance_entity_lists,
     build_template_stats_map,
@@ -330,6 +333,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
     prepared_spells: dict[int, list[tuple]] = {}
     ability_scores: dict[int, tuple] = {}
     health: dict[int, tuple] = {}
+    stats_entities: dict[str, int] = {}
     if lsmf_blob:
         spellbooks = parse_lsmf_spellbooks(lsmf_blob)
         entity_classes = parse_lsmf_classes(lsmf_blob)
@@ -340,6 +344,9 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         # The engine zeroes this cache between camp visits; 0 is "unknown".
         report.save_info['camp_supplies'] = supplies if supplies else None
         report.save_info['recipes'] = parse_lsmf_recipes(lsmf_blob)
+        wanted = {g.lower(): n for g, n in PARTY_ORIGINS.items()}
+        wanted[PLAYER_CHAR_TEMPLATE.lower()] = '__player__'
+        stats_entities = parse_lsmf_stats_entities(lsmf_blob, wanted)
 
     def build_key(char_info: dict) -> tuple | None:
         want = sorted((c.get('Main', ''), c.get('Sub', '')) for c in char_info.get('Classes', []))
@@ -374,6 +381,24 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         if not candidates:
             return None
         return max(candidates, key=lambda e: len(spellbooks[e]))
+
+    def norm_name(s: str) -> str:
+        return re.sub(r'[^a-z]', '', s.lower())
+
+    stats_ent_by_norm = {norm_name(k): v for k, v in stats_entities.items() if k != '__player__'}
+
+    def linked_entity(origin: str) -> int | None:
+        """The character's stats entity via the exact template link.
+
+        Returns None for characters without a known template (hirelings) or
+        whose linked entity has no spell book yet (not fully recruited);
+        callers fall back to build matching.
+        """
+        if origin == 'Generic':
+            ent = stats_entities.get('__player__')
+        else:
+            ent = stats_ent_by_norm.get(norm_name(origin))
+        return ent if ent is not None and ent in spellbooks else None
 
     def attach_sheet(char: CharacterReport, ent: int) -> None:
         """Attach ability scores and hit points from the entity's ECS rows."""
@@ -664,8 +689,11 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         )
         report.characters.append(char)
 
-        # Spells — exact book from the ECS blob
-        ent = exact_spell_entity(char_info)
+        # Spells — exact book from the ECS blob: the template link gives the
+        # entity directly; build matching remains as the hireling fallback.
+        ent = linked_entity(char_info.get('Origin', 'Generic'))
+        if ent is None:
+            ent = exact_spell_entity(char_info)
         if ent is not None:
             char.spells = spell_refs(ent)
             attach_sheet(char, ent)
@@ -728,11 +756,13 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
             )
             report.characters.append(char)
 
-            ent = (
-                camp_spell_entity(base_class)
-                if base_class and camp_base_classes.count(base_class) == 1
-                else None
-            )
+            ent = linked_entity(name)
+            if ent is None:
+                ent = (
+                    camp_spell_entity(base_class)
+                    if base_class and camp_base_classes.count(base_class) == 1
+                    else None
+                )
             if ent is not None:
                 char.classes = [
                     {'Main': CLASS_UUID_NAMES.get(cg, '?')}

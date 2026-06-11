@@ -468,6 +468,38 @@ export function parseLsmfHealth(
   return out;
 }
 
+/**
+ * Map known characters to their stats-entity rows via the template link:
+ * stats_entity = world_entity + 1, wrapping modulo the character-entity
+ * count. `templates` maps lowercase template GUID -> caller's name.
+ */
+export function parseLsmfStatsEntities(
+  blob: Uint8Array,
+  templates: Map<string, string>,
+): Map<string, number> {
+  const idx = lsmfComponentIndex(blob);
+  const tc = idx.get('game.templates.v0.TemplateComponent');
+  const cc = idx.get('game.stats.v0.ClassesComponent');
+  const out = new Map<string, number>();
+  if (!tc || !cc || !cc.ownerRows.length) return out;
+  const { dv } = align(blob);
+  const n = cc.ownerRows.length;
+  const L = blob.length;
+  for (let k = 0; k < tc.ownerRows.length; k++) {
+    if (k >= tc.rowCount || tc.dataOffset + (k + 1) * tc.elemSize > L) break;
+    const p = tc.dataOffset + k * tc.elemSize;
+    const ptr = Number(dv.getBigInt64(p, true));
+    const ln = dv.getUint32(p + 8, true);
+    const p0 = ptr + LSMF_HEAP_BASE;
+    if (!(ln > 0 && ln <= 40 && p0 >= 0 && p0 <= L - ln)) continue;
+    let guid = '';
+    for (let i = 0; i < ln; i++) guid += String.fromCharCode(blob[p0 + i]!);
+    const name = templates.get(guid.toLowerCase());
+    if (name !== undefined && !out.has(name)) out.set(name, (tc.ownerRows[k]! + 1) % n);
+  }
+  return out;
+}
+
 /** The party's unlocked crafting recipes, as stat names (ALCH_*). */
 export function parseLsmfRecipes(blob: Uint8Array): string[] {
   const idx = lsmfComponentIndex(blob);

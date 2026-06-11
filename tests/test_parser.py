@@ -977,6 +977,35 @@ def test_parse_lsmf_spellbooks_direct():
     assert {'Warlock', 'Barbarian', 'Cleric', 'Fighter'} <= named
 
 
+def test_stats_entity_link():
+    """The template link must give the exact stats entity for every known character."""
+    frames = parser.extract_frames(QUICKSAVE_MAIA)
+    nodes0 = lsf.parse_lsof(lsf.decomp_frame(frames['Globals.lsf']))
+    blob = next(
+        nd['attrs']['NewAge'] for nd in nodes0 if nd['name'] == 'NewAge' and nd['parent'] == -1
+    )
+    wanted = {g.lower(): n for g, n in party.PARTY_ORIGINS.items()}
+    wanted[party.PLAYER_CHAR_TEMPLATE.lower()] = '__player__'
+    ents = lsmf.parse_lsmf_stats_entities(blob, wanted)
+    # Ground-truth rows for this fixture (independently verified): the link
+    # agrees with class-build matching for the whole party and camp.
+    expected = {
+        '__player__': 71,
+        'Wyll': 250,
+        'Karlach': 73,
+        'Shadowheart': 75,
+        'Astarion': 249,
+        'Gale': 61,
+        'Halsin': 58,
+    }
+    assert {k: ents[k] for k in expected} == expected
+    classes = lsmf.parse_lsmf_classes(blob)
+    levels = {'__player__': 7, 'Wyll': 7, 'Karlach': 7, 'Shadowheart': 7}
+    levels |= {'Astarion': 6, 'Gale': 6, 'Halsin': 5}
+    for name, lvl in levels.items():
+        assert sum(level for _, _, level in classes[ents[name]]) == lvl, name
+
+
 def test_all_items():
     """--all-items must emit the full level inventory section."""
     report = build_report(QUICKSAVE_MAIA, opts=Namespace(all_items=True))

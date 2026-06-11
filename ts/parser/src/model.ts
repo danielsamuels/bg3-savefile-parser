@@ -19,6 +19,7 @@ import {
   parseLsmfRecipes,
   parseLsmfSpellbooks,
   parseLsmfStackAmounts,
+  parseLsmfStatsEntities,
   WIELDED_COMP,
 } from './lsmf.js';
 import { decompFrame, extractFrames, parseInfoJson } from './lspk.js';
@@ -44,6 +45,8 @@ import {
   isEquipmentType,
   NULL_UUID,
   ORIGIN_INFO,
+  PARTY_ORIGINS,
+  PLAYER_CHAR_TEMPLATE,
   parseJournalObjectives,
   resolveSlotConflicts,
   splitEquippedCarried,
@@ -311,6 +314,17 @@ export function gatherReport(
   const supplies = lsmfBlob ? parseLsmfCampSupplies(lsmfBlob) : null;
   saveInfo.camp_supplies = supplies || null;
   saveInfo.recipes = lsmfBlob ? parseLsmfRecipes(lsmfBlob) : [];
+  const wantedTemplates = new Map<string, string>(
+    Object.entries(PARTY_ORIGINS).map(([g, n]) => [g.toLowerCase(), n]),
+  );
+  wantedTemplates.set(PLAYER_CHAR_TEMPLATE.toLowerCase(), '__player__');
+  const statsEntities = lsmfBlob
+    ? parseLsmfStatsEntities(lsmfBlob, wantedTemplates)
+    : new Map<string, number>();
+  const normName = (s: string): string => s.toLowerCase().replace(/[^a-z]/g, '');
+  const statsEntByNorm = new Map<string, number>(
+    [...statsEntities].filter(([k]) => k !== '__player__').map(([k, v]) => [normName(k), v]),
+  );
   const abilityScores = lsmfBlob ? parseLsmfAbilityScores(lsmfBlob) : new Map<number, number[]>();
   const health = lsmfBlob
     ? parseLsmfHealth(lsmfBlob, abilityScores, dn.classUuidNames)
@@ -701,7 +715,13 @@ export function gatherReport(
     };
     report.characters.push(char);
 
-    const spellEnt = exactSpellEntity(charInfo);
+    const origin0 = charInfo.Origin ?? 'Generic';
+    const linked =
+      origin0 === 'Generic'
+        ? (statsEntities.get('__player__') ?? null)
+        : (statsEntByNorm.get(normName(origin0)) ?? null);
+    let spellEnt = linked !== null && spellbooks.has(linked) ? linked : null;
+    if (spellEnt === null) spellEnt = exactSpellEntity(charInfo);
     if (spellEnt !== null) {
       char.spells = spellRefs(spellEnt);
       attachSheet(char, spellEnt);
@@ -776,7 +796,9 @@ export function gatherReport(
       report.characters.push(char);
 
       const sameClass = campBaseClasses.filter((c) => c === baseClass).length;
-      const ent = baseClass && sameClass === 1 ? campSpellEntity(baseClass) : null;
+      const linkedCamp = statsEntByNorm.get(normName(name)) ?? null;
+      let ent = linkedCamp !== null && spellbooks.has(linkedCamp) ? linkedCamp : null;
+      if (ent === null) ent = baseClass && sameClass === 1 ? campSpellEntity(baseClass) : null;
       if (ent !== null) {
         const classes = entityClasses.get(ent)!;
         char.classes = classes.map(([cg, sg]: [string, string, number]) =>

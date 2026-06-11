@@ -58,6 +58,7 @@ All integers are little-endian.
   - [Ability scores and hit points: packed streams (✅ decoded 2026-06)](#ability-scores-and-hit-points-packed-streams--decoded-2026-06)
   - [Prepared spells (✅ decoded 2026-06)](#prepared-spells--decoded-2026-06)
   - [Camp supplies: a cached value (✅ decoded 2026-06)](#camp-supplies-a-cached-value--decoded-2026-06)
+  - [The character → stats-entity link (✅ solved 2026-06)](#the-character--stats-entity-link--solved-2026-06)
   - [Party recipes (✅ decoded 2026-06)](#party-recipes--decoded-2026-06)
   - [Component census (✅ surveyed 2026-06)](#component-census--surveyed-2026-06)
   - [Also in the blob](#also-in-the-blob)
@@ -1008,6 +1009,37 @@ means "not cached", not "no supplies". Treat 0 as absent. This is the
 clearest proof that some blob components persist stale or invalidated data;
 expect the same of other cached aggregates.
 
+### The character → stats-entity link (✅ solved 2026-06)
+
+Each playable character occupies two consecutive entity slots, allocated as
+a batch at character creation:
+
+- the **world entity** `e`: owns `game.templates.v0.TemplateComponent`
+  (whose pool string is the character's template GUID), visuals, transform;
+- the **stats entity** `e + 1`: owns `ClassesComponent`, `StatsComponent`,
+  `HealthComponent`, `LevelComponent`, and the whole `game.spell.*` family.
+
+So the exact link is `stats_entity = (world_entity + 1) % N`, with
+`world_entity` found by matching the TemplateComponent pool string against
+the known origin/player template GUIDs, and `N` the character-entity count
+(the `ClassesComponent` ownerlist length); the modulo handles the rare wrap
+at the top of the character pool (observed in 2 of 8 fixtures). Validated
+on 8 fixture and 6 live saves with zero disagreements against class-build
+matching. This replaces build matching for the player and origin companions
+(it survives identical builds); hirelings, whose templates are per-save,
+still fall back to build matching.
+
+TemplateComponent rows (elem=24) read as `{i64 heap pointer (+48 rule),
+u32 length, u32 unknown, u64 unknown}`; rows with `0 < length ≤ 40`
+dereference to the ASCII template GUID.
+
+Confirmed dead ends for this link: `CharacterCreationStatsComponent` owner
+entities live in the character-creation subsystem's own allocation space
+(its rows do carry character names as heap strings; useful for the custom
+player's name, not for linking); `core.v0.EntityId` GUIDs for stats
+entities never appear in LSF attributes; `OriginComponent` GUIDs are
+CC-session-local.
+
 ### Party recipes (✅ decoded 2026-06)
 
 `game.party.v0.RecipeData` rows are 24 bytes: `{u64 string pointer (+48
@@ -1119,6 +1151,7 @@ handle indexes straight into this table.
 | Current quest objectives | ✅ decoded (LSF `Journal → QuestsProgress`, see §9) |
 | Story state (approval, romance, rests, waypoints, tadpoles) | ✅ decoded (Osiris databases, see §9) |
 | Party recipes | ✅ decoded (`RecipeData` string pool refs; see §6) |
+| Character → stats-entity link | ✅ solved (`stats = world + 1`, world via TemplateComponent GUID; see §6) |
 | LSMF inventory container web | ✅ decoded (`OwnerComponent`, `IsOwnedComponent`, `ContainerComponent`, `ContainerSlotData`) |
 | LSMF `MemberComponent` / `MemberData` structure | ✅ traced (8-byte pointer + 16-byte {ptr\_a, EntityHandle}); historical-ownership bookkeeping, not live location |
 | LSMF `EntityHandle` → GUID translation | ❌ no on-disk table; requires live game state |
