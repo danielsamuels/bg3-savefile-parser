@@ -63,6 +63,7 @@ All integers are little-endian.
   - [Level-ups, feats, and passives (✅ decoded 2026-06)](#level-ups-feats-and-passives--decoded-2026-06)
   - [The character → stats-entity link (✅ solved 2026-06)](#the-character--stats-entity-link--solved-2026-06)
   - [Party recipes (✅ decoded 2026-06)](#party-recipes--decoded-2026-06)
+  - [Character-state namespaces (✅ surveyed 2026-06; mostly negative)](#character-state-namespaces--surveyed-2026-06-mostly-negative)
   - [Component census (✅ surveyed 2026-06)](#component-census--surveyed-2026-06)
   - [Also in the blob](#also-in-the-blob)
 - [7. Localisation (`.loca`)](#7-localisation-loca)
@@ -1131,6 +1132,38 @@ do not dereference to printable strings, which is the reliable filter.
 `game.party.v1.RecipesComponent` is the singleton `{pointer, count}` head
 over these rows. Validated growth across a campaign: 2 recipes in the
 tutorial autosave (the game's starting pair), 43 mid-campaign, 44 late.
+
+### Character-state namespaces (✅ surveyed 2026-06; mostly negative)
+
+Surveyed for report value; most carry data the save exposes more simply
+elsewhere, plus two patterns worth knowing:
+
+- Rotated ownerlists with a corrupted wrap head.
+  `game.experience.v0.AvailableLevelComponent` (i32 level per entity) and
+  `game.race.v0.RaceComponent` (16-byte race GUID) store their data as a
+  circular buffer whose write head varies per save; the level component
+  decodes via a fixed byte shift, and the race component's first ~12
+  data rows (the wrap head) are overwritten with runtime pointers during
+  serialisation and must be skipped.
+- Runtime-pointer components: a family serialises live memory addresses
+  and is permanently opaque on disk: `death.v4.DeathComponent`,
+  `death.v1.DeathTypeComponent` (pointers to blocks), the value half of
+  `status.v0.IncapacitatedComponent` (a serialised HashMap's heap
+  pointers), and the EntityHandle fields of `unsheath.v8.StateComponent`
+  and `death.v4.DeathData`. For these, ownerlist membership is the only
+  usable signal.
+
+Proven layouts: `experience.v0.ExperienceComponent` (12 B × 4: TotalXP
+twice + garbage; records start 48 bytes after data_offset; rows are the
+four active party members; agrees with Info.json XP 15/15 saves);
+`death.v1.StateComponent` (u32 ServerDeathState; 0 = dead, 7 = dead and
+moved; the ownerlist holds only NPC corpses, so a party entity's absence
+means alive).
+
+Negative results: `game.v0.OffStageComponent` does NOT mark camp-vs-active
+party (70% agreement at best; it tags scene-removed world entities, so the
+camp-chest proximity heuristic stays), and `game.camp.v1.PresenceComponent`
+tags camp inventory ITEMS, not characters.
 
 ### Component census (✅ surveyed 2026-06)
 
