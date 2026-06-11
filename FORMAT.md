@@ -22,6 +22,57 @@ All integers are little-endian.
 
 ---
 
+## Contents
+
+- [Layering at a glance](#layering-at-a-glance)
+- [1. LSPK package format (version 18)](#1-lspk-package-format-version-18)
+  - [Frame map of a `.lsv` save](#frame-map-of-a-lsv-save)
+  - [Frame 6: `MetaData` node attributes (fully decoded, 2 KB LSOF)](#frame-6-metadata-node-attributes-fully-decoded-2-kb-lsof)
+  - [§1a. Frame 2: `CRE_Main_A` level state](#1a-frame-2-cre_main_a-level-state)
+  - [§1b. Frame 5: `WLD_Main_A` level state](#1b-frame-5-wld_main_a-level-state)
+- [2. LSF (LSOF) resource format](#2-lsf-lsof-resource-format)
+  - [Header](#header)
+  - [MetadataFormat and the V2 vs V3 layout](#metadataformat-and-the-v2-vs-v3-layout)
+  - [String hash table (strings section)](#string-hash-table-strings-section)
+  - [Node entries (nodes section)](#node-entries-nodes-section)
+  - [Attribute entries (attributes section)](#attribute-entries-attributes-section)
+  - [Attribute value types](#attribute-value-types)
+- [3. Characters, items, and per-character ownership](#3-characters-items-and-per-character-ownership)
+- [4. Item flags (`Item.Flags`, observed bits)](#4-item-flags-itemflags-observed-bits)
+- [5. Game-data root templates (display names)](#5-game-data-root-templates-display-names)
+- [6. The `LSMF` ECS blob ("NewAge")](#6-the-lsmf-ecs-blob-newage)
+  - [Header](#header-1)
+  - [Component-type directory (✅ decoded)](#component-type-directory--decoded)
+  - [Ownerlist region (✅ decoded)](#ownerlist-region--decoded)
+  - [Cross-component references: absolute byte-pointers (✅ decoded)](#cross-component-references-absolute-byte-pointers--decoded)
+  - [Heap arrays and the string pool (✅ decoded)](#heap-arrays-and-the-string-pool--decoded)
+  - [Spell books (✅ decoded: exact per-character spell lists)](#spell-books--decoded-exact-per-character-spell-lists)
+  - [Character classes, templates, and origins (✅ decoded)](#character-classes-templates-and-origins--decoded)
+  - [Inventory containers (✅ decoded: ownership web)](#inventory-containers--decoded-ownership-web)
+  - [The equipment cluster (✅ decoded: worn items form a row block)](#the-equipment-cluster--decoded-worn-items-form-a-row-block)
+  - [Entity-GUID bridge: corrects an earlier "no link exists" claim (✅ found)](#entity-guid-bridge-corrects-an-earlier-no-link-exists-claim--found)
+  - [`MemberData` / `MemberComponent`: diff experiment and EntityHandle wall](#memberdata--membercomponent-diff-experiment-and-entityhandle-wall)
+  - [What the equipment data looks like (from bg3se, in live memory)](#what-the-equipment-data-looks-like-from-bg3se-in-live-memory)
+  - [Transform array (partially mapped)](#transform-array-partially-mapped)
+  - [What blocks a full decode](#what-blocks-a-full-decode)
+  - [Ability scores and hit points: packed streams (✅ decoded 2026-06)](#ability-scores-and-hit-points-packed-streams--decoded-2026-06)
+  - [Prepared spells (✅ decoded 2026-06)](#prepared-spells--decoded-2026-06)
+  - [Camp supplies: a cached value (✅ decoded 2026-06)](#camp-supplies-a-cached-value--decoded-2026-06)
+  - [Also in the blob](#also-in-the-blob)
+- [7. Localisation (`.loca`)](#7-localisation-loca)
+- [8. Status / open problems](#8-status--open-problems)
+- [9. Osiris story state (frame 9)](#9-osiris-story-state-frame-9)
+  - [File header (unscrambled, 193 bytes total)](#file-header-unscrambled-193-bytes-total)
+  - [Section order and observed sizes (QuickSave_242)](#section-order-and-observed-sizes-quicksave_242)
+  - [Value encoding (ver ≥ `OSI_VER_VALUE_FLAGS`)](#value-encoding-ver--osi_ver_value_flags)
+  - [Node types and parse layout](#node-types-and-parse-layout)
+  - [Key quest-state databases](#key-quest-state-databases)
+  - [Current quest objectives (LSF Journal, not Osiris)](#current-quest-objectives-lsf-journal-not-osiris)
+  - [Goal flags](#goal-flags)
+- [References](#references)
+
+---
+
 ## Layering at a glance
 
 ```
@@ -882,6 +933,78 @@ What remains genuinely blocked:
 > a related component) changes per slot, or use Script Extender
 > (`Ext.Entity.Get(...)` in Lua) to read the live `EquipmentSlot` value directly.
 
+### Ability scores and hit points: packed streams (✅ decoded 2026-06)
+
+Two components break the row-grid rule documented above: their data sections
+are *packed streams* whose records do not align with the `elem_size` row grid
+implied by the descriptor, and whose ownerlists contain phantom entries (an
+owner with no record). Reads must anchor on the stream header and realign
+owners to records.
+
+- `game.stats.v3.StatsComponent` (descriptor says elem=36): a 20-byte stream
+  header, then one 36-byte record per non-phantom owner:
+
+  | Offset | Type | Field |
+  |-------:|------|-------|
+  | 0 | i32[6] | effective ability scores STR, DEX, CON, INT, WIS, CHA (item effects such as Gloves of Dexterity are folded in) |
+  | 24 | i32 | proficiency bonus |
+  | 28 | u16 | small enum |
+  | 30 | u16 | per-save handle |
+  | 32 | i32 | zero |
+
+- `game.stats.v0.HealthComponent` (descriptor says elem=32): a 16-byte stream
+  header, then 32-byte records `{i32 current, i32 max, i32 temp,
+  i32 temp_max, 16-byte GUID}`. Entities can appear in two epochs with the
+  current state first, so the first occurrence per entity wins.
+
+The owner-to-record realignment is a small dynamic program
+(`solve_owner_shifts` in `lsmf.py`): walking owners in order, owner k maps to
+record `k - shift(k)` where the shift is non-decreasing and grows by at most
+1 per step (each phantom owner pushes later records back by one). A
+per-component validator scores candidate assignments; ties prefer the higher
+shift. Validators: for stats, `prof == 2 + (level - 1) // 4` against the
+class level from `ClassesComponent`, plus range checks (abilities 1..40, the
+zero field zero); for health, `max` must equal the class hit-die formula
+(first-level die, then per-level die, plus CON modifier per level) computed
+from `ClassesComponent` and the stats stream. Both validated 7/7 characters
+against canonical statlines (including Minsc's WIS 6 and the tutorial
+dragon's 27/10/25/16/13/21).
+
+### Prepared spells (✅ decoded 2026-06)
+
+`game.spell.v0.SpellBookPrepares` rows are 80 bytes: five `{begin, end}` u64
+heap ranges. The fourth range is the PreparedSpells array of 24-byte
+SpellMetaId records:
+
+| Offset | Type | Field |
+|-------:|------|-------|
+| 0 | u64 | string pointer (+48 rule) into the spell-ID pool |
+| 8 | u32 | string length |
+| 12 | u32 | pad |
+| 16 | u64 | detail pointer (+48) |
+
+The detail record is `{u64 pointer into the game.spell.v0.ESourceType value
+pool, 16-byte ProgressionSource GUID}`. Observed SpellSourceType values:
+0/1/2 = class/subclass/race progression, 3 = item boost, 6 = base spell set,
+7 = weapon attack.
+
+The prepares ownerlist uses an *older entity numbering* than the
+spell-book/classes ownerlists (entity rows shift as the world creates
+entities; this component's list was not rewritten). Realignment: for each
+prepares row whose spell names are a near-subset (≥85%) of exactly one spell
+book, record the row delta; the majority delta across the save (minimum 3
+votes and a 50% share) realigns every row. Assume the same stale-numbering
+pattern is possible for any component whose ownerlist looks shifted.
+
+### Camp supplies: a cached value (✅ decoded 2026-06)
+
+`game.camp.v0.TotalSuppliesComponent` is a single u32 row holding the
+camp-supply total shown next to the Long Rest button. It is a cache: the
+engine zeroes it and only recomputes when the camp/rest system runs, so 0
+means "not cached", not "no supplies". Treat 0 as absent. This is the
+clearest proof that some blob components persist stale or invalidated data;
+expect the same of other cached aggregates.
+
 ### Also in the blob
 
 - Spell / ability IDs as a large pool of concatenated ASCII (e.g.
@@ -942,6 +1065,10 @@ handle indexes straight into this table.
 | LSMF ownerlist region (equipped/carried signal) | ✅ decoded (membership count per entity; threshold 15) |
 | LSMF heap arrays + string pool | ✅ decoded (`{begin,end}` ranges; pointers stored as absolute−48) |
 | LSMF spell books / classes / templates / origins | ✅ decoded (see §6) |
+| LSMF ability scores + hit points | ✅ decoded (packed streams with phantom-owner realignment; see §6) |
+| LSMF prepared spells | ✅ decoded (`SpellBookPrepares`, stale-ownerlist realignment; see §6) |
+| LSMF camp supplies | ✅ decoded (`TotalSuppliesComponent`, a cache; 0 = unknown) |
+| Current quest objectives | ✅ decoded (LSF `Journal → QuestsProgress`, see §9) |
 | LSMF inventory container web | ✅ decoded (`OwnerComponent`, `IsOwnedComponent`, `ContainerComponent`, `ContainerSlotData`) |
 | LSMF `MemberComponent` / `MemberData` structure | ✅ traced (8-byte pointer + 16-byte {ptr\_a, EntityHandle}); historical-ownership bookkeeping, not live location |
 | LSMF `EntityHandle` → GUID translation | ❌ no on-disk table; requires live game state |
@@ -1058,6 +1185,17 @@ closed      = DB_QuestIsClosed
 ```
 `DB_QuestIsAccepted` is **not** pruned when a quest closes, so the raw
 accepted list contains both in-progress and resolved quests.
+
+### Current quest objectives (LSF Journal, not Osiris)
+
+The journal's "current step" for each quest does not live in Osiris at all.
+It is stored directly in the Globals LSF (frame 0):
+`Journal → Quests → … → QuestsProgress` nodes carry `MapKey` (the quest ID)
+and `ObjectiveID`, gated by `QuestUnlocked && !QuestDisabled`. The objective
+text comes from game data (`objective_prototypes.lsx`, paired with
+`quest_prototypes.lsx` for quest titles); note that lsx attributes sort
+alphabetically, so the `Description` handle precedes the `ObjectiveID` it
+belongs to when walking attribute order.
 
 ### Goal flags
 
