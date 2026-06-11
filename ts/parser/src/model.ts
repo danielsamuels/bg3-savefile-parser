@@ -8,10 +8,12 @@ import {
   GRAVITY_DISABLED_COMP,
   OWNED_AS_LOOT_COMP,
   parseLsmfAbilityScores,
+  parseLsmfActionResources,
   parseLsmfAllContainerPositions,
   parseLsmfCampSupplies,
   parseLsmfClasses,
   parseLsmfComponentRows,
+  parseLsmfConcentration,
   parseLsmfContainerPositions,
   parseLsmfHealth,
   parseLsmfMembership,
@@ -104,6 +106,17 @@ export interface CharacterReport {
   at_camp: boolean;
   abilities: Record<string, number> | null;
   hp: Record<string, number> | null;
+  resources: ResourceEntry[] | null;
+  concentration: { id: string; name: string | null } | null;
+}
+
+export interface ResourceEntry {
+  guid: string;
+  name: string | null;
+  level: number;
+  current: number;
+  max: number;
+  replenish: number;
 }
 
 export interface SaveInfo {
@@ -321,6 +334,8 @@ export function gatherReport(
   const statsEntities = lsmfBlob
     ? parseLsmfStatsEntities(lsmfBlob, wantedTemplates)
     : new Map<string, number>();
+  const actionResources = lsmfBlob ? parseLsmfActionResources(lsmfBlob) : new Map();
+  const concentration = lsmfBlob ? parseLsmfConcentration(lsmfBlob) : new Map<number, string>();
   const normName = (s: string): string => s.toLowerCase().replace(/[^a-z]/g, '');
   const statsEntByNorm = new Map<string, number>(
     [...statsEntities].filter(([k]) => k !== '__player__').map(([k, v]) => [normName(k), v]),
@@ -342,6 +357,21 @@ export function gatherReport(
         wis: ab[4]!,
         cha: ab[5]!,
       };
+    }
+    const rs = actionResources.get(ent);
+    if (rs !== undefined) {
+      char.resources = rs.map((r: import('./lsmf.js').ResourceAmount) => ({
+        guid: r.guid,
+        name: dn.resourceNameFor(r.guid),
+        level: r.level,
+        current: r.amount,
+        max: r.max,
+        replenish: r.replenish,
+      }));
+    }
+    const spellId = concentration.get(ent);
+    if (spellId !== undefined) {
+      char.concentration = { id: spellId, name: dn.spellNameFor(spellId) };
     }
     const h = health.get(ent);
     if (h !== undefined) {
@@ -712,6 +742,8 @@ export function gatherReport(
       at_camp: false,
       abilities: null,
       hp: null,
+      resources: null,
+      concentration: null,
     };
     report.characters.push(char);
 
@@ -792,6 +824,8 @@ export function gatherReport(
         at_camp: true,
         abilities: null,
         hp: null,
+        resources: null,
+        concentration: null,
       };
       report.characters.push(char);
 

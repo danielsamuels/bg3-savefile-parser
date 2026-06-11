@@ -15,6 +15,12 @@
 {% if char.hp %}
   HP        : {{ char.hp.current }}/{{ char.hp.max }}{{ ' (+' ~ char.hp.temp ~ ' temp)' if char.hp.temp else '' }}
 {% endif %}
+{% if char_data.resources_line %}
+  Resources : {{ char_data.resources_line }}
+{% endif %}
+{% if char.concentration %}
+  Concentrating : {{ char.concentration.name or char.concentration.id }}
+{% endif %}
 {% if not opts.no_spells and char.spells is not none %}
   Spells/Abilities ({{ char_data.spells_shown | length }}{{ char_data.spells_header_suffix }}):
 {% for line in char_data.spells_shown %}

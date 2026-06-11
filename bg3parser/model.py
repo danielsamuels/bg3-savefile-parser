@@ -16,10 +16,12 @@ from .lsmf import (
     OWNED_AS_LOOT_COMP,
     WIELDED_COMP,
     parse_lsmf_ability_scores,
+    parse_lsmf_action_resources,
     parse_lsmf_all_container_positions,
     parse_lsmf_camp_supplies,
     parse_lsmf_classes,
     parse_lsmf_component_rows,
+    parse_lsmf_concentration,
     parse_lsmf_container_positions,
     parse_lsmf_health,
     parse_lsmf_membership,
@@ -130,6 +132,8 @@ class CharacterReport:
     at_camp: bool = False  # companion waiting at the campsite
     abilities: dict | None = None  # {str,dex,con,int,wis,cha} — effective scores
     hp: dict | None = None  # {current,max,temp,temp_max}
+    resources: list[dict] | None = None  # action resources (slots, rage, ki...)
+    concentration: dict | None = None  # {id, name} of the concentration spell
 
 
 @dataclass
@@ -334,6 +338,8 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
     ability_scores: dict[int, tuple] = {}
     health: dict[int, tuple] = {}
     stats_entities: dict[str, int] = {}
+    action_resources: dict[int, list[tuple]] = {}
+    concentration: dict[int, str] = {}
     if lsmf_blob:
         spellbooks = parse_lsmf_spellbooks(lsmf_blob)
         entity_classes = parse_lsmf_classes(lsmf_blob)
@@ -347,6 +353,8 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         wanted = {g.lower(): n for g, n in PARTY_ORIGINS.items()}
         wanted[PLAYER_CHAR_TEMPLATE.lower()] = '__player__'
         stats_entities = parse_lsmf_stats_entities(lsmf_blob, wanted)
+        action_resources = parse_lsmf_action_resources(lsmf_blob)
+        concentration = parse_lsmf_concentration(lsmf_blob)
 
     def build_key(char_info: dict) -> tuple | None:
         want = sorted((c.get('Main', ''), c.get('Sub', '')) for c in char_info.get('Classes', []))
@@ -401,13 +409,30 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         return ent if ent is not None and ent in spellbooks else None
 
     def attach_sheet(char: CharacterReport, ent: int) -> None:
-        """Attach ability scores and hit points from the entity's ECS rows."""
+        """Attach the character sheet read through the entity's ECS rows:
+        ability scores, hit points, action resources, concentration."""
         ab = ability_scores.get(ent)
         if ab is not None:
             char.abilities = dict(zip(('str', 'dex', 'con', 'int', 'wis', 'cha'), ab, strict=False))
         h = health.get(ent)
         if h is not None:
             char.hp = {'current': h[0], 'max': h[1], 'temp': h[2], 'temp_max': h[3]}
+        rs = action_resources.get(ent)
+        if rs is not None:
+            char.resources = [
+                {
+                    'guid': g,
+                    'name': dn.resource_name_for(g),
+                    'level': lvl,
+                    'current': amt,
+                    'max': mx,
+                    'replenish': repl,
+                }
+                for g, lvl, amt, mx, repl in rs
+            ]
+        spell_id = concentration.get(ent)
+        if spell_id is not None:
+            char.concentration = {'id': spell_id, 'name': dn.spell_name_for(spell_id)}
 
     def spell_refs(ent: int) -> list[SpellRef]:
         """Build the SpellRef list for an entity's book, marking prepared spells.

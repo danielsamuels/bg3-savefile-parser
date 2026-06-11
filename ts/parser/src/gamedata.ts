@@ -11,6 +11,8 @@ export interface GamedataJson {
   sub_spells?: string[];
   quest_names?: Record<string, string>;
   quest_objectives?: Record<string, string>;
+  action_resources?: Record<string, string>;
+  feat_names?: Record<string, string>;
   class_uuid_names?: Record<string, string>;
 }
 
@@ -24,6 +26,8 @@ export class DisplayNames {
   readonly subSpells: Set<string>;
   readonly questNames: Record<string, string>;
   readonly questObjectives: Record<string, string>;
+  readonly actionResources: Record<string, string>;
+  readonly featNames: Record<string, string>;
   readonly classUuidNames: Record<string, string>;
 
   constructor(data?: GamedataJson) {
@@ -36,6 +40,8 @@ export class DisplayNames {
     this.subSpells = new Set(data?.sub_spells ?? []);
     this.questNames = data?.quest_names ?? {};
     this.questObjectives = data?.quest_objectives ?? {};
+    this.actionResources = data?.action_resources ?? {};
+    this.featNames = data?.feat_names ?? {};
     this.classUuidNames = data?.class_uuid_names ?? {};
   }
 
@@ -51,6 +57,16 @@ export class DisplayNames {
 
   spellNameFor(spellId: string): string | null {
     return this.spells[spellId] ?? null;
+  }
+
+  /** Display name for an action-resource UUID, or null. */
+  resourceNameFor(uuid: string): string | null {
+    return this.actionResources[uuid] ?? null;
+  }
+
+  /** Display name for a feat UUID, or null. */
+  featNameFor(uuid: string): string | null {
+    return this.featNames[uuid] ?? null;
   }
 
   /** Journal title for a quest, or null if unresolved. */

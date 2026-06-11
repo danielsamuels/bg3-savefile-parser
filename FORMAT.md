@@ -58,6 +58,8 @@ All integers are little-endian.
   - [Ability scores and hit points: packed streams (✅ decoded 2026-06)](#ability-scores-and-hit-points-packed-streams--decoded-2026-06)
   - [Prepared spells (✅ decoded 2026-06)](#prepared-spells--decoded-2026-06)
   - [Camp supplies: a cached value (✅ decoded 2026-06)](#camp-supplies-a-cached-value--decoded-2026-06)
+  - [Action resources (✅ decoded 2026-06)](#action-resources--decoded-2026-06)
+  - [Concentration and spell cooldowns (✅ decoded 2026-06)](#concentration-and-spell-cooldowns--decoded-2026-06)
   - [The character → stats-entity link (✅ solved 2026-06)](#the-character--stats-entity-link--solved-2026-06)
   - [Party recipes (✅ decoded 2026-06)](#party-recipes--decoded-2026-06)
   - [Component census (✅ surveyed 2026-06)](#component-census--surveyed-2026-06)
@@ -1009,6 +1011,42 @@ means "not cached", not "no supplies". Treat 0 as absent. This is the
 clearest proof that some blob components persist stale or invalidated data;
 expect the same of other cached aggregates.
 
+### Action resources (✅ decoded 2026-06)
+
+`game.action_resources.v1.Component` rows (elem=16) are a `{begin, end}`
+heap range of 64-byte AmountEntry records:
+
+| Offset | Type | Field |
+|-------:|------|-------|
+| 0 | GUID | resource UUID (ActionResourceDefinitions.lsx names it) |
+| 16 | i32 | level (spell-slot level; 0 for non-slot resources) |
+| 20 | i32 | pad (always 0) |
+| 24 | f64 | amount (current) |
+| 32 | f64 | max_amount |
+| 40 | u64 | replenish type (0x02 short rest, 0x08 long rest, 0x10 special) |
+| 48 | 16 B | tail (sometimes a second heap range) |
+
+The ownerlist VALUES are unreliable: the first ~12 rows carry stale owners.
+The true mapping is positional, a rotation:
+`entity = (row - offset) % (rows - 1)`, with the offset (observed 12)
+derived per save as the majority of `row - owner` over the valid section.
+Validated against class rules on the whole corpus: Warlock pact slots,
+Cleric slots + Channel Divinity, Barbarian rage, Battle Master superiority
+dice, Rogue sneak-attack charge, Druid wild shape, level-1 tutorial values.
+
+### Concentration and spell cooldowns (✅ decoded 2026-06)
+
+`game.concentration.v0.ConcentrationComponent` rows (elem=24, ownerlist
+direct): `{u64 caster-related pointer, u64 spell-name pointer (all-FF when
+not concentrating), u32 length, u32 extra}`; the name pointer dereferences
+(+48) to the spell ID string.
+
+`game.spell.v1.SpellBookCooldowns` rows (elem=16) are a heap range of
+48-byte CooldownData records: `{u64 ptr → {u64, u64 name ptr, u64 name
+len}, u64 pool ptr, u64 pool ptr, f32 cooldown (-1 = available, else turns
+remaining), u32 type flags, 16 B SpellCastGuid}`. The spell name sits two
+pointer hops away.
+
 ### The character → stats-entity link (✅ solved 2026-06)
 
 Each playable character occupies two consecutive entity slots, allocated as
@@ -1152,6 +1190,8 @@ handle indexes straight into this table.
 | Story state (approval, romance, rests, waypoints, tadpoles) | ✅ decoded (Osiris databases, see §9) |
 | Party recipes | ✅ decoded (`RecipeData` string pool refs; see §6) |
 | Character → stats-entity link | ✅ solved (`stats = world + 1`, world via TemplateComponent GUID; see §6) |
+| Action resources (spell slots, rage, ki, …) | ✅ decoded (rotated ownerlist; see §6) |
+| Concentration + spell cooldowns | ✅ decoded (see §6) |
 | LSMF inventory container web | ✅ decoded (`OwnerComponent`, `IsOwnedComponent`, `ContainerComponent`, `ContainerSlotData`) |
 | LSMF `MemberComponent` / `MemberData` structure | ✅ traced (8-byte pointer + 16-byte {ptr\_a, EntityHandle}); historical-ownership bookkeeping, not live location |
 | LSMF `EntityHandle` → GUID translation | ❌ no on-disk table; requires live game state |

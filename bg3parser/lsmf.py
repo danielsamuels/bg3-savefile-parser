@@ -521,6 +521,97 @@ def parse_lsmf_health(
     return out
 
 
+def parse_lsmf_action_resources(blob: bytes) -> dict[int, list[tuple]]:
+    """Action resources per entity: spell slots, rage, ki, superiority dice...
+
+    game.action_resources.v1.Component rows are a {begin, end} heap range of
+    64-byte AmountEntry records: {16B resource GUID, i32 level, i32 pad,
+    f64 amount, f64 max_amount, u64 replenish_type, 16B tail}.
+
+    The ownerlist VALUES are unreliable (the first ~12 rows hold stale
+    owners); the true mapping is positional: the row array is the entity
+    array rotated by a fixed offset, so entity = (row - offset) % (rows - 1).
+    The offset is derived per save as the majority of (row - owner) over the
+    valid sequential section. Validated across the fixture corpus: Warlock
+    pact slots, Cleric slots + Channel Divinity, Barbarian rage, Battle
+    Master superiority dice, Rogue sneak-attack charge all land on the
+    linked stats entities.
+
+    Returns entity -> [(guid, level, amount, max, replenish), ...].
+    """
+    idx = lsmf_component_index(blob)
+    comp = idx.get('game.action_resources.v1.Component')
+    if not comp or comp[0] != 16:
+        return {}
+    elem, rows, off, owners = comp
+    if rows < 2 or len(owners) < rows:
+        return {}
+    L = len(blob)
+
+    votes: Counter = Counter(k - owners[k] for k in range(rows) if 0 <= k - owners[k] <= 64)
+    if not votes:
+        return {}
+    offset = votes.most_common(1)[0][0]
+
+    def decode_row(k: int) -> list[tuple] | None:
+        b, e = struct.unpack_from('<QQ', blob, off + k * elem)
+        size = e - b
+        p = b + LSMF_HEAP_BASE
+        if not (0 < size < 64 * 300 and size % 64 == 0 and 0 < p <= L - size):
+            return None
+        recs = []
+        for i in range(size // 64):
+            q = p + i * 64
+            guid = guid_le_str(blob[q : q + 16])
+            lvl, pad = struct.unpack_from('<ii', blob, q + 16)
+            amt, mx = struct.unpack_from('<dd', blob, q + 24)
+            (repl,) = struct.unpack_from('<Q', blob, q + 40)
+            if pad != 0 or not (0 <= lvl <= 9) or amt < 0 or mx < 0 or repl > 0x7F:
+                return None
+            recs.append((guid, lvl, amt, mx, repl))
+        return recs or None
+
+    out: dict[int, list[tuple]] = {}
+    # Sequential rows first so a stale duplicate in the rotated head loses.
+    for k in list(range(offset, rows)) + list(range(offset)):
+        ent = (k - offset) % (rows - 1)
+        if ent in out:
+            continue
+        recs = decode_row(k)
+        if recs:
+            out[ent] = recs
+    return out
+
+
+def parse_lsmf_concentration(blob: bytes) -> dict[int, str]:
+    """Active concentration per entity: entity -> spell ID.
+
+    game.concentration.v0.ConcentrationComponent rows are 24 bytes:
+    {u64 caster-related pointer, u64 spell-name pointer (all-FF when not
+    concentrating), u32 length, u32 extra}. The ownerlist is direct.
+    """
+    idx = lsmf_component_index(blob)
+    comp = idx.get('game.concentration.v0.ConcentrationComponent')
+    if not comp or comp[0] != 24:
+        return {}
+    elem, rows, off, owners = comp
+    L = len(blob)
+    out: dict[int, str] = {}
+    for k, ent in enumerate(owners):
+        if k >= rows or off + (k + 1) * elem > L:
+            break
+        _skip, ptr, ln, _extra = struct.unpack_from('<QQII', blob, off + k * elem)
+        if ptr == 0xFFFFFFFFFFFFFFFF:
+            continue
+        p0 = ptr + LSMF_HEAP_BASE
+        if not (0 < ln <= 128 and 0 < p0 <= L - ln):
+            continue
+        raw = blob[p0 : p0 + ln]
+        if raw and all(0x20 <= c < 0x7F for c in raw):
+            out.setdefault(ent, raw.decode('ascii'))
+    return out
+
+
 def parse_lsmf_stats_entities(blob: bytes, templates: dict[str, str]) -> dict[str, int]:
     """Map known characters to their stats-entity rows via the template link.
 

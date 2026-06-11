@@ -110,8 +110,21 @@ OBJECTIVE_PROTOTYPE_FILES = [
 ]
 
 
+# Action resources (spell slots, rage charges, ki...): UUID -> display name.
+ACTION_RESOURCE_FILES = [
+    ('Shared.pak', 'Public/Shared/ActionResourceDefinitions/ActionResourceDefinitions.lsx'),
+    ('Shared.pak', 'Public/SharedDev/ActionResourceDefinitions/ActionResourceDefinitions.lsx'),
+]
+
+# Feats: FeatId UUID -> display name (FeatDescriptions.lsx pairs them).
+FEAT_DESCRIPTION_FILES = [
+    ('Shared.pak', 'Public/Shared/Feats/FeatDescriptions.lsx'),
+    ('Shared.pak', 'Public/SharedDev/Feats/FeatDescriptions.lsx'),
+]
+
+
 # Bump when the resolver logic changes so a stale cache is not silently reused.
-DISPLAYNAME_SCHEMA_VERSION = 12
+DISPLAYNAME_SCHEMA_VERSION = 13
 
 
 def find_game_data_dir() -> str | None:
@@ -185,11 +198,14 @@ def build_displayname_maps(
     frozenset[str],
     dict[str, str],
     dict[str, str],
+    dict[str, str],
+    dict[str, str],
 ]:
     """Build display-name and item-stat maps from installed game data.
 
     Returns (guid->name, stats->name, spell_id->name, object_type_stats, stats_to_slot,
-    two_handed_stats, sub_spells, quest_names, quest_objectives).
+    two_handed_stats, sub_spells, quest_names, quest_objectives, action_resources,
+    feat_names).
 
     Results are cached under XDG_CACHE_HOME keyed on the source paks' mtime/size,
     so the ~1 s parse only happens after a game update.
@@ -212,6 +228,8 @@ def build_displayname_maps(
             frozenset(data.get('sub_spells', [])),
             data.get('quest_names', {}),
             data.get('quest_objectives', {}),
+            data.get('action_resources', {}),
+            data.get('feat_names', {}),
         )
     except (OSError, ValueError, KeyError):
         pass
@@ -258,6 +276,51 @@ def build_displayname_maps(
                 if title and '%%%' not in title:
                     quest_objectives[m.group(2)] = title
                 pending_handle = None
+
+    # Action resources: inside each node the attributes sort alphabetically,
+    # so DisplayName precedes Name, which precedes UUID.
+    action_resources: dict[str, str] = {}
+    resource_attr_re = re.compile(r'id="(DisplayName|Name|UUID)"[^>]*?(?:value|handle)="([^"]*)"')
+    for pak, name in ACTION_RESOURCE_FILES:
+        try:
+            text = lspk_extract(os.path.join(data_dir, pak), name).decode('utf-8', 'replace')
+        except (OSError, KeyError, ValueError):
+            continue
+        handle = internal = None
+        for m in resource_attr_re.finditer(text):
+            if m.group(1) == 'DisplayName':
+                handle = m.group(2)
+            elif m.group(1) == 'Name':
+                internal = m.group(2)
+            else:
+                title = handle_to_text.get(handle or '')
+                label = title if title and '%%%' not in title else internal
+                if label:
+                    action_resources[m.group(2)] = label
+                handle = internal = None
+
+    # Feats: DisplayName handle, then ExactMatch (internal name), then FeatId.
+    feat_names: dict[str, str] = {}
+    feat_attr_re = re.compile(
+        r'id="(DisplayName|ExactMatch|FeatId)"[^>]*?(?:value|handle)="([^"]*)"'
+    )
+    for pak, name in FEAT_DESCRIPTION_FILES:
+        try:
+            text = lspk_extract(os.path.join(data_dir, pak), name).decode('utf-8', 'replace')
+        except (OSError, KeyError, ValueError):
+            continue
+        handle = internal = None
+        for m in feat_attr_re.finditer(text):
+            if m.group(1) == 'DisplayName':
+                handle = m.group(2)
+            elif m.group(1) == 'ExactMatch':
+                internal = m.group(2)
+            else:
+                title = handle_to_text.get(handle or '')
+                label = title if title and '%%%' not in title else internal
+                if label:
+                    feat_names[m.group(2)] = label
+                handle = internal = None
 
     guid_handle: dict[str, str] = {}  # template GUID -> own DisplayName handle ('' if none)
     guid_parent: dict[str, str] = {}  # template GUID -> ParentTemplateId
@@ -479,6 +542,8 @@ def build_displayname_maps(
                     'sub_spells': sub_spell_list,
                     'quest_names': quest_names,
                     'quest_objectives': quest_objectives,
+                    'action_resources': action_resources,
+                    'feat_names': feat_names,
                 },
                 fh,
             )
@@ -494,6 +559,8 @@ def build_displayname_maps(
         frozenset(sub_spell_list),
         quest_names,
         quest_objectives,
+        action_resources,
+        feat_names,
     )
 
 
@@ -511,6 +578,8 @@ class DisplayNames:
         sub_spells: frozenset[str] | None = None,
         quest_names: dict[str, str] | None = None,
         quest_objectives: dict[str, str] | None = None,
+        action_resources: dict[str, str] | None = None,
+        feat_names: dict[str, str] | None = None,
     ):
         self._guid = guid_name
         self._stats = stats_name
@@ -521,6 +590,8 @@ class DisplayNames:
         self.sub_spells: frozenset[str] = sub_spells or frozenset()
         self.quest_names: dict[str, str] = quest_names or {}
         self.quest_objectives: dict[str, str] = quest_objectives or {}
+        self.action_resources: dict[str, str] = action_resources or {}
+        self.feat_names: dict[str, str] = feat_names or {}
         self.verbose = False  # set to True to append (INTERNAL_NAME) after display names
 
     @classmethod
@@ -548,6 +619,14 @@ class DisplayNames:
         if dn:
             return f'{dn} ({stats})' if self.verbose else dn
         return stats
+
+    def resource_name_for(self, uuid: str) -> str | None:
+        """Display name for an action-resource UUID, or None."""
+        return self.action_resources.get(uuid)
+
+    def feat_name_for(self, uuid: str) -> str | None:
+        """Display name for a feat UUID, or None."""
+        return self.feat_names.get(uuid)
 
     def quest_name_for(self, quest_id: str) -> str | None:
         """Return the journal title for a quest, or None if unresolved."""

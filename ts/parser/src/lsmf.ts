@@ -468,6 +468,116 @@ export function parseLsmfHealth(
   return out;
 }
 
+export interface ResourceAmount {
+  guid: string;
+  level: number;
+  amount: number;
+  max: number;
+  replenish: number;
+}
+
+/**
+ * Action resources per entity (spell slots, rage, ki, superiority dice...).
+ * Rows are a {begin, end} heap range of 64-byte AmountEntry records; the
+ * ownerlist values are unreliable, the true mapping is positional:
+ * entity = (row - offset) % (rows - 1), offset derived by majority vote.
+ */
+export function parseLsmfActionResources(blob: Uint8Array): Map<number, ResourceAmount[]> {
+  const idx = lsmfComponentIndex(blob);
+  const comp = idx.get('game.action_resources.v1.Component');
+  const out = new Map<number, ResourceAmount[]>();
+  if (comp?.elemSize !== 16 || comp.rowCount < 2 || comp.ownerRows.length < comp.rowCount) {
+    return out;
+  }
+  const { dv } = align(blob);
+  const L = blob.length;
+  const rows = comp.rowCount;
+
+  const votes = new Map<number, number>();
+  for (let k = 0; k < rows; k++) {
+    const d = k - comp.ownerRows[k]!;
+    if (d >= 0 && d <= 64) votes.set(d, (votes.get(d) ?? 0) + 1);
+  }
+  if (!votes.size) return out;
+  let offset = 0;
+  let best = -1;
+  for (const [d, n] of votes) {
+    if (n > best) {
+      best = n;
+      offset = d;
+    }
+  }
+
+  const decodeRow = (k: number): ResourceAmount[] | null => {
+    const p = comp.dataOffset + k * comp.elemSize;
+    const b = u64(dv, p);
+    const e = u64(dv, p + 8);
+    const size = e - b;
+    const q0 = b + LSMF_HEAP_BASE;
+    if (!(size > 0 && size < 64 * 300 && size % 64 === 0 && q0 > 0 && q0 <= L - size)) return null;
+    const recs: ResourceAmount[] = [];
+    for (let i = 0; i < size / 64; i++) {
+      const q = q0 + i * 64;
+      const guid = guidLeStr(blob, q);
+      const lvl = dv.getInt32(q + 16, true);
+      const pad = dv.getInt32(q + 20, true);
+      const amount = dv.getFloat64(q + 24, true);
+      const max = dv.getFloat64(q + 32, true);
+      const replenish = u64(dv, q + 40);
+      if (pad !== 0 || lvl < 0 || lvl > 9 || amount < 0 || max < 0 || replenish > 0x7f) return null;
+      recs.push({ guid, level: lvl, amount, max, replenish });
+    }
+    return recs.length ? recs : null;
+  };
+
+  const order: number[] = [];
+  for (let k = offset; k < rows; k++) order.push(k);
+  for (let k = 0; k < offset; k++) order.push(k);
+  for (const k of order) {
+    const ent = (((k - offset) % (rows - 1)) + (rows - 1)) % (rows - 1);
+    if (out.has(ent)) continue;
+    const recs = decodeRow(k);
+    if (recs) out.set(ent, recs);
+  }
+  return out;
+}
+
+/**
+ * Active concentration per entity: entity -> spell ID. Rows are
+ * {u64 caster ptr, u64 spell-name ptr (all-FF when idle), u32 len, u32 extra}.
+ */
+export function parseLsmfConcentration(blob: Uint8Array): Map<number, string> {
+  const idx = lsmfComponentIndex(blob);
+  const comp = idx.get('game.concentration.v0.ConcentrationComponent');
+  const out = new Map<number, string>();
+  if (comp?.elemSize !== 24) return out;
+  const { dv } = align(blob);
+  const L = blob.length;
+  for (let k = 0; k < comp.ownerRows.length; k++) {
+    if (k >= comp.rowCount || comp.dataOffset + (k + 1) * comp.elemSize > L) break;
+    const p = comp.dataOffset + k * comp.elemSize;
+    const hi = dv.getBigUint64(p + 8, true);
+    if (hi === 0xffffffffffffffffn) continue;
+    const ptr = Number(hi);
+    const ln = dv.getUint32(p + 16, true);
+    const p0 = ptr + LSMF_HEAP_BASE;
+    if (!(ln > 0 && ln <= 128 && p0 > 0 && p0 <= L - ln)) continue;
+    let ok = true;
+    let name = '';
+    for (let i = 0; i < ln; i++) {
+      const c = blob[p0 + i]!;
+      if (c < 0x20 || c >= 0x7f) {
+        ok = false;
+        break;
+      }
+      name += String.fromCharCode(c);
+    }
+    const ent = comp.ownerRows[k]!;
+    if (ok && name && !out.has(ent)) out.set(ent, name);
+  }
+  return out;
+}
+
 /**
  * Map known characters to their stats-entity rows via the template link:
  * stats_entity = world_entity + 1, wrapping modulo the character-entity

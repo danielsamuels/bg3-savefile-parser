@@ -43,6 +43,32 @@ const equippedSorted = (items: ItemRef[]): ItemRef[] =>
     return fmtItem(a) < fmtItem(b) ? -1 : fmtItem(a) > fmtItem(b) ? 1 : 0;
   });
 
+const SKIP_RESOURCES = new Set(['Action', 'Bonus Action', 'Reaction', 'Movement Speed']);
+
+/** Mirror of Python's '%g' for the amounts (integers print without '.0'). */
+function fmtAmount(x: number): string {
+  return Number.isInteger(x) ? String(x) : String(x);
+}
+
+function buildResourcesLine(resources: CharacterReport['resources']): string {
+  if (!resources) return '';
+  const groups = new Map<string, NonNullable<CharacterReport['resources']>>();
+  for (const r of resources) {
+    if (!r.name || SKIP_RESOURCES.has(r.name) || r.name.includes('_') || r.max <= 0) continue;
+    if (!groups.has(r.name)) groups.set(r.name, []);
+    groups.get(r.name)!.push(r);
+  }
+  const parts: string[] = [];
+  for (const [name, rs] of groups) {
+    rs.sort((a, b) => a.level - b.level);
+    const bits = rs
+      .map((r) => `${r.level ? `L${r.level} ` : ''}${fmtAmount(r.current)}/${fmtAmount(r.max)}`)
+      .join(', ');
+    parts.push(`${name} ${bits}`);
+  }
+  return parts.join('; ');
+}
+
 function characterLines(char: CharacterReport): string[] {
   const out: string[] = [char.name];
   const classes = (char.classes as { Main?: string; Sub?: string }[]).map(fmtClass).join('; ');
@@ -61,6 +87,11 @@ function characterLines(char: CharacterReport): string[] {
     out.push(
       `  HP        : ${char.hp.current}/${char.hp.max}${char.hp.temp ? ` (+${char.hp.temp} temp)` : ''}`,
     );
+  }
+  const resourcesLine = buildResourcesLine(char.resources);
+  if (resourcesLine) out.push(`  Resources : ${resourcesLine}`);
+  if (char.concentration) {
+    out.push(`  Concentrating : ${char.concentration.name ?? char.concentration.id}`);
   }
 
   if (char.spells !== null) {

@@ -181,6 +181,7 @@
      "Sub": "TrickeryDomain"
     }
    ],
+   "concentration": null,
    "equipment_note": null,
    "equipped": [
     {
@@ -255,6 +256,48 @@
    "location": "",
    "name": "Shadowheart",
    "race": "HalfElf_High",
+   "resources": [
+    {
+     "current": 1.0,
+     "guid": "734cbcfb-8922-4b6d-8330-b2a7e4c14b6a",
+     "level": 0,
+     "max": 1.0,
+     "name": "Action",
+     "replenish": 2
+    },
+    {
+     "current": 1.0,
+     "guid": "420c8df5-45c2-4253-93c2-7ec44e127930",
+     "level": 0,
+     "max": 1.0,
+     "name": "Bonus Action",
+     "replenish": 2
+    },
+    {
+     "current": 1.0,
+     "guid": "45ff0f48-b210-4024-972f-b64a44dc6985",
+     "level": 0,
+     "max": 1.0,
+     "name": "Reaction",
+     "replenish": 2
+    },
+    {
+     "current": 9.0,
+     "guid": "d6b2369d-84f0-4ca4-a3a7-62d2d192a185",
+     "level": 0,
+     "max": 9.0,
+     "name": "Movement Speed",
+     "replenish": 2
+    },
+    {
+     "current": 2.0,
+     "guid": "d136c5d9-0ff0-43da-acce-a74a07f8d6bf",
+     "level": 1,
+     "max": 2.0,
+     "name": "Spell Slot",
+     "replenish": 8
+    }
+   ],
    "spells": [
     {
      "category": "spell",
@@ -686,6 +729,7 @@
      "Sub": ""
     }
    ],
+   "concentration": null,
    "equipment_note": "no-character-node",
    "equipped": [],
    "hp": {
@@ -699,6 +743,40 @@
    "location": "",
    "name": "Laezel",
    "race": "Githyanki",
+   "resources": [
+    {
+     "current": 1.0,
+     "guid": "734cbcfb-8922-4b6d-8330-b2a7e4c14b6a",
+     "level": 0,
+     "max": 1.0,
+     "name": "Action",
+     "replenish": 2
+    },
+    {
+     "current": 1.0,
+     "guid": "420c8df5-45c2-4253-93c2-7ec44e127930",
+     "level": 0,
+     "max": 1.0,
+     "name": "Bonus Action",
+     "replenish": 2
+    },
+    {
+     "current": 1.0,
+     "guid": "45ff0f48-b210-4024-972f-b64a44dc6985",
+     "level": 0,
+     "max": 1.0,
+     "name": "Reaction",
+     "replenish": 2
+    },
+    {
+     "current": 9.0,
+     "guid": "d6b2369d-84f0-4ca4-a3a7-62d2d192a185",
+     "level": 0,
+     "max": 9.0,
+     "name": "Movement Speed",
+     "replenish": 2
+    }
+   ],
    "spells": [
     {
      "category": "basic-action",

@@ -81,6 +81,27 @@ def prepare_char_data(char: CharacterReport, verbose: bool, all_spells: bool) ->
         data['spells_shown'] = None
         data['spells_header_suffix'] = ''
 
+    # Action resources: drop per-turn trivia, empty pools, and entries with
+    # no localised name (internal interrupt charges and the like); group
+    # spell-slot levels under one label.
+    line_parts: list[str] = []
+    skip_names = {'Action', 'Bonus Action', 'Reaction', 'Movement Speed'}
+    if char.resources:
+        groups: dict[str, list] = {}
+        for r in char.resources:
+            name = r['name']
+            if not name or name in skip_names or '_' in name or r['max'] <= 0:
+                continue
+            groups.setdefault(name, []).append(r)
+        for name, rs in groups.items():
+            rs.sort(key=lambda r: r['level'])
+            bits = ', '.join(
+                (f'L{r["level"]} ' if r['level'] else '') + f'{r["current"]:g}/{r["max"]:g}'
+                for r in rs
+            )
+            line_parts.append(f'{name} {bits}')
+    data['resources_line'] = '; '.join(line_parts)
+
     # Pre-sort equipped items — sort key depends on verbose, so must be Python-side.
     data['equipped_sorted'] = sorted(
         char.equipped,
