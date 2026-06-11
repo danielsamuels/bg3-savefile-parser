@@ -356,6 +356,80 @@ body.has-report .drop-hint {
   font-size: 0.9375rem;
 }
 
+/* ---- Item search ------------------------------------------------------- */
+
+.item-search {
+  margin: var(--space-lg) 0;
+}
+
+.search-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.search-label {
+  color: var(--mute);
+  font-size: 0.9375rem;
+}
+
+.item-search input {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  font: 400 1rem var(--sans);
+  letter-spacing: 0.01em;
+  padding: 0.45rem 0.75rem;
+  width: min(22rem, 100%);
+  transition: border-color 0.18s var(--ease-out);
+}
+
+.item-search input:hover,
+.item-search input:focus {
+  border-color: var(--gold);
+}
+
+.item-search input::placeholder {
+  color: var(--mute);
+}
+
+.search-summary {
+  color: var(--mute);
+  font-size: 0.875rem;
+  margin: var(--space-sm) 0 0;
+}
+
+.search-results {
+  list-style: none;
+  margin: var(--space-xs) 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.search-results li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--space-md);
+}
+
+.search-item {
+  overflow-wrap: anywhere;
+}
+
+.search-item mark {
+  background: none;
+  color: var(--gold);
+}
+
+.search-where {
+  color: var(--mute);
+  font-size: 0.875rem;
+}
+
 /* ---- Character sections ----------------------------------------------- */
 
 .char {
@@ -852,7 +926,8 @@ details.sub ul {
 /* ---- Motion ------------------------------------------------------------ */
 
 .char,
-.save-head {
+.save-head,
+.item-search {
   animation: rise 0.4s var(--ease-out) both;
   animation-delay: calc(var(--i, 0) * 50ms);
 }
@@ -870,10 +945,12 @@ details.sub ul {
 
 @media (prefers-reduced-motion: reduce) {
   .char,
-  .save-head {
+  .save-head,
+  .item-search {
     animation: none;
   }
   .drop,
+  .item-search input,
   details.fold > summary::before {
     transition: none;
   }

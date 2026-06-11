@@ -5,6 +5,11 @@ All notable changes to this project will be documented here.
 ## Unreleased
 
 ### Added
+- **Item search on the site**: a "Find an item" box in the report filters
+  every item in the save by name (equipped with slot, carried,
+  undetermined, camp chest) and says where each match lives ("Wyll ·
+  carried", "Camp chest · stored"). The query survives watch-mode
+  re-parses, so you can quicksave and glance at the same search.
 - **Item rarity table**: `gamedata.json` now carries a `rarity` map (stats
   name to Uncommon/Rare/VeryRare/Legendary, resolved through the `using`
   chain; absent means common). `DisplayNames.rarity_for()` exposes it.

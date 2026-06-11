@@ -198,6 +198,19 @@ edge, a brighter surface, a turned chevron. Affordances are felt, not shouted.
 - **Empty slot label:** an em dash placeholder glyph
 - **Counts:** ×N in Lantern Gold
 
+### Item Search
+- **Placement:** part of the report, between the save header and the first character;
+  appears only once a save is parsed
+- **Control:** visible "Find an item" label (Scribe Mute) beside a type-to-filter
+  search input — Surface fill, 1px Hairline border turning Lantern Gold on
+  hover/focus, placeholder in Scribe Mute
+- **Scope:** every item in the save — equipped (with slot), carried, undetermined,
+  and the camp chest; gold stacks excluded
+- **Results:** item name in Parchment Ink with the matched run in Lantern Gold (the
+  Lantern Rule, literally), ×N count in gold, location in Scribe Mute
+  ("Wyll · carried"); summary line is aria-live polite and states misses plainly
+  ("Nothing in this save matches 'x'.")
+
 ### Character Sections
 - **Separation:** 1px Hairline top rule + 2.5rem top margin — space and rules, not
   cards. Nested boxes are prohibited.

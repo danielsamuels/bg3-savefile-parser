@@ -20,6 +20,14 @@ import {
   recordSave,
   renderHistoryHtml,
 } from './history.ts';
+import {
+  buildItemIndex,
+  type ItemPlace,
+  MIN_QUERY,
+  renderSearchResults,
+  renderSearchSection,
+  searchItems,
+} from './search.ts';
 import { renderTextReport } from './textReport.ts';
 import { isWatching, startWatching, stopWatching, watchSupported } from './watch.ts';
 
@@ -582,6 +590,34 @@ function renderCampaign(story: StoryState, index: number): string {
 
 let thumbUrl: string | null = null;
 
+/* ---- Item search --------------------------------------------------------- */
+
+// The query survives re-parses (watch mode: quicksave, then glance at the
+// same search), so it lives outside the rendered report.
+let itemIndex: ItemPlace[] = [];
+let itemQuery = '';
+
+function updateSearchResults(): void {
+  const summaryEl = reportEl.querySelector('.search-summary') as HTMLElement | null;
+  const listEl = reportEl.querySelector('.search-results') as HTMLElement | null;
+  if (!summaryEl || !listEl) return;
+  if (itemQuery.trim().length < MIN_QUERY) {
+    summaryEl.textContent = '';
+    listEl.innerHTML = '';
+    return;
+  }
+  const view = renderSearchResults(searchItems(itemIndex, itemQuery), itemQuery);
+  summaryEl.textContent = view.summary;
+  listEl.innerHTML = view.listHtml;
+}
+
+reportEl.addEventListener('input', (e) => {
+  const input = e.target as HTMLInputElement;
+  if (input.id !== 'item-search-input') return;
+  itemQuery = input.value;
+  updateSearchResults();
+});
+
 function showReport(r: SaveReport, statusText: string, thumbnail?: ArrayBuffer | null): void {
   setStatus(statusText);
 
@@ -592,13 +628,16 @@ function showReport(r: SaveReport, statusText: string, thumbnail?: ArrayBuffer |
     ? ''
     : '<p class="names-note">Display names unavailable; items and spells are shown by their internal names.</p>';
 
+  itemIndex = buildItemIndex(r, SLOT_LABELS, GOLD_STATS);
   reportEl.innerHTML =
     renderSaveHead(r.save_info, r.source, thumbUrl) +
     namesNote +
-    r.characters.map((c, i) => renderCharacter(c, i + 1)).join('') +
-    (r.camp_chest ? renderCampChest(r.camp_chest, r.characters.length + 1) : '') +
-    (r.quests ? renderQuests(r.quests, r.characters.length + 2) : '') +
-    (r.story ? renderCampaign(r.story, r.characters.length + 3) : '');
+    renderSearchSection(itemQuery, 1) +
+    r.characters.map((c, i) => renderCharacter(c, i + 2)).join('') +
+    (r.camp_chest ? renderCampChest(r.camp_chest, r.characters.length + 2) : '') +
+    (r.quests ? renderQuests(r.quests, r.characters.length + 3) : '') +
+    (r.story ? renderCampaign(r.story, r.characters.length + 4) : '');
+  updateSearchResults();
 
   document.body.classList.add('has-report');
   dropLabel.innerHTML =
