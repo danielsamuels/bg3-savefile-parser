@@ -12,6 +12,13 @@ All notable changes to this project will be documented here.
   2, and a pouch of 16 hyena ears as 2 (QuickSave_341/345 in-game ground
   truth; both parsers; all earlier stack ground truths re-verified).
 
+### Changed
+- **MCP summary tier tuned for build questions**: feats (compact
+  'Great Weapon Master (L4)' lines) and XP now ride in the default
+  summary, and prepared spells drop unresolved mod macros (Shout_Macro_*)
+  and instrument performances — agents no longer need detail='full' (and
+  its complete spell books) for gear or build advice.
+
 ### Added
 - **Item effect text** (`bg3parser/effects.py`, `data/effects.json`): item
   mechanics extracted from the game's stat files — equip passives and

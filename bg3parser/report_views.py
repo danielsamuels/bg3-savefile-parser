@@ -113,6 +113,9 @@ def prepared_spell_names(char: CharacterReport) -> list[str]:
     Basic actions and sub-spells are dropped; when the book carries no
     preparation data (known casters always have it) the whole class-spell
     list stands in. Upcast duplicates collapse on the shared display name.
+    Entries with no resolved display name (mod-injected macros like
+    Shout_Macro_*) and instrument performances are noise for build
+    questions and stay out of the summary; detail='full' keeps everything.
     """
     real = [s for s in char.spells or [] if s.category == 'spell']
     has_prep_data = any(s.prepared is not None for s in real)
@@ -120,11 +123,22 @@ def prepared_spell_names(char: CharacterReport) -> list[str]:
     names: list[str] = []
     seen: set[str] = set()
     for s in picked:
-        n = s.name or s.id
-        if n not in seen:
-            seen.add(n)
-            names.append(n)
+        if s.name is None or s.name.startswith('Perform'):
+            continue
+        if s.name not in seen:
+            seen.add(s.name)
+            names.append(s.name)
     return names
+
+
+def feat_label(feat: dict) -> str:
+    """'Ability Improvement (L6: +2 Strength)' — one compact line per feat."""
+    picks: dict[str, int] = {}
+    for a in feat.get('picks', []):
+        picks[a] = picks.get(a, 0) + 1
+    pick_str = ', '.join(f'+{n} {a}' for a, n in picks.items())
+    detail = f'L{feat["level"]}{f": {pick_str}" if pick_str else ""}'
+    return f'{feat.get("name") or feat.get("guid")} ({detail})'
 
 
 def character_view(
@@ -142,6 +156,8 @@ def character_view(
         'classes': char.classes,
         'level': char.level,
     }
+    if char.xp is not None:
+        out['xp'] = char.xp
     if char.location and char.location != 'camp':
         out['location'] = char.location
     if char.at_camp:
@@ -150,6 +166,8 @@ def character_view(
         out['abilities'] = char.abilities
     if char.hp:
         out['hp'] = char.hp
+    if char.feats:
+        out['feats'] = [feat_label(f) for f in char.feats]
     out['equipped'] = equipped_view(char, dn, fx)
     if char.equipment_note:
         out['equipment_note'] = char.equipment_note

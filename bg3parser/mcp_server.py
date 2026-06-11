@@ -137,10 +137,11 @@ def parse_save(
     camp_chest, quests).
 
     `detail` shapes characters: 'summary' (default) gives race/class/level,
-    ability scores, HP, worn gear keyed by slot (null = empty slot, so an
-    open ring slot is visible), carried items, gold, and prepared spell
-    names; 'full' adds the complete spell book with prepared flags, action
-    resources, feats, XP, and internal IDs.
+    XP, ability scores, HP, feats, worn gear keyed by slot (null = empty
+    slot, so an open ring slot is visible), carried items, gold, and
+    prepared spell names (mod macros and performances filtered out);
+    'full' adds the complete spell book with prepared flags, action
+    resources, and internal IDs — rarely needed for gear or build advice.
 
     `items` filters carried and camp-chest items: 'magic' (equippable with
     above-common rarity), 'equipment' (anything equippable), or 'all'

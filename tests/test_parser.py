@@ -1431,6 +1431,25 @@ def test_mcp_item_info_and_effects():
     assert 'effects' not in str(plain)
 
 
+def test_mcp_summary_spell_noise_and_feats():
+    """Summary prepared spells drop mod macros and performances; feats and
+    XP ride in the summary tier (QuickSave_341: Maia has camp-notification
+    mod macros, a lute, and two feats)."""
+    pytest.importorskip('mcp')
+    from bg3parser import mcp_server
+
+    report = mcp_server.parse_save(
+        str(FIXTURE_DIR / 'quicksave_341.lsv'), sections=['party'], quests=False
+    )
+    maia = next(c for c in report['party'] if c['name'].startswith('Maia'))
+    spells = maia.get('prepared_spells', [])
+    assert spells, 'expected prepared spells'
+    assert not any(s.startswith(('Shout_', 'Perform')) for s in spells)
+    if mcp_server.shared_display_names().feat_names:
+        assert any('(L' in f for f in maia.get('feats', []))
+    assert isinstance(maia.get('xp'), int)
+
+
 def test_quicksave_341_chest_stack_total():
     """In-game ground truth for QuickSave_341: the camp chest holds a stack
     of 5 Scrolls of Revivify, stored as a 3-member stack record whose entry
