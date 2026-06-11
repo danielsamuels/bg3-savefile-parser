@@ -18,6 +18,7 @@ PARTY CHARACTERS
 {% endif %}
 {% endfor %}
 {% if report.characters | selectattr('at_camp') | list %}
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CAMP COMPANIONS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -29,9 +30,11 @@ CAMP COMPANIONS
 {% endfor %}
 {% endif %}
 {% if report.camp_chest is not none %}
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CAMP CHEST  ({{ report.camp_chest | length }} item types)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 {% for label, lines in camp_chest_groups %}
   {{ label }}:
 {% for line in lines %}

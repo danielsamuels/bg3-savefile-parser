@@ -462,6 +462,7 @@ Imp_Summon
   Location  : HAV_IsobelRoom_SUB
   Spells/Abilities : (spell book not found)
   Equipment : character node not found
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CAMP COMPANIONS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -605,9 +606,11 @@ Halsin
     – UNI_Halsin_Gloves
     – UNI_Leather_Halsin
     – WPN_Quarterstaff_Druid
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CAMP CHEST  (223 item types)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
   Weapons & magic items:
     – MAG_BG_OfEasthaven_Defender_Flail
     – MAG_BarbMonk_Defensive_Cloth

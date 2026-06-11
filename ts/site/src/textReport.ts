@@ -128,16 +128,6 @@ function questsLines(q: NonNullable<SaveReport['quests']>): string[] {
   out.push(`  Quests closed / resolved (${q.closed.length}):`);
   out.push('  (closed covers completed and failed; no separate failed-quest DB)');
   for (const n of q.closed) out.push(`    ${n.name ?? n.id}`);
-  out.push('');
-  out.push(`  Finalized goals — flags=0x07 (${q.goals_finalized.length}):`);
-  out.push('  (orchestration goals finalize when the act/phase is *entered*, not finished;');
-  out.push('   the presence of "Act2" here means Act 2 was started, not completed)');
-  for (const n of q.goals_finalized) out.push(`    ${n}`);
-  out.push('');
-  out.push(
-    `  Story flags — DB_GlobalFlag (first ${q.global_flags.length} of ${q.global_flags_total} shown):`,
-  );
-  for (const n of q.global_flags) out.push(`    ${n}`);
   out.push('', '');
   return out;
 }
@@ -178,14 +168,20 @@ export function renderTextReport(report: SaveReport): string {
   }
   const campChars = report.characters.filter((c) => c.at_camp);
   if (campChars.length) {
-    lines.push(BAR_HEAVY, 'CAMP COMPANIONS', BAR_HEAVY);
+    lines.push('', BAR_HEAVY, 'CAMP COMPANIONS', BAR_HEAVY);
     for (const char of campChars) {
       lines.push('');
       lines.push(...characterLines(char));
     }
   }
   if (report.camp_chest !== null) {
-    lines.push(BAR_HEAVY, `CAMP CHEST  (${report.camp_chest.length} item types)`, BAR_HEAVY);
+    lines.push(
+      '',
+      BAR_HEAVY,
+      `CAMP CHEST  (${report.camp_chest.length} item types)`,
+      BAR_HEAVY,
+      '',
+    );
     for (const [key, label] of CARRIED_GROUP_LABELS) {
       const counts = new Map<string, number>();
       for (const it of report.camp_chest) {

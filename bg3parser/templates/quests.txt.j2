@@ -24,16 +24,4 @@ QUEST & STORY STATE  (Osiris / StorySave.bin)
     {{ q.name or q.id }}
 {% endfor %}
 
-  Finalized goals — flags=0x07 ({{ report.quests.goals_finalized | length }}):
-  (orchestration goals finalize when the act/phase is *entered*, not finished;
-   the presence of "Act2" here means Act 2 was started, not completed)
-{% for name in report.quests.goals_finalized %}
-    {{ name }}
-{% endfor %}
-
-  Story flags — DB_GlobalFlag (first {{ report.quests.global_flags | length }} of {{ report.quests.global_flags_total }} shown):
-{% for name in report.quests.global_flags %}
-    {{ name }}
-{% endfor %}
-
 {% endif %}
