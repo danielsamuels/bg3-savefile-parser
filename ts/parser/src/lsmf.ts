@@ -468,6 +468,36 @@ export function parseLsmfHealth(
   return out;
 }
 
+/** The party's unlocked crafting recipes, as stat names (ALCH_*). */
+export function parseLsmfRecipes(blob: Uint8Array): string[] {
+  const idx = lsmfComponentIndex(blob);
+  const rd = idx.get('game.party.v0.RecipeData');
+  if (rd?.elemSize !== 24) return [];
+  const { dv } = align(blob);
+  const L = blob.length;
+  const out = new Set<string>();
+  for (let k = 0; k < rd.rowCount; k++) {
+    const p = rd.dataOffset + k * rd.elemSize;
+    if (p + 24 > L) break;
+    const ptr = u64(dv, p);
+    const ln = dv.getUint32(p + 8, true);
+    const p0 = ptr + LSMF_HEAP_BASE;
+    if (!(ln > 0 && ln <= 128 && p0 > 0 && p0 <= L - ln)) continue;
+    let ok = true;
+    let name = '';
+    for (let i = 0; i < ln; i++) {
+      const c = blob[p0 + i]!;
+      if (c < 0x20 || c >= 0x7f) {
+        ok = false;
+        break;
+      }
+      name += String.fromCharCode(c);
+    }
+    if (ok && name) out.add(name);
+  }
+  return [...out].sort();
+}
+
 export function parseLsmfCampSupplies(blob: Uint8Array): number | null {
   const idx = lsmfComponentIndex(blob);
   const ts = idx.get('game.camp.v0.TotalSuppliesComponent');

@@ -921,6 +921,10 @@
   "leader": "Shadowheart",
   "level": "TUT_Avernus_C",
   "mods": [],
+  "recipes": [
+   "ALCH_Grenade_Fire_FireAmber",
+   "ALCH_Potion_Healing_RoguesMorsel"
+  ],
   "save_id": 2,
   "save_name": "AutoSave_2",
   "saved_at": "2026-05-23 13:40:42 UTC"

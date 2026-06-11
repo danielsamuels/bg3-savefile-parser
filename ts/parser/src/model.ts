@@ -16,6 +16,7 @@ import {
   parseLsmfHealth,
   parseLsmfMembership,
   parseLsmfPreparedSpells,
+  parseLsmfRecipes,
   parseLsmfSpellbooks,
   parseLsmfStackAmounts,
   WIELDED_COMP,
@@ -105,6 +106,7 @@ export interface CharacterReport {
 export interface SaveInfo {
   save_name: string;
   camp_supplies: number | null;
+  recipes: string[];
   save_id: number | null;
   saved_at: string;
   game_version: string;
@@ -273,6 +275,7 @@ export function gatherReport(
   const saveInfo: SaveInfo = {
     save_name: info['Save Name'] ?? '?',
     camp_supplies: null,
+    recipes: [],
     save_id: (metaAttrs.SaveGameID as number | undefined) ?? null,
     saved_at: savedAt,
     game_version: info['Game Version'] ?? '?',
@@ -307,6 +310,7 @@ export function gatherReport(
   // The engine zeroes this cache between camp visits; 0 is "unknown".
   const supplies = lsmfBlob ? parseLsmfCampSupplies(lsmfBlob) : null;
   saveInfo.camp_supplies = supplies || null;
+  saveInfo.recipes = lsmfBlob ? parseLsmfRecipes(lsmfBlob) : [];
   const abilityScores = lsmfBlob ? parseLsmfAbilityScores(lsmfBlob) : new Map<number, number[]>();
   const health = lsmfBlob
     ? parseLsmfHealth(lsmfBlob, abilityScores, dn.classUuidNames)

@@ -9,6 +9,9 @@ Leader     : {{ report.save_info.leader }}
 {% if report.save_info.camp_supplies %}
 Supplies   : {{ report.save_info.camp_supplies }}
 {% endif %}
+{% if report.save_info.recipes %}
+Recipes    : {{ report.save_info.recipes | length }} known
+{% endif %}
 {% if report.save_info.mods %}
 Mods       : {{ report.save_info.mods | length }} user mod(s){{ '  (flagged unofficial by game)' if report.save_info.has_unofficial_mods else '' }}
 {% for mod_name in report.save_info.mods %}

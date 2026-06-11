@@ -521,6 +521,36 @@ def parse_lsmf_health(
     return out
 
 
+def parse_lsmf_recipes(blob: bytes) -> list[str]:
+    """The party's unlocked crafting recipes, as stat names (ALCH_*).
+
+    game.party.v0.RecipeData rows are 24 bytes: {u64 string pointer (+48
+    rule), u32 length, u32 junk, u8 unlocked-flag, pool tag}. A couple of
+    rows per save are hash-map bookkeeping rather than entries (their
+    pointers do not dereference to printable strings); they are skipped by
+    the printable check. Validated growth: 2 recipes in the tutorial
+    autosave (the game's starting pair), 43 mid-campaign.
+    """
+    idx = lsmf_component_index(blob)
+    rd = idx.get('game.party.v0.RecipeData')
+    if not rd or rd[0] != 24:
+        return []
+    elem, rows, off, _owners = rd
+    L = len(blob)
+    out = set()
+    for k in range(rows):
+        if off + (k + 1) * elem > L:
+            break
+        ptr, ln = struct.unpack_from('<QI', blob, off + k * elem)
+        p0 = ptr + LSMF_HEAP_BASE
+        if not (0 < ln <= 128 and 0 < p0 <= L - ln):
+            continue
+        raw = blob[p0 : p0 + ln]
+        if raw and all(0x20 <= c < 0x7F for c in raw):
+            out.add(raw.decode('ascii'))
+    return sorted(out)
+
+
 def parse_lsmf_camp_supplies(blob: bytes) -> int | None:
     """The camp-supply total shown next to the Long Rest button, or None.
 

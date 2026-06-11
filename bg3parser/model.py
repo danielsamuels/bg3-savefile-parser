@@ -24,6 +24,7 @@ from .lsmf import (
     parse_lsmf_health,
     parse_lsmf_membership,
     parse_lsmf_prepared_spells,
+    parse_lsmf_recipes,
     parse_lsmf_spellbooks,
     parse_lsmf_stack_amounts,
 )
@@ -338,6 +339,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         health = parse_lsmf_health(lsmf_blob, ability_scores, CLASS_UUID_NAMES)
         # The engine zeroes this cache between camp visits; 0 is "unknown".
         report.save_info['camp_supplies'] = supplies if supplies else None
+        report.save_info['recipes'] = parse_lsmf_recipes(lsmf_blob)
 
     def build_key(char_info: dict) -> tuple | None:
         want = sorted((c.get('Main', ''), c.get('Sub', '')) for c in char_info.get('Classes', []))
