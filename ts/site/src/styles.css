@@ -139,7 +139,7 @@ body.busy .drop::before {
   position: absolute;
   inset: 0;
   z-index: 1;
-  background: oklch(0.17 0.012 80 / 0.72);
+  background: oklch(0.17 0.012 80 / 0.92);
 }
 
 body.busy .drop::after {
