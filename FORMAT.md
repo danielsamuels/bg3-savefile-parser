@@ -67,6 +67,7 @@ All integers are little-endian.
   - [Value encoding (ver ≥ `OSI_VER_VALUE_FLAGS`)](#value-encoding-ver--osi_ver_value_flags)
   - [Node types and parse layout](#node-types-and-parse-layout)
   - [Key quest-state databases](#key-quest-state-databases)
+  - [Story-state databases: semantic catalogue (✅ surveyed 2026-06)](#story-state-databases-semantic-catalogue--surveyed-2026-06)
   - [Current quest objectives (LSF Journal, not Osiris)](#current-quest-objectives-lsf-journal-not-osiris)
   - [Goal flags](#goal-flags)
 - [References](#references)
@@ -1185,6 +1186,42 @@ closed      = DB_QuestIsClosed
 ```
 `DB_QuestIsAccepted` is **not** pruned when a quest closes, so the raw
 accepted list contains both in-progress and resolved quests.
+
+### Story-state databases: semantic catalogue (✅ surveyed 2026-06)
+
+7,877 named databases exist in a mid-campaign save (2,678 non-empty). The
+useful ones for save reporting, validated across three saves spanning a
+campaign (early tutorial with a different party, mid, late):
+
+| Database | Schema | Contents |
+|----------|--------|---------|
+| `DB_Players` | `(char)` | The exact current active party (avatar + followers) |
+| `DB_Avatars` | `(char)` | The player avatar(s); multiplayer has one row per player |
+| `DB_ApprovalRating` | `(char, char, int)` | Approval of col0 toward col1 (col1 = the avatar). Observed range 0..100; only characters with at least one approval event have rows |
+| `DB_PartOfTheTeam` | `(char)` | Current roster including camp followers and camp NPCs (Withers, Volo, Elminster) |
+| `DB_GlobalCounter` | `(string, int)` | Named counters: `Camp_Rest_Count` (long rests), `Hirelings_Hired_Count`, per-origin story counters |
+| `DB_CompanionIsDating` | `(char, flag)` | Static map companion → "is dating avatar" flag GUID; romance state = rows whose flag is set in `DB_GlobalFlag` |
+| `DB_CompanionCanPartner` | `(char, flag×5, string)` | Static map to the dating / partnered / was-partnered / breakup / chose-other flags; join against `DB_GlobalFlag` for the relationship stage |
+| `DB_WaypointUnlocked` | `(string, char)` | Unlocked fast-travel waypoints, one row per character that unlocked |
+| `DB_GLO_Tadpoled_Count` | `(char, int)` | Tadpoles consumed per character |
+| `DB_GLO_TadpoleTreeEnabledForPlayer` | `(char)` | Who has the illithid power tree enabled |
+| `DB_TradeTreasureGeneratedEver` | `(char)` | Traders whose stock was ever generated (= trade opened) |
+| `DB_GLO_DefeatCounter_CountMet` | `(string)` | Named encounter groups fully defeated; a fights-won timeline |
+| `DB_CAMP_METRIC` | `(int, string, int×3)` | Per long rest: night number, level id, camp position |
+| `DB_CampNight_Completed` | `(flag)` | Scripted camp-night scenes already played |
+| `DB_QuestDef_State` | `(flag, string, string)` | Static reference map flag → (quest id, step id); join against `DB_GlobalFlag` to name story steps reached |
+| `DB_OnlyOnce` | `(string)` | Fired one-shot script events, including `RecruitedFirstTime_<Name>` recruitment history |
+
+Character references are strings ending in a 36-char GUID
+(`S_Player_ShadowHeart_3ed74f06-…`); the GUID suffix maps onto the origin
+table in `party.py`. Labels are unreliable (Minthara is
+`S_GOB_DrowCommander_…`); always match by GUID, and identify the player via
+`DB_Avatars` (in origin runs the avatar is itself an `S_Player_X` string).
+
+Negative results, each checked in all three saves: `DB_RecipeBook` is empty
+(known alchemy recipes are not in the story DB); there is no `DB_Romance`
+(romance is flags); no per-character kill counter exists (`DB_Dead` includes
+pre-placed corpses and is only a weak kill proxy).
 
 ### Current quest objectives (LSF Journal, not Osiris)
 
