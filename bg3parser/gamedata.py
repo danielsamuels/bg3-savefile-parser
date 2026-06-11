@@ -136,7 +136,7 @@ SUBREGION_LOCALIZATION_FILES = [
 
 
 # Bump when the resolver logic changes so a stale cache is not silently reused.
-DISPLAYNAME_SCHEMA_VERSION = 14
+DISPLAYNAME_SCHEMA_VERSION = 15
 
 
 def find_game_data_dir() -> str | None:
@@ -213,12 +213,13 @@ def build_displayname_maps(
     dict[str, str],
     dict[str, str],
     dict[str, str],
+    dict[str, str],
 ]:
     """Build display-name and item-stat maps from installed game data.
 
     Returns (guid->name, stats->name, spell_id->name, object_type_stats, stats_to_slot,
     two_handed_stats, sub_spells, quest_names, quest_objectives, action_resources,
-    feat_names, subregions).
+    feat_names, subregions, stats_to_rarity).
 
     Results are cached under XDG_CACHE_HOME keyed on the source paks' mtime/size,
     so the ~1 s parse only happens after a game update.
@@ -244,6 +245,7 @@ def build_displayname_maps(
             data.get('action_resources', {}),
             data.get('feat_names', {}),
             data.get('subregions', {}),
+            data.get('rarity', {}),
         )
     except (OSError, ValueError, KeyError):
         pass
@@ -498,6 +500,7 @@ def build_displayname_maps(
                     using_m = re.search(r'^using "([^"]+)"', block, re.MULTILINE)
                     slot_m = re.search(r'^data "Slot" "([^"]+)"', block, re.MULTILINE)
                     wp_m = re.search(r'^data "Weapon Properties" "([^"]+)"', block, re.MULTILINE)
+                    rarity_m = re.search(r'^data "Rarity" "([^"]+)"', block, re.MULTILINE)
                     new_using = using_m.group(1) if using_m else None
                     prev = stat_raw.get(name)
                     if prev is None:
@@ -506,6 +509,7 @@ def build_displayname_maps(
                             'using': new_using,
                             'slot': slot_m.group(1) if slot_m else None,
                             'weapon_props': wp_m.group(1) if wp_m else None,
+                            'rarity': rarity_m.group(1) if rarity_m else None,
                         }
                     else:
                         # Honour-mode patches use `using "SameName"` for value-only
@@ -518,6 +522,8 @@ def build_displayname_maps(
                             prev['slot'] = slot_m.group(1)
                         if wp_m:
                             prev['weapon_props'] = wp_m.group(1)
+                        if rarity_m:
+                            prev['rarity'] = rarity_m.group(1)
         except (OSError, KeyError, ValueError):
             pass
 
@@ -557,6 +563,26 @@ def build_displayname_maps(
 
     two_handed_stats_list = [n for n in stat_raw if 'Twohanded' in (resolve_weapon_props(n) or '')]
 
+    def resolve_rarity(name: str, depth: int = 0) -> str | None:
+        if depth > 24:
+            return None
+        entry = stat_raw.get(name)
+        if not entry:
+            return None
+        if entry.get('rarity'):
+            return entry['rarity']
+        parent = entry.get('using')
+        if parent and parent != name:
+            return resolve_rarity(parent, depth + 1)
+        return None
+
+    # Absent rarity means Common; only the magic tiers are stored.
+    stats_to_rarity: dict[str, str] = {}
+    for name in stat_raw:
+        r = resolve_rarity(name)
+        if r and r != 'Common':
+            stats_to_rarity[name] = r
+
     try:
         with open(cache, 'w', encoding='utf-8') as fh:
             json.dump(
@@ -573,6 +599,7 @@ def build_displayname_maps(
                     'action_resources': action_resources,
                     'feat_names': feat_names,
                     'subregions': subregions,
+                    'rarity': stats_to_rarity,
                 },
                 fh,
             )
@@ -591,6 +618,7 @@ def build_displayname_maps(
         action_resources,
         feat_names,
         subregions,
+        stats_to_rarity,
     )
 
 
@@ -611,6 +639,7 @@ class DisplayNames:
         action_resources: dict[str, str] | None = None,
         feat_names: dict[str, str] | None = None,
         subregions: dict[str, str] | None = None,
+        stats_to_rarity: dict[str, str] | None = None,
     ):
         self._guid = guid_name
         self._stats = stats_name
@@ -624,6 +653,7 @@ class DisplayNames:
         self.action_resources: dict[str, str] = action_resources or {}
         self.feat_names: dict[str, str] = feat_names or {}
         self.subregions: dict[str, str] = subregions or {}
+        self.stats_to_rarity: dict[str, str] = stats_to_rarity or {}
         self.verbose = False  # set to True to append (INTERNAL_NAME) after display names
 
     @classmethod
@@ -645,6 +675,10 @@ class DisplayNames:
         if guid and guid in self._guid:
             return self._guid[guid]
         return self._stats.get(stats)
+
+    def rarity_for(self, stats: str) -> str | None:
+        """Item rarity above Common (Uncommon/Rare/VeryRare/Legendary), or None."""
+        return self.stats_to_rarity.get(stats)
 
     def fmt(self, stats: str, guid: str = '') -> str:
         dn = self.name_for(stats, guid)
