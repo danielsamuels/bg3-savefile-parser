@@ -745,12 +745,35 @@ smaller).
 row points at a stack record: a `{begin, end}` heap range of member-item
 `EntityId` pointers, followed at +16 by a `{begin, end}` range of
 `game.inventory.v0.StackEntry` rows, whose 8-byte entries are
-`{u32 id, u32 amount}` inline; the record's total is their sum. Verified
-against in-game gold piles of 766 and 2017 and a 2-potion stack
-(QuickSave_296/297). Items without a record are single. Note the records sit
+`{u16 EntityIndex, u16 pad, u32 amount}` inline — EntityIndex indexes the
+record's **member array**, so per-member amounts are exact: a member's
+amount is the sum of its entries, and a member may have several
+(QuickSave_341's camp chest shows a stack of 5 Revivify scrolls stored as a
+3-member record with per-member amounts [1, 3, 1], the middle member
+carrying two entries). An earlier reading of the first field as a u32 id
+made the alignment look unreliable (QuickSave_302's "four grenades share
+one entry"); the u16 view resolves every record cleanly — zero
+out-of-range indices across all records of every fixture. Verified against
+in-game gold piles of 766 and 2017, a 2-potion stack (QuickSave_296/297),
+per-copy grenade and soul-coin stacks (QuickSave_302), and chest stacks of
+5 scrolls and 22 potions (QuickSave_341/345, read off the in-game chest).
+Items without a record, and members without an entry, are single. Note
+the records sit
 in the `Stack` component's data region but are **not aligned to its 32-byte
 rows**: row-aligned reads produce chimeras; always navigate from the
 `NewStackComponent` pointer.
+
+**Container membership** (✅ decoded 2026-06-11): each inventory's
+`game.inventory.v1.ContainerComponent` row (elem=32) is its item hashmap.
+Two on-disk forms: up to two inline `{EntityId-ptr, 0x2AC<<32|slot}` entries,
+or `{begin, end}` heap-range pairs — one range of `u16` slot keys and one of
+8-byte pointers to the inventory's own `ContainerSlotData` rows. Walking a
+container's value range therefore lists its exact contents independently of
+the ItemFactory position heuristic (which goes stale when items move:
+QuickSave_341 carries a 15-ear alchemy-pouch stack whose factory position
+still claims the camp chest). A `ContainerSlotData` row's second u64 is
+`0x2AC<<32 | slot-index`, not a parent pointer; parent identity comes from
+which container's value range references the row.
 
 Containers are inventory **grid pages** (~13–16 slots for characters), and a
 character's containers freely mix worn and carried items; container identity

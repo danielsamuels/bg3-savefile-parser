@@ -38,7 +38,7 @@
   },
   {
    "category": "consumable",
-   "count": 2,
+   "count": 16,
    "name": "Hyena Ear",
    "slot": null,
    "slot_rank": [],
@@ -569,7 +569,7 @@
   },
   {
    "category": "consumable",
-   "count": 2,
+   "count": 3,
    "name": "Autumncrocus",
    "slot": null,
    "slot_rank": [],
@@ -587,7 +587,7 @@
   },
   {
    "category": "consumable",
-   "count": 2,
+   "count": 3,
    "name": "Belladonna",
    "slot": null,
    "slot_rank": [],
@@ -605,7 +605,7 @@
   },
   {
    "category": "consumable",
-   "count": 3,
+   "count": 4,
    "name": "Mergrass",
    "slot": null,
    "slot_rank": [],
@@ -614,7 +614,7 @@
   },
   {
    "category": "consumable",
-   "count": 2,
+   "count": 4,
    "name": "Mugwort",
    "slot": null,
    "slot_rank": [],
@@ -677,7 +677,7 @@
   },
   {
    "category": "consumable",
-   "count": 3,
+   "count": 6,
    "name": "Rogue's Morsel",
    "slot": null,
    "slot_rank": [],
@@ -1100,7 +1100,7 @@
   },
   {
    "category": "misc",
-   "count": 3,
+   "count": 6,
    "name": "Bone",
    "slot": null,
    "slot_rank": [],
@@ -1118,7 +1118,7 @@
   },
   {
    "category": "misc",
-   "count": 2,
+   "count": 3,
    "name": "Bottle",
    "slot": null,
    "slot_rank": [],
@@ -1199,7 +1199,7 @@
   },
   {
    "category": "misc",
-   "count": 4,
+   "count": 5,
    "name": "Viridian Crystal",
    "slot": null,
    "slot_rank": [],
@@ -1271,7 +1271,7 @@
   },
   {
    "category": "misc",
-   "count": 2,
+   "count": 3,
    "name": "Grease Bottle",
    "slot": null,
    "slot_rank": [],
@@ -1325,7 +1325,7 @@
   },
   {
    "category": "misc",
-   "count": 3,
+   "count": 5,
    "name": "Thieves' Tools",
    "slot": null,
    "slot_rank": [],
@@ -1352,7 +1352,7 @@
   },
   {
    "category": "misc",
-   "count": 2,
+   "count": 4,
    "name": "Malachite",
    "slot": null,
    "slot_rank": [],
@@ -1406,7 +1406,7 @@
   },
   {
    "category": "consumable",
-   "count": 2,
+   "count": 22,
    "name": "Potion of Healing",
    "slot": null,
    "slot_rank": [],
@@ -1613,7 +1613,7 @@
   },
   {
    "category": "book",
-   "count": 3,
+   "count": 5,
    "name": "Scroll of Revivify",
    "slot": null,
    "slot_rank": [],
@@ -1676,7 +1676,7 @@
   },
   {
    "category": "misc",
-   "count": 2,
+   "count": 4,
    "name": "Hammer",
    "slot": null,
    "slot_rank": [],
@@ -1730,7 +1730,7 @@
   },
   {
    "category": "misc",
-   "count": 2,
+   "count": 4,
    "name": "Poisonous Slime Bomb",
    "slot": null,
    "slot_rank": [],

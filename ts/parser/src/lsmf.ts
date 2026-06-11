@@ -954,7 +954,8 @@ export function parseLsmfContainerPositions(blob: Uint8Array): Map<number, numbe
 }
 
 /** Item entity GUID -> stack amount; see the Python docstring for the record
- *  layout and why only single-member records carry a usable amount. */
+ *  layout. StackEntry is {u16 member-index, u16 pad, u32 amount}: a member's
+ *  amount is the sum of its entries, so per-member amounts are exact. */
 export function parseLsmfStackAmounts(blob: Uint8Array): Map<string, number> {
   const out = new Map<string, number>();
   const idx = lsmfComponentIndex(blob);
@@ -980,10 +981,7 @@ export function parseLsmfStackAmounts(blob: Uint8Array): Map<string, number> {
     const a0 = seLo + LSMF_HEAP_BASE;
     const a1 = seHi + LSMF_HEAP_BASE;
     if (!(seB0 <= a0 && a0 < a1 && a1 <= seB1) || (a1 - a0) % 8 !== 0) continue;
-    let total = 0;
-    for (let w = a0; w < a1; w += 8) total += dv.getUint32(w + 4, true);
-    if (total <= 0) continue;
-    const members: string[] = [];
+    const members: (string | null)[] = [];
     for (let i = 0; i < n; i++) {
       const a = u64(dv, memLo + LSMF_HEAP_BASE + i * 8) + LSMF_HEAP_BASE;
       if (
@@ -992,9 +990,21 @@ export function parseLsmfStackAmounts(blob: Uint8Array): Map<string, number> {
         (a - eid.dataOffset) % 16 === 0
       ) {
         members.push(guidLeStr(bytes, a));
+      } else {
+        members.push(null); // keep indices aligned
       }
     }
-    if (members.length === 1) out.set(members[0]!, total);
+    const perMember = new Map<number, number>();
+    for (let w = a0; w < a1; w += 8) {
+      const i = dv.getUint16(w, true);
+      if (i < members.length) {
+        perMember.set(i, (perMember.get(i) ?? 0) + dv.getUint32(w + 4, true));
+      }
+    }
+    for (const [i, amount] of perMember) {
+      const guid = members[i];
+      if (guid !== null && guid !== undefined && amount > 1) out.set(guid, amount);
+    }
   }
   return out;
 }

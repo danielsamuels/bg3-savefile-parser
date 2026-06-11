@@ -4,6 +4,14 @@ All notable changes to this project will be documented here.
 
 ## Unreleased
 
+### Fixed
+- **Multi-member stack counts**: StackEntry's first field is a u16 index
+  into the stack record's member array (previously misread as a u32 id),
+  so per-member stack amounts decode exactly. A camp chest stack the game
+  shows as 5 Scrolls of Revivify was reported as 3, a 22-potion stack as
+  2, and a pouch of 16 hyena ears as 2 (QuickSave_341/345 in-game ground
+  truth; both parsers; all earlier stack ground truths re-verified).
+
 ### Added
 - **Item search on the site**: a "Find an item" box in the report filters
   every item in the save by name (equipped with slot, carried,

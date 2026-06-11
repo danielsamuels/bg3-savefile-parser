@@ -1034,16 +1034,16 @@ def parse_lsmf_stack_amounts(blob: bytes) -> dict[str, int]:
 
     Each game.inventory.v0.NewStackComponent row points at a stack record:
     a {begin, end} heap range of member-item EntityId pointers at the target,
-    followed by a {begin, end} range of StackEntry rows, whose 8-byte entries
-    are {u32 id, u32 amount} inline — the record's amount is their sum.
-    Verified against in-game gold piles of 766 and 2017 (QuickSave_297).
-    Items without a record are single (amount 1) and are not returned.
-
-    Only single-member records carry a usable amount (one entity holding a
-    stack of N). Records grouping several member entities have no reliable
-    per-member alignment with their entries (QuickSave_302: four grenades
-    share one entry, three soul coins have four) — each member there is one
-    physical copy, so they are skipped and default to 1.
+    followed by a {begin, end} range of StackEntry rows. Each 8-byte entry
+    is {u16 EntityIndex, u16 pad, u32 amount}: EntityIndex indexes the
+    record's member array, so per-member amounts are exact — a member's
+    amount is the sum of its entries (a member can have several:
+    QuickSave_341's chest stack of 5 Revivify scrolls is members [1, 3, 1],
+    the middle one carrying two entries). Verified against in-game gold
+    piles of 766 and 2017 (QuickSave_297), per-copy grenade and soul-coin
+    stacks (QuickSave_302), and the chest scroll stack (QuickSave_341).
+    Members without an entry, and items without a record, are single
+    (amount 1) and are not returned.
     """
     idx = lsmf_component_index(blob)
     ns = idx.get('game.inventory.v0.NewStackComponent')
@@ -1068,14 +1068,20 @@ def parse_lsmf_stack_amounts(blob: bytes) -> dict[str, int]:
         a0, a1 = sl + LSMF_HEAP_BASE, sh + LSMF_HEAP_BASE
         if not (se_b0 <= a0 < a1 <= se_b1) or (a1 - a0) % 8:
             continue
-        total = sum(w >> 32 for w in struct.unpack_from(f'<{(a1 - a0) // 8}Q', blob, a0))
-        if total <= 0:
-            continue
-        member_guids = []
+        member_guids: list[str | None] = []
         for w in struct.unpack_from(f'<{n}Q', blob, mem_lo + LSMF_HEAP_BASE):
             a = w + LSMF_HEAP_BASE
             if eid_off <= a < eid_off + eid_rows * 16 and (a - eid_off) % 16 == 0:
                 member_guids.append(guid_le_str(blob[a : a + 16]))
-        if len(member_guids) == 1:
-            out[member_guids[0]] = total
+            else:
+                member_guids.append(None)  # keep indices aligned
+        per_member: dict[int, int] = {}
+        for w in struct.unpack_from(f'<{(a1 - a0) // 8}Q', blob, a0):
+            i, amount = w & 0xFFFF, w >> 32
+            if i < len(member_guids):
+                per_member[i] = per_member.get(i, 0) + amount
+        for i, amount in per_member.items():
+            guid = member_guids[i]
+            if guid is not None and amount > 1:
+                out[guid] = amount
     return out

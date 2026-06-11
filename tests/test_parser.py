@@ -1389,6 +1389,16 @@ def test_report_views_item_filters():
         assert set(char.get('abilities', {})) in (set(), {'str', 'dex', 'con', 'int', 'wis', 'cha'})
 
 
+def test_quicksave_341_chest_stack_total():
+    """In-game ground truth for QuickSave_341: the camp chest holds a stack
+    of 5 Scrolls of Revivify, stored as a 3-member stack record whose entry
+    amounts sum to 5 — the record total is the in-game count, with the
+    surplus credited to the first member (was reported as 3)."""
+    model = gather_model(str(FIXTURE_DIR / 'quicksave_341.lsv'))
+    scrolls = sum(it.count for it in model.camp_chest or [] if it.stats == 'OBJ_Scroll_Revivify')
+    assert scrolls == 5
+
+
 def test_mcp_server_tools():
     """The MCP tools resolve fixtures and return the view shape."""
     pytest.importorskip('mcp')

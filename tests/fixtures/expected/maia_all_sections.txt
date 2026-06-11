@@ -884,7 +884,7 @@ CAMP CHEST  (223 item types)
     – ALCH_Ingredient_Loot_PegasusFeather x3
     – ALCH_Ingredient_Mushroom_ShadowrootSac x2
     – ALCH_Ingredient_Part_GremishkaTail x2
-    – ALCH_Ingredient_Part_HyenaEar x2
+    – ALCH_Ingredient_Part_HyenaEar x16
     – ALCH_Ingredient_Part_MagmaMephitHeart x6
     – ALCH_Ingredient_Part_MudMephitWing x4
     – ALCH_Ingredient_Part_MyconidSpore_Haste
@@ -913,23 +913,23 @@ CAMP CHEST  (223 item types)
     – CONS_FOOD_Fruit_Melon
     – CONS_FOOD_RoastedPig
     – CONS_GEN_Alcohol_Bottle_Cheap_B
-    – CONS_Herbs_Autumncrocus x2
+    – CONS_Herbs_Autumncrocus x3
     – CONS_Herbs_Balsam
-    – CONS_Herbs_Belladonna x2
+    – CONS_Herbs_Belladonna x3
     – CONS_Herbs_Daggeroot x2
-    – CONS_Herbs_Mergrass x3
-    – CONS_Herbs_Mugwort x2
+    – CONS_Herbs_Mergrass x4
+    – CONS_Herbs_Mugwort x4
     – CONS_Herbs_Weavemoss x3
     – CONS_Herbs_Wispweed x2
     – CONS_Mushrooms_Bonecap x2
     – CONS_Mushrooms_BullywugTrumpet x4
     – CONS_Mushrooms_DragonEggMushroom
     – CONS_Mushrooms_Nightlight_Piece x2
-    – CONS_Mushrooms_RoguesMorsel x3
+    – CONS_Mushrooms_RoguesMorsel x6
     – CONS_Mushrooms_SporeTimmask x2
     – CONS_Mushrooms_SwarmingToadstool x2
     – CONS_Mushrooms_TongueOfMadness x4
-    – OBJ_Potion_Healing x2
+    – OBJ_Potion_Healing x22
     – OBJ_Potion_Healing_Greater x7
     – OBJ_Potion_Of_Animal_Speaking
     – OBJ_Potion_Of_Fire_Resistance x3
@@ -954,7 +954,7 @@ CAMP CHEST  (223 item types)
     – OBJ_Scroll_MageArmor x2
     – OBJ_Scroll_ProtectionFromEnergy
     – OBJ_Scroll_RayOfFrost
-    – OBJ_Scroll_Revivify x3
+    – OBJ_Scroll_Revivify x5
     – OBJ_Scroll_Shatter
     – OBJ_Scroll_SpeakWithDead
     – OBJ_Scroll_WitchBolt
@@ -992,8 +992,8 @@ CAMP CHEST  (223 item types)
     – OBJ_BasicPoison x2
     – OBJ_Bloodstone
     – OBJ_Bomb
-    – OBJ_Bone x3
-    – OBJ_Bottle x2
+    – OBJ_Bone x6
+    – OBJ_Bottle x3
     – OBJ_Bowl
     – OBJ_Bucket
     – OBJ_Camp_Pack x3
@@ -1002,7 +1002,7 @@ CAMP CHEST  (223 item types)
     – OBJ_Crystal_ChasmCreeper x2
     – OBJ_Crystal_Laculite
     – OBJ_Crystal_LolthsCandle
-    – OBJ_Crystal_Viridian x4
+    – OBJ_Crystal_Viridian x5
     – OBJ_Dye_Golden x2
     – OBJ_Dye_RichRed x3
     – OBJ_Feather x2
@@ -1010,16 +1010,16 @@ CAMP CHEST  (223 item types)
     – OBJ_Generic_Light
     – OBJ_GithyankiEgg
     – OBJ_Goblet_Rich_Silver
-    – OBJ_GreaseBottle x2
+    – OBJ_GreaseBottle x3
     – OBJ_ImmutableContainer
     – OBJ_Indestructible_Light x3
     – OBJ_InkPot x3
     – OBJ_Jade
     – OBJ_Keychain x2
-    – OBJ_Kit_ThievesTools x3
+    – OBJ_Kit_ThievesTools x5
     – OBJ_Kit_TrapDisarm x3
     – OBJ_Laboratory_Glass
-    – OBJ_Malachite x2
+    – OBJ_Malachite x4
     – OBJ_Metalbar_Bronze x6
     – OBJ_Metalbar_Silver x2
     – OBJ_Oil_Of_The_Basilisk
@@ -1030,13 +1030,13 @@ CAMP CHEST  (223 item types)
     – OBJ_SerpentVenom
     – OBJ_Skull x4
     – OBJ_ThrowingRock x2
-    – OBJ_Tool_Hammer x2
+    – OBJ_Tool_Hammer x4
     – OBJ_Tool_Shovel x3
     – OBJ_Tool_Tong
     – OBJ_WyvernPoison
     – PLA_WPN_SwordOfJustice
     – PUZ_Key x14
-    – QUEST_HAG_GrenadeFire x2
+    – QUEST_HAG_GrenadeFire x4
     – Quest_UND_Moonlantern_Broken
     – SCL_SpidersLyre x2
     – UND_DrowDisguiseCowl

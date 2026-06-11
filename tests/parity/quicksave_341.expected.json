@@ -1,0 +1,8281 @@
+{
+ "camp_chest": [
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Hill Giant Finger",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Ingredient_Loot_HillGiantFinger",
+   "template_guid": "f4ed5a49-9b95-4e99-b58e-a0a85bf1fc2d"
+  },
+  {
+   "category": "consumable",
+   "count": 3,
+   "name": "Pegasus Feather",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Ingredient_Loot_PegasusFeather",
+   "template_guid": "afba7d49-658a-4f8b-89e0-8795292868a7"
+  },
+  {
+   "category": "consumable",
+   "count": 2,
+   "name": "Shadowroot Sac",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Ingredient_Mushroom_ShadowrootSac",
+   "template_guid": "44eaf801-ed52-4322-ae70-31258dd93c82"
+  },
+  {
+   "category": "consumable",
+   "count": 2,
+   "name": "Gremishka Tail",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Ingredient_Part_GremishkaTail",
+   "template_guid": "d78bb918-7cd2-4507-ab0d-e1b817f4bc4c"
+  },
+  {
+   "category": "consumable",
+   "count": 16,
+   "name": "Hyena Ear",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Ingredient_Part_HyenaEar",
+   "template_guid": "b899c719-a20e-43d9-8512-30298717e52d"
+  },
+  {
+   "category": "consumable",
+   "count": 6,
+   "name": "Heart-Shaped Rock",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Ingredient_Part_MagmaMephitHeart",
+   "template_guid": "876b106b-57f3-4d9f-9859-e3d840e922bd"
+  },
+  {
+   "category": "consumable",
+   "count": 4,
+   "name": "Mud Mephit Wing",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Ingredient_Part_MudMephitWing",
+   "template_guid": "663fb1db-da77-41ab-baa9-312a78b198b8"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Hastening Spores",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Ingredient_Part_MyconidSpore_Haste",
+   "template_guid": "7860b790-b34f-4569-9da7-d8657e60551e"
+  },
+  {
+   "category": "consumable",
+   "count": 2,
+   "name": "Poison Spore",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Ingredient_Part_MyconidSpore_Poison",
+   "template_guid": "e9d39b0d-bcd6-4b5b-9d54-c68b3b650b54"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Ochre Jelly Slime",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Ingredient_Part_OchreJellySlime",
+   "template_guid": "540e8376-f6ac-4261-a920-f288abf176e1"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Crystalline Lens",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Ingredient_Part_ScryingEye",
+   "template_guid": "63a8a0ba-82fe-4f5d-9224-1330dd15c042"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Silk Gland",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Ingredient_Part_SpiderGland",
+   "template_guid": "1db12e7c-e88b-4151-af11-4e2010ef319d"
+  },
+  {
+   "category": "consumable",
+   "count": 6,
+   "name": "Wood Bark",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Ingredient_Part_WoodBark",
+   "template_guid": "2daaea29-7606-4f81-8d83-7285a2948bb1"
+  },
+  {
+   "category": "consumable",
+   "count": 2,
+   "name": "Worg Fang",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Ingredient_Part_WorgFang",
+   "template_guid": "247e7543-f8e6-477e-af66-550996e9131f"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Elixir of Vigilance",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Solution_Elixir_Alertness",
+   "template_guid": "17066367-7b64-402e-951d-9dcc1407c278"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Elixir of Bloodlust",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Solution_Elixir_Bloodlust",
+   "template_guid": "45a775f8-2cf9-440d-b9eb-4ee5f17efca8"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Elixir of Peerless Focus",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Solution_Elixir_Concentration",
+   "template_guid": "45cdcf69-bfd2-4311-a883-3f3631ab3959"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Elixir of The Colossus",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Solution_Elixir_Enlarge",
+   "template_guid": "0aacb1f9-116a-45ec-9b0c-cb436301d4b2"
+  },
+  {
+   "category": "consumable",
+   "count": 2,
+   "name": "Elixir of Arcane Cultivation",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Solution_Elixir_Meditation",
+   "template_guid": "6f328fc5-6f54-4aad-959d-0825290a2763"
+  },
+  {
+   "category": "consumable",
+   "count": 2,
+   "name": "Oil of Accuracy",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Solution_Oil_AttackBuff",
+   "template_guid": "3383e241-4d1c-41ad-bc81-fc548fa9062d"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Oil of Diminution",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Solution_Oil_Reduce",
+   "template_guid": "01985597-fceb-47d1-93ae-9cc9928ed9e7"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Wizardsbane Oil",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Solution_Oil_Wizardsbane",
+   "template_guid": "e4f7cb7f-1cb3-411b-b078-f4ac25b750a8"
+  },
+  {
+   "category": "consumable",
+   "count": 2,
+   "name": "Potion of Mind Reading",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Solution_Potion_DetectThoughts",
+   "template_guid": "91da7fe8-a5f7-4132-9096-e8da4916a42e"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Potion of Feather Fall",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Solution_Potion_FeatherFall",
+   "template_guid": "179cfdd4-40ef-4f5c-ba6e-8c13f20aadc9"
+  },
+  {
+   "category": "consumable",
+   "count": 4,
+   "name": "Potion of Glorious Vaulting",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Solution_Potion_Jump",
+   "template_guid": "7406ffa4-930c-437f-b201-57b951e5165f"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Potion of Angelic Slumber",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Solution_Potion_Rest_Greater",
+   "template_guid": "4d801c1a-691e-47c8-88e7-78367b4e2c8e"
+  },
+  {
+   "category": "armour",
+   "count": 2,
+   "name": "Silver Necklace",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Amulet_Necklace_B_Silver_A",
+   "template_guid": "50d054ee-4982-46eb-8f16-7a1c71ec8e28"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Leather Boots",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Boots_Leather",
+   "template_guid": "969bab00-b269-46a5-a7e9-dd4887814719"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Tidy Slender Boots",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Boots_Leather_E",
+   "template_guid": "39eb6810-3cb9-4ddb-966a-ddd68b93e62c"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Heavy Boots",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Boots_Leather_F",
+   "template_guid": "d7219371-2f32-4675-b805-a0c9af19c1ff"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Breastplate",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Breastplate_Body",
+   "template_guid": "4814825e-23ee-41ed-9784-d9963434150d"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Lae'zel's Clothes",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Camp_Body_Laezel",
+   "template_guid": "54de4a07-c57c-421e-912c-7e8bd93ca0c4"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Minthara's At-Ease Clothes",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Camp_Body_Minthara",
+   "template_guid": "29a31736-6f9d-46ef-880d-ac3157187202"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Casual Sandals",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Camp_Sandals_B",
+   "template_guid": "ba0fbaf7-324f-4f79-a124-66ba185faef9"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Breezy Sandals",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Camp_Sandals_B_Red",
+   "template_guid": "697a6021-ff43-43d5-b9c9-a432bb3ea59d"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Tanner's Delight",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Camp_Shoes_C",
+   "template_guid": "c6db137e-b61c-418f-9785-b0beb6e6de0f"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Tasteful Boots",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Camp_Shoes_Minthara",
+   "template_guid": "f107cc6a-3a6e-4a58-be16-fbe73b3f7ae8"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Tasteful Boots",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Camp_Shoes_Wyll",
+   "template_guid": "b307af36-a2da-4c01-aac3-a31771edd407"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Cloak",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Cloak",
+   "template_guid": "a1978b4d-3d93-49ec-9a8b-d19171ed35d5"
+  },
+  {
+   "category": "weapon",
+   "count": 3,
+   "name": "Spiked Shield",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Goblin_Shield_C",
+   "template_guid": "e0d5a057-328a-467d-b8fb-1bfd298d59e7"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Tarnished Charm",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_HAG_Phylactery",
+   "template_guid": "6d02f3e8-9c0e-49ce-993e-035e433d02b2"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Frumpy Hat",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Hat",
+   "template_guid": "4d2e0931-3a01-4759-834b-8ae36749daab"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Rufflesome Blaggart Hat",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Hat_MuffinHat_B",
+   "template_guid": "3d3c949f-8fff-4133-b12e-3c739dbd6428"
+  },
+  {
+   "category": "armour",
+   "count": 5,
+   "name": "Leather Armour",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Leather_Body",
+   "template_guid": "02ae5d88-8044-43df-8363-02a2900776db"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Padded Armour",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Padded_Body",
+   "template_guid": "63cc7723-245d-4b62-b9e6-5a47283cf777"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Polished Ring",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Ring_E_Silver_A",
+   "template_guid": "efe2746c-10d4-4082-9133-d05b6f7fa291"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Silver Band",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Ring_G_Silver_A",
+   "template_guid": "34dceb64-7246-4a2a-b7c0-411725ce468e"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Onyx Ring",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Ring_I_Silver_A",
+   "template_guid": "fc5dbbb6-10ec-427d-abe5-a04f5182e332"
+  },
+  {
+   "category": "armour",
+   "count": 8,
+   "name": "Simple Robe",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Robe_Body",
+   "template_guid": "168b9099-19f5-44e4-b55c-e64ceb60b71f"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Scale Mail",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_ScaleMail_Body",
+   "template_guid": "ca0aafad-0f1e-4d76-8e3b-925397bb436b"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Studded Shield",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Shield",
+   "template_guid": "d2af60ea-1b72-4d25-a188-6d8bc4fe255b"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Tough Shoes",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Shoes_B",
+   "template_guid": "f649e46c-f1d1-4eb7-af73-368423951707"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Humbly Cobbled Shoes",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Shoes_G",
+   "template_guid": "6c194c79-51c7-4cbd-a5b1-ef0d06b7c559"
+  },
+  {
+   "category": "armour",
+   "count": 2,
+   "name": "Comfortable Blue-Red Outfit",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Vanity_Body_Citizen",
+   "template_guid": "516d4737-5f69-4083-8bae-3f09e5aab180"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Swarthy Wayfarer in Blue",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Vanity_Body_Citizen_C_Blue",
+   "template_guid": "58f9af08-f4ac-412d-ba38-f8b1d7db9e5f"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Swarthy Wayfarer in Green",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Vanity_Body_Citizen_C_Green",
+   "template_guid": "12c9ad5c-040f-44a5-ac30-d8ed4505d651"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Road-Dust Grey Clothes",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Vanity_Body_Refugee_Gray",
+   "template_guid": "47e4e37b-d3fa-4e23-8d53-203804cd3b6e"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Comfortable Red Shirt",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ARM_Vanity_Body_Shirt_Red",
+   "template_guid": "4866f90d-ee70-43a8-96a4-35511f4b824e"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "An Open Letter on Oppression and Peacocks",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "BOOK_GEN_World_BGPeacockLetter",
+   "template_guid": "cf92871b-0d72-45f6-a976-608ffa73502a"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "Journey Through The Jungle",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "BOOK_GEN_World_JourneyThroughChult",
+   "template_guid": "154cdc87-f633-4d45-b7b4-be0cf45e8258"
+  },
+  {
+   "category": "misc",
+   "count": 2,
+   "name": "Memory Brain Jar",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "COL_BrainJar_Memory",
+   "template_guid": "2c5bca7e-8649-4217-9ebb-52b20a506e99"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Cup of Oil",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_DRINK_Oil",
+   "template_guid": "cbbfb594-d3ba-4519-8c15-5c35df5892e0"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Rotten Lemon",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_FOOD_Fruit_Lemon_A_Rotten",
+   "template_guid": "dc980269-d8bd-4a25-b521-d3ac7bb4812f"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Roast Pork",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_FOOD_RoastedPig",
+   "template_guid": "a6848154-bc81-44fa-a344-8dbd020b16ae"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Starburst Shandy",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_GEN_Alcohol_Bottle_Cheap_B",
+   "template_guid": "829f190b-e54b-4dfa-96c5-a554ac79518e"
+  },
+  {
+   "category": "consumable",
+   "count": 3,
+   "name": "Autumncrocus",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Herbs_Autumncrocus",
+   "template_guid": "691da3f8-0fca-4aa9-b5cd-89bc96e3cc74"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Balsam",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Herbs_Balsam",
+   "template_guid": "fb318355-d2d9-48c5-8ef1-d0e574cef0d5"
+  },
+  {
+   "category": "consumable",
+   "count": 3,
+   "name": "Belladonna",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Herbs_Belladonna",
+   "template_guid": "1a7d3387-3c57-4ae7-9e7a-eb0eb0199dc3"
+  },
+  {
+   "category": "consumable",
+   "count": 2,
+   "name": "Daggerroot",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Herbs_Daggeroot",
+   "template_guid": "374c2898-cea4-43c9-9687-6d99a0c92ad7"
+  },
+  {
+   "category": "consumable",
+   "count": 4,
+   "name": "Mergrass",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Herbs_Mergrass",
+   "template_guid": "3e518433-1923-43f5-856f-848028ac3bad"
+  },
+  {
+   "category": "consumable",
+   "count": 2,
+   "name": "Mugwort",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Herbs_Mugwort",
+   "template_guid": "e03b8342-3c50-4cec-b34c-c50ce1968bc3"
+  },
+  {
+   "category": "consumable",
+   "count": 3,
+   "name": "Weavemoss",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Herbs_Weavemoss",
+   "template_guid": "35878644-f61a-47c5-9256-d724ac88217c"
+  },
+  {
+   "category": "consumable",
+   "count": 2,
+   "name": "Wispweed",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Herbs_Wispweed",
+   "template_guid": "4faa8cef-27ee-4085-aa90-78fcf8e2e72d"
+  },
+  {
+   "category": "consumable",
+   "count": 2,
+   "name": "Bonecap",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Mushrooms_Bonecap",
+   "template_guid": "e9f6d6d3-bd95-414d-903a-b697bb222ae7"
+  },
+  {
+   "category": "consumable",
+   "count": 4,
+   "name": "Bullywug Trumpet",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Mushrooms_BullywugTrumpet",
+   "template_guid": "4c7df0ef-2262-472f-af6e-9289a78cf371"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Dragon Egg Mushroom",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Mushrooms_DragonEggMushroom",
+   "template_guid": "19c9becf-ab0e-4e2f-9253-12456ff9b465"
+  },
+  {
+   "category": "consumable",
+   "count": 2,
+   "name": "Nightlight Frond",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Mushrooms_Nightlight_Piece",
+   "template_guid": "7a164775-4a77-47a4-a8b2-5bd5bdc311cf"
+  },
+  {
+   "category": "consumable",
+   "count": 3,
+   "name": "Rogue's Morsel",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Mushrooms_RoguesMorsel",
+   "template_guid": "a09f8033-f5d8-44de-97ad-09499d967989"
+  },
+  {
+   "category": "consumable",
+   "count": 2,
+   "name": "Timmask Spores",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Mushrooms_SporeTimmask",
+   "template_guid": "8e2dd06c-c62f-4235-b0f8-f353c6b1ec9d"
+  },
+  {
+   "category": "consumable",
+   "count": 2,
+   "name": "Swarming Toadstool",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Mushrooms_SwarmingToadstool",
+   "template_guid": "0180607d-dbf8-48e6-98d9-89e67aa9f13a"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Tongue of Madness",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Mushrooms_TongueOfMadness",
+   "template_guid": "714a8375-9eb4-438d-a191-f5b4b1e86cc3"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Aberration Hunters' Amulet",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CRE_MAG_Githborn_Amulet",
+   "template_guid": "1310524f-408e-405d-8d75-7a6d3cb18bcc"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Silver Glass",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "Cup_Silver_G",
+   "template_guid": "c37d61c4-b1b4-4068-9475-3e659a4d8443"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Hellrider's Pride",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "DEN_HellridersPride",
+   "template_guid": "db4d4560-dc72-4d64-b552-5caf442c0927"
+  },
+  {
+   "category": "misc",
+   "count": 5,
+   "name": "Drake General Dye",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "DLC_OBJ_Dye_Larian",
+   "template_guid": "dfb0bd5d-e4ed-4bd3-bcfe-45195260e7dc"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Silver Tray",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "DiningPlate_Silver_G",
+   "template_guid": "91ea5049-b91f-4de8-a9a4-7be02e801b3f"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": null,
+   "slot": null,
+   "slot_rank": [],
+   "stats": "FOR_SchoolOgres_Horn",
+   "template_guid": "9d83c0b2-a14d-4f46-af49-67938cff4c8b"
+  },
+  {
+   "category": "misc",
+   "count": 2,
+   "name": "Boiled Beholder Eyestalks",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "Food_Beholder_Eyes",
+   "template_guid": "d0e9c5c0-4757-45d9-9311-0f178139c181"
+  },
+  {
+   "category": "misc",
+   "count": 2,
+   "name": "Grilled Miniature Giant Space Hamster",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "Food_Giant_Hamster",
+   "template_guid": "c6910189-d120-42cd-9277-1e6c7d7bb772"
+  },
+  {
+   "category": "misc",
+   "count": 2,
+   "name": "Soul Coin",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "GLO_SoulCoin",
+   "template_guid": "8c68e68d-96d4-45d6-804c-5f31ac948ff3"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Beastmaster's Chain",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "GOB_Pens_BeastmasterAmulet",
+   "template_guid": "01d74aea-9e8a-4d03-9b55-e43458b61163"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "The Ever-Seeing Eye",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "HAG_EyeballNecklace",
+   "template_guid": "3af0e44d-309a-4a42-818a-288af77a7350"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Juicy Apple",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "HAG_PoisonApple",
+   "template_guid": "1617582e-5c09-460a-8ae7-7be77803955d"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Reinforced Helmet",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "HAG_SwampedHero_OldFancyHelmet",
+   "template_guid": "910ed403-38b3-4128-b07b-0de5d14da8f8"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Hook",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "LOOT_Underdark_HookHorrorClaw",
+   "template_guid": "38808280-6ae5-4d99-b3c5-6381633df693"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Defender Flail",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "MAG_BG_OfEasthaven_Defender_Flail",
+   "template_guid": "cf19058b-2be6-411c-9227-7058053fa37a"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Yuan-ti Scale Mail",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "MAG_CKM_SerpenScale_Armor",
+   "template_guid": "14ebeea8-7d0a-47a9-ba79-b1168c21f8d4"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Adamantine Scale Mail",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "MAG_MeleeDebuff_AttackDebuff1_OnDamage_ScaleMail",
+   "template_guid": "5427c806-5565-421f-a00f-a8282a9f504f"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Bonesaw",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "MAG_Surgeon_Bonesaw",
+   "template_guid": "81177d6e-6761-4f8e-9bbe-1e291dd18664"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Artificial Leech",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "MAG_Surgeon_Leech",
+   "template_guid": "a27e3e3a-ef55-4733-9655-29c7913d26d5"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Syringe",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "MAG_Surgeon_Syringe",
+   "template_guid": "95c3af3c-83b9-4cc0-b633-1493b7daca4d"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Trepan",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "MAG_Surgeon_Trepan",
+   "template_guid": "8fee8eb3-f16b-4b9a-85a0-d46a9cd4937e"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Cacophony",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "MAG_Thunder_ThunderClap_Quarterstaff",
+   "template_guid": "4708068e-542a-4dfb-b8a0-56e1ee371600"
+  },
+  {
+   "category": "misc",
+   "count": 2,
+   "name": "Acid Vial",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_AcidBottle",
+   "template_guid": "3850ec1a-d951-45b7-9363-dc82e20bd28a"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Agate",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Agate",
+   "template_guid": "75808952-29b8-4840-81e1-fcdd93155ddd"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Amethyst",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Amethyst",
+   "template_guid": "20626173-dd4d-497e-94f9-b2000a86def9"
+  },
+  {
+   "category": "misc",
+   "count": 2,
+   "name": "Antidote",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Antitoxin",
+   "template_guid": "f0c7d8bb-85e9-4937-96bb-49ba69d28631"
+  },
+  {
+   "category": "misc",
+   "count": 4,
+   "name": "Arrow of Acid",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_ArrowOfAcid",
+   "template_guid": "0bfb72d2-0e8e-4d16-aeae-3159b0d4b195"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Arrow of Darkness",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_ArrowOfDarkness",
+   "template_guid": "844c19ce-9e8f-4119-8856-8fa2029461b1"
+  },
+  {
+   "category": "misc",
+   "count": 2,
+   "name": "Arrow of Lightning",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_ArrowOfLightning",
+   "template_guid": "1b0f095b-cb22-4bf9-aecf-4e5a26504ec8"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Arrow of Many Targets",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_ArrowOfRicochet",
+   "template_guid": "b11b3f7f-d8ec-41db-93b9-24474aea31e3"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Arrow of Ilmater",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_ArrowOfWraithsEmbrace",
+   "template_guid": "a61c8248-1595-450f-bcc9-2ed1d9853739"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Backpack",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Backpack",
+   "template_guid": "31304934-a413-4e41-9385-fab78b84b73d"
+  },
+  {
+   "category": "misc",
+   "count": 5,
+   "name": "Camp Supply Sack",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Backpack_CampSupplies",
+   "template_guid": "efcb70b7-868b-4214-968a-e23f6ad586bc"
+  },
+  {
+   "category": "misc",
+   "count": 3,
+   "name": "Alchemy Pouch",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Bag_AlchemyPouch",
+   "template_guid": "b7543ff4-5010-4c01-9bcd-4da1047aebfc"
+  },
+  {
+   "category": "misc",
+   "count": 2,
+   "name": "Basic Poison",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_BasicPoison",
+   "template_guid": "28645376-e6e8-436a-8e9a-c62877fae07d"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Bloodstone",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Bloodstone",
+   "template_guid": "a92ee8db-142f-4a2a-af64-78e3aec36832"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Smokepowder Bomb",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Bomb",
+   "template_guid": "278271f9-3fbc-4cf7-a5dc-b36527f521b2"
+  },
+  {
+   "category": "misc",
+   "count": 6,
+   "name": "Bone",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Bone",
+   "template_guid": "876c66a6-018c-48fe-8406-d90561d3db23"
+  },
+  {
+   "category": "book",
+   "count": 6,
+   "name": "Book",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Book",
+   "template_guid": "ce9ec41f-ba32-4c83-9b59-3351925e1c70"
+  },
+  {
+   "category": "misc",
+   "count": 4,
+   "name": "Bottle",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Bottle",
+   "template_guid": "af808d7c-c8d6-4924-94a9-35bffd450803"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Bowl",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Bowl",
+   "template_guid": "18303ee3-884d-41ed-8bf9-3a1742f27a75"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Bucket",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Bucket",
+   "template_guid": "158682d3-4b6a-4952-aa88-af74a256f880"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Supply Pack",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Camp_Pack",
+   "template_guid": "398e7328-ce90-4c02-94a2-93341fac499a"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Candle",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Candle_Gold",
+   "template_guid": "3e502732-e3d8-4b93-aea9-05f89a4e4073"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Opulent Chest",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Chest_Wood",
+   "template_guid": "c904401f-f2e4-4947-95cf-1a6f71f67be6"
+  },
+  {
+   "category": "misc",
+   "count": 2,
+   "name": "Chasm Creeper",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Crystal_ChasmCreeper",
+   "template_guid": "b964697f-1f1d-48d5-8772-d5edfdd0ed39"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Laculite",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Crystal_Laculite",
+   "template_guid": "7483130a-0b77-499e-be31-487811203af1"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Lolth's Candle",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Crystal_LolthsCandle",
+   "template_guid": "6f023cc2-467c-4931-90af-ba0c3f751eee"
+  },
+  {
+   "category": "misc",
+   "count": 5,
+   "name": "Viridian Crystal",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Crystal_Viridian",
+   "template_guid": "8037a20b-a2bf-41c9-b509-bb6b455c778c"
+  },
+  {
+   "category": "misc",
+   "count": 2,
+   "name": "Yellow Dye",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Dye_Golden",
+   "template_guid": "09e48b43-f567-4acc-b98d-0c86c1396084"
+  },
+  {
+   "category": "misc",
+   "count": 3,
+   "name": "Lush Burgundy",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Dye_RichRed",
+   "template_guid": "51cd678b-6a27-490d-b4d1-17cc89a32e40"
+  },
+  {
+   "category": "misc",
+   "count": 2,
+   "name": "Quill",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Feather",
+   "template_guid": "4e0647d7-baec-46c2-bca2-86596ecbf1ed"
+  },
+  {
+   "category": "misc",
+   "count": 2,
+   "name": "White King Piece",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_GenericLootItem",
+   "template_guid": "bfd79392-1d3c-40df-8428-100402654f68"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Towels Pile",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Generic_Light",
+   "template_guid": "288d1a21-dc2f-4e2d-9715-8ae5a36047a3"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Githyanki Egg",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_GithyankiEgg",
+   "template_guid": "999b6dd7-2901-4604-8280-1931a5217a94"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Silver Goblet",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Goblet_Rich_Silver",
+   "template_guid": "d6db5601-17c1-4f64-9b59-ec82a53fb5a3"
+  },
+  {
+   "category": "misc",
+   "count": 3,
+   "name": "Grease Bottle",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_GreaseBottle",
+   "template_guid": "e2968a2e-bc83-4d50-99ef-39ce78d2d630"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Traveller's Chest",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_ImmutableContainer",
+   "template_guid": "96eab9d1-74b1-42f7-b1ad-061a9fcea8c4"
+  },
+  {
+   "category": "misc",
+   "count": 3,
+   "name": "Earthen Bottle",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Indestructible_Light",
+   "template_guid": "b30c8fc1-f008-44d1-96bd-d79c5a66920c"
+  },
+  {
+   "category": "misc",
+   "count": 3,
+   "name": "Ink Pot",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_InkPot",
+   "template_guid": "98f13cd0-0069-466f-bb6e-5b8964b46e66"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Jade",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Jade",
+   "template_guid": "94fb73e8-668a-499f-a88f-54d24c6947a7"
+  },
+  {
+   "category": "misc",
+   "count": 2,
+   "name": "Keychain",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Keychain",
+   "template_guid": "ee329627-dbee-405f-b9a6-b260de9ad34c"
+  },
+  {
+   "category": "misc",
+   "count": 5,
+   "name": "Thieves' Tools",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Kit_ThievesTools",
+   "template_guid": "e32a200c-5b63-414d-ae57-00e7b38f125b"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Round Flask",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Laboratory_Glass",
+   "template_guid": "9b45b164-bf0e-4319-a953-49c9627cc49d"
+  },
+  {
+   "category": "misc",
+   "count": 4,
+   "name": "Malachite",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Malachite",
+   "template_guid": "560e773d-6825-4cbd-83c1-9d8e4f53a704"
+  },
+  {
+   "category": "misc",
+   "count": 6,
+   "name": "Bronze Ingot",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Metalbar_Bronze",
+   "template_guid": "5b386575-5836-40cd-8548-e5c27fd105a1"
+  },
+  {
+   "category": "misc",
+   "count": 3,
+   "name": "Silver Ingot",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Metalbar_Silver",
+   "template_guid": "e0803337-e2b1-4528-8d4f-b5814e9a52ec"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Basilisk Oil",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Oil_Of_The_Basilisk",
+   "template_guid": "212ca846-4766-4370-8847-454e59751598"
+  },
+  {
+   "category": "misc",
+   "count": 2,
+   "name": "Onyx",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Onyx",
+   "template_guid": "6cbbe9f6-c346-4d6c-b1f1-4cbe6aaf99ef"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Tapestry",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Painting",
+   "template_guid": "199a726d-cb26-8a98-344e-b7002b52c8b4"
+  },
+  {
+   "category": "consumable",
+   "count": 22,
+   "name": "Potion of Healing",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Potion_Healing",
+   "template_guid": "d47006e9-8a51-453d-b200-9e0d42e9bbab"
+  },
+  {
+   "category": "consumable",
+   "count": 7,
+   "name": "Potion of Greater Healing",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Potion_Healing_Greater",
+   "template_guid": "e3b95c96-dc26-40fe-bfc0-baa05e1abd20"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Potion of Animal Speaking",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Potion_Of_Animal_Speaking",
+   "template_guid": "447ee8a9-9319-4758-9dc7-2d8ba94e45b5"
+  },
+  {
+   "category": "consumable",
+   "count": 3,
+   "name": "Elixir of Fire Resistance",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Potion_Of_Fire_Resistance",
+   "template_guid": "2608c096-a0f5-4172-ad04-c1b170e10d95"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Elixir of Heroism",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Potion_Of_Heroism",
+   "template_guid": "bb27cc17-5af9-4d53-818b-3e620f3f59f2"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Elixir of Hill Giant Strength",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Potion_Of_Hill_Giant_Strength",
+   "template_guid": "c69fb092-2f4f-4688-82b6-7d92405626b1"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Potion of Invisibility",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Potion_Of_Invisibility",
+   "template_guid": "809d5026-4896-4b3a-986e-95da58da77e2"
+  },
+  {
+   "category": "consumable",
+   "count": 2,
+   "name": "Elixir of Lightning Resistance",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Potion_Of_Lightning_Resistance",
+   "template_guid": "05257244-ab59-4eab-9745-d1fea7b8cd10"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Elixir of Poison Resistance",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Potion_Of_Poison_Resistance",
+   "template_guid": "ae28b14c-0881-45fe-8237-9fcb1c951d3d"
+  },
+  {
+   "category": "consumable",
+   "count": 4,
+   "name": "Potion of Speed",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Potion_Of_Speed",
+   "template_guid": "ad9f3f24-d755-48b6-aa7b-c34da068209f"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Potion of Sleep",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Potion_Sleep",
+   "template_guid": "7090a500-c392-4566-a79f-0c9453323bc8"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Rags",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Rag_Stacked_B",
+   "template_guid": "a03db668-41ff-cde3-8d36-d30514b1b8d3"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Rags",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Rag_Stacked_F",
+   "template_guid": "5489c368-f979-3c21-370f-3dbff4b85056"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Rope",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Rope",
+   "template_guid": "63400c5f-cc10-4009-8d8f-b01dbb47060a"
+  },
+  {
+   "category": "book",
+   "count": 10,
+   "name": "Parchment",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Scroll",
+   "template_guid": "1a888682-1e41-4b58-af24-f339688d9936"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "Scroll of Animal Friendship",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Scroll_AnimalFriendship",
+   "template_guid": "3d992632-dc98-43b1-85e5-b59ba5a6aa9a"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "Scroll of Cloudkill",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Scroll_Cloudkill",
+   "template_guid": "0e793d2d-1cd7-4b90-a71b-821423e50969"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "Scroll of Crown of Madness",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Scroll_CrownOfMadness",
+   "template_guid": "701a7df0-728e-494a-ab2f-146aed4e8c7f"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "Scroll of Fire Bolt",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Scroll_FireBolt",
+   "template_guid": "fdfe5d75-0e8b-47f8-b128-d57081cb8981"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "Scroll of Fire Shield",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Scroll_FireShield_Warm",
+   "template_guid": "6b87f7b4-441c-41cf-92c3-29e258747454"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "Scroll of Flaming Sphere",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Scroll_FlamingSphere",
+   "template_guid": "0922de82-149f-4cac-aa98-e26222fd7714"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "Scroll of Grease",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Scroll_Grease",
+   "template_guid": "094c9b7f-0b7d-4813-92ea-7267afb62b07"
+  },
+  {
+   "category": "book",
+   "count": 2,
+   "name": "Scroll of Mage Armour",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Scroll_MageArmor",
+   "template_guid": "2ccab07d-0ccb-45e6-8f43-8ffb6a62da11"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "Scroll of Protection from Energy",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Scroll_ProtectionFromEnergy",
+   "template_guid": "9f8502bf-727f-40c7-93a3-5fab6ba2e2f5"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "Scroll of Ray of Frost",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Scroll_RayOfFrost",
+   "template_guid": "f6cbfbb3-7eab-4f78-afde-073756c4e26d"
+  },
+  {
+   "category": "book",
+   "count": 5,
+   "name": "Scroll of Revivify",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Scroll_Revivify",
+   "template_guid": "c1c3e4fb-d68c-4e10-afdc-d4550238d50e"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "Scroll of Shatter",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Scroll_Shatter",
+   "template_guid": "2ad118cb-b11f-45ca-a206-7575bbbaccc6"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "Scroll of Speak with Dead",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Scroll_SpeakWithDead",
+   "template_guid": "36d01b98-1702-4d00-81a9-1b8469dd67a5"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "Scroll of Wall of Fire",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Scroll_WallOfFire",
+   "template_guid": "0f3c7369-d0bd-4b97-960d-1407f4c8eebf"
+  },
+  {
+   "category": "book",
+   "count": 1,
+   "name": "Scroll of Witch Bolt",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Scroll_WitchBolt",
+   "template_guid": "e69f52a4-3d86-4f08-a9b4-c70ba4cc3070"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Serpent Fang Toxin",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_SerpentVenom",
+   "template_guid": "b0385b93-f525-4740-8126-471a76fa31a2"
+  },
+  {
+   "category": "misc",
+   "count": 4,
+   "name": "Skull",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Skull",
+   "template_guid": "bb95168f-9683-49ac-aea6-97e03f76d578"
+  },
+  {
+   "category": "misc",
+   "count": 2,
+   "name": "Heavy Stone",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_ThrowingRock",
+   "template_guid": "27f77a61-a259-4fe2-9d7d-d94d2f0a5bee"
+  },
+  {
+   "category": "misc",
+   "count": 4,
+   "name": "Hammer",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Tool_Hammer",
+   "template_guid": "c2a14b56-9dca-4ad1-bcea-71204365f6a9"
+  },
+  {
+   "category": "misc",
+   "count": 3,
+   "name": "Shovel",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Tool_Shovel",
+   "template_guid": "c4a7aa86-90b4-4207-b594-90383f4d9f1b"
+  },
+  {
+   "category": "misc",
+   "count": 4,
+   "name": "Tongs",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Tool_Tong",
+   "template_guid": "50d8cbfb-c98f-4013-8c67-53b3767a9bd9"
+  },
+  {
+   "category": "misc",
+   "count": 2,
+   "name": "Wyvern Toxin",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_WyvernPoison",
+   "template_guid": "eca393b0-3f8e-4862-814b-9e236a0d4129"
+  },
+  {
+   "category": "misc",
+   "count": 14,
+   "name": "Gold Key",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "PUZ_Key",
+   "template_guid": "7d5eab5e-4ec0-4b40-8714-f85b2f8c8a0c"
+  },
+  {
+   "category": "misc",
+   "count": 4,
+   "name": "Poisonous Slime Bomb",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "QUEST_HAG_GrenadeFire",
+   "template_guid": "dfafe6b2-fa8a-49c2-bf93-1966736a7ce9"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Broken Moonlantern",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "Quest_UND_Moonlantern_Broken",
+   "template_guid": "2c99f1f1-776b-45dd-a9d7-06e6a8e14b3f"
+  },
+  {
+   "category": "armour",
+   "count": 2,
+   "name": "Spider's Lyre",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "SCL_SpidersLyre",
+   "template_guid": "98282bec-aeaa-4490-ae43-0c27bed58c74"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Summon Golem Bell",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "SHA_SummonGolemBell",
+   "template_guid": "274b6c3c-cf13-46b9-ba51-7b9e01f05676"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Frayed Drow Hood",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "UND_DrowDisguiseCowl",
+   "template_guid": "85f6aec3-a6df-458c-8ef4-b3fa58d85a56"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Padded Armour",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "UNI_Astarion_StarterArmor",
+   "template_guid": "397dbd19-efed-4507-85f9-66daebad5258"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Dark Justiciar Helmet",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "UNI_DarkJusticiar_Helmet",
+   "template_guid": "3523b640-e9da-4d89-b031-6ffe1d5fd3ed"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Amulet of Selûne's Chosen",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "UNI_GOB_SeluneAmulet",
+   "template_guid": "453a4bff-7780-432c-a9cd-4b1a43424ccf"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Barbarian Clothes",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "UNI_Karlach_StarterArmor",
+   "template_guid": "2e3a2651-18ce-44b0-b7bd-3e2565bf666c"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Mace Mould",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "UNI_LOOT_AdamantineForge_MaceMold",
+   "template_guid": "a1cd6c84-84bc-4546-b052-a58e38faf4a5"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Scimitar Mould",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "UNI_LOOT_AdamantineForge_ScimitarMold",
+   "template_guid": "fecf2955-a5a2-42e5-86f3-4bf87b3d0e2a"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Splint Mould (Heavy)",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "UNI_LOOT_AdamantineForge_SplintMold",
+   "template_guid": "e3526b0a-b74f-43c5-9466-334c08de88fe"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Very Heavy Greataxe",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "UNI_SuperheavyWeapon",
+   "template_guid": "b3ed22d9-dd32-46c3-928a-e7253a843dfc"
+  },
+  {
+   "category": "weapon",
+   "count": 5,
+   "name": "Dagger",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Dagger",
+   "template_guid": "569b0f3d-abcd-4b01-aaf0-979091288163"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Dagger +1",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Dagger_1",
+   "template_guid": "1eab180b-5bf9-48ea-aece-7ba20d1deb78"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Ritual Staff",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Goblin_Quarterstaff",
+   "template_guid": "58c90cf9-5541-4909-a853-d1a0ca31c046"
+  },
+  {
+   "category": "weapon",
+   "count": 4,
+   "name": "Goblin Scimitar",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Goblin_Scimitar",
+   "template_guid": "288356cc-0c6b-43c1-b049-dde418faf1f2"
+  },
+  {
+   "category": "weapon",
+   "count": 3,
+   "name": "Goblin Bow",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Goblin_Shortbow",
+   "template_guid": "fd6f48fc-b153-4e6b-9a7f-86ac2963c95f"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Greataxe",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Greataxe",
+   "template_guid": "d5712e24-ce9e-42ce-8fad-6e049b62c28c"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Greatclub +1",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Greatclub_1",
+   "template_guid": "d64e1a13-18a5-4cdc-ac02-977523435f8f"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Greatsword",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Greatsword",
+   "template_guid": "ecfb9f69-5bc3-402e-acd8-c91d57e28403"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Githyanki Greatsword",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Greatsword_Gith",
+   "template_guid": "d1082e88-b1e2-479d-913f-1413784d95a1"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Hand Crossbow +1",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_HandCrossbow_1",
+   "template_guid": "d2f396c2-9b1b-4eea-bf21-2f25934f092d"
+  },
+  {
+   "category": "weapon",
+   "count": 3,
+   "name": "Handaxe",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Handaxe",
+   "template_guid": "46b64a36-8446-45bd-98e8-ee81e3136baa"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Handaxe +1",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Handaxe_1",
+   "template_guid": "7a05135d-b285-4186-8a32-a870f1684b60"
+  },
+  {
+   "category": "weapon",
+   "count": 2,
+   "name": "Javelin",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Javelin",
+   "template_guid": "0a7adc8d-b561-4f81-a8f2-ec07b5d54955"
+  },
+  {
+   "category": "weapon",
+   "count": 2,
+   "name": "Lantern",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Lantern",
+   "template_guid": "81705db9-5b32-4ccd-91be-f8bad863ec48"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Longbow",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Longbow",
+   "template_guid": "86e3d864-309c-4c17-ba38-877ce487d481"
+  },
+  {
+   "category": "weapon",
+   "count": 3,
+   "name": "Longsword",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Longsword",
+   "template_guid": "1865323f-b428-4791-a0a9-578841e57463"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Githyanki Longsword",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Longsword_Gith",
+   "template_guid": "907a794b-b089-406b-880d-6f2df2bb3f13"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Cleaver",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_MeatCleaver",
+   "template_guid": "b6b4ac25-e54b-441f-b6d3-423ea728cfb1"
+  },
+  {
+   "category": "weapon",
+   "count": 2,
+   "name": "Pitchfork",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Pitchfork",
+   "template_guid": "c8274575-61a2-43a7-bde0-65a278dde287"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Quarterstaff",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Quarterstaff",
+   "template_guid": "96e2abaf-78ff-4dcb-a6a3-a5f0c348bd9f"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Rapier",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Rapier",
+   "template_guid": "7061f489-4b13-4982-aa09-cf0ad961e75f"
+  },
+  {
+   "category": "weapon",
+   "count": 3,
+   "name": "Shortbow",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Shortbow",
+   "template_guid": "c5403c1d-f372-43e1-927a-9189e9e3545d"
+  },
+  {
+   "category": "weapon",
+   "count": 13,
+   "name": "Shortsword",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Shortsword",
+   "template_guid": "467ddb4f-6791-41fa-99f7-ee8620d63bbe"
+  },
+  {
+   "category": "weapon",
+   "count": 6,
+   "name": "Githyanki Shortsword",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Shortsword_Gith",
+   "template_guid": "4b54911a-a32d-48ad-8691-ff28801e1275"
+  },
+  {
+   "category": "weapon",
+   "count": 5,
+   "name": "Torch",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Torch",
+   "template_guid": "50c43f27-a12e-412c-88f0-56e15eba692a"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Torch",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "WPN_Torch_StartLit",
+   "template_guid": "8d175e5e-355e-4b27-9890-d35e36204487"
+  }
+ ],
+ "characters": [
+  {
+   "abilities": {
+    "cha": 10,
+    "con": 16,
+    "dex": 14,
+    "int": 8,
+    "str": 18,
+    "wis": 10
+   },
+   "at_camp": false,
+   "carried": [
+    {
+     "category": "consumable",
+     "count": 1,
+     "name": "Divine Bone Shard",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ALCH_Ingredient_Loot_DivineBoneShard",
+     "template_guid": "8f7f7240-0218-4aa9-b849-bc2f57e21b5e"
+    },
+    {
+     "category": "consumable",
+     "count": 3,
+     "name": "Yellow Musk Creeper Petals",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ALCH_Ingredient_Loot_YellowMuskCreeper",
+     "template_guid": "87d2b517-1777-4bee-96be-f79ba52edfcc"
+    },
+    {
+     "category": "consumable",
+     "count": 1,
+     "name": "Poison Spore",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ALCH_Ingredient_Part_MyconidSpore_Poison",
+     "template_guid": "e9d39b0d-bcd6-4b5b-9d54-c68b3b650b54"
+    },
+    {
+     "category": "consumable",
+     "count": 1,
+     "name": "Ochre Jelly Slime",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ALCH_Ingredient_Part_OchreJellySlime",
+     "template_guid": "540e8376-f6ac-4261-a920-f288abf176e1"
+    },
+    {
+     "category": "consumable",
+     "count": 1,
+     "name": "Elixir of Battlemage's Power",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ALCH_Solution_Elixir_ArcaneAcuity",
+     "template_guid": "7d1699d9-c3fa-4761-9718-28230f78420b"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Bronze Necklace",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Amulet_Necklace_B_Bronze_A",
+     "template_guid": "fda631e5-83f5-4ae4-b28f-cf4da102e3be"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Homely Clothes",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Camp_Body",
+     "template_guid": "f369f4fa-2da7-4693-a147-16cfaf02bca5"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Tasteful Boots",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Camp_Shoes",
+     "template_guid": "6bb7a595-7646-48a9-9c44-d39f16c1c5cb"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Underwear",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Underwear_Elves",
+     "template_guid": "0ec7d956-e65f-4bfa-b677-22f399f81a32"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Scruffy Vagabond Clothes",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Vanity_Body_Refugee_Green",
+     "template_guid": "dfe7cf67-64b5-4b91-9ae2-50aea87493f9"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Comfortable Red Shirt",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Vanity_Body_Shirt_Red",
+     "template_guid": "4866f90d-ee70-43a8-96a4-35511f4b824e"
+    },
+    {
+     "category": "consumable",
+     "count": 1,
+     "name": "Rotten Tomato",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "CONS_FOOD_Vegetable_Tomato_A_Rotten",
+     "template_guid": "32a3bb2c-ce98-41ec-9476-06867d354ca3"
+    },
+    {
+     "category": "consumable",
+     "count": 1,
+     "name": "Balsam",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "CONS_Herbs_Balsam",
+     "template_guid": "9a524608-1ad1-4d01-ae99-76fb3c513b3c"
+    },
+    {
+     "category": "consumable",
+     "count": 3,
+     "name": "Weavemoss",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "CONS_Herbs_Weavemoss",
+     "template_guid": "0a64fa93-9123-4810-a656-2c8b27c87563"
+    },
+    {
+     "category": "consumable",
+     "count": 2,
+     "name": "Bonecap",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "CONS_Mushrooms_Bonecap",
+     "template_guid": "e9f6d6d3-bd95-414d-903a-b697bb222ae7"
+    },
+    {
+     "category": "consumable",
+     "count": 2,
+     "name": "Dragon Egg Mushroom",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "CONS_Mushrooms_DragonEggMushroom",
+     "template_guid": "19c9becf-ab0e-4e2f-9253-12456ff9b465"
+    },
+    {
+     "category": "consumable",
+     "count": 2,
+     "name": "Rogue's Morsel",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "CONS_Mushrooms_RoguesMorsel",
+     "template_guid": "a09f8033-f5d8-44de-97ad-09499d967989"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Goblet",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "Cup_Metal_E",
+     "template_guid": "31d47753-7713-461f-a65b-da4339939cf2"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "The Necromancy of Thay",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "FOR_DangerousBook",
+     "template_guid": "73ea8888-ed82-4ca5-b9f9-0c9119873507"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Drow Leather Gloves",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "GOB_DrowCommander_Leather_Gloves",
+     "template_guid": "69e57d02-44a2-4e39-8b2a-502413761219"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Thermoarcanic Gloves",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "MAG_Fire_HeatOnFireDamage_Gloves",
+     "template_guid": "aaf703d3-77d2-4259-9369-f98416be0e2e"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Amulet of the Harpers",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "MAG_Harpers_HarpersAmulet",
+     "template_guid": "ddc9ac0b-8e68-422b-8d9d-c081629ab4ad"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Poisoner's Gloves",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "MAG_Poison_PoisonExposure_Gloves",
+     "template_guid": "49c8234e-3134-40f0-8001-e221114b1d2a"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Luminous Gloves",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "MAG_Radiant_RadiatingOrb_Gloves",
+     "template_guid": "e8a72355-b81f-484e-bc7d-945ec81c04a3"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Acid Vial",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_AcidBottle",
+     "template_guid": "3850ec1a-d951-45b7-9363-dc82e20bd28a"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Alchemy Pouch",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Bag_AlchemyPouch",
+     "template_guid": "b7543ff4-5010-4c01-9bcd-4da1047aebfc"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Smokepowder Bomb",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Bomb",
+     "template_guid": "278271f9-3fbc-4cf7-a5dc-b36527f521b2"
+    },
+    {
+     "category": "book",
+     "count": 1,
+     "name": "Book",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Book",
+     "template_guid": "7c48ba55-4644-4e41-ae1a-f056222f6580"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Supply Pack",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Camp_Pack",
+     "template_guid": "398e7328-ce90-4c02-94a2-93341fac499a"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Candle",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Candle",
+     "template_guid": "34df8770-06c5-4752-a7b6-25d4f64d64dc"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Chasm Creeper",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Crystal_ChasmCreeper",
+     "template_guid": "b964697f-1f1d-48d5-8772-d5edfdd0ed39"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Lolth's Candle",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Crystal_LolthsCandle",
+     "template_guid": "6f023cc2-467c-4931-90af-ba0c3f751eee"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "White King Piece",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_GenericLootItem",
+     "template_guid": "8c99b6c7-51b1-4784-9412-d927c4d77fdc"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Silver Goblet",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Goblet_Rich_Silver",
+     "template_guid": "d6db5601-17c1-4f64-9b59-ec82a53fb5a3"
+    },
+    {
+     "category": "misc",
+     "count": 921,
+     "name": "Gold",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_GoldCoin",
+     "template_guid": "1c3c9c74-34a1-4685-989e-410dc080be6f"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Grease Bottle",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_GreaseBottle",
+     "template_guid": "e2968a2e-bc83-4d50-99ef-39ce78d2d630"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Idol of Selûne",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Idol_Selune",
+     "template_guid": "a8491759-fcb1-41bb-8290-035de4bd747f"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Metal Fork",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Kitchenware_Cutlery_Fork_Iron",
+     "template_guid": "4b7c07ef-1f95-478d-859f-32f1ad98687b"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Fork",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Kitchenware_Cutlery_Fork_Poor",
+     "template_guid": "8c17a2e5-e742-4fac-a0d6-10289be28c72"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Spoon",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Kitchenware_Cutlery_Spoon_Poor",
+     "template_guid": "e83fd649-56ae-4204-93f5-55f3b112417c"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Bronze Ingot",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Metalbar_Bronze",
+     "template_guid": "5b386575-5836-40cd-8548-e5c27fd105a1"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Milk Can",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_MilkCan",
+     "template_guid": "3258852b-21eb-4242-80f5-ae9a6792ee4b"
+    },
+    {
+     "category": "misc",
+     "count": 3,
+     "name": "Rope",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Rope",
+     "template_guid": "63400c5f-cc10-4009-8d8f-b01dbb47060a"
+    },
+    {
+     "category": "book",
+     "count": 1,
+     "name": "Parchment",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Scroll",
+     "template_guid": "dfb4bb97-3d01-43ec-a6e9-632395149f7d"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Gold Key",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "PUZ_Key",
+     "template_guid": "999ae35e-2bad-42ab-9ebb-d361d1a7a1cf"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Moonlantern",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "Quest_SCL_MoonlanternWithPixie",
+     "template_guid": "4591d212-8f1b-4b85-880c-dc94f76702f4"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Mysterious Artefact",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "UNI_CONT_DEVIL_PuzzleBox_A",
+     "template_guid": "326324f9-0920-8f0f-3e85-3781fbf48282"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Lute",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Instrument_Lute",
+     "template_guid": "8f98a7e7-c773-4b58-9127-5cf79b9206e9"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Karabasan's Gift",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "UNI_LOW_KarabasansGift_Grenade",
+     "template_guid": "ac9e04d9-c43c-45f2-9922-a17675ef98b5"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Karabasan's Gift",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "UNI_LOW_KarabasansGift_Grenade",
+     "template_guid": "ac9e04d9-c43c-45f2-9922-a17675ef98b5"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Karabasan's Gift",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "UNI_LOW_KarabasansGift_Grenade",
+     "template_guid": "ac9e04d9-c43c-45f2-9922-a17675ef98b5"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Karabasan's Gift",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "UNI_LOW_KarabasansGift_Grenade",
+     "template_guid": "ac9e04d9-c43c-45f2-9922-a17675ef98b5"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Club",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "WPN_Club",
+     "template_guid": "d9c87013-1f41-4c17-b71d-f353ec0d64e8"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Club",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "WPN_Club",
+     "template_guid": "d9c87013-1f41-4c17-b71d-f353ec0d64e8"
+    }
+   ],
+   "classes": [
+    {
+     "Main": "Fighter",
+     "Sub": "BattleMaster"
+    }
+   ],
+   "concentration": null,
+   "equipment_note": null,
+   "equipped": [
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Disintegrating Night Walkers",
+     "slot": "Boots",
+     "slot_rank": [
+      4,
+      0
+     ],
+     "stats": "FOR_NightWalkers",
+     "template_guid": "e7f24f6d-4d73-4f04-94ef-d8e7042ce6a2"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Caustic Band",
+     "slot": "Ring",
+     "slot_rank": [
+      6,
+      1
+     ],
+     "stats": "MAG_Acid_AcidDamageOnWeaponAttack_Ring",
+     "template_guid": "463b0a81-1fc3-4db1-bafe-a915f9a8e028"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Grymskull Helm",
+     "slot": "Helmet",
+     "slot_rank": [
+      0,
+      0
+     ],
+     "stats": "MAG_MeleeDebuff_AttackDebuff1_OnDamage_Helmet",
+     "template_guid": "6b1c4d55-e0d1-4b58-a26d-57d807bca488"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Adamantine Splint Armour",
+     "slot": "Breast",
+     "slot_rank": [
+      2,
+      0
+     ],
+     "stats": "MAG_MeleeDebuff_AttackDebuff2_OnDamage_SplintMail",
+     "template_guid": "ea3cf349-19ab-4104-9253-8e182bdbf538"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Halberd of Vigilance",
+     "slot": "Melee Main Weapon",
+     "slot_rank": [
+      7,
+      0
+     ],
+     "stats": "MAG_PoR_OfVigilance_Halberd",
+     "template_guid": "187691ba-7027-49a8-ba74-d0dc5cafbe12"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Titanstring Bow",
+     "slot": "Ranged Main Weapon",
+     "slot_rank": [
+      9,
+      0
+     ],
+     "stats": "MAG_StrongString_Longbow",
+     "template_guid": "13236988-83df-4bf2-8005-b4ac31f21ff4"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Surgeon's Subjugation Amulet",
+     "slot": "Amulet",
+     "slot_rank": [
+      5,
+      0
+     ],
+     "stats": "MAG_TWN_Surgeon_ParalyzingCritical_Amulet",
+     "template_guid": "d6db1ae8-8e8e-49d1-8968-5cdb7fa3a02a"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Gloves of the Growling Underdog",
+     "slot": "Gloves",
+     "slot_rank": [
+      3,
+      0
+     ],
+     "stats": "MAG_ZOC_AdvantageOnMeleeAttackWhileSurounded_Gloves",
+     "template_guid": "1001f28b-5ea3-4257-864c-f60c812aecf0"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Ring of Mind-Shielding",
+     "slot": "Ring 2",
+     "slot_rank": [
+      6,
+      2
+     ],
+     "stats": "UNI_UND_RingOfMindShielding",
+     "template_guid": "c8f05ff8-58f9-49f9-8ea7-abda1fea27d6"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Lute",
+     "slot": "MusicalInstrument",
+     "slot_rank": [
+      11,
+      0
+     ],
+     "stats": "ARM_Instrument_Lute",
+     "template_guid": "8f98a7e7-c773-4b58-9127-5cf79b9206e9"
+    }
+   ],
+   "feats": [
+    {
+     "guid": "c09815f7-282b-4ccf-bd89-a51caa1b550f",
+     "level": 4,
+     "name": "Great Weapon Master",
+     "picks": []
+    },
+    {
+     "guid": "d215b9ad-9753-4d74-8ff9-24bf1dce53d6",
+     "level": 6,
+     "name": "Ability Improvement",
+     "picks": [
+      "Strength",
+      "Strength"
+     ]
+    }
+   ],
+   "hp": {
+    "current": 67,
+    "max": 67,
+    "temp": 0,
+    "temp_max": 0
+   },
+   "inspect": null,
+   "level": 7,
+   "location": "Gauntlet of Shar",
+   "name": "Maia (player)",
+   "race": "Elf_HighElf",
+   "resources": [
+    {
+     "current": 1.0,
+     "guid": "734cbcfb-8922-4b6d-8330-b2a7e4c14b6a",
+     "level": 0,
+     "max": 1.0,
+     "name": "Action",
+     "replenish": 2
+    },
+    {
+     "current": 1.0,
+     "guid": "420c8df5-45c2-4253-93c2-7ec44e127930",
+     "level": 0,
+     "max": 1.0,
+     "name": "Bonus Action",
+     "replenish": 2
+    },
+    {
+     "current": 1.0,
+     "guid": "45ff0f48-b210-4024-972f-b64a44dc6985",
+     "level": 0,
+     "max": 1.0,
+     "name": "Reaction",
+     "replenish": 2
+    },
+    {
+     "current": 9.0,
+     "guid": "d6b2369d-84f0-4ca4-a3a7-62d2d192a185",
+     "level": 0,
+     "max": 9.0,
+     "name": "Movement Speed",
+     "replenish": 2
+    },
+    {
+     "current": 5.0,
+     "guid": "f82e9e53-1391-4555-95b3-ad52c3b8e259",
+     "level": 0,
+     "max": 5.0,
+     "name": "Superiority Die",
+     "replenish": 16
+    },
+    {
+     "current": 1.0,
+     "guid": "621126c6-a9f7-422c-9a0c-822503719ce4",
+     "level": 0,
+     "max": 1.0,
+     "name": "Interrupt_LuckOfTheFarRealms_Charge",
+     "replenish": 8
+    },
+    {
+     "current": 1.0,
+     "guid": "78236f5a-94d5-4f8b-bb54-16f5508723e6",
+     "level": 0,
+     "max": 1.0,
+     "name": null,
+     "replenish": 1
+    }
+   ],
+   "spells": [
+    {
+     "category": "spell",
+     "id": "Projectile_DisarmingAttack",
+     "name": "Disarming Attack (Ranged)",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_FireBolt",
+     "name": "Fire Bolt",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_HamstringShot",
+     "name": "Hamstring Shot",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Projectile_Jump",
+     "name": "Jump",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_MAG_PushingAttack",
+     "name": "Pushing Attack (Ranged)",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Projectile_MainHandAttack",
+     "name": "Ranged Attack",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_MenacingAttack",
+     "name": "Menacing Attack (Ranged)",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_TripAttack",
+     "name": "Trip Attack (Ranged)",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_ActionSurge",
+     "name": "Action Surge",
+     "prepared": true
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_Bard_Perform_BardDance_Lute",
+     "name": "Perform 'Bard Dance'",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_Bard_Perform_Lute",
+     "name": "Perform",
+     "prepared": true
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_Bard_Perform_Stargazing_Lute",
+     "name": "Perform 'Old Time Battles'",
+     "prepared": true
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_Bard_Perform_ThePower_Lute",
+     "name": "Perform 'The Power'",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Dash",
+     "name": "Dash",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Disengage",
+     "name": "Disengage",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Hide",
+     "name": "Hide",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_Macro_Mods_Camp_Night_Utils",
+     "name": null,
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_Macro_Mods_Change_Camp_Night_Notifications",
+     "name": null,
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_Macro_Mods_Purge_Camp_Night_Notifications",
+     "name": null,
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_PrecisionAttack",
+     "name": "Precision Attack",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_SecondWind",
+     "name": "Second Wind",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_SteadyRanged",
+     "name": "Brace (Ranged)",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_TAD_PsionicOverload",
+     "name": "Psionic Overload",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Dip",
+     "name": "Dip",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_DisarmingAttack",
+     "name": "Disarming Attack (Melee)",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_FreedomOfMovement",
+     "name": "Freedom of Movement",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_GLO_DangerousBook_SpeakWithDead",
+     "name": "Speak with Dead",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Help",
+     "name": "Help",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_MAG_HuntersMark_Grymskull",
+     "name": "Hunter's Mark",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_MainHandAttack",
+     "name": "Main Hand Attack",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_MenacingAttack",
+     "name": "Menacing Attack (Melee)",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Shove",
+     "name": "Shove",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_TAD_ConcentratedBlast",
+     "name": "Concentrated Blast",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_TAD_ShieldOfThralls",
+     "name": "Shield of Thralls",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_TAD_TransfuseHealth",
+     "name": "Transfuse Health",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_TripAttack",
+     "name": "Trip Attack (Melee)",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_UNI_MistyStep_NightWalkers",
+     "name": "Misty Step",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Throw_ImprovisedWeapon",
+     "name": "Improvised Melee Weapon",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Throw_Throw",
+     "name": "Throw",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Wall_WallOfFire",
+     "name": "Wall of Fire",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Zone_Cleave",
+     "name": "Cleave",
+     "prepared": true
+    }
+   ],
+   "spells_note": null,
+   "undetermined": [],
+   "xp": 28926
+  },
+  {
+   "abilities": {
+    "cha": 14,
+    "con": 16,
+    "dex": 18,
+    "int": 8,
+    "str": 12,
+    "wis": 16
+   },
+   "at_camp": false,
+   "carried": [
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Shadowheart's Clothes",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Camp_Body_Shadowheart",
+     "template_guid": "7062410b-439c-4f2f-bc48-1c16ab1ace20"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Acolyte's Sandals",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Camp_Shoes_Shadowheart",
+     "template_guid": "e92e4dad-8e96-4f27-aacb-cc430df0bc75"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Shadowheart's Underwear",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Underwear_Shadowheart",
+     "template_guid": "b460bd0c-58fe-4a56-831c-af92fd4ba7e2"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Camp Supply Sack",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Backpack_CampSupplies",
+     "template_guid": "efcb70b7-868b-4214-968a-e23f6ad586bc"
+    },
+    {
+     "category": "misc",
+     "count": 19,
+     "name": "Gold",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_GoldPile",
+     "template_guid": "1c3c9c74-34a1-4685-989e-410dc080be6f"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Keychain",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Keychain",
+     "template_guid": "ee329627-dbee-405f-b9a6-b260de9ad34c"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Thieves' Tools",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Kit_ThievesTools",
+     "template_guid": "e32a200c-5b63-414d-ae57-00e7b38f125b"
+    },
+    {
+     "category": "consumable",
+     "count": 1,
+     "name": "Potion of Healing",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Potion_Healing",
+     "template_guid": "d47006e9-8a51-453d-b200-9e0d42e9bbab"
+    },
+    {
+     "category": "book",
+     "count": 1,
+     "name": "Scroll of Revivify",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Scroll_Revivify",
+     "template_guid": "c1c3e4fb-d68c-4e10-afdc-d4550238d50e"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Key",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "PUZ_Key",
+     "template_guid": "4feea24d-ebe3-4140-8944-624dedf2a01c"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Spear of Night",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "SHA_SharSpear",
+     "template_guid": "d590884d-55a2-4136-9777-531ee7d53f7e"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Umbral Gem",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "QUEST_SHA_TrialGem",
+     "template_guid": "fd3fd8a9-a5fc-4726-9b6e-77f5ecf54cea"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Umbral Gem",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "QUEST_SHA_TrialGem",
+     "template_guid": "fd3fd8a9-a5fc-4726-9b6e-77f5ecf54cea"
+    }
+   ],
+   "classes": [
+    {
+     "Main": "Cleric",
+     "Sub": "LightDomain"
+    }
+   ],
+   "concentration": null,
+   "equipment_note": null,
+   "equipped": [
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Dawngrip Mace",
+     "slot": "Melee Main Weapon",
+     "slot_rank": [
+      7,
+      0
+     ],
+     "stats": "CRE_BloodOfLathander",
+     "template_guid": "e26f0c19-6185-43a7-b7f7-7155b936c59c"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Shield of Devotion",
+     "slot": "Melee Offhand Weapon",
+     "slot_rank": [
+      8,
+      0
+     ],
+     "stats": "MAG_BG_OfDevotion_Shield",
+     "template_guid": "a0bc3295-c01d-405e-8396-e0fa7e1e5340"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Gloves of Dexterity",
+     "slot": "Gloves",
+     "slot_rank": [
+      3,
+      0
+     ],
+     "stats": "MAG_BG_OfDexterity_Gloves",
+     "template_guid": "f3775096-0055-4d35-8cc0-f5765284bc7d"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Ring of Elemental Infusion",
+     "slot": "Ring 2",
+     "slot_rank": [
+      6,
+      2
+     ],
+     "stats": "MAG_ElementalGish_ElementalInfusion_Ring",
+     "template_guid": "9ce563ca-82b0-4c28-bd82-8640fd0a5be3"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Diadem of Arcane Synergy",
+     "slot": "Helmet",
+     "slot_rank": [
+      0,
+      0
+     ],
+     "stats": "MAG_Gish_ArcaneSynergy_Circlet",
+     "template_guid": "f6585fc7-22bb-4e58-b4a6-bbb56e48a86f"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Amulet of Restoration",
+     "slot": "Amulet",
+     "slot_rank": [
+      5,
+      0
+     ],
+     "stats": "MAG_Healer_HPRestoration_Amulet",
+     "template_guid": "b648ee98-f648-411b-be7e-6c50ca9b463c"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Hunting Shortbow",
+     "slot": "Ranged Main Weapon",
+     "slot_rank": [
+      9,
+      0
+     ],
+     "stats": "MAG_Hunting_Shortbow",
+     "template_guid": "a1d1634c-02e6-4428-a822-7603e9163264"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Boots of Striding",
+     "slot": "Boots",
+     "slot_rank": [
+      4,
+      0
+     ],
+     "stats": "MAG_Paladin_MomentumOnConcentration_Boots",
+     "template_guid": "8770f821-38bc-41cc-aae9-02988d46df02"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Luminous Armour",
+     "slot": "Breast",
+     "slot_rank": [
+      2,
+      0
+     ],
+     "stats": "MAG_Radiant_RadiatingOrb_Armor",
+     "template_guid": "a2cbaf4f-3eb8-4362-9f2e-d325a0d47a36"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "The Whispering Promise",
+     "slot": "Ring",
+     "slot_rank": [
+      6,
+      1
+     ],
+     "stats": "UNI_MassHealRing",
+     "template_guid": "4aef9bb0-38a8-428e-8b87-6e462d612dd6"
+    }
+   ],
+   "feats": [
+    {
+     "guid": "ed4e367d-d136-4285-abac-077147e84cf2",
+     "level": 4,
+     "name": "War Caster",
+     "picks": []
+    }
+   ],
+   "hp": {
+    "current": 54,
+    "max": 59,
+    "temp": 0,
+    "temp_max": 0
+   },
+   "inspect": null,
+   "level": 7,
+   "location": "Gauntlet of Shar",
+   "name": "Shadowheart",
+   "race": "HalfElf_High",
+   "resources": [
+    {
+     "current": 1.0,
+     "guid": "734cbcfb-8922-4b6d-8330-b2a7e4c14b6a",
+     "level": 0,
+     "max": 1.0,
+     "name": "Action",
+     "replenish": 2
+    },
+    {
+     "current": 1.0,
+     "guid": "420c8df5-45c2-4253-93c2-7ec44e127930",
+     "level": 0,
+     "max": 1.0,
+     "name": "Bonus Action",
+     "replenish": 2
+    },
+    {
+     "current": 1.0,
+     "guid": "45ff0f48-b210-4024-972f-b64a44dc6985",
+     "level": 0,
+     "max": 1.0,
+     "name": "Reaction",
+     "replenish": 2
+    },
+    {
+     "current": 9.0,
+     "guid": "d6b2369d-84f0-4ca4-a3a7-62d2d192a185",
+     "level": 0,
+     "max": 9.0,
+     "name": "Movement Speed",
+     "replenish": 2
+    },
+    {
+     "current": 5.0,
+     "guid": "d136c5d9-0ff0-43da-acce-a74a07f8d6bf",
+     "level": 1,
+     "max": 5.0,
+     "name": "Spell Slot",
+     "replenish": 8
+    },
+    {
+     "current": 2.0,
+     "guid": "d136c5d9-0ff0-43da-acce-a74a07f8d6bf",
+     "level": 2,
+     "max": 3.0,
+     "name": "Spell Slot",
+     "replenish": 8
+    },
+    {
+     "current": 3.0,
+     "guid": "d136c5d9-0ff0-43da-acce-a74a07f8d6bf",
+     "level": 3,
+     "max": 3.0,
+     "name": "Spell Slot",
+     "replenish": 8
+    },
+    {
+     "current": 1.0,
+     "guid": "d136c5d9-0ff0-43da-acce-a74a07f8d6bf",
+     "level": 4,
+     "max": 1.0,
+     "name": "Spell Slot",
+     "replenish": 8
+    },
+    {
+     "current": 2.0,
+     "guid": "028304ef-e4b7-4dfb-a7ec-cd87865cdb16",
+     "level": 0,
+     "max": 2.0,
+     "name": "Channel Divinity",
+     "replenish": 16
+    }
+   ],
+   "spells": [
+    {
+     "category": "spell",
+     "id": "Projectile_FireBolt",
+     "name": "Fire Bolt",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_Fireball",
+     "name": "Fireball",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_Fireball_4",
+     "name": "Fireball",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_GuidingBolt",
+     "name": "Guiding Bolt",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_GuildingBolt_2",
+     "name": "Guiding Bolt",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_GuildingBolt_3",
+     "name": "Guiding Bolt",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_GuildingBolt_4",
+     "name": "Guiding Bolt",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_HamstringShot",
+     "name": "Hamstring Shot",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Projectile_Jump",
+     "name": "Jump",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Projectile_MainHandAttack",
+     "name": "Ranged Attack",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_ScorchingRay",
+     "name": "Scorching Ray",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_ScorchingRay_3",
+     "name": "Scorching Ray",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_ScorchingRay_4",
+     "name": "Scorching Ray",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_Aid",
+     "name": "Aid",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_Aid_3",
+     "name": "Aid",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_Aid_4",
+     "name": "Aid",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_BeaconOfHope",
+     "name": "Beacon of Hope",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Shout_BeaconOfHope_4",
+     "name": "Beacon of Hope",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Shout_BladeWard",
+     "name": "Blade Ward",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Dash",
+     "name": "Dash",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Disengage",
+     "name": "Disengage",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_HealingWord_Mass",
+     "name": "Mass Healing Word",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_HealingWord_Mass_4",
+     "name": "Mass Healing Word",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Hide",
+     "name": "Hide",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_MAG_Aid3_Self",
+     "name": "Shield of Devotion: Aid",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_MAG_HealingWord_Mass",
+     "name": "Mass Healing Word",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_PrayerOfHealing",
+     "name": "Prayer of Healing",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Shout_PrayerOfHealing_3",
+     "name": "Prayer of Healing",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Shout_PrayerOfHealing_4",
+     "name": "Prayer of Healing",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Shout_ProduceFlame",
+     "name": "Produce Flame",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_RadianceOfTheDawn",
+     "name": "Radiance of the Dawn",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_SpiritGuardians",
+     "name": "Spirit Guardians",
+     "prepared": true
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_SpiritGuardians_Necrotic",
+     "name": "Spirit Guardians",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_SpiritGuardians_Necrotic_4",
+     "name": "Spirit Guardians",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_SpiritGuardians_Radiant",
+     "name": "Spirit Guardians",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_SpiritGuardians_Radiant_4",
+     "name": "Spirit Guardians",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Shout_TurnUndead",
+     "name": "Turn Undead",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_AnimateDead",
+     "name": "Animate Dead",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_AnimateDead_Skeleton",
+     "name": "Animate Dead: Skeleton",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_AnimateDead_Skeleton_4",
+     "name": "Animate Dead: Skeleton Squad",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_AnimateDead_Zombie",
+     "name": "Animate Dead: Zombie",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_AnimateDead_Zombie_4",
+     "name": "Animate Dead: Zombie Battalion",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Bane",
+     "name": "Bane",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Bane_2",
+     "name": "Bane",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Bane_3",
+     "name": "Bane",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Bane_4",
+     "name": "Bane",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Banishment",
+     "name": "Banishment",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_BestowCurse",
+     "name": "Bestow Curse",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_BestowCurse_4",
+     "name": "Bestow Curse",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Ability_Charisma",
+     "name": "Bestow Curse: Charisma Disadvantage",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Ability_Charisma_4",
+     "name": "Bestow Curse: Charisma Disadvantage",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Ability_Constitution",
+     "name": "Bestow Curse: Constitution Disadvantage",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Ability_Constitution_4",
+     "name": "Bestow Curse: Constitution Disadvantage",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Ability_Dexterity",
+     "name": "Bestow Curse: Dexterity Disadvantage",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Ability_Dexterity_4",
+     "name": "Bestow Curse: Dexterity Disadvantage",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Ability_Intelligence",
+     "name": "Bestow Curse: Intelligence Disadvantage",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Ability_Intelligence_4",
+     "name": "Bestow Curse: Intelligence Disadvantage",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Ability_Strength",
+     "name": "Bestow Curse: Strength Disadvantage",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Ability_Strength_4",
+     "name": "Bestow Curse: Strength Disadvantage",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Ability_Wisdom",
+     "name": "Bestow Curse: Wisdom Disadvantage",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Ability_Wisdom_4",
+     "name": "Bestow Curse: Wisdom Disadvantage",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Attack",
+     "name": "Bestow Curse: Attack Disadvantage",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_Attack_4",
+     "name": "Bestow Curse: Attack Disadvantage",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_ExtraDamage",
+     "name": "Bestow Curse: Additional Damage",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_ExtraDamage_4",
+     "name": "Bestow Curse: Additional Damage",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_SkipTurn",
+     "name": "Bestow Curse: Dread",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_BestowCurse_SkipTurn_4",
+     "name": "Bestow Curse: Dread",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Bless",
+     "name": "Bless",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Bless_2",
+     "name": "Bless",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Bless_3",
+     "name": "Bless",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Bless_4",
+     "name": "Bless",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Blindness",
+     "name": "Blindness",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_Blindness_3",
+     "name": "Blindness",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_Blindness_4",
+     "name": "Blindness",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_CalmEmotions",
+     "name": "Calm Emotions",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_CalmEmotions_3",
+     "name": "Calm Emotions",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_CalmEmotions_4",
+     "name": "Calm Emotions",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Approach",
+     "name": "Command: Approach",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Approach_2",
+     "name": "Command: Approach",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Approach_3",
+     "name": "Command: Approach",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Approach_4",
+     "name": "Command: Approach",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Command_Container",
+     "name": "Command",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_Command_Container_2",
+     "name": "Command",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_Command_Container_3",
+     "name": "Command",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_Command_Container_4",
+     "name": "Command",
+     "prepared": true
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Drop",
+     "name": "Command: Drop",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Drop_2",
+     "name": "Command: Drop",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Drop_3",
+     "name": "Command: Drop",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Drop_4",
+     "name": "Command: Drop",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Flee",
+     "name": "Command: Flee",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Flee_2",
+     "name": "Command: Flee",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Flee_3",
+     "name": "Command: Flee",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Flee_4",
+     "name": "Command: Flee",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Grovel",
+     "name": "Command: Grovel",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Grovel_2",
+     "name": "Command: Grovel",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Grovel_3",
+     "name": "Command: Grovel",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Grovel_4",
+     "name": "Command: Grovel",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Halt",
+     "name": "Command: Halt",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Halt_2",
+     "name": "Command: Halt",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Halt_3",
+     "name": "Command: Halt",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Command_Halt_4",
+     "name": "Command: Halt",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_ConcussiveSmash",
+     "name": "Concussive Smash",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_CreateDestroyWater",
+     "name": "Create or Destroy Water",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_CreateWater",
+     "name": "Create Water",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_CreateWater_2",
+     "name": "Create Water",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_CreateWater_3",
+     "name": "Create Water",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_CreateWater_4",
+     "name": "Create Water",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_CureWounds",
+     "name": "Cure Wounds",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_CureWounds_2",
+     "name": "Cure Wounds",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_CureWounds_3",
+     "name": "Cure Wounds",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_CureWounds_4",
+     "name": "Cure Wounds",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Daylight",
+     "name": "Daylight: Sphere",
+     "prepared": true
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Daylight_4",
+     "name": "Daylight: Sphere",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_Daylight_Container",
+     "name": "Daylight",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_Daylight_Container_4",
+     "name": "Daylight",
+     "prepared": true
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Daylight_Enchantment",
+     "name": "Daylight: Enchant Item",
+     "prepared": true
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Daylight_Enchantment_4",
+     "name": "Daylight: Enchant Item",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_DeathWard",
+     "name": "Death Ward",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_DestroyWater",
+     "name": "Destroy Water",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_DestroyWater_2",
+     "name": "Destroy Water",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_DestroyWater_3",
+     "name": "Destroy Water",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_DestroyWater_4",
+     "name": "Destroy Water",
+     "prepared": false
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Dip",
+     "name": "Dip",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_EnhanceAbility",
+     "name": "Enhance Ability",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_EnhanceAbility_3",
+     "name": "Enhance Ability",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_EnhanceAbility_4",
+     "name": "Enhance Ability",
+     "prepared": true
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_BearsEndurance",
+     "name": "Bear's Endurance",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_BearsEndurance_3",
+     "name": "Bear's Endurance",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_BearsEndurance_4",
+     "name": "Bear's Endurance",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_BullsStrength",
+     "name": "Bull's Strength",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_BullsStrength_3",
+     "name": "Bull's Strength",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_BullsStrength_4",
+     "name": "Bull's Strength",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_CatsGrace",
+     "name": "Cat's Grace",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_CatsGrace_3",
+     "name": "Cat's Grace",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_CatsGrace_4",
+     "name": "Cat's Grace",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_EaglesSplendor",
+     "name": "Eagle's Splendour",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_EaglesSplendor_3",
+     "name": "Eagle's Splendour",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_EaglesSplendor_4",
+     "name": "Eagle's Splendour",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_FoxsCunning",
+     "name": "Fox's Cunning",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_FoxsCunning_3",
+     "name": "Fox's Cunning",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_FoxsCunning_4",
+     "name": "Fox's Cunning",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_OwlsWisdom",
+     "name": "Owl's Wisdom",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_OwlsWisdom_3",
+     "name": "Owl's Wisdom",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_EnhanceAbility_OwlsWisdom_4",
+     "name": "Owl's Wisdom",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_FaerieFire",
+     "name": "Faerie Fire",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_FaerieFire_2",
+     "name": "Faerie Fire",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_FaerieFire_3",
+     "name": "Faerie Fire",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_FaerieFire_4",
+     "name": "Faerie Fire",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_FeignDeath",
+     "name": "Feign Death",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_FeignDeath_4",
+     "name": "Feign Death",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_FlamingSphere",
+     "name": "Flaming Sphere",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_FlamingSphere_3",
+     "name": "Flaming Sphere",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_FlamingSphere_4",
+     "name": "Flaming Sphere",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_GlyphOfWarding",
+     "name": "Glyph of Warding",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Acid",
+     "name": "Glyph of Warding: Acid",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Acid_4",
+     "name": "Glyph of Warding: Acid",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Cold",
+     "name": "Glyph of Warding: Cold",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Cold_4",
+     "name": "Glyph of Warding: Cold",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Detonation",
+     "name": "Glyph of Warding: Detonation",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Detonation_4",
+     "name": "Glyph of Warding: Detonation",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Fire",
+     "name": "Glyph of Warding: Fire",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Fire_4",
+     "name": "Glyph of Warding: Fire",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Lightning",
+     "name": "Glyph of Warding: Lightning",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Lightning_4",
+     "name": "Glyph of Warding: Lightning",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Sleep",
+     "name": "Glyph of Warding: Sleep",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Sleep_4",
+     "name": "Glyph of Warding: Sleep",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Thunder",
+     "name": "Glyph of Warding: Thunder",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_GlyphOfWarding_Thunder_4",
+     "name": "Glyph of Warding: Thunder",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_GuardianOfFaith",
+     "name": "Guardian of Faith",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_Guidance",
+     "name": "Guidance",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_HealingWord",
+     "name": "Healing Word",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_HealingWord_2",
+     "name": "Healing Word",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_HealingWord_3",
+     "name": "Healing Word",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_HealingWord_4",
+     "name": "Healing Word",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Help",
+     "name": "Help",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_HoldPerson",
+     "name": "Hold Person",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_HoldPerson_3",
+     "name": "Hold Person",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_HoldPerson_4",
+     "name": "Hold Person",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_InflictWounds",
+     "name": "Inflict Wounds",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_InflictWounds_2",
+     "name": "Inflict Wounds",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_InflictWounds_3",
+     "name": "Inflict Wounds",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_InflictWounds_4",
+     "name": "Inflict Wounds",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_LesserRestoration",
+     "name": "Lesser Restoration",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_LesserRestoration_3",
+     "name": "Lesser Restoration",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_LesserRestoration_4",
+     "name": "Lesser Restoration",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Light",
+     "name": "Light",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_MAG_HealingWord",
+     "name": "Healing Word",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_MAG_HuntersMark",
+     "name": "Hunter's Mark",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_MainHandAttack",
+     "name": "Main Hand Attack",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_ProtectionFromEnergy",
+     "name": "Protection from Energy",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_ProtectionFromEnergy_Acid",
+     "name": "Protection from Energy: Acid",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_ProtectionFromEnergy_Acid_4",
+     "name": "Protection from Energy: Acid",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_ProtectionFromEnergy_Cold",
+     "name": "Protection from Energy: Cold",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_ProtectionFromEnergy_Cold_4",
+     "name": "Protection from Energy: Cold",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_ProtectionFromEnergy_Fire",
+     "name": "Protection from Energy: Fire",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_ProtectionFromEnergy_Fire_4",
+     "name": "Protection from Energy: Fire",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_ProtectionFromEnergy_Lightning",
+     "name": "Protection from Energy: Lightning",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_ProtectionFromEnergy_Lightning_4",
+     "name": "Protection from Energy: Lightning",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_ProtectionFromEnergy_Thunder",
+     "name": "Protection from Energy: Thunder",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_ProtectionFromEnergy_Thunder_4",
+     "name": "Protection from Energy: Thunder",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_ProtectionFromEvilAndGood",
+     "name": "Protection from Evil and Good",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_ProtectionFromEvilAndGood_2",
+     "name": "Protection from Evil and Good",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_ProtectionFromEvilAndGood_3",
+     "name": "Protection from Evil and Good",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_ProtectionFromEvilAndGood_4",
+     "name": "Protection from Evil and Good",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_ProtectionFromPoison",
+     "name": "Protection from Poison",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_ProtectionFromPoison_3",
+     "name": "Protection from Poison",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_ProtectionFromPoison_4",
+     "name": "Protection from Poison",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_RemoveCurse",
+     "name": "Remove Curse",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_RemoveCurse_4",
+     "name": "Remove Curse",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_SacredFlame",
+     "name": "Sacred Flame",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_Sanctuary",
+     "name": "Sanctuary",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_Sanctuary_2",
+     "name": "Sanctuary",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_Sanctuary_3",
+     "name": "Sanctuary",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_Sanctuary_4",
+     "name": "Sanctuary",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_ShieldOfFaith",
+     "name": "Shield of Faith",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_ShieldOfFaith_2",
+     "name": "Shield of Faith",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_ShieldOfFaith_3",
+     "name": "Shield of Faith",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_ShieldOfFaith_4",
+     "name": "Shield of Faith",
+     "prepared": false
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Shove",
+     "name": "Shove",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_Silence",
+     "name": "Silence",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Silence_3",
+     "name": "Silence",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Silence_4",
+     "name": "Silence",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_SpeakWithDead",
+     "name": "Speak with Dead",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_SpeakWithDead_4",
+     "name": "Speak with Dead",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_SpiritualWeapon",
+     "name": "Spiritual Weapon",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Greataxe",
+     "name": "Spiritual Weapon: Greataxe",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Greataxe_3",
+     "name": "Spiritual Weapon: Greataxe",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Greataxe_4",
+     "name": "Spiritual Weapon: Greataxe",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Greatsword",
+     "name": "Spiritual Weapon: Greatsword",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Greatsword_3",
+     "name": "Spiritual Weapon: Greatsword",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Greatsword_4",
+     "name": "Spiritual Weapon: Greatsword",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Halberd",
+     "name": "Spiritual Weapon: Halberd",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Halberd_3",
+     "name": "Spiritual Weapon: Halberd",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Halberd_4",
+     "name": "Spiritual Weapon: Halberd",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Maul",
+     "name": "Spiritual Weapon: Maul",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Maul_3",
+     "name": "Spiritual Weapon: Maul",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Maul_4",
+     "name": "Spiritual Weapon: Maul",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Spear",
+     "name": "Spiritual Weapon: Spear",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Spear_3",
+     "name": "Spiritual Weapon: Spear",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Spear_4",
+     "name": "Spiritual Weapon: Spear",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Trident",
+     "name": "Spiritual Weapon: Trident",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Trident_3",
+     "name": "Spiritual Weapon: Trident",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_SpiritualWeapon_Trident_4",
+     "name": "Spiritual Weapon: Trident",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Topple",
+     "name": "Topple",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_WardingBond",
+     "name": "Warding Bond",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_WardingBond_3",
+     "name": "Warding Bond",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_WardingBond_4",
+     "name": "Warding Bond",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Teleportation_Revivify",
+     "name": "Revivify",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Teleportation_Revivify_4",
+     "name": "Revivify",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Throw_ImprovisedWeapon",
+     "name": "Improvised Melee Weapon",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Throw_Throw",
+     "name": "Throw",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Zone_BurningHands",
+     "name": "Burning Hands",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Zone_BurningHands_2",
+     "name": "Burning Hands",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Zone_BurningHands_3",
+     "name": "Burning Hands",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Zone_BurningHands_4",
+     "name": "Burning Hands",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Zone_MAG_BloodOfLathander_Sunbeam",
+     "name": "Sunbeam",
+     "prepared": true
+    }
+   ],
+   "spells_note": null,
+   "undetermined": [],
+   "xp": 28706
+  },
+  {
+   "abilities": {
+    "cha": 10,
+    "con": 16,
+    "dex": 13,
+    "int": 8,
+    "str": 19,
+    "wis": 12
+   },
+   "at_camp": false,
+   "carried": [
+    {
+     "category": "consumable",
+     "count": 1,
+     "name": "Silk Gland",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ALCH_Ingredient_Part_SpiderGland",
+     "template_guid": "1db12e7c-e88b-4151-af11-4e2010ef319d"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Karlach's Infernal Trousers",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Camp_Body_Karlach",
+     "template_guid": "5c79e518-2c59-41c5-84a7-d43a58e76d09"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Tasteful Boots",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Camp_Shoes_Karlach",
+     "template_guid": "b8f42945-a42e-46cb-a424-3a0a5e97157a"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Half Plate Armour",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_HalfPlate_Body",
+     "template_guid": "6fbbe358-8915-4781-b738-098c3e5a3bff"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Karlach's Underwear",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Underwear_Karlach",
+     "template_guid": "e865db4c-4df3-48e9-8cf3-5abad75510ba"
+    },
+    {
+     "category": "consumable",
+     "count": 1,
+     "name": "Dragon Egg Mushroom",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "CONS_Mushrooms_DragonEggMushroom",
+     "template_guid": "ca00a2d6-3108-4868-b295-7729e8aafabf"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Shield of Scorching Reprisal",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "MAG_FlamingFist_Flaming_Shield",
+     "template_guid": "8c7caa2a-7c11-4f0b-86a8-b8808057101b"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Alchemy Pouch",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Bag_AlchemyPouch",
+     "template_guid": "b7543ff4-5010-4c01-9bcd-4da1047aebfc"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Bloodstone",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Bloodstone",
+     "template_guid": "a92ee8db-142f-4a2a-af64-78e3aec36832"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Candle",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Candle_Gold_Purple",
+     "template_guid": "ac805261-e2e4-49fd-b20e-5d89e335ad5e"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Keychain",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Keychain",
+     "template_guid": "ee329627-dbee-405f-b9a6-b260de9ad34c"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Gold Key",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "PUZ_Key",
+     "template_guid": "c3daa5ff-0f98-4cff-adcf-cb9cf9d8f993"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Leather Gloves",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "UNI_Karlach_Gloves",
+     "template_guid": "8ee5bdde-c22f-452f-add9-2d82ec3dc390"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Torch",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "WPN_Torch",
+     "template_guid": "50c43f27-a12e-412c-88f0-56e15eba692a"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Scale Mail",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_ScaleMail_Body",
+     "template_guid": "ca0aafad-0f1e-4d76-8e3b-925397bb436b"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Scale Mail",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_ScaleMail_Body",
+     "template_guid": "ca0aafad-0f1e-4d76-8e3b-925397bb436b"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Scale Mail",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_ScaleMail_Body",
+     "template_guid": "ca0aafad-0f1e-4d76-8e3b-925397bb436b"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Soul Coin",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "GLO_SoulCoin",
+     "template_guid": "8c68e68d-96d4-45d6-804c-5f31ac948ff3"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Soul Coin",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "GLO_SoulCoin",
+     "template_guid": "8c68e68d-96d4-45d6-804c-5f31ac948ff3"
+    }
+   ],
+   "classes": [
+    {
+     "Main": "Barbarian",
+     "Sub": "TotemWarriorPath"
+    }
+   ],
+   "concentration": null,
+   "equipment_note": null,
+   "equipped": [
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Boots of Speed",
+     "slot": "Boots",
+     "slot_rank": [
+      4,
+      0
+     ],
+     "stats": "ARM_BootsOfSpeed",
+     "template_guid": "8b22d15a-85bb-4c8d-90cf-a773fc451eac"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Circlet of Blasting",
+     "slot": "Helmet",
+     "slot_rank": [
+      0,
+      0
+     ],
+     "stats": "ARM_CircletOfBlasting",
+     "template_guid": "3abdbb8a-4701-4397-8fce-7a8dd8a0bb84"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Amulet of Misty Step",
+     "slot": "Amulet",
+     "slot_rank": [
+      5,
+      0
+     ],
+     "stats": "GOB_DrowCommander_Amulet",
+     "template_guid": "338848e7-b2c6-4f97-879b-cb3439b4f959"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Harold",
+     "slot": "Ranged Main Weapon",
+     "slot_rank": [
+      9,
+      0
+     ],
+     "stats": "MAG_BG_Harold_HeavyCrossbow",
+     "template_guid": "22bf3680-a37f-4a04-b036-2865805f3d60"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "The Mighty Cloth",
+     "slot": "Breast",
+     "slot_rank": [
+      2,
+      0
+     ],
+     "stats": "MAG_BarbMonk_Offensive_Cloth",
+     "template_guid": "48215bcb-b4a2-48cb-bfbe-8b601e678032"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Jorgoral's Greatsword",
+     "slot": "Melee Main Weapon",
+     "slot_rank": [
+      7,
+      0
+     ],
+     "stats": "MAG_Colossal_Greatsword",
+     "template_guid": "26ac9758-19f4-4867-9d5d-57437d6b9794"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Shifting Corpus Ring",
+     "slot": "Ring 2",
+     "slot_rank": [
+      6,
+      2
+     ],
+     "stats": "MAG_FlamingFist_ScoutRing",
+     "template_guid": "959e9aa6-b12b-4b71-83b4-0debdf647e9c"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Ring of Flinging",
+     "slot": "Ring",
+     "slot_rank": [
+      6,
+      1
+     ],
+     "stats": "MAG_Harpers_RingOfProjection",
+     "template_guid": "4aba2198-98f9-4ec8-8a1b-bbd9ed864856"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Gloves of Heroism",
+     "slot": "Gloves",
+     "slot_rank": [
+      3,
+      0
+     ],
+     "stats": "MAG_Paladin_LayOnHandsSupport_Gloves",
+     "template_guid": "110144ac-db1d-4db8-a907-92f642086d0d"
+    }
+   ],
+   "feats": [
+    {
+     "guid": "be0889d2-f9aa-472d-b942-592bff0f1ef3",
+     "level": 4,
+     "name": "Tavern Brawler",
+     "picks": [
+      "Constitution"
+     ]
+    }
+   ],
+   "hp": {
+    "current": 75,
+    "max": 75,
+    "temp": 0,
+    "temp_max": 0
+   },
+   "inspect": null,
+   "level": 7,
+   "location": "Gauntlet of Shar",
+   "name": "Karlach",
+   "race": "Tiefling_Zariel",
+   "resources": [
+    {
+     "current": 1.0,
+     "guid": "734cbcfb-8922-4b6d-8330-b2a7e4c14b6a",
+     "level": 0,
+     "max": 1.0,
+     "name": "Action",
+     "replenish": 2
+    },
+    {
+     "current": 1.0,
+     "guid": "420c8df5-45c2-4253-93c2-7ec44e127930",
+     "level": 0,
+     "max": 1.0,
+     "name": "Bonus Action",
+     "replenish": 2
+    },
+    {
+     "current": 1.0,
+     "guid": "45ff0f48-b210-4024-972f-b64a44dc6985",
+     "level": 0,
+     "max": 1.0,
+     "name": "Reaction",
+     "replenish": 2
+    },
+    {
+     "current": 12.0,
+     "guid": "d6b2369d-84f0-4ca4-a3a7-62d2d192a185",
+     "level": 0,
+     "max": 12.0,
+     "name": "Movement Speed",
+     "replenish": 2
+    },
+    {
+     "current": 4.0,
+     "guid": "6740f9f4-125d-4321-89e0-771fccd64622",
+     "level": 0,
+     "max": 4.0,
+     "name": "Rage Charge",
+     "replenish": 8
+    }
+   ],
+   "spells": [
+    {
+     "category": "basic-action",
+     "id": "Projectile_Jump",
+     "name": "Jump",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Projectile_MainHandAttack",
+     "name": "Ranged Attack",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_PiercingShot",
+     "name": "Piercing Shot",
+     "prepared": true
+    },
+    {
+     "category": "sub-spell",
+     "id": "Projectile_Smite_Branding_ZarielTiefling",
+     "name": "Branding Smite (Ranged)",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Rush_MAG_Barbarian_Armor_Trample",
+     "name": "Bull Rush",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_BootsOfSpeed",
+     "name": "Click Heels",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Dash",
+     "name": "Dash",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Disengage",
+     "name": "Disengage",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Hide",
+     "name": "Hide",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_MAG_FlamingFist_ScoutRing_Blur",
+     "name": "Blur",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_Rage_Totem_Tiger",
+     "name": "Rage: Tiger Heart",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_SpeakWithAnimals_Barbarian",
+     "name": "Speak with Animals",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_SteadyRangedCrossbow",
+     "name": "Brace (Ranged)",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_Thaumaturgy",
+     "name": "Thaumaturgy",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Dip",
+     "name": "Dip",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Help",
+     "name": "Help",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_MAG_FlamingFist_ScoutRing_Invisibility",
+     "name": "Invisibility",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_MainHandAttack",
+     "name": "Main Hand Attack",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_PommelStrike",
+     "name": "Pommel Strike",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_RecklessAttack",
+     "name": "Reckless Attack",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Shove",
+     "name": "Shove",
+     "prepared": true
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_Smite_Branding_ZarielTiefling",
+     "name": "Branding Smite (Melee)",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_Smite_Branding_ZarielTiefling_Container",
+     "name": "Legacy of Avernus: Branding Smite",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_Smite_Searing_ZarielTiefling",
+     "name": "Legacy of Avernus: Searing Smite",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_UNI_MistyStep_DrowCommander_Amulet",
+     "name": "Misty Step",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_UnarmedAttack",
+     "name": "Unarmed Strike",
+     "prepared": false
+    },
+    {
+     "category": "basic-action",
+     "id": "Throw_ImprovisedWeapon",
+     "name": "Improvised Melee Weapon",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Throw_Throw",
+     "name": "Throw",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Zone_Cleave",
+     "name": "Cleave",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Zone_Mag_WeaponAction_GiantBlade",
+     "name": "Colossal Onslaught",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Zone_TigersBloodlust",
+     "name": "Tiger's Bloodlust",
+     "prepared": true
+    }
+   ],
+   "spells_note": null,
+   "undetermined": [],
+   "xp": 28716
+  },
+  {
+   "abilities": {
+    "cha": 18,
+    "con": 14,
+    "dex": 13,
+    "int": 13,
+    "str": 8,
+    "wis": 10
+   },
+   "at_camp": false,
+   "carried": [
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Leather Boots",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Boots_Leather",
+     "template_guid": "969bab00-b269-46a5-a7e9-dd4887814719"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Wyll's Earthy Garb",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Camp_Body_Wyll",
+     "template_guid": "bd2ac836-5584-41e5-b4ff-01782c0dec6d"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Tasteful Boots",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Camp_Shoes_Wyll",
+     "template_guid": "b307af36-a2da-4c01-aac3-a31771edd407"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Wyll's Underwear",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Underwear_Wyll",
+     "template_guid": "1930ceec-4a50-43d9-8589-94593c449be4"
+    },
+    {
+     "category": "consumable",
+     "count": 1,
+     "name": "Bonecap",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "CONS_Mushrooms_Bonecap",
+     "template_guid": "7ea30dc7-4ccd-465a-b91f-9fd2d31c38c0"
+    },
+    {
+     "category": "consumable",
+     "count": 1,
+     "name": "Dragon Egg Mushroom",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "CONS_Mushrooms_DragonEggMushroom",
+     "template_guid": "19c9becf-ab0e-4e2f-9253-12456ff9b465"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Fireheart",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "MAG_Fire_HeatOnTakingFireDamage_Amulet",
+     "template_guid": "ad278f33-7c10-4779-88fc-d1448f25ae72"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Alchemy Pouch",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Bag_AlchemyPouch",
+     "template_guid": "b7543ff4-5010-4c01-9bcd-4da1047aebfc"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Sylvan Stone",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Crystal_SylvanStone",
+     "template_guid": "1524e46d-179d-4785-99ce-f515e1c52e32"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Crystal Ball",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_GenericLootItem",
+     "template_guid": "adee0e7a-43d9-4fb0-806c-baa94ee0691f"
+    },
+    {
+     "category": "misc",
+     "count": 2020,
+     "name": "Gold",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_GoldPile",
+     "template_guid": "1c3c9c74-34a1-4685-989e-410dc080be6f"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Keychain",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Keychain",
+     "template_guid": "ee329627-dbee-405f-b9a6-b260de9ad34c"
+    },
+    {
+     "category": "book",
+     "count": 1,
+     "name": "Scroll of Colour Spray",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Scroll_ColorSpray",
+     "template_guid": "c7c92bc3-e856-4403-b509-9b0491f455cd"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Gold Key",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "PUZ_Key",
+     "template_guid": "a5ea7cd3-6599-40e5-b609-50056b65a361"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Phalar Aluve",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "UND_SwordInStone",
+     "template_guid": "cc16c1cb-d355-47df-820a-33a83c42234b"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Torch",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "WPN_Torch",
+     "template_guid": "50c43f27-a12e-412c-88f0-56e15eba692a"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Torch",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "WPN_Torch",
+     "template_guid": "50c43f27-a12e-412c-88f0-56e15eba692a"
+    }
+   ],
+   "classes": [
+    {
+     "Main": "Warlock",
+     "Sub": "Fiend"
+    }
+   ],
+   "concentration": null,
+   "equipment_note": null,
+   "equipped": [
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Spidersilk Armour",
+     "slot": "Breast",
+     "slot_rank": [
+      2,
+      0
+     ],
+     "stats": "GOB_DrowCommander_Leather_Armor",
+     "template_guid": "c0c0534c-b7fc-4d0b-a335-b8f4c548852d"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Bow of the Banshee",
+     "slot": "Ranged Main Weapon",
+     "slot_rank": [
+      9,
+      0
+     ],
+     "stats": "MAG_BG_OfTheBanshee_Bow",
+     "template_guid": "c040d1fc-4804-4774-8367-6dfa397e27e2"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "The Spellsparkler",
+     "slot": "Melee Main Weapon",
+     "slot_rank": [
+      7,
+      0
+     ],
+     "stats": "MAG_ChargedLightning_Quarterstaff",
+     "template_guid": "53d6be1b-eac1-4b88-83ab-ba17956eca57"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Evasive Shoes",
+     "slot": "Boots",
+     "slot_rank": [
+      4,
+      0
+     ],
+     "stats": "MAG_Evasive_Shoes",
+     "template_guid": "119f753a-8b06-44d8-bb9a-8a307f6032da"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Cloak of Protection",
+     "slot": "Cloak",
+     "slot_rank": [
+      1,
+      0
+     ],
+     "stats": "MAG_PHB_CloakOfProtection_Cloak",
+     "template_guid": "602f62dd-0fba-4438-ad68-b846f17ac538"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Pearl of Power Amulet",
+     "slot": "Amulet",
+     "slot_rank": [
+      5,
+      0
+     ],
+     "stats": "MAG_PHB_ofPower_Pearl_Amulet",
+     "template_guid": "6b8fcc06-fa6a-4a11-8318-075d90d8e909"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Safeguard Shield",
+     "slot": "Melee Offhand Weapon",
+     "slot_rank": [
+      8,
+      0
+     ],
+     "stats": "MAG_Safeguard_Shield",
+     "template_guid": "3138b480-3ef6-42af-ba35-e4cad4e962ee"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Gloves of Belligerent Skies",
+     "slot": "Gloves",
+     "slot_rank": [
+      3,
+      0
+     ],
+     "stats": "MAG_Thunder_Reverberation_Gloves",
+     "template_guid": "c987b6e4-adcb-47d6-8dfd-6d4d2f15a381"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Shadow of Menzoberranzan",
+     "slot": "Helmet",
+     "slot_rank": [
+      0,
+      0
+     ],
+     "stats": "UND_ShadowOfMenzoberranzan",
+     "template_guid": "674bef93-9008-45ce-85b5-9632f9f92ed2"
+    }
+   ],
+   "feats": [
+    {
+     "guid": "cdcbc538-883b-401c-a8ed-1373fb6d1720",
+     "level": 4,
+     "name": "Actor",
+     "picks": []
+    }
+   ],
+   "hp": {
+    "current": 52,
+    "max": 52,
+    "temp": 0,
+    "temp_max": 0
+   },
+   "inspect": null,
+   "level": 7,
+   "location": "Gauntlet of Shar",
+   "name": "Wyll",
+   "race": "Human",
+   "resources": [
+    {
+     "current": 1.0,
+     "guid": "734cbcfb-8922-4b6d-8330-b2a7e4c14b6a",
+     "level": 0,
+     "max": 1.0,
+     "name": "Action",
+     "replenish": 2
+    },
+    {
+     "current": 1.0,
+     "guid": "420c8df5-45c2-4253-93c2-7ec44e127930",
+     "level": 0,
+     "max": 1.0,
+     "name": "Bonus Action",
+     "replenish": 2
+    },
+    {
+     "current": 1.0,
+     "guid": "45ff0f48-b210-4024-972f-b64a44dc6985",
+     "level": 0,
+     "max": 1.0,
+     "name": "Reaction",
+     "replenish": 2
+    },
+    {
+     "current": 9.0,
+     "guid": "d6b2369d-84f0-4ca4-a3a7-62d2d192a185",
+     "level": 0,
+     "max": 9.0,
+     "name": "Movement Speed",
+     "replenish": 2
+    },
+    {
+     "current": 0.0,
+     "guid": "e9127b70-22b7-42a1-b172-d02f828f260a",
+     "level": 1,
+     "max": 0.0,
+     "name": "Warlock Spell Slot",
+     "replenish": 16
+    },
+    {
+     "current": 0.0,
+     "guid": "e9127b70-22b7-42a1-b172-d02f828f260a",
+     "level": 2,
+     "max": 0.0,
+     "name": "Warlock Spell Slot",
+     "replenish": 16
+    },
+    {
+     "current": 0.0,
+     "guid": "e9127b70-22b7-42a1-b172-d02f828f260a",
+     "level": 3,
+     "max": 0.0,
+     "name": "Warlock Spell Slot",
+     "replenish": 16
+    },
+    {
+     "current": 2.0,
+     "guid": "e9127b70-22b7-42a1-b172-d02f828f260a",
+     "level": 4,
+     "max": 2.0,
+     "name": "Warlock Spell Slot",
+     "replenish": 16
+    }
+   ],
+   "spells": [
+    {
+     "category": "spell",
+     "id": "Projectile_EldritchBlast",
+     "name": "Eldritch Blast",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_Fireball_4",
+     "name": "Fireball",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_HamstringShot",
+     "name": "Hamstring Shot",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Projectile_Jump",
+     "name": "Jump",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Projectile_MainHandAttack",
+     "name": "Ranged Attack",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_ScorchingRay_CircletOfBlasting",
+     "name": "Scorching Ray",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Shout_ArmorOfAgathys_4",
+     "name": "Armour of Agathys",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_BladeWard",
+     "name": "Blade Ward",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Dash",
+     "name": "Dash",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Disengage",
+     "name": "Disengage",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Hide",
+     "name": "Hide",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_MAG_SpellSlotRestoration_PearlOfPower",
+     "name": "Pearlescent Restoration",
+     "prepared": true
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_MAG_SpellSlotRestoration_PearlOfPower_1",
+     "name": "Pearlescent Restoration Level 1",
+     "prepared": true
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_MAG_SpellSlotRestoration_PearlOfPower_2",
+     "name": "Pearlescent Restoration Level 2",
+     "prepared": true
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_MAG_SpellSlotRestoration_PearlOfPower_3",
+     "name": "Pearlescent Restoration Level 3",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_UND_Invisibility_ShadowOfMenzoberranzan",
+     "name": "Shrouded in Shadow",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_CloudOfDaggers_4",
+     "name": "Cloud of Daggers",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_Counterspell_4",
+     "name": "Counterspell",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Dip",
+     "name": "Dip",
+     "prepared": true
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_FindFamiliar_Cat_Ritual",
+     "name": "Find Familiar: Cat",
+     "prepared": true
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_FindFamiliar_Crab_Ritual",
+     "name": "Find Familiar: Crab",
+     "prepared": true
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_FindFamiliar_Frog_Ritual",
+     "name": "Find Familiar: Frog",
+     "prepared": true
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_FindFamiliar_Rat_Ritual",
+     "name": "Find Familiar: Rat",
+     "prepared": true
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_FindFamiliar_Raven_Ritual",
+     "name": "Find Familiar: Raven",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_FindFamiliar_Ritual",
+     "name": "Find Familiar",
+     "prepared": true
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_FindFamiliar_Spider_Ritual",
+     "name": "Find Familiar: Spider",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Help",
+     "name": "Help",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_HungerOfHadar_4",
+     "name": "Hunger of Hadar",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_MinorIllusion",
+     "name": "Minor Illusion",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_MistyStep_4",
+     "name": "Misty Step",
+     "prepared": true
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_PactOfTheChain_Imp",
+     "name": "Find Familiar: Imp",
+     "prepared": true
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_PactOfTheChain_Quasit",
+     "name": "Find Familiar: Quasit",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_Polymorph",
+     "name": "Polymorph",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Shove",
+     "name": "Shove",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_Slash_New",
+     "name": "Lacerate",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_SurvivalInstinct",
+     "name": "Survival Instinct",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Teleportation_DimensionDoor",
+     "name": "Dimension Door",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Throw_ImprovisedWeapon",
+     "name": "Improvised Melee Weapon",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Throw_Throw",
+     "name": "Throw",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Wall_WallOfFire",
+     "name": "Wall of Fire",
+     "prepared": true
+    }
+   ],
+   "spells_note": null,
+   "undetermined": [],
+   "xp": 28816
+  },
+  {
+   "abilities": {
+    "cha": 10,
+    "con": 14,
+    "dex": 20,
+    "int": 13,
+    "str": 8,
+    "wis": 14
+   },
+   "at_camp": true,
+   "carried": [
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Astarion's Eccentric Clothes",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Camp_Body_Astarion",
+     "template_guid": "b7392453-6569-4c24-9a1b-cbaea7cebac8"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Tasteful Boots",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Camp_Shoes_Astarion",
+     "template_guid": "4700fad1-769e-4831-9b3f-4ead08c49cfa"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Drow Studded Leather Armour",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_StuddedLeather_Body_Drow",
+     "template_guid": "cab3455f-59fe-42be-8dcd-7cd61149389a"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Astarion's Underwear",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Underwear_Astarion",
+     "template_guid": "4b30a649-fd88-4f64-a57b-1149d7b9ac41"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Knife of the Undermountain King",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "MAG_Duergar_Sword_KingsKnife",
+     "template_guid": "025e162a-45ec-4f4c-89da-04d8e8dfe606"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Camp Supply Sack",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Backpack_CampSupplies",
+     "template_guid": "efcb70b7-868b-4214-968a-e23f6ad586bc"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Alchemy Pouch",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Bag_AlchemyPouch",
+     "template_guid": "b7543ff4-5010-4c01-9bcd-4da1047aebfc"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Keychain",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Keychain",
+     "template_guid": "ee329627-dbee-405f-b9a6-b260de9ad34c"
+    },
+    {
+     "category": "consumable",
+     "count": 2,
+     "name": "Potion of Healing",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Potion_Healing",
+     "template_guid": "d47006e9-8a51-453d-b200-9e0d42e9bbab"
+    },
+    {
+     "category": "book",
+     "count": 1,
+     "name": "Scroll of Revivify",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Scroll_Revivify",
+     "template_guid": "c1c3e4fb-d68c-4e10-afdc-d4550238d50e"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Shovel",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Tool_Shovel",
+     "template_guid": "73efd1f7-5616-4ca8-84e6-6128aa6efaea"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Gold Key",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "PUZ_Key",
+     "template_guid": "c8feace1-e292-4fb9-bb98-2bae35020fc5"
+    }
+   ],
+   "classes": [
+    {
+     "Main": "Rogue",
+     "Sub": "Thief"
+    }
+   ],
+   "concentration": null,
+   "equipment_note": null,
+   "equipped": [
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Leather Boots",
+     "slot": "Boots",
+     "slot_rank": [
+      4,
+      0
+     ],
+     "stats": "ARM_Boots_Leather",
+     "template_guid": "969bab00-b269-46a5-a7e9-dd4887814719"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "The Graceful Cloth",
+     "slot": "Breast",
+     "slot_rank": [
+      2,
+      0
+     ],
+     "stats": "MAG_BarbMonk_Defensive_Cloth",
+     "template_guid": "b18ef236-44dc-43cd-8f6e-51ae785fae4d"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Gloves of Thievery",
+     "slot": "Gloves",
+     "slot_rank": [
+      3,
+      0
+     ],
+     "stats": "MAG_PHB_OfThievery_Gloves",
+     "template_guid": "5a2d9181-8179-46cc-a5f8-d5bae909d8e0"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Light Crossbow",
+     "slot": "Ranged Main Weapon",
+     "slot_rank": [
+      9,
+      0
+     ],
+     "stats": "WPN_LightCrossbow",
+     "template_guid": "43b7fbf5-7f6e-4e9e-bce7-c679eea44593"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Shortsword",
+     "slot": "Melee Main Weapon",
+     "slot_rank": [
+      7,
+      0
+     ],
+     "stats": "WPN_Shortsword",
+     "template_guid": "467ddb4f-6791-41fa-99f7-ee8620d63bbe"
+    }
+   ],
+   "feats": [
+    {
+     "guid": "d215b9ad-9753-4d74-8ff9-24bf1dce53d6",
+     "level": 4,
+     "name": "Ability Improvement",
+     "picks": [
+      "Wisdom",
+      "Dexterity"
+     ]
+    }
+   ],
+   "hp": {
+    "current": 45,
+    "max": 45,
+    "temp": 0,
+    "temp_max": 0
+   },
+   "inspect": null,
+   "level": 6,
+   "location": "camp",
+   "name": "Astarion",
+   "race": "Elf_HighElf",
+   "resources": [
+    {
+     "current": 1.0,
+     "guid": "734cbcfb-8922-4b6d-8330-b2a7e4c14b6a",
+     "level": 0,
+     "max": 1.0,
+     "name": "Action",
+     "replenish": 2
+    },
+    {
+     "current": 2.0,
+     "guid": "420c8df5-45c2-4253-93c2-7ec44e127930",
+     "level": 0,
+     "max": 2.0,
+     "name": "Bonus Action",
+     "replenish": 2
+    },
+    {
+     "current": 1.0,
+     "guid": "45ff0f48-b210-4024-972f-b64a44dc6985",
+     "level": 0,
+     "max": 1.0,
+     "name": "Reaction",
+     "replenish": 2
+    },
+    {
+     "current": 9.0,
+     "guid": "d6b2369d-84f0-4ca4-a3a7-62d2d192a185",
+     "level": 0,
+     "max": 9.0,
+     "name": "Movement Speed",
+     "replenish": 2
+    },
+    {
+     "current": 1.0,
+     "guid": "1531b6ec-4ba8-4b0d-8411-422d8f51855f",
+     "level": 0,
+     "max": 1.0,
+     "name": "Sneak Attack Charge",
+     "replenish": 2
+    }
+   ],
+   "spells": [
+    {
+     "category": "spell",
+     "id": "Projectile_FireBolt",
+     "name": "Fire Bolt",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Projectile_Jump",
+     "name": "Jump",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Projectile_MainHandAttack",
+     "name": "Ranged Attack",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_PiercingShot",
+     "name": "Piercing Shot",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Dash",
+     "name": "Dash",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_Dash_CunningAction",
+     "name": "Cunning Action: Dash",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Disengage",
+     "name": "Disengage",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_Disengage_CunningAction",
+     "name": "Cunning Action: Disengage",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Hide",
+     "name": "Hide",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_Hide_BonusAction",
+     "name": "Cunning Action: Hide",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Dip",
+     "name": "Dip",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Help",
+     "name": "Help",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_MainHandAttack",
+     "name": "Main Hand Attack",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_MistyStep",
+     "name": "Misty Step",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_MistyStep_3",
+     "name": "Misty Step",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_OpeningAttack",
+     "name": "Flourish",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_PiercingThrust",
+     "name": "Piercing Strike",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Shove",
+     "name": "Shove",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_VampireBite_Astarion",
+     "name": "Vampire Bite",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Throw_ImprovisedWeapon",
+     "name": "Improvised Melee Weapon",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Throw_Throw",
+     "name": "Throw",
+     "prepared": true
+    }
+   ],
+   "spells_note": null,
+   "undetermined": [],
+   "xp": null
+  },
+  {
+   "abilities": {
+    "cha": 12,
+    "con": 16,
+    "dex": 13,
+    "int": 18,
+    "str": 8,
+    "wis": 10
+   },
+   "at_camp": true,
+   "carried": [
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Gale's Austere Clothes",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Camp_Body_Gale",
+     "template_guid": "c56bbf29-2315-415e-a488-fada851828ea"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Tasteful Boots",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Camp_Shoes_Gale",
+     "template_guid": "cb28ea7d-2838-43e7-a807-11277c44facb"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Helmet",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Helmet_Metal",
+     "template_guid": "67a87879-533e-4f9b-8274-f5bd37748ace"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Netherese Briefs",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Underwear_Gale",
+     "template_guid": "5cdc0fe0-dbda-4f31-89f8-9e16782daef1"
+    },
+    {
+     "category": "consumable",
+     "count": 1,
+     "name": "Bonecap",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "CONS_Mushrooms_Bonecap",
+     "template_guid": "e9f6d6d3-bd95-414d-903a-b697bb222ae7"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Camp Supply Sack",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Backpack_CampSupplies",
+     "template_guid": "efcb70b7-868b-4214-968a-e23f6ad586bc"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Alchemy Pouch",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Bag_AlchemyPouch",
+     "template_guid": "b7543ff4-5010-4c01-9bcd-4da1047aebfc"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Ink Pot",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_InkPot",
+     "template_guid": "84bb402d-7ee1-838a-5cfd-54c4b1d70342"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Keychain",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Keychain",
+     "template_guid": "ee329627-dbee-405f-b9a6-b260de9ad34c"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Sword of Justice",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "PLA_WPN_SwordOfJustice",
+     "template_guid": "5e3bb83a-1d07-4598-80bb-850bb1bbd23b"
+    }
+   ],
+   "classes": [
+    {
+     "Main": "Wizard",
+     "Sub": "EvocationSchool"
+    }
+   ],
+   "concentration": null,
+   "equipment_note": null,
+   "equipped": [
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Simple Boots",
+     "slot": "Boots",
+     "slot_rank": [
+      4,
+      0
+     ],
+     "stats": "ARM_Shoes",
+     "template_guid": "97f37571-35e8-4cc8-8b0d-ff92d20ae0bb"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Warped Headband of Intellect",
+     "slot": "Helmet",
+     "slot_rank": [
+      0,
+      0
+     ],
+     "stats": "FOR_OgresForHire_HeadbandOfIntellect",
+     "template_guid": "8f4876f1-44d9-4bb8-802e-907c6b0a0dba"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Xyanyde",
+     "slot": "Melee Main Weapon",
+     "slot_rank": [
+      7,
+      0
+     ],
+     "stats": "GOB_DrowCommander_Mace",
+     "template_guid": "4b0131e0-875a-4f3c-8b41-dbf653857d00"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "The Sparkswall",
+     "slot": "Ring",
+     "slot_rank": [
+      6,
+      0
+     ],
+     "stats": "MAG_ChargedLightning_Resistance_Ring",
+     "template_guid": "a72120e6-aa1c-4a2b-89ae-a0469fb5b088"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Necklace of Elemental Augmentation",
+     "slot": "Amulet",
+     "slot_rank": [
+      5,
+      0
+     ],
+     "stats": "MAG_ElementalGish_CantripBooster_Amulet",
+     "template_guid": "a92cec2f-3a86-4aa1-a7e9-1d6dc9e12957"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Wood Woad Shield",
+     "slot": "Melee Offhand Weapon",
+     "slot_rank": [
+      8,
+      0
+     ],
+     "stats": "MAG_WoodWoad_Nature_Shield",
+     "template_guid": "90ba50bd-3e65-42ec-9f21-6e07d3ed89ab"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Gloves of Missile Snaring",
+     "slot": "Gloves",
+     "slot_rank": [
+      3,
+      0
+     ],
+     "stats": "UNI_ARM_OfMissileSnaring_Gloves",
+     "template_guid": "687cc55b-77a3-4893-a7d7-cfbafdc2737c"
+    }
+   ],
+   "feats": [
+    {
+     "guid": "d215b9ad-9753-4d74-8ff9-24bf1dce53d6",
+     "level": 4,
+     "name": "Ability Improvement",
+     "picks": [
+      "Constitution",
+      "Intelligence"
+     ]
+    }
+   ],
+   "hp": {
+    "current": 44,
+    "max": 44,
+    "temp": 0,
+    "temp_max": 0
+   },
+   "inspect": null,
+   "level": 6,
+   "location": "camp",
+   "name": "Gale",
+   "race": "Human",
+   "resources": [
+    {
+     "current": 1.0,
+     "guid": "734cbcfb-8922-4b6d-8330-b2a7e4c14b6a",
+     "level": 0,
+     "max": 1.0,
+     "name": "Action",
+     "replenish": 2
+    },
+    {
+     "current": 1.0,
+     "guid": "420c8df5-45c2-4253-93c2-7ec44e127930",
+     "level": 0,
+     "max": 1.0,
+     "name": "Bonus Action",
+     "replenish": 2
+    },
+    {
+     "current": 1.0,
+     "guid": "45ff0f48-b210-4024-972f-b64a44dc6985",
+     "level": 0,
+     "max": 1.0,
+     "name": "Reaction",
+     "replenish": 2
+    },
+    {
+     "current": 9.0,
+     "guid": "d6b2369d-84f0-4ca4-a3a7-62d2d192a185",
+     "level": 0,
+     "max": 9.0,
+     "name": "Movement Speed",
+     "replenish": 2
+    },
+    {
+     "current": 4.0,
+     "guid": "d136c5d9-0ff0-43da-acce-a74a07f8d6bf",
+     "level": 1,
+     "max": 4.0,
+     "name": "Spell Slot",
+     "replenish": 8
+    },
+    {
+     "current": 3.0,
+     "guid": "d136c5d9-0ff0-43da-acce-a74a07f8d6bf",
+     "level": 2,
+     "max": 3.0,
+     "name": "Spell Slot",
+     "replenish": 8
+    },
+    {
+     "current": 3.0,
+     "guid": "d136c5d9-0ff0-43da-acce-a74a07f8d6bf",
+     "level": 3,
+     "max": 3.0,
+     "name": "Spell Slot",
+     "replenish": 8
+    },
+    {
+     "current": 3.0,
+     "guid": "74737a08-7a77-457b-9740-ae363be2b80f",
+     "level": 0,
+     "max": 3.0,
+     "name": "Arcane Recovery Charge",
+     "replenish": 8
+    }
+   ],
+   "spells": [
+    {
+     "category": "spell",
+     "id": "Projectile_FireBolt",
+     "name": "Fire Bolt",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_Fireball",
+     "name": "Fireball",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_IceKnife",
+     "name": "Ice Knife",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_IceKnife_2",
+     "name": "Ice Knife",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_IceKnife_3",
+     "name": "Ice Knife",
+     "prepared": false
+    },
+    {
+     "category": "basic-action",
+     "id": "Projectile_Jump",
+     "name": "Jump",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_MagicMissile",
+     "name": "Magic Missile",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_MagicMissile_2",
+     "name": "Magic Missile",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_MagicMissile_3",
+     "name": "Magic Missile",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Projectile_MainHandAttack",
+     "name": "Ranged Attack",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_RayOfEnfeeblement",
+     "name": "Ray of Enfeeblement",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_RayOfEnfeeblement_3",
+     "name": "Ray of Enfeeblement",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_RayOfFrost",
+     "name": "Ray of Frost",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_RayOfSickness",
+     "name": "Ray of Sickness",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_RayOfSickness_2",
+     "name": "Ray of Sickness",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_RayOfSickness_3",
+     "name": "Ray of Sickness",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_ScorchingRay",
+     "name": "Scorching Ray",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_ScorchingRay_3",
+     "name": "Scorching Ray",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_WitchBolt",
+     "name": "Witch Bolt",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_WitchBolt_2",
+     "name": "Witch Bolt",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Projectile_WitchBolt_3",
+     "name": "Witch Bolt",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_ArcaneRecovery",
+     "name": "Arcane Recovery",
+     "prepared": true
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_ArcaneRecovery_1",
+     "name": "Arcane Recovery: Level 1",
+     "prepared": true
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_ArcaneRecovery_2",
+     "name": "Arcane Recovery: Level 2",
+     "prepared": true
+    },
+    {
+     "category": "sub-spell",
+     "id": "Shout_ArcaneRecovery_3",
+     "name": "Arcane Recovery: Level 3",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_Blink",
+     "name": "Blink",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Shout_Blur",
+     "name": "Blur",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Shout_Blur_3",
+     "name": "Blur",
+     "prepared": false
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Dash",
+     "name": "Dash",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_DetectThoughts",
+     "name": "Detect Thoughts",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Shout_DetectThoughts_3",
+     "name": "Detect Thoughts",
+     "prepared": false
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Disengage",
+     "name": "Disengage",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_FeatherFall",
+     "name": "Feather Fall",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Shout_FeatherFall_2",
+     "name": "Feather Fall",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Shout_FeatherFall_3",
+     "name": "Feather Fall",
+     "prepared": false
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Hide",
+     "name": "Hide",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_MirrorImage",
+     "name": "Mirror Image",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Shout_MirrorImage_3",
+     "name": "Mirror Image",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Shout_Shield_Wizard",
+     "name": "Shield",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_Shield_Wizard_2",
+     "name": "Shield",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_Shield_Wizard_3",
+     "name": "Shield",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_AnimateDead",
+     "name": "Animate Dead",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_AnimateDead_Skeleton",
+     "name": "Animate Dead: Skeleton",
+     "prepared": false
+    },
+    {
+     "category": "sub-spell",
+     "id": "Target_AnimateDead_Zombie",
+     "name": "Animate Dead: Zombie",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_CloudOfDaggers",
+     "name": "Cloud of Daggers",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_CloudOfDaggers_3",
+     "name": "Cloud of Daggers",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_ConcussiveSmash",
+     "name": "Concussive Smash",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_Counterspell",
+     "name": "Counterspell",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Darkness",
+     "name": "Darkness",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Darkness_3",
+     "name": "Darkness",
+     "prepared": false
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Dip",
+     "name": "Dip",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_END_Gale_ActivateNethereseOrb",
+     "name": "Netherese Orb Blast",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_FOR_ThayanCellar_SummonQuasit",
+     "name": "Find Familiar: Cheeky Quasit",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Fly",
+     "name": "Grant Flight",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_FogCloud",
+     "name": "Fog Cloud",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_FogCloud_2",
+     "name": "Fog Cloud",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_FogCloud_3",
+     "name": "Fog Cloud",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Grease",
+     "name": "Grease",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Grease_2",
+     "name": "Grease",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Grease_3",
+     "name": "Grease",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Haste",
+     "name": "Haste",
+     "prepared": false
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Help",
+     "name": "Help",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_HoldPerson",
+     "name": "Hold Person",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_HoldPerson_3",
+     "name": "Hold Person",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Invisibility",
+     "name": "Invisibility",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Invisibility_3",
+     "name": "Invisibility",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_MAG_EnsnaringStrike_Shield",
+     "name": "Woad's Ensnaring Strike",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_MageArmor",
+     "name": "Mage Armour",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_MageArmor_2",
+     "name": "Mage Armour",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_MageArmor_3",
+     "name": "Mage Armour",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_MageHand",
+     "name": "Mage Hand",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_MagicWeapon",
+     "name": "Magic Weapon",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_MagicWeapon_3",
+     "name": "Magic Weapon",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_MainHandAttack",
+     "name": "Main Hand Attack",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_MinorIllusion",
+     "name": "Minor Illusion",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_ProtectionFromEvilAndGood",
+     "name": "Protection from Evil and Good",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_ProtectionFromEvilAndGood_2",
+     "name": "Protection from Evil and Good",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_ProtectionFromEvilAndGood_3",
+     "name": "Protection from Evil and Good",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Shatter",
+     "name": "Shatter",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_Shatter_3",
+     "name": "Shatter",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Shove",
+     "name": "Shove",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_Sleep",
+     "name": "Sleep",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Sleep_2",
+     "name": "Sleep",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Sleep_3",
+     "name": "Sleep",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_SleetStorm",
+     "name": "Sleet Storm",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Target_Slow",
+     "name": "Slow",
+     "prepared": false
+    },
+    {
+     "category": "basic-action",
+     "id": "Throw_ImprovisedWeapon",
+     "name": "Improvised Melee Weapon",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Throw_Throw",
+     "name": "Throw",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Zone_BurningHands",
+     "name": "Burning Hands",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Zone_BurningHands_2",
+     "name": "Burning Hands",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Zone_BurningHands_3",
+     "name": "Burning Hands",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Zone_Fear",
+     "name": "Fear",
+     "prepared": false
+    },
+    {
+     "category": "spell",
+     "id": "Zone_Thunderwave",
+     "name": "Thunderwave",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Zone_Thunderwave_2",
+     "name": "Thunderwave",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Zone_Thunderwave_3",
+     "name": "Thunderwave",
+     "prepared": true
+    }
+   ],
+   "spells_note": null,
+   "undetermined": [],
+   "xp": null
+  },
+  {
+   "abilities": {
+    "cha": 13,
+    "con": 14,
+    "dex": 11,
+    "int": 10,
+    "str": 16,
+    "wis": 17
+   },
+   "at_camp": true,
+   "carried": [
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Halsin's Grove Garments",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Camp_Body_Halsin",
+     "template_guid": "dc74db6c-14b2-44fa-8415-0dd1194e90e2"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Tasteful Boots",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Camp_Shoes_Halsin",
+     "template_guid": "42de5102-7a39-44d2-b1d8-645ec4d8b0ce"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Halsin's Underwear",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "ARM_Underwear_Halsin",
+     "template_guid": "9ebb9117-a0ae-46f2-a243-8d67650e9586"
+    },
+    {
+     "category": "consumable",
+     "count": 2,
+     "name": "Goodberry",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "CONS_FOOD_Fruit_Goodberry",
+     "template_guid": "de6b186e-839e-41d0-87af-a1a9d9327785"
+    },
+    {
+     "category": "misc",
+     "count": 1,
+     "name": "Camp Supply Sack",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Backpack_CampSupplies",
+     "template_guid": "efcb70b7-868b-4214-968a-e23f6ad586bc"
+    },
+    {
+     "category": "consumable",
+     "count": 1,
+     "name": "Potion of Healing",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Potion_Healing",
+     "template_guid": "d47006e9-8a51-453d-b200-9e0d42e9bbab"
+    },
+    {
+     "category": "book",
+     "count": 1,
+     "name": "Scroll of Revivify",
+     "slot": null,
+     "slot_rank": [],
+     "stats": "OBJ_Scroll_Revivify",
+     "template_guid": "c1c3e4fb-d68c-4e10-afdc-d4550238d50e"
+    }
+   ],
+   "classes": [
+    {
+     "Main": "Druid"
+    }
+   ],
+   "concentration": null,
+   "equipment_note": null,
+   "equipped": [
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Grovetender Boots",
+     "slot": "Boots",
+     "slot_rank": [
+      4,
+      0
+     ],
+     "stats": "ARM_Boots_Leather_Druid",
+     "template_guid": "7de51e0b-cb9d-4279-9bc5-b0d85dce4cf6"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Druidic Bracers",
+     "slot": "Gloves",
+     "slot_rank": [
+      3,
+      0
+     ],
+     "stats": "UNI_Halsin_Gloves",
+     "template_guid": "eb99ce71-8ef2-4ff6-a94a-a7b9cff3d45b"
+    },
+    {
+     "category": "armour",
+     "count": 1,
+     "name": "Druid Leather Armour",
+     "slot": "Breast",
+     "slot_rank": [
+      2,
+      0
+     ],
+     "stats": "UNI_Leather_Halsin",
+     "template_guid": "26b77cf7-8722-4e61-a820-555de653e8ab"
+    },
+    {
+     "category": "weapon",
+     "count": 1,
+     "name": "Quarterstaff",
+     "slot": "Melee Main Weapon",
+     "slot_rank": [
+      7,
+      0
+     ],
+     "stats": "WPN_Quarterstaff_Druid",
+     "template_guid": "b5c85eb7-ed4f-4e90-a317-5547ddaf3650"
+    }
+   ],
+   "feats": null,
+   "hp": {
+    "current": 27,
+    "max": 38,
+    "temp": 0,
+    "temp_max": 0
+   },
+   "inspect": null,
+   "level": 5,
+   "location": "camp",
+   "name": "Halsin",
+   "race": "Elf_WoodElf",
+   "resources": [
+    {
+     "current": 1.0,
+     "guid": "734cbcfb-8922-4b6d-8330-b2a7e4c14b6a",
+     "level": 0,
+     "max": 1.0,
+     "name": "Action",
+     "replenish": 2
+    },
+    {
+     "current": 1.0,
+     "guid": "420c8df5-45c2-4253-93c2-7ec44e127930",
+     "level": 0,
+     "max": 1.0,
+     "name": "Bonus Action",
+     "replenish": 2
+    },
+    {
+     "current": 1.0,
+     "guid": "45ff0f48-b210-4024-972f-b64a44dc6985",
+     "level": 0,
+     "max": 1.0,
+     "name": "Reaction",
+     "replenish": 2
+    },
+    {
+     "current": 10.5,
+     "guid": "d6b2369d-84f0-4ca4-a3a7-62d2d192a185",
+     "level": 0,
+     "max": 10.5,
+     "name": "Movement Speed",
+     "replenish": 2
+    },
+    {
+     "current": 4.0,
+     "guid": "d136c5d9-0ff0-43da-acce-a74a07f8d6bf",
+     "level": 1,
+     "max": 4.0,
+     "name": "Spell Slot",
+     "replenish": 8
+    },
+    {
+     "current": 3.0,
+     "guid": "d136c5d9-0ff0-43da-acce-a74a07f8d6bf",
+     "level": 2,
+     "max": 3.0,
+     "name": "Spell Slot",
+     "replenish": 8
+    },
+    {
+     "current": 2.0,
+     "guid": "d136c5d9-0ff0-43da-acce-a74a07f8d6bf",
+     "level": 3,
+     "max": 2.0,
+     "name": "Spell Slot",
+     "replenish": 8
+    },
+    {
+     "current": 1.0,
+     "guid": "68542019-178b-4f43-b9d3-51ab8e7b286b",
+     "level": 0,
+     "max": 2.0,
+     "name": "Wild Shape Charge",
+     "replenish": 16
+    }
+   ],
+   "spells": [
+    {
+     "category": "basic-action",
+     "id": "Projectile_Jump",
+     "name": "Jump",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Shout_DEN_Halsin_WildShape_Bear",
+     "name": "Wild Shape: Cave Bear",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Dash",
+     "name": "Dash",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Disengage",
+     "name": "Disengage",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Shout_Hide",
+     "name": "Hide",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_CallLightning",
+     "name": "Call Lightning",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Dip",
+     "name": "Dip",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_HealingWord",
+     "name": "Healing Word",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Help",
+     "name": "Help",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_MainHandAttack",
+     "name": "Main Hand Attack",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_MistyStep",
+     "name": "Misty Step",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_MistyStep_3",
+     "name": "Misty Step",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Target_Shove",
+     "name": "Shove",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Target_Topple",
+     "name": "Topple",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Throw_ImprovisedWeapon",
+     "name": "Improvised Melee Weapon",
+     "prepared": true
+    },
+    {
+     "category": "basic-action",
+     "id": "Throw_Throw",
+     "name": "Throw",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Zone_Thunderwave",
+     "name": "Thunderwave",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Zone_Thunderwave_2",
+     "name": "Thunderwave",
+     "prepared": true
+    },
+    {
+     "category": "spell",
+     "id": "Zone_Thunderwave_3",
+     "name": "Thunderwave",
+     "prepared": true
+    }
+   ],
+   "spells_note": null,
+   "undetermined": [],
+   "xp": null
+  }
+ ],
+ "inspect_pattern": "",
+ "level_items": null,
+ "names_resolved": true,
+ "quests": {
+  "active": [
+   {
+    "id": "FOR_DangerousBook",
+    "name": "Search the Cellar",
+    "objective": "Find a way to finish the Necromancy of Thay."
+   },
+   {
+    "id": "FOR_DangerousBook_SUB_EvilTome",
+    "name": "Destroy the Ancient Tome",
+    "objective": "Destroy the book."
+   },
+   {
+    "id": "FOR_DangerousBook_SUB_UseTome",
+    "name": "Unlock the Ancient Tome",
+    "objective": "Find a way to finish The Necromancy of Thay."
+   },
+   {
+    "id": "GLO_DoubtingArtist",
+    "name": "Free the Artist",
+    "objective": "Look for Oskar in Baldur's Gate."
+   },
+   {
+    "id": "GLO_Moonrise",
+    "name": "Infiltrate Moonrise Towers",
+    "objective": "Infiltrate the cult of the Absolute."
+   },
+   {
+    "id": "GLO_Moonrise_SUB_Relic",
+    "name": "Find Ketheric Thorm's Relic",
+    "objective": "Complete the Gauntlet of Shar."
+   },
+   {
+    "id": "GLO_Tadpole",
+    "name": "Find a Cure",
+    "objective": "Find the source of the parasite."
+   },
+   {
+    "id": "GLO_UnleashPowers",
+    "name": "Embrace Your Potential",
+    "objective": "Find more parasites to absorb and grow your power."
+   },
+   {
+    "id": "HAV_SaveTieflingPrisoners",
+    "name": "Rescue the Tieflings",
+    "objective": "Protect the gnomes."
+   },
+   {
+    "id": "HIDDEN_WLD_Boosters",
+    "name": null,
+    "objective": null
+   },
+   {
+    "id": "MOO_GnomeRescue",
+    "name": "Rescue Wulbren",
+    "objective": "Cover the gnomes' escape."
+   },
+   {
+    "id": "ORI_Avatar_ShadowHeart_SUB_ChosenOfShar",
+    "name": "The Chosen of Shar",
+    "objective": "Complete the trials of Shar."
+   },
+   {
+    "id": "ORI_Avatar_Wyll_SUB_Duke",
+    "name": "The Grand Duke",
+    "objective": "Search for Grand Duke Ravengard."
+   },
+   {
+    "id": "ORI_COM_Astarion",
+    "name": "The Pale Elf",
+    "objective": "Travel the road to Baldur's Gate."
+   },
+   {
+    "id": "ORI_COM_Gale",
+    "name": "The Wizard of Waterdeep",
+    "objective": "Destroy the Heart of the Absolute."
+   },
+   {
+    "id": "ORI_COM_Karlach",
+    "name": "Our Fiery Friend",
+    "objective": "Travel with Karlach."
+   },
+   {
+    "id": "ORI_COM_ShadowHeart",
+    "name": "Daughter of Darkness",
+    "objective": "Investigate the Gauntlet of Shar."
+   },
+   {
+    "id": "ORI_COM_ShadowHeart_SUB_Justiciar",
+    "name": "The Chosen of Shar",
+    "objective": "Complete the trials of Shar."
+   },
+   {
+    "id": "ORI_COM_Wyll",
+    "name": "The Blade of Frontiers",
+    "objective": "Rescue Zariel's asset from Moonrise Towers."
+   },
+   {
+    "id": "ORI_COM_Wyll_SUB_Duke",
+    "name": "The Grand Duke",
+    "objective": "Search for Grand Duke Ravengard."
+   },
+   {
+    "id": "PLA_GrandDukeRescue",
+    "name": "Rescue the Grand Duke",
+    "objective": "Search for Grand Duke Ravengard."
+   },
+   {
+    "id": "SHA_OldEnemy",
+    "name": "Kill Raphael's Old Enemy",
+    "objective": "Deal with Raphael's Old Enemy"
+   }
+  ],
+  "closed": [
+   {
+    "id": "CHA_Chapel",
+    "name": "Explore the Ruins",
+    "objective": null
+   },
+   {
+    "id": "CHA_LaezelRecruit",
+    "name": "Free Lae'zel",
+    "objective": null
+   },
+   {
+    "id": "CRE_BloodOfLathander",
+    "name": "Find the Blood of Lathander",
+    "objective": null
+   },
+   {
+    "id": "CRE_Hatchery",
+    "name": "Steal a Githyanki Egg",
+    "objective": null
+   },
+   {
+    "id": "DEN_Conflict",
+    "name": "Save the Refugees",
+    "objective": null
+   },
+   {
+    "id": "DEN_Conflict_SUB_AoD",
+    "name": "Raid the Emerald Grove",
+    "objective": null
+   },
+   {
+    "id": "DEN_Conflict_SUB_Goblin",
+    "name": "Defeat the Goblins",
+    "objective": null
+   },
+   {
+    "id": "DEN_Conflict_SUB_Halsin",
+    "name": "Save the First Druid",
+    "objective": null
+   },
+   {
+    "id": "DEN_Conflict_SUB_Murder",
+    "name": "Kill Kagha",
+    "objective": null
+   },
+   {
+    "id": "DEN_Conflict_SUB_Ritual",
+    "name": "Investigate Kagha",
+    "objective": null
+   },
+   {
+    "id": "DEN_RobbedAdventurer",
+    "name": "Return the Locket",
+    "objective": null
+   },
+   {
+    "id": "DEN_SnakeCourt",
+    "name": "Save Arabella",
+    "objective": null
+   },
+   {
+    "id": "DEN_Thieflings",
+    "name": "Find Your Belongings",
+    "objective": null
+   },
+   {
+    "id": "DEN_VoloAdventure",
+    "name": "Rescue Volo",
+    "objective": null
+   },
+   {
+    "id": "FOR_UnfortunateGnome",
+    "name": "Rescue the Gnome",
+    "objective": null
+   },
+   {
+    "id": "GLO_ArtefactDiscovery",
+    "name": "Discover the Artefact's Secrets",
+    "objective": null
+   },
+   {
+    "id": "GLO_Moonrise_SUB_Caravan",
+    "name": "Follow the Convoy",
+    "objective": null
+   },
+   {
+    "id": "GLO_Moonrise_SUB_MarcusCapture",
+    "name": "Resolve the Abduction",
+    "objective": null
+   },
+   {
+    "id": "GLO_Moonrise_SUB_Shadowcurse",
+    "name": "Seek Protection from the Shadow Curse",
+    "objective": null
+   },
+   {
+    "id": "GLO_PathToMoonrise",
+    "name": "Travel to Moonrise Towers",
+    "objective": null
+   },
+   {
+    "id": "GLO_PathToMoonrise_SUB_MountainPath",
+    "name": "Travel through the Mountain Pass",
+    "objective": null
+   },
+   {
+    "id": "GLO_PathToMoonrise_SUB_UnderdarkPath",
+    "name": "Travel through the Underdark",
+    "objective": null
+   },
+   {
+    "id": "GLO_Tadpole_SUB_Apprentice",
+    "name": "Get Help from Healer Nettie",
+    "objective": null
+   },
+   {
+    "id": "GLO_Tadpole_SUB_Creche",
+    "name": "Find the Githyanki Crèche",
+    "objective": null
+   },
+   {
+    "id": "GLO_Tadpole_SUB_Druid",
+    "name": "Rescue the Druid Halsin",
+    "objective": null
+   },
+   {
+    "id": "GLO_Tadpole_SUB_Hag",
+    "name": "Get Help from Auntie Ethel",
+    "objective": null
+   },
+   {
+    "id": "GLO_Tadpole_SUB_Priestess",
+    "name": "Ask the Goblin Priestess for Help",
+    "objective": null
+   },
+   {
+    "id": "GLO_Tadpole_SUB_Society",
+    "name": "Help Omeluum Investigate the Parasite",
+    "objective": null
+   },
+   {
+    "id": "HAG_HagSpawn",
+    "name": "Save Mayrina",
+    "objective": null
+   },
+   {
+    "id": "ORI_COM_Karlach_SUB_ForgingOfTheHeart",
+    "name": "The Hellion's Heart",
+    "objective": null
+   },
+   {
+    "id": "ORI_COM_Laezel",
+    "name": "The Githyanki Warrior",
+    "objective": null
+   },
+   {
+    "id": "PLA_PaladinsOfTyr",
+    "name": "Hunt the Devil",
+    "objective": null
+   },
+   {
+    "id": "PLA_StuckHalfElf",
+    "name": "Rescue the Trapped Man",
+    "objective": null
+   },
+   {
+    "id": "PLA_ZhentShipment",
+    "name": "Find the Missing Shipment",
+    "objective": null
+   },
+   {
+    "id": "TUT_NautiloidEscape",
+    "name": "Escape the Nautiloid",
+    "objective": null
+   },
+   {
+    "id": "TUT_ShadowheartEscape",
+    "name": "Rescue the Illithids' Captive",
+    "objective": null
+   },
+   {
+    "id": "UND_AdamantineForge",
+    "name": "The Adamantine Forge",
+    "objective": null
+   },
+   {
+    "id": "UND_AdamantineForge_SUB_Rubble",
+    "name": "Get Past the Rubble",
+    "objective": null
+   },
+   {
+    "id": "UND_BroodingSovereign",
+    "name": "Avenge Glut's Circle",
+    "objective": null
+   },
+   {
+    "id": "UND_CaveIn",
+    "name": "Free True Soul Nere",
+    "objective": null
+   },
+   {
+    "id": "UND_CaveIn_SUB_Eye",
+    "name": "Blind the Absolute",
+    "objective": null
+   },
+   {
+    "id": "UND_CaveIn_SUB_Smokepowder",
+    "name": "Find Explosives",
+    "objective": null
+   },
+   {
+    "id": "UND_DuergarPoison",
+    "name": "Cure the Poisoned Gnome",
+    "objective": null
+   },
+   {
+    "id": "UND_GnomeRescue",
+    "name": "Save the Grymforge Gnomes",
+    "objective": null
+   },
+   {
+    "id": "UND_LoneDuergar",
+    "name": "Find the Missing Boots",
+    "objective": null
+   },
+   {
+    "id": "UND_MushroomHunter",
+    "name": "Find the Mushroom Picker",
+    "objective": null
+   },
+   {
+    "id": "UND_MyconidCircle",
+    "name": "Defeat the Duergar Intruders",
+    "objective": null
+   },
+   {
+    "id": "UND_MyconidRevenge",
+    "name": "Deliver Nere's Head",
+    "objective": null
+   }
+  ],
+  "failed": false,
+  "global_flags": [
+   "Debug_CAMP_IgnoreCampTypeRestrictions_4118a620-c0e5-afaf-1bec-2e260882a45f",
+   "GLO_DifficultyMode_Medium_0fc95071-9342-44d5-988a-30e8a8c8b787",
+   "GLO_DifficultyMode_CharacterStats_Medium_b2c46d86-0d5d-42ae-9f15-c1020a007123",
+   "GLO_CursedIronFlask_State_HasCreature_3e4af18c-8227-6100-34e0-716d7a3be27c",
+   "GLO_Not_For_EA_e270f143-e357-4579-ae51-5657d5bd67c2",
+   "GLO_SteelWatchers_State_InBaseState_ca1b279a-b266-49ee-8549-5e6bd9bc209b",
+   "GLO_Jergal_State_CanResurrect_736d598a-ab47-4a25-b9e0-d5499b19fef3",
+   "ORI_Laezel_State_CaringAboutZorru_05c85d1f-11e6-4219-a047-901b958c3578",
+   "ORI_Wyll_State_Alive_1b20bb3c-71a5-4766-9b70-097cf5866ed7",
+   "Hireling_State_AllowReplace_a8bffa48-dffb-4615-a318-cc2df8b8a551",
+   "TUT_Start_State_AvatarWokeUp_001_67326df5-8ad8-43f2-a92a-138f2e21c1c2",
+   "SCL_SaveGamePatch_GUS_318742_28063004-0e4d-4135-a499-a150a1f5d5e3",
+   "TUT_Start_Knows_PoolBrittle_86f644a9-a3a1-4b1a-8e6e-a1d999b2b54d",
+   "TUT_LowerDeck_Event_SetGuideVisible_5b044d7c-ba8d-47f5-b056-dbe941c9cf72",
+   "LOW_LowerDeck_Event_ImpRoomTeleportPlayers_66c9ae56-50b5-46ee-a9a0-fc4e2b21657a",
+   "ORI_Laezel_HasMet_2e085b0e-8e64-fbad-a009-7ce8e5da8a11",
+   "ORI_Laezel_Event_FirstCombat_def8ed0f-1bdf-4134-9412-d71ce2e33f75",
+   "TUT_LowerDeck_State_ImpsDead_c505f03a-c6d4-4ac5-a0a1-ea805fc1a589",
+   "TUT_TransformChamber_Knows_MagicSeals_a5ef930d-8db2-46df-87bb-400607e28777",
+   "TUT_TransformChamber_HasMet_PodGirl_4125f563-fbcb-4b64-9f7d-66afc693d142",
+   "ORI_ShadowHeart_HasMet_d06842a4-248e-7f83-da87-4eec7606178e",
+   "TUT_TransformChamber_State_LaezelRushed_37f99bae-17cc-4d9a-9097-ba043ca3d7ed",
+   "TUT_TransformChamber_Knows_PodLock_795a45ed-f676-4b68-8c21-8dcc300c7cd4",
+   "TUT_TransformChamber_State_ActivatedConsole_5c73cf41-04e7-4018-bc84-d4e9cbff2243",
+   "TUT_TransformChamber_State_EndPodDialogue_46cfbaa6-ffae-4aec-afeb-78843d3f2d5d",
+   "ORI_Shadowheart_State_WolfDreamPoint_NautiloidSaved_71127b5b-ad4c-46ff-b870-82e91fb3d067",
+   "TUT_TransformChamber_State_ShadowheartFreed_c5b714f1-b88c-4268-9736-47bcdc538b4f",
+   "TUT_TransformChamber_Event_CheckForGith_eec50557-fd64-40cb-9942-652af0550a22",
+   "TUT_TransformChamber_State_GithInParty_fe089c5e-3e18-4ce9-b3d0-6dbb0eadec82",
+   "ORI_Shadowheart_Knows_Name_e639e469-e6de-03e1-148b-70f6164f87e0",
+   "TUT_TransformChamber_Knows_SeenPickUpBox_6af0aa8d-3806-4097-9270-abad32f18bb7",
+   "ORI_Shadowheart_SeenWithBox_31d00a1b-9f7b-7385-4d94-e6f98883742c",
+   "TUT_Helm_Event_DevilReinforcements_500de597-f350-48b2-9fb7-1cc9b2513365",
+   "TUT_Misc_Quest_ReachedHelm_f61440b7-4118-4936-b165-40677fff1a9c",
+   "TUT_Helm_Event_TeleportToHelm_da46bc45-e134-4be9-a8d2-19eb9d460f74",
+   "TUT_Helm_JoinedMindflayerFight_ec25d7dc-f9d6-47ff-92c9-8921d6e32f54",
+   "TUT_Helm_State_TutorialEnded_55073953-23b9-448c-bee8-4c44d3d67b6b",
+   "TUT_Helm_TransponderActivated_40d32a6d-8d41-4ceb-a4e9-bbd34d0664e4",
+   "TUT_Helm_Event_EnterEtherealPlane_b106d52e-8507-469b-8980-9762f9ba2817",
+   "TUT_Guide_LaezelWasGuide_a10b31fe-0e33-41db-876e-40e2676b04af",
+   "GLO_Shadowheart_State_RecruitedInTutorial_c7f8437b-6064-4a1d-9774-71da051887e5",
+   "ORI_Shadowheart_State_LaezelWeary_a7b0e52b-0854-4194-bc09-cd1e78859620",
+   "VISITEDREGION_WLD_Main_A_925c721d-686b-4fbe-8c3c-d1233bf863b7",
+   "DEN_GoblinScouts_State_BearTurretActive_5deca4c4-aa41-4774-927d-ee70b365f807",
+   "DEN_GoblinScouts_State_EagleTurretActive_38ffe461-d5c2-4be0-a15e-43f99db3ed7d",
+   "DEN_GoblinScouts_State_WolfTurretActive_a45384dd-bd1c-40c6-b9e0-8d364de250e4",
+   "DEN_HarpyMeal_State_GoCower_dbe0ef4a-49c4-4fac-912e-552447766b76",
+   "Debug_GOB_ChickenChase_State_FireDisabled_14182872-d77d-4f5d-9ff7-cea5a0533c53",
+   "PLA_ZhentShipment_State_FlaskInChest_d5b92de7-760f-462e-903c-2ea24d81f18e",
+   "UND_Bulette_State_CanBurrow_e253e789-57b4-452e-8b59-2f92b4011f58"
+  ],
+  "global_flags_total": 1153,
+  "goals_finalized": [
+   "Act1",
+   "Act1_CMB_StatusOnInit",
+   "Act1_CRA_Escape_Autosave",
+   "Act1_CRA_Escape_IntellectDevourers",
+   "Act1_CRA_Escape_WakeUp",
+   "Act1_DEN_AttackOnDen",
+   "Act1_DEN_HarpyMeal",
+   "Act1_DEN_TieflingRefugees",
+   "Act1_FOR_Monitor",
+   "Act1_FOR_UnfortunateGnomeFree",
+   "Act1_FOR_UnfortunateGnomeHeld",
+   "Act1_GOB_Orpheus_Protection",
+   "Act1_GOB_VoloBallad",
+   "Act1_HAG_Hagspawn_TriggerInitialScene",
+   "Act1_NOT_EA",
+   "Act1_PLA_GithChokepoint",
+   "Act1_PLA_TavernInvestigation",
+   "Act1_UND_AdamantineForge_Combat",
+   "Act1_UND_Bulette",
+   "Act1b",
+   "Act2",
+   "Act2_CAMP_Minthara",
+   "Act2_CMB_StatusOnInit",
+   "Act2_COL_ZZZ_Debug",
+   "Act2_HAV_EnteringHaven",
+   "Act2_HAV_TakingIsobel",
+   "Act2_HAV_TakingIsobel_Capture",
+   "Act2_HAV_TakingIsobel_FlamingSpy",
+   "Act2_HAV_TakingIsobel_FollowUp_Saved",
+   "Act2_HAV_TakingIsobel_InnAttack",
+   "Act2_MOO_MintharaFate",
+   "Act2_MOO_ZhentVendor",
+   "Act2_TWN_Tollhouse_Combat",
+   "BG3_CleanUpDBs_SavegamePatch",
+   "BG3_CleanupLavaBubbles_SavegamePatch",
+   "BG3_CleanupSummons_SavegamePatch",
+   "BG3_DeadForceUpdate_SavegamePatch",
+   "GLO_AtDeathsDoorStatus",
+   "GLO_Hag",
+   "GLO_Origin_Gale_Death",
+   "GLO_Origin_Gale_Death_PostEA",
+   "ModWrapper_Gustav",
+   "ORI_Gale_Elminster",
+   "ORI_Gale_Elminster_Setup",
+   "ORI_ShadowheartResurrection",
+   "Start",
+   "TUT_GameOverLogic",
+   "TUT_Helm",
+   "TUT_LowerDeck",
+   "TUT_Misc",
+   "TUT_Start",
+   "TUT_TransformChamber",
+   "TUT_Tutorials_TUTOnly",
+   "TUT_WakeUp",
+   "Tutorial",
+   "Z_Shared_Campaign_At_End",
+   "Z_Shared_CharacterCreation",
+   "Z_Shared_CharacterCreation_AfterEvents",
+   "Z_Shared_TutorialCharacterCreation",
+   "_CharacterCreation_Monk",
+   "__AAB_CharacterCreation_At_Start",
+   "__Shared_Campaign",
+   "__Start"
+  ],
+  "version": 271
+ },
+ "save_info": {
+  "camp_supplies": 140,
+  "difficulty": "DifficultyMedium, RulesetLarian",
+  "game_id": "fba0e9bb-9a98-eb8c-9561-6bc4ddd158b2",
+  "game_version": "4.1.1.7209685",
+  "has_unofficial_mods": false,
+  "leader": "Maia",
+  "level": "SCL_Main_A",
+  "mods": [
+   "ImpUI (ImprovedUI)",
+   "Show Camp Night Notification",
+   "Better Target Info"
+  ],
+  "recipes": [
+   "ALCH_Elixir_Resistance_Fire_DragonEggMushroom",
+   "ALCH_Extract_AutumnCrocus",
+   "ALCH_Extract_Balsam",
+   "ALCH_Extract_Belladonna",
+   "ALCH_Extract_Bonecap",
+   "ALCH_Extract_BullywugTrumpet",
+   "ALCH_Extract_ChasmCreeper",
+   "ALCH_Extract_Daggeroot",
+   "ALCH_Extract_DragonEggMushroom",
+   "ALCH_Extract_GremishkaTail",
+   "ALCH_Extract_HillGiantFinger",
+   "ALCH_Extract_HookHorrorClaw",
+   "ALCH_Extract_HyenaEar",
+   "ALCH_Extract_Laculite",
+   "ALCH_Extract_LolthsCandle",
+   "ALCH_Extract_MagmaMephitHeart",
+   "ALCH_Extract_Mergrass",
+   "ALCH_Extract_MudMephitWing",
+   "ALCH_Extract_Mugwort",
+   "ALCH_Extract_MyconidSpore_Confusion",
+   "ALCH_Extract_MyconidSpore_Haste",
+   "ALCH_Extract_MyconidSpore_Poison",
+   "ALCH_Extract_Nightlight",
+   "ALCH_Extract_OchreJellySlime",
+   "ALCH_Extract_PegasusFeather",
+   "ALCH_Extract_RoguesMorsel",
+   "ALCH_Extract_ScryingEye",
+   "ALCH_Extract_ShadowrootSac",
+   "ALCH_Extract_SpiderGland",
+   "ALCH_Extract_SwarmingToadstool",
+   "ALCH_Extract_SylvanStone",
+   "ALCH_Extract_TongueOfMadness",
+   "ALCH_Extract_ViridianCrystal",
+   "ALCH_Extract_Weavemoss",
+   "ALCH_Extract_Wispweed",
+   "ALCH_Extract_WoodBark",
+   "ALCH_Extract_WorgFang",
+   "ALCH_Grenade_Fire_FireAmber",
+   "ALCH_Oil_AttackBuff_Daggeroot",
+   "ALCH_Potion_Healing_RoguesMorsel",
+   "QUEST_DEN_RepairedRune",
+   "QUEST_UND_ArcanePowerGenerator",
+   "UNI_BLD_AdamantineForge_Crucible_CrucibleFilled",
+   "UNI_BLD_AdamantineForge_Scalemail",
+   "UNI_BLD_AdamantineForge_Splint"
+  ],
+  "save_id": 341,
+  "save_name": "QuickSave_341",
+  "saved_at": "2026-06-11 18:31:15 UTC"
+ },
+ "source": "quicksave_341.lsv",
+ "story": {
+  "approval": [
+   {
+    "name": "Shadowheart",
+    "rating": 100
+   },
+   {
+    "name": "Gale",
+    "rating": 94
+   },
+   {
+    "name": "Karlach",
+    "rating": 74
+   },
+   {
+    "name": "Wyll",
+    "rating": 63
+   },
+   {
+    "name": "Astarion",
+    "rating": 31
+   },
+   {
+    "name": "Halsin",
+    "rating": 0
+   },
+   {
+    "name": "Lae'zel",
+    "rating": 0
+   }
+  ],
+  "dating": [
+   "Shadowheart"
+  ],
+  "long_rests": 44,
+  "tadpoles": [
+   {
+    "count": 5,
+    "name": "Player"
+   },
+   {
+    "count": 1,
+    "name": "Gale"
+   },
+   {
+    "count": 1,
+    "name": "Shadowheart"
+   }
+  ],
+  "traders_met": 16,
+  "waypoints": [
+   "WAYP_CHA_Chapel",
+   "WAYP_CHA_Top",
+   "WAYP_CRE_Creche",
+   "WAYP_CRE_Exterior",
+   "WAYP_CRE_Monastery",
+   "WAYP_DEN_Camp",
+   "WAYP_FOR_Ruins",
+   "WAYP_GOB_Temple",
+   "WAYP_HAG_Swamp",
+   "WAYP_HAV_Outside",
+   "WAYP_MOO_TowerExterior",
+   "WAYP_PLA_Tavern",
+   "WAYP_PLA_Toll",
+   "WAYP_PLA_ZhentDungeon",
+   "WAYP_SHA_Temple",
+   "WAYP_UND_AdamantineForge",
+   "WAYP_UND_Beach",
+   "WAYP_UND_Duergar",
+   "WAYP_UND_Fort",
+   "WAYP_UND_Myconid"
+  ]
+ }
+}
