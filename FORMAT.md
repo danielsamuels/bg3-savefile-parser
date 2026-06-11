@@ -58,6 +58,7 @@ All integers are little-endian.
   - [Ability scores and hit points: packed streams (✅ decoded 2026-06)](#ability-scores-and-hit-points-packed-streams--decoded-2026-06)
   - [Prepared spells (✅ decoded 2026-06)](#prepared-spells--decoded-2026-06)
   - [Camp supplies: a cached value (✅ decoded 2026-06)](#camp-supplies-a-cached-value--decoded-2026-06)
+  - [Party recipes (✅ decoded 2026-06)](#party-recipes--decoded-2026-06)
   - [Component census (✅ surveyed 2026-06)](#component-census--surveyed-2026-06)
   - [Also in the blob](#also-in-the-blob)
 - [7. Localisation (`.loca`)](#7-localisation-loca)
@@ -1007,6 +1008,17 @@ means "not cached", not "no supplies". Treat 0 as absent. This is the
 clearest proof that some blob components persist stale or invalidated data;
 expect the same of other cached aggregates.
 
+### Party recipes (✅ decoded 2026-06)
+
+`game.party.v0.RecipeData` rows are 24 bytes: `{u64 string pointer (+48
+rule), u32 length, u32 junk, u8 unlocked flag, pool tag}`, each naming an
+unlocked crafting recipe (`ALCH_Potion_Healing_RoguesMorsel`). One or two
+rows per save are hash-map bookkeeping rather than entries; their pointers
+do not dereference to printable strings, which is the reliable filter.
+`game.party.v1.RecipesComponent` is the singleton `{pointer, count}` head
+over these rows. Validated growth across a campaign: 2 recipes in the
+tutorial autosave (the game's starting pair), 43 mid-campaign, 44 late.
+
 ### Component census (✅ surveyed 2026-06)
 
 Every one of the 355 component types has been classified by an automated
@@ -1105,6 +1117,8 @@ handle indexes straight into this table.
 | LSMF prepared spells | ✅ decoded (`SpellBookPrepares`, stale-ownerlist realignment; see §6) |
 | LSMF camp supplies | ✅ decoded (`TotalSuppliesComponent`, a cache; 0 = unknown) |
 | Current quest objectives | ✅ decoded (LSF `Journal → QuestsProgress`, see §9) |
+| Story state (approval, romance, rests, waypoints, tadpoles) | ✅ decoded (Osiris databases, see §9) |
+| Party recipes | ✅ decoded (`RecipeData` string pool refs; see §6) |
 | LSMF inventory container web | ✅ decoded (`OwnerComponent`, `IsOwnedComponent`, `ContainerComponent`, `ContainerSlotData`) |
 | LSMF `MemberComponent` / `MemberData` structure | ✅ traced (8-byte pointer + 16-byte {ptr\_a, EntityHandle}); historical-ownership bookkeeping, not live location |
 | LSMF `EntityHandle` → GUID translation | ❌ no on-disk table; requires live game state |
