@@ -16,6 +16,7 @@ import {
   deleteSave,
   GOLD_STATS,
   groupHistory,
+  REPORT_VERSION,
   recordSave,
   renderHistoryHtml,
 } from './history.ts';
@@ -221,7 +222,7 @@ function renderSaveHead(si: SaveInfo, sourceName: string, thumbUrl: string | nul
         ${metaRow('Region', si.level === '?' ? '' : labelled(si.level, REGION_LABELS))}
         ${metaRow('Difficulty', friendlyDifficulty(si.difficulty))}
         ${metaRow('Supplies', si.camp_supplies ? String(si.camp_supplies) : '')}
-        ${metaRow('Recipes', si.recipes.length ? `${si.recipes.length} known` : '')}
+        ${metaRow('Recipes', si.recipes?.length ? `${si.recipes.length} known` : '')}
         ${metaRow('Saved', si.saved_at === '?' ? '' : esc(si.saved_at))}
         ${metaRow('Game version', si.game_version === '?' ? '' : esc(si.game_version))}
       </dl>
@@ -597,6 +598,13 @@ historyEl.addEventListener('click', (e) => {
           `Loaded ${rec.saveName} from history (saved ${rec.savedAt}).`,
           rec.thumbnail,
         );
+        if ((rec.version ?? 0) < REPORT_VERSION) {
+          reportEl.insertAdjacentHTML(
+            'afterbegin',
+            `<p class="stale-note">This entry was parsed by an older version of the site.
+             Drop the save file again to see everything the parser can read now.</p>`,
+          );
+        }
         window.scrollTo({ top: 0 });
       }
     });

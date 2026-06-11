@@ -4,6 +4,11 @@ import type { SaveReport } from '@bg3save/parser/src/model.ts';
 
 export const GOLD_STATS = new Set(['OBJ_GoldCoin', 'OBJ_GoldPile']);
 
+/** Bump when the report gains fields, so history entries parsed by an
+ *  older site version can invite a re-drop. v2: story state, resources,
+ *  feats, concentration, recipes (2026-06-11). */
+export const REPORT_VERSION = 2;
+
 export interface HistoryRecord {
   id: string;
   gameId: string;
@@ -16,6 +21,7 @@ export interface HistoryRecord {
   leaderXp: number | null;
   report: SaveReport;
   thumbnail?: ArrayBuffer | null;
+  version?: number;
 }
 
 let dbPromise: Promise<IDBDatabase> | null = null;
@@ -69,6 +75,7 @@ export function toRecord(report: SaveReport, thumbnail?: ArrayBuffer | null): Hi
     partyLevel,
     leaderXp,
     report,
+    version: REPORT_VERSION,
     thumbnail: thumbnail ?? null,
   };
 }
@@ -183,7 +190,11 @@ export function renderHistoryHtml(view: HistoryView): string {
     .map(
       (r) => `<li>
         <button class="hist-open" data-id="${esc(r.id)}">
-          <span class="hist-name">${esc(r.saveName)}</span>
+          <span class="hist-name">${esc(r.saveName)}${
+            (r.version ?? 0) < REPORT_VERSION
+              ? ' <span class="hist-stale" title="Parsed by an older version of this site; drop the file again to see the newest fields.">older parse</span>'
+              : ''
+          }</span>
           <span class="hist-meta">${esc(r.savedAt.replace(' UTC', ''))} · Lvl ${r.partyLevel} · ${r.gold.toLocaleString('en-GB')} gold</span>
         </button>
         <button class="hist-del" data-id="${esc(r.id)}" aria-label="Remove ${esc(r.saveName)} from history">×</button>

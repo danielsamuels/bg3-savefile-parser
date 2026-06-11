@@ -430,6 +430,25 @@ body.has-report .drop-hint {
   margin: 0;
 }
 
+.hist-stale {
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+  color: var(--mute);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 0.05rem 0.35rem;
+  margin-left: 0.5em;
+  vertical-align: middle;
+}
+
+.stale-note {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: var(--space-sm) var(--space-md);
+  color: var(--mute);
+  background: var(--surface);
+}
+
 .char-note {
   color: var(--mute);
   font-style: italic;
