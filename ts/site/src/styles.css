@@ -430,6 +430,24 @@ body.has-report .drop-hint {
   font-size: 0.875rem;
 }
 
+.search-effects {
+  flex-basis: 100%;
+  color: var(--mute);
+  font-size: 0.875rem;
+  max-width: 70ch;
+  margin: 0.05rem 0 0.35rem;
+  text-wrap: pretty;
+}
+
+/* Items with effect text carry it in a native tooltip; the dotted underline
+   is the quiet affordance. */
+.has-fx {
+  text-decoration: underline dotted;
+  text-decoration-color: var(--line);
+  text-underline-offset: 3px;
+  cursor: help;
+}
+
 /* ---- Character sections ----------------------------------------------- */
 
 .char {

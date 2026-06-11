@@ -12,6 +12,7 @@ views are testable with the base install.
 
 import dataclasses
 
+from .effects import Effects
 from .gamedata import DisplayNames
 from .model import CharacterReport, ItemRef, SaveReport
 
@@ -56,7 +57,7 @@ def keep_item(ref: ItemRef, dn: DisplayNames, items: str) -> bool:
     return items == 'equipment' or dn.rarity_for(ref.stats) is not None
 
 
-def item_view(ref: ItemRef, dn: DisplayNames) -> dict:
+def item_view(ref: ItemRef, dn: DisplayNames, fx: Effects | None = None) -> dict:
     out: dict = {'name': ref.name or ref.stats}
     slot = dn.stats_to_slot.get(ref.stats)
     if slot:
@@ -68,10 +69,12 @@ def item_view(ref: ItemRef, dn: DisplayNames) -> dict:
         out['rarity'] = rarity
     if ref.count > 1:
         out['count'] = ref.count
+    if fx is not None and (lines := fx.lines(ref.stats)):
+        out['effects'] = lines
     return out
 
 
-def equipped_view(char: CharacterReport, dn: DisplayNames) -> dict:
+def equipped_view(char: CharacterReport, dn: DisplayNames, fx: Effects | None = None) -> dict:
     """Worn gear keyed by slot, canonical slots always present (null = empty)."""
     slots: dict = dict.fromkeys(CANONICAL_SLOTS)
     extras: list[dict] = []
@@ -80,6 +83,8 @@ def equipped_view(char: CharacterReport, dn: DisplayNames) -> dict:
         rarity = dn.rarity_for(ref.stats)
         if rarity:
             entry['rarity'] = rarity
+        if fx is not None and (lines := fx.lines(ref.stats)):
+            entry['effects'] = lines
         slot = ref.slot or ''
         if slot in slots and slots[slot] is None:
             slots[slot] = entry
@@ -122,7 +127,13 @@ def prepared_spell_names(char: CharacterReport) -> list[str]:
     return names
 
 
-def character_view(char: CharacterReport, dn: DisplayNames, detail: str, items: str) -> dict:
+def character_view(
+    char: CharacterReport,
+    dn: DisplayNames,
+    detail: str,
+    items: str,
+    fx: Effects | None = None,
+) -> dict:
     if detail == 'full':
         return dataclasses.asdict(char)
     out: dict = {
@@ -139,20 +150,20 @@ def character_view(char: CharacterReport, dn: DisplayNames, detail: str, items: 
         out['abilities'] = char.abilities
     if char.hp:
         out['hp'] = char.hp
-    out['equipped'] = equipped_view(char, dn)
+    out['equipped'] = equipped_view(char, dn, fx)
     if char.equipment_note:
         out['equipment_note'] = char.equipment_note
     gold = sum(r.count for r in char.carried if r.stats in GOLD_STATS)
     if gold:
         out['gold'] = gold
     carried = [
-        item_view(r, dn)
+        item_view(r, dn, fx)
         for r in char.carried
         if r.stats not in GOLD_STATS and keep_item(r, dn, items)
     ]
     if carried:
         out['carried'] = carried
-    undetermined = [item_view(r, dn) for r in char.undetermined if keep_item(r, dn, items)]
+    undetermined = [item_view(r, dn, fx) for r in char.undetermined if keep_item(r, dn, items)]
     if undetermined:
         out['undetermined'] = undetermined
     spells = prepared_spell_names(char)
@@ -172,6 +183,7 @@ def save_view(
     detail: str,
     items: str,
     quests: str,
+    fx: Effects | None = None,
 ) -> dict:
     out: dict = {'source': report.source}
     if not report.names_resolved:
@@ -188,18 +200,18 @@ def save_view(
 
     if 'party' in sections:
         out['party'] = [
-            character_view(c, dn, detail, items) for c in report.characters if not c.at_camp
+            character_view(c, dn, detail, items, fx) for c in report.characters if not c.at_camp
         ]
     if 'camp' in sections:
         out['camp_companions'] = [
-            character_view(c, dn, detail, items) for c in report.characters if c.at_camp
+            character_view(c, dn, detail, items, fx) for c in report.characters if c.at_camp
         ]
 
     if 'camp_chest' in sections and report.camp_chest is not None:
         out['camp_chest'] = {
             'gold': sum(r.count for r in report.camp_chest if r.stats in GOLD_STATS),
             'items': [
-                item_view(r, dn)
+                item_view(r, dn, fx)
                 for r in report.camp_chest
                 if r.stats not in GOLD_STATS and keep_item(r, dn, items)
             ],

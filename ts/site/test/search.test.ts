@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { DisplayNames, type GamedataJson } from '@bg3save/parser/src/gamedata.ts';
 import { gatherReport } from '@bg3save/parser/src/model.ts';
 import { describe, expect, it } from 'vitest';
+import { type EffectsTable, effectLines } from '../src/effects.ts';
 import { buildItemIndex, renderSearchResults, searchItems } from '../src/search.ts';
 
 const ROOT = join(__dirname, '..', '..', '..');
@@ -52,5 +53,15 @@ describe('item search', () => {
   it('prefers prefix matches in the ordering', () => {
     const matches = searchItems(index, 'torch');
     expect(matches[0]!.name.toLowerCase().startsWith('torch')).toBe(true);
+  });
+
+  it('renders effect lines under matches when a lookup is provided', () => {
+    const effects = JSON.parse(
+      readFileSync(join(ROOT, 'data', 'effects.json'), 'utf-8'),
+    ) as EffectsTable;
+    const matches = searchItems(index, 'phalar');
+    const view = renderSearchResults(matches, 'phalar', (s) => effectLines(effects, s));
+    expect(view.listHtml).toContain('search-effects');
+    expect(view.listHtml).toContain('Damage:');
   });
 });

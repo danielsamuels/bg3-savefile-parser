@@ -10,6 +10,7 @@ import type {
 import type { StoryState } from '@bg3save/parser/src/osiris.ts';
 
 import './styles.css';
+import { type EffectsTable, effectLines } from './effects.ts';
 import {
   allSaves,
   clearSaves,
@@ -52,6 +53,17 @@ const gamedataReady: Promise<void> = fetch('/gamedata.json')
     setStatus('Name data failed to load; internal names will be shown.', true);
   });
 
+// Item tooltip text; reports render fine without it, so failures are silent.
+let effectsTable: EffectsTable = {};
+const effectsReady: Promise<void> = fetch('/effects.json')
+  .then((r) => r.json())
+  .then((data) => {
+    effectsTable = data as EffectsTable;
+  })
+  .catch(() => {});
+
+const effectsFor = (stats: string): string[] => effectLines(effectsTable, stats);
+
 function setStatus(text: string, isError = false): void {
   statusEl.textContent = text;
   statusEl.classList.toggle('error', isError);
@@ -66,7 +78,7 @@ function parse(file: File): void {
   (document.activeElement as HTMLElement | null)?.blur?.();
   document.body.classList.add('busy');
   reportEl.innerHTML = '';
-  Promise.all([file.arrayBuffer(), gamedataReady]).then(([buffer]) => {
+  Promise.all([file.arrayBuffer(), gamedataReady, effectsReady]).then(([buffer]) => {
     worker.postMessage({ kind: 'parse', name: file.name, buffer }, [buffer]);
   });
 }
@@ -177,10 +189,16 @@ const friendlyDifficulty = (joined: string): string =>
 
 /* ---- Rendering --------------------------------------------------------- */
 
+const itemName = (name: string, stats: string): string => {
+  const lines = effectsFor(stats);
+  return lines.length
+    ? `<span class="has-fx" title="${esc(lines.join('\n'))}">${esc(name)}</span>`
+    : esc(name);
+};
+
 const itemLabel = (it: ItemRef): string => {
-  const name = esc(it.name ?? it.stats);
   const count = it.count > 1 ? ` <span class="count">×${it.count}</span>` : '';
-  return `${name}${count}`;
+  return `${itemName(it.name ?? it.stats, it.stats)}${count}`;
 };
 
 const CARRIED_GROUPS: [string, string][] = [
@@ -195,15 +213,20 @@ const CARRIED_GROUPS: [string, string][] = [
 function itemGroups(items: ItemRef[]): string {
   return CARRIED_GROUPS.map(([key, label]) => {
     const counts = new Map<string, number>();
+    const statsOf = new Map<string, string>();
     // Gold is money, not luggage; the fold summary already totals it.
     for (const it of items.filter((i) => i.category === key && !GOLD_STATS.has(i.stats))) {
       const name = it.name ?? it.stats;
       counts.set(name, (counts.get(name) ?? 0) + it.count);
+      if (!statsOf.has(name)) statsOf.set(name, it.stats);
     }
     if (!counts.size) return '';
     const lines = [...counts.entries()]
       .sort(([a], [b]) => a.localeCompare(b))
-      .map(([n, ct]) => `<li>${esc(n)}${ct > 1 ? ` <span class="count">×${ct}</span>` : ''}</li>`)
+      .map(
+        ([n, ct]) =>
+          `<li>${itemName(n, statsOf.get(n) ?? '')}${ct > 1 ? ` <span class="count">×${ct}</span>` : ''}</li>`,
+      )
       .join('');
     return `<h5 class="group-head">${esc(label)}</h5><ul class="items">${lines}</ul>`;
   }).join('');
@@ -606,7 +629,7 @@ function updateSearchResults(): void {
     listEl.innerHTML = '';
     return;
   }
-  const view = renderSearchResults(searchItems(itemIndex, itemQuery), itemQuery);
+  const view = renderSearchResults(searchItems(itemIndex, itemQuery), itemQuery, effectsFor);
   summaryEl.textContent = view.summary;
   listEl.innerHTML = view.listHtml;
 }

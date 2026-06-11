@@ -6,7 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["ts/**", "!ts/site/public/gamedata.json"]
+    "includes": ["ts/**", "!ts/site/public/gamedata.json", "!ts/site/public/effects.json"]
   },
   "formatter": {
     "enabled": true,

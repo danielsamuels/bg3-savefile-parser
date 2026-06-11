@@ -18,6 +18,7 @@ from argparse import Namespace
 from mcp.server.fastmcp import FastMCP
 
 from .discovery import candidate_profile_dirs, find_latest_save, find_save_by_token, glob_saves
+from .effects import Effects
 from .gamedata import DisplayNames
 from .model import SaveReport, gather_report
 from .report_views import (
@@ -39,11 +40,14 @@ server = FastMCP(
         'quests with current objectives. The defaults fit one tool result; '
         'narrow with sections/items or deepen with detail="full" and '
         'quests="all". Items carry rarity (absent = common); per-character '
-        'and chest gold is summed into a gold field.'
+        'and chest gold is summed into a gold field. For gear advice, pass '
+        'effects=true to annotate items with their tooltip text, or look up '
+        'a specific item with item_info.'
     ),
 )
 
 display_names: DisplayNames | None = None
+effects_table: Effects | None = None
 
 
 def shared_display_names() -> DisplayNames:
@@ -52,6 +56,14 @@ def shared_display_names() -> DisplayNames:
     if display_names is None:
         display_names = DisplayNames.load()
     return display_names
+
+
+def shared_effects() -> Effects:
+    """The item-effects table, loaded once per server process."""
+    global effects_table
+    if effects_table is None:
+        effects_table = Effects.load()
+    return effects_table
 
 
 # Parsed-save cache: repeated parse_save calls against the same save (other
@@ -114,6 +126,7 @@ def parse_save(
     detail: str = 'summary',
     items: str = 'all',
     quests: str | bool = 'active',
+    effects: bool = False,
 ) -> dict:
     """Parse a BG3 save and return a report as JSON.
 
@@ -135,6 +148,10 @@ def parse_save(
 
     `quests` is 'active' (default), 'all' (adds closed quest names), or
     'none'. Quest parsing costs ~2s; 'none' skips it.
+
+    `effects=True` annotates items with their in-game tooltip text (passive
+    names and descriptions, damage, AC, boost strings) — use it for gear
+    advice instead of recalling item lore. Pairs well with items='magic'.
     """
     section_list = tuple(sections) if sections else SECTIONS
     for s in section_list:
@@ -158,7 +175,48 @@ def parse_save(
         )
     gather_quests = 'quests' in section_list and quests != 'none'
     report = cached_report(path, gather_quests)
-    return save_view(report, shared_display_names(), section_list, detail, items, quests)
+    fx = shared_effects() if effects else None
+    return save_view(report, shared_display_names(), section_list, detail, items, quests, fx)
+
+
+@server.tool()
+def item_info(names: str | list[str], limit_per_name: int = 8) -> dict[str, list[dict]]:
+    """Look up items by display name and return their in-game effect text.
+
+    `names` is one case-insensitive substring or a LIST of them — pass every
+    item you are evaluating in a single call ('["hellrider", "spellsparkler",
+    "caustic band"]') rather than calling once per item. Each query maps to
+    its matches: slot, rarity, and tooltip lines (passives, damage, AC,
+    boosts), straight from the installed game's data — the authoritative
+    answer to "what does this item do", with no save parsing involved.
+    Several entries can share one display name (each variant is returned).
+    For a whole save's gear at once, parse_save(effects=true, items='magic')
+    is usually the better shape.
+    """
+    dn = shared_display_names()
+    fx = shared_effects()
+    if not fx.available:
+        raise RuntimeError(
+            'No effects table: needs an installed game (BG3_DATA_DIR) or BG3_EFFECTS_JSON.'
+        )
+    queries = [names] if isinstance(names, str) else list(names)
+    out: dict[str, list[dict]] = {q: [] for q in queries}
+    for stats in fx.table:
+        display = dn.name_for(stats) or stats
+        hay = f'{display.lower()} {stats.lower()}'
+        for q in queries:
+            matches = out[q]
+            if len(matches) >= max(1, limit_per_name) or q.strip().lower() not in hay:
+                continue
+            entry: dict = {'name': display, 'stats': stats, 'effects': fx.lines(stats)}
+            slot = dn.stats_to_slot.get(stats)
+            if slot:
+                entry['slot'] = slot
+            rarity = dn.rarity_for(stats)
+            if rarity:
+                entry['rarity'] = rarity
+            matches.append(entry)
+    return out
 
 
 def main() -> None:

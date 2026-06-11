@@ -40,6 +40,7 @@ jobs:
           # The committed name table; makes the gamedata-dependent tests run
           # (and pass deterministically) without a game install.
           BG3_GAMEDATA_JSON: ${{ github.workspace }}/data/gamedata.json
+          BG3_EFFECTS_JSON: ${{ github.workspace }}/data/effects.json
         run: uv run pytest tests/ -v
 
   typescript:

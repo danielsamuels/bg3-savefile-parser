@@ -13,6 +13,15 @@ All notable changes to this project will be documented here.
   truth; both parsers; all earlier stack ground truths re-verified).
 
 ### Added
+- **Item effect text** (`bg3parser/effects.py`, `data/effects.json`): item
+  mechanics extracted from the game's stat files — equip passives and
+  statuses resolved to their localized tooltip text through the `using`
+  chain, plus damage, armour class, and raw boost strings. The MCP server
+  gains `item_info(name)` ("what does Hellrider's Pride do?") and an
+  `effects=true` flag on `parse_save` for tooltip-annotated gear reports;
+  the site shows effect lines under search results and as native tooltips
+  (dotted underline) on item names. Agents no longer need item lore
+  recall: the answer comes from the installed game's own data.
 - **Item search on the site**: a "Find an item" box in the report filters
   every item in the save by name (equipped with slot, carried,
   undetermined, camp chest) and says where each match lives ("Wyll ·

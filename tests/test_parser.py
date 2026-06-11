@@ -1389,6 +1389,48 @@ def test_report_views_item_filters():
         assert set(char.get('abilities', {})) in (set(), {'str', 'dex', 'con', 'int', 'wis', 'cha'})
 
 
+def test_item_effects_table():
+    """The effects table resolves known item tooltips (Hellrider's Pride)."""
+    from bg3parser.effects import Effects
+
+    fx = Effects.load()
+    if not fx.available:
+        pytest.skip('no game install or BG3_EFFECTS_JSON')
+    lines = fx.lines('DEN_HellridersPride')
+    assert any('Helm' in ln and 'heal another creature' in ln for ln in lines)
+    # Plain weapons carry their damage line; unknown stats return nothing.
+    assert any(ln.startswith('Damage: 1d6') for ln in fx.lines('WPN_Shortsword'))
+    assert fx.lines('NOT_A_REAL_STATS_NAME') == []
+
+
+def test_mcp_item_info_and_effects():
+    """item_info answers 'what does X do'; parse_save annotates on request."""
+    pytest.importorskip('mcp')
+    from bg3parser import mcp_server
+
+    if not mcp_server.shared_effects().available:
+        pytest.skip('no game install or BG3_EFFECTS_JSON')
+    batch = mcp_server.item_info(['hellrider', 'spellsparkler'])
+    pride = next(h for h in batch['hellrider'] if h['stats'] == 'DEN_HellridersPride')
+    assert pride['slot'] == 'Gloves'
+    assert any('heal another creature' in ln for ln in pride['effects'])
+    assert any('Lightning Charge' in ln for h in batch['spellsparkler'] for ln in h['effects'])
+
+    report = mcp_server.parse_save(
+        QUICKSAVE_MAIA, sections=['party'], items='magic', quests=False, effects=True
+    )
+    annotated = [
+        it
+        for c in report['party']
+        for it in list(c['equipped'].values()) + c.get('carried', [])
+        if isinstance(it, dict) and it.get('effects')
+    ]
+    assert annotated, 'expected at least one effects-annotated item'
+    # Without the flag, no effects keys appear.
+    plain = mcp_server.parse_save(QUICKSAVE_MAIA, sections=['party'], quests=False)
+    assert 'effects' not in str(plain)
+
+
 def test_quicksave_341_chest_stack_total():
     """In-game ground truth for QuickSave_341: the camp chest holds a stack
     of 5 Scrolls of Revivify, stored as a 3-member stack record whose entry
