@@ -614,7 +614,7 @@ Halsin
     – WPN_Quarterstaff_Druid
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CAMP CHEST  (253 item types)
+CAMP CHEST  (271 item types)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   Weapons & magic items:
@@ -704,7 +704,9 @@ CAMP CHEST  (253 item types)
     – ALCH_Ingredient_Part_HyenaEar x16
     – ALCH_Ingredient_Part_MagmaMephitHeart x6
     – ALCH_Ingredient_Part_MudMephitWing x3
+    – ALCH_Ingredient_Part_MyconidSpore_Haste
     – ALCH_Ingredient_Part_ScryingEye
+    – ALCH_Ingredient_Part_SpiderGland
     – ALCH_Ingredient_Part_WoodBark x6
     – ALCH_Ingredient_Part_WorgFang x2
     – ALCH_Solution_Elixir_Alertness
@@ -732,11 +734,16 @@ CAMP CHEST  (253 item types)
     – CONS_Herbs_Daggeroot x2
     – CONS_Herbs_Mergrass x4
     – CONS_Herbs_Mugwort x4
+    – CONS_Herbs_Weavemoss x3
     – CONS_Herbs_Wispweed x2
+    – CONS_Mushrooms_Bonecap x2
+    – CONS_Mushrooms_BullywugTrumpet x4
     – CONS_Mushrooms_DragonEggMushroom
     – CONS_Mushrooms_Nightlight_Piece x2
     – CONS_Mushrooms_RoguesMorsel x6
     – CONS_Mushrooms_SporeTimmask x2
+    – CONS_Mushrooms_SwarmingToadstool x2
+    – CONS_Mushrooms_TongueOfMadness x4
     – OBJ_Potion_Healing x22
     – OBJ_Potion_Healing_Greater x7
     – OBJ_Potion_Of_Animal_Speaking
@@ -769,11 +776,13 @@ CAMP CHEST  (253 item types)
   Everything else:
     – COL_BrainJar_Memory x2
     – CRE_MAG_Githborn_Amulet
+    – Cup_Silver_G
     – DLC_OBJ_Dye_Larian x5
     – DiningPlate_Silver_G
     – FOR_OgresForHire_HeadbandOfIntellect
     – FOR_SchoolOgres_Horn
     – Food_Beholder_Eyes
+    – Food_Giant_Hamster
     – Food_Neogi_Rolls
     – GLO_SoulCoin x2
     – GOB_DrowCommander_Leather_Gloves
@@ -805,6 +814,7 @@ CAMP CHEST  (253 item types)
     – OBJ_Camp_Pack x3
     – OBJ_Candle_Gold
     – OBJ_Chest_Wood
+    – OBJ_Crystal_ChasmCreeper x2
     – OBJ_Crystal_Laculite
     – OBJ_Crystal_Viridian x5
     – OBJ_Dye_Golden x2
@@ -814,6 +824,7 @@ CAMP CHEST  (253 item types)
     – OBJ_GithyankiEgg
     – OBJ_Goblet_Rich_Silver
     – OBJ_GreaseBottle x3
+    – OBJ_ImmutableContainer
     – OBJ_Indestructible_Light x3
     – OBJ_InkPot x3
     – OBJ_Jade
@@ -837,7 +848,7 @@ CAMP CHEST  (253 item types)
     – OBJ_Tool_Tong
     – OBJ_WyvernPoison
     – PLA_WPN_SwordOfJustice
-    – PUZ_Key x7
+    – PUZ_Key x12
     – QUEST_HAG_GrenadeFire x4
     – Quest_UND_Moonlantern_Broken
     – SCL_SpidersLyre x2

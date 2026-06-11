@@ -908,10 +908,11 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         guid_positions = {
             eg: pos for (pos, _stats), ents in instance_entity_lists.items() for eg in ents
         }
+        container_pages = parse_lsmf_container_pages(lsmf_blob) if lsmf_blob else {}
         container_guids = (
             collect_container_contents(
                 anchor_guids,
-                parse_lsmf_container_pages(lsmf_blob),
+                container_pages,
                 parse_lsmf_inventory_owners(lsmf_blob),
                 frozenset(entity_to_template0),
                 guid_positions,

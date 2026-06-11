@@ -48,11 +48,29 @@
   {
    "category": "consumable",
    "count": 1,
+   "name": "Hastening Spores",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Ingredient_Part_MyconidSpore_Haste",
+   "template_guid": "7860b790-b34f-4569-9da7-d8657e60551e"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
    "name": "Crystalline Lens",
    "slot": null,
    "slot_rank": [],
    "stats": "ALCH_Ingredient_Part_ScryingEye",
    "template_guid": "63a8a0ba-82fe-4f5d-9224-1330dd15c042"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Silk Gland",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Ingredient_Part_SpiderGland",
+   "template_guid": "1db12e7c-e88b-4151-af11-4e2010ef319d"
   },
   {
    "category": "consumable",
@@ -642,11 +660,56 @@
   {
    "category": "consumable",
    "count": 2,
+   "name": "Weavemoss",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Herbs_Weavemoss",
+   "template_guid": "0a64fa93-9123-4810-a656-2c8b27c87563"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Weavemoss",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Herbs_Weavemoss",
+   "template_guid": "35878644-f61a-47c5-9256-d724ac88217c"
+  },
+  {
+   "category": "consumable",
+   "count": 2,
    "name": "Wispweed",
    "slot": null,
    "slot_rank": [],
    "stats": "CONS_Herbs_Wispweed",
    "template_guid": "4faa8cef-27ee-4085-aa90-78fcf8e2e72d"
+  },
+  {
+   "category": "consumable",
+   "count": 2,
+   "name": "Bonecap",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Mushrooms_Bonecap",
+   "template_guid": "e9f6d6d3-bd95-414d-903a-b697bb222ae7"
+  },
+  {
+   "category": "consumable",
+   "count": 3,
+   "name": "Bullywug Trumpet",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Mushrooms_BullywugTrumpet",
+   "template_guid": "4c7df0ef-2262-472f-af6e-9289a78cf371"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Bullywug Trumpet",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Mushrooms_BullywugTrumpet",
+   "template_guid": "aef13d72-15d7-4e1a-a0db-402b77596b14"
   },
   {
    "category": "consumable",
@@ -694,6 +757,24 @@
    "template_guid": "8e2dd06c-c62f-4235-b0f8-f353c6b1ec9d"
   },
   {
+   "category": "consumable",
+   "count": 2,
+   "name": "Swarming Toadstool",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Mushrooms_SwarmingToadstool",
+   "template_guid": "0180607d-dbf8-48e6-98d9-89e67aa9f13a"
+  },
+  {
+   "category": "consumable",
+   "count": 4,
+   "name": "Tongue of Madness",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Mushrooms_TongueOfMadness",
+   "template_guid": "714a8375-9eb4-438d-a191-f5b4b1e86cc3"
+  },
+  {
    "category": "armour",
    "count": 1,
    "name": "Aberration Hunters' Amulet",
@@ -701,6 +782,15 @@
    "slot_rank": [],
    "stats": "CRE_MAG_Githborn_Amulet",
    "template_guid": "1310524f-408e-405d-8d75-7a6d3cb18bcc"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Silver Glass",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "Cup_Silver_G",
+   "template_guid": "c37d61c4-b1b4-4068-9475-3e659a4d8443"
   },
   {
    "category": "misc",
@@ -746,6 +836,15 @@
    "slot_rank": [],
    "stats": "Food_Beholder_Eyes",
    "template_guid": "d0e9c5c0-4757-45d9-9311-0f178139c181"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Grilled Miniature Giant Space Hamster",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "Food_Giant_Hamster",
+   "template_guid": "c6910189-d120-42cd-9277-1e6c7d7bb772"
   },
   {
    "category": "misc",
@@ -1208,6 +1307,15 @@
   },
   {
    "category": "misc",
+   "count": 2,
+   "name": "Chasm Creeper",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_Crystal_ChasmCreeper",
+   "template_guid": "b964697f-1f1d-48d5-8772-d5edfdd0ed39"
+  },
+  {
+   "category": "misc",
    "count": 1,
    "name": "Laculite",
    "slot": null,
@@ -1295,6 +1403,15 @@
    "slot_rank": [],
    "stats": "OBJ_GreaseBottle",
    "template_guid": "e2968a2e-bc83-4d50-99ef-39ce78d2d630"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Traveller's Chest",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_ImmutableContainer",
+   "template_guid": "96eab9d1-74b1-42f7-b1ad-061a9fcea8c4"
   },
   {
    "category": "misc",
@@ -1843,6 +1960,15 @@
    "slot": null,
    "slot_rank": [],
    "stats": "PUZ_Key",
+   "template_guid": "16cb6f4c-306a-4d4a-9cbf-d8dd522fb327"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Gold Key",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "PUZ_Key",
    "template_guid": "1faf4f45-94bd-4464-850b-5865ca351a69"
   },
   {
@@ -1853,6 +1979,42 @@
    "slot_rank": [],
    "stats": "PUZ_Key",
    "template_guid": "2ce28af9-743e-440f-a82b-be73e7285de6"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Gold Key",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "PUZ_Key",
+   "template_guid": "4030d903-9ea7-4017-b712-7aab6130da67"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Gold Key",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "PUZ_Key",
+   "template_guid": "67410085-0865-4b5d-9d65-2e7b7ed80697"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Gold Key",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "PUZ_Key",
+   "template_guid": "7d5eab5e-4ec0-4b40-8714-f85b2f8c8a0c"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Gold Key",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "PUZ_Key",
+   "template_guid": "82df88e8-f42f-4dd7-bb11-34b8bed5e622"
   },
   {
    "category": "misc",

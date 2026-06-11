@@ -959,11 +959,14 @@ export function gatherReport(
         if (pos === chestPos) anchorGuids.add(eg);
       }
     }
+    const containerPages = lsmfBlob
+      ? parseLsmfContainerPages(lsmfBlob)
+      : new Map<number, string[]>();
     const containerGuids =
       lsmfBlob && anchorGuids.size
         ? collectContainerContents(
             anchorGuids,
-            parseLsmfContainerPages(lsmfBlob),
+            containerPages,
             parseLsmfInventoryOwners(lsmfBlob),
             new Set(entityToTemplate0.keys()),
             guidPositions,

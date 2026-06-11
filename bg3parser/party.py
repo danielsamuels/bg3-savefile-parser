@@ -113,6 +113,10 @@ def collect_container_contents(
        container slot of its own rides with the anchored member (two of the
        chest's three Revivify entities in QuickSave_341 exist only in the
        stack record).
+    4. Fresh deposits: an item moved into the chest just before the save can
+       have no container slot anywhere yet; chest-positioned entities
+       unclaimed by any container are unioned in (QuickSave_345: a single
+       Rogue's Morsel dropped into a pouch mid-rummage).
 
     Returns None when no anchor appears in any container map; the caller
     falls back to pure position attribution.
@@ -179,6 +183,11 @@ def collect_container_contents(
         if not next_frontier:
             break
         frontier = next_frontier
+
+    # Layer 4: chest-positioned entities no container claims (fresh deposits).
+    for g in sorted(anchor_guids):
+        if g not in slotted:
+            add(g)
     return out
 
 

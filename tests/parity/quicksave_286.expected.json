@@ -2,6 +2,15 @@
  "camp_chest": [
   {
    "category": "consumable",
+   "count": 1,
+   "name": "Hill Giant Finger",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "ALCH_Ingredient_Loot_HillGiantFinger",
+   "template_guid": "f4ed5a49-9b95-4e99-b58e-a0a85bf1fc2d"
+  },
+  {
+   "category": "consumable",
    "count": 3,
    "name": "Pegasus Feather",
    "slot": null,
@@ -700,7 +709,34 @@
    "slot": null,
    "slot_rank": [],
    "stats": "CONS_Herbs_Mugwort",
+   "template_guid": "a0776643-f25b-4aef-a025-bff959d8dd0f"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Mugwort",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Herbs_Mugwort",
    "template_guid": "e03b8342-3c50-4cec-b34c-c50ce1968bc3"
+  },
+  {
+   "category": "consumable",
+   "count": 2,
+   "name": "Weavemoss",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Herbs_Weavemoss",
+   "template_guid": "0a64fa93-9123-4810-a656-2c8b27c87563"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Weavemoss",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Herbs_Weavemoss",
+   "template_guid": "35878644-f61a-47c5-9256-d724ac88217c"
   },
   {
    "category": "consumable",
@@ -710,6 +746,33 @@
    "slot_rank": [],
    "stats": "CONS_Herbs_Wispweed",
    "template_guid": "4faa8cef-27ee-4085-aa90-78fcf8e2e72d"
+  },
+  {
+   "category": "consumable",
+   "count": 2,
+   "name": "Bonecap",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Mushrooms_Bonecap",
+   "template_guid": "e9f6d6d3-bd95-414d-903a-b697bb222ae7"
+  },
+  {
+   "category": "consumable",
+   "count": 3,
+   "name": "Bullywug Trumpet",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Mushrooms_BullywugTrumpet",
+   "template_guid": "4c7df0ef-2262-472f-af6e-9289a78cf371"
+  },
+  {
+   "category": "consumable",
+   "count": 1,
+   "name": "Bullywug Trumpet",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "CONS_Mushrooms_BullywugTrumpet",
+   "template_guid": "aef13d72-15d7-4e1a-a0db-402b77596b14"
   },
   {
    "category": "consumable",
@@ -740,7 +803,7 @@
   },
   {
    "category": "consumable",
-   "count": 1,
+   "count": 2,
    "name": "Rogue's Morsel",
    "slot": null,
    "slot_rank": [],
@@ -845,6 +908,15 @@
    "slot_rank": [],
    "stats": "Food_Beholder_Eyes",
    "template_guid": "d0e9c5c0-4757-45d9-9311-0f178139c181"
+  },
+  {
+   "category": "misc",
+   "count": 2,
+   "name": "Grilled Miniature Giant Space Hamster",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "Food_Giant_Hamster",
+   "template_guid": "c6910189-d120-42cd-9277-1e6c7d7bb772"
   },
   {
    "category": "misc",
@@ -1052,6 +1124,15 @@
    "slot_rank": [],
    "stats": "MAG_Thunder_ThunderClap_Quarterstaff",
    "template_guid": "4708068e-542a-4dfb-b8a0-56e1ee371600"
+  },
+  {
+   "category": "weapon",
+   "count": 1,
+   "name": "Wood Woad Shield",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "MAG_WoodWoad_Nature_Shield",
+   "template_guid": "90ba50bd-3e65-42ec-9f21-6e07d3ed89ab"
   },
   {
    "category": "armour",
@@ -1352,7 +1433,7 @@
   },
   {
    "category": "misc",
-   "count": 4,
+   "count": 5,
    "name": "Viridian Crystal",
    "slot": null,
    "slot_rank": [],
@@ -1457,6 +1538,15 @@
    "slot_rank": [],
    "stats": "OBJ_GreaseBottle",
    "template_guid": "e2968a2e-bc83-4d50-99ef-39ce78d2d630"
+  },
+  {
+   "category": "misc",
+   "count": 1,
+   "name": "Traveller's Chest",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "OBJ_ImmutableContainer",
+   "template_guid": "96eab9d1-74b1-42f7-b1ad-061a9fcea8c4"
   },
   {
    "category": "misc",
@@ -2186,6 +2276,15 @@
    "slot_rank": [],
    "stats": "UND_DrowDisguiseCowl",
    "template_guid": "85f6aec3-a6df-458c-8ef4-b3fa58d85a56"
+  },
+  {
+   "category": "armour",
+   "count": 1,
+   "name": "Gloves of Missile Snaring",
+   "slot": null,
+   "slot_rank": [],
+   "stats": "UNI_ARM_OfMissileSnaring_Gloves",
+   "template_guid": "687cc55b-77a3-4893-a7d7-cfbafdc2737c"
   },
   {
    "category": "armour",
