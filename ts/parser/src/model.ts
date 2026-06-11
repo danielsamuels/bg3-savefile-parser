@@ -52,7 +52,8 @@ import {
   NULL_UUID,
   ORIGIN_INFO,
   PARTY_ORIGINS,
-  PLAYER_CHAR_TEMPLATE,
+  PLAYER_CHAR_TEMPLATES,
+  PLAYER_ORIGINS,
   parseJournalObjectives,
   resolveSlotConflicts,
   splitEquippedCarried,
@@ -342,7 +343,7 @@ export function gatherReport(
   const wantedTemplates = new Map<string, string>(
     Object.entries(PARTY_ORIGINS).map(([g, n]) => [g.toLowerCase(), n]),
   );
-  wantedTemplates.set(PLAYER_CHAR_TEMPLATE.toLowerCase(), '__player__');
+  for (const t of PLAYER_CHAR_TEMPLATES) wantedTemplates.set(t.toLowerCase(), '__player__');
   const statsEntities = lsmfBlob
     ? parseLsmfStatsEntities(lsmfBlob, wantedTemplates)
     : new Map<string, number>();
@@ -768,7 +769,7 @@ export function gatherReport(
 
   for (const charInfo of partyInfo) {
     const origin = charInfo.Origin ?? 'Generic';
-    const displayName = origin !== 'Generic' ? origin : playerDisplayName;
+    const displayName = PLAYER_ORIGINS.has(origin) ? playerDisplayName : origin;
     const char: CharacterReport = {
       name: displayName,
       race: charInfo.Race ?? '?',
@@ -793,10 +794,9 @@ export function gatherReport(
     report.characters.push(char);
 
     const origin0 = charInfo.Origin ?? 'Generic';
-    const linked =
-      origin0 === 'Generic'
-        ? (statsEntities.get('__player__') ?? null)
-        : (statsEntByNorm.get(normName(origin0)) ?? null);
+    const linked = PLAYER_ORIGINS.has(origin0)
+      ? (statsEntities.get('__player__') ?? null)
+      : (statsEntByNorm.get(normName(origin0)) ?? null);
     let spellEnt = linked !== null && spellbooks.has(linked) ? linked : null;
     if (spellEnt === null) spellEnt = exactSpellEntity(charInfo);
     if (spellEnt !== null) {

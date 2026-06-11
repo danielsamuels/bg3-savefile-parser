@@ -1006,6 +1006,18 @@ def test_stats_entity_link():
         assert sum(level for _, _, level in classes[ents[name]]) == lvl, name
 
 
+def test_honour_mode_dark_urge():
+    """Honour-mode Dark Urge save: the Durge avatar is the player, fully attributed."""
+    report = build_report(
+        str(FIXTURE_DIR / 'honour_durge_nautiloid.lsv'), opts=Namespace(save_info=True)
+    )
+    assert 'RulesetHonour' in report
+    assert 'The Dark Urge (player)' in report
+    assert 'Sorcerer / StormSorcery' in report
+    assert 'Quarterstaff' in report  # equipment attributed via the Durge template
+    assert 'DarkUrge' not in report  # raw origin string never shown
+
+
 def test_all_items():
     """--all-items must emit the full level inventory section."""
     report = build_report(QUICKSAVE_MAIA, opts=Namespace(all_items=True))

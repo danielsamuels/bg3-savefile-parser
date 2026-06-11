@@ -4,6 +4,14 @@ import type { LsofNode } from './lsf.js';
 
 export const PLAYER_CHAR_TEMPLATE = 'f08563b3-748d-4783-837b-b8620bc60b22';
 
+/** The Dark Urge origin's shipped template; a Durge avatar is the player too. */
+export const DARK_URGE_TEMPLATE = '1f69a29f-8284-4d1d-a0e6-fba9fb02ac56';
+
+export const PLAYER_CHAR_TEMPLATES = new Set([PLAYER_CHAR_TEMPLATE, DARK_URGE_TEMPLATE]);
+
+/** Info.json Origin values that mean "this is the player avatar". */
+export const PLAYER_ORIGINS = new Set(['Generic', 'DarkUrge']);
+
 export const PARTY_ORIGINS: Record<string, string> = {
   'c7c13742-bacd-460a-8f65-f864fe41f255': 'Astarion',
   'ad9af97d-75da-406a-ae13-7071c563f604': 'Gale',
@@ -114,7 +122,7 @@ export function findPartyCharacterNodes(
   const walk = (ni: number): void => {
     const nd = nodes[ni]!;
     const tmpl = nd.attrs.CurrentTemplate as string | undefined;
-    if (tmpl === PLAYER_CHAR_TEMPLATE) found.set(playerName, ni);
+    if (tmpl && PLAYER_CHAR_TEMPLATES.has(tmpl)) found.set(playerName, ni);
     else if (tmpl && tmpl in PARTY_ORIGINS) found.set(PARTY_ORIGINS[tmpl]!, ni);
     for (const ci of nd.children) walk(ci);
   };

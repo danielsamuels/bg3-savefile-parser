@@ -40,7 +40,8 @@ from .party import (
     NULL_UUID,
     ORIGIN_INFO,
     PARTY_ORIGINS,
-    PLAYER_CHAR_TEMPLATE,
+    PLAYER_CHAR_TEMPLATES,
+    PLAYER_ORIGINS,
     build_entity_template_map,
     build_instance_entity_lists,
     build_template_stats_map,
@@ -354,7 +355,8 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         report.save_info['camp_supplies'] = supplies if supplies else None
         report.save_info['recipes'] = parse_lsmf_recipes(lsmf_blob)
         wanted = {g.lower(): n for g, n in PARTY_ORIGINS.items()}
-        wanted[PLAYER_CHAR_TEMPLATE.lower()] = '__player__'
+        for t in PLAYER_CHAR_TEMPLATES:
+            wanted[t.lower()] = '__player__'
         stats_entities = parse_lsmf_stats_entities(lsmf_blob, wanted)
         action_resources = parse_lsmf_action_resources(lsmf_blob)
         concentration = parse_lsmf_concentration(lsmf_blob)
@@ -406,7 +408,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         whose linked entity has no spell book yet (not fully recruited);
         callers fall back to build matching.
         """
-        if origin == 'Generic':
+        if origin in PLAYER_ORIGINS:
             ent = stats_entities.get('__player__')
         else:
             ent = stats_ent_by_norm.get(norm_name(origin))
@@ -743,7 +745,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
     # ---- Characters -------------------------------------------------------
     for char_info in party_info:
         origin = char_info.get('Origin', 'Generic')
-        display_name = origin if origin != 'Generic' else player_display_name
+        display_name = player_display_name if origin in PLAYER_ORIGINS else origin
         char = CharacterReport(
             name=display_name,
             race=char_info.get('Race', '?'),

@@ -7,6 +7,14 @@
 
 PLAYER_CHAR_TEMPLATE = 'f08563b3-748d-4783-837b-b8620bc60b22'
 
+# The Dark Urge origin's shipped template; a Durge avatar is the player too.
+DARK_URGE_TEMPLATE = '1f69a29f-8284-4d1d-a0e6-fba9fb02ac56'
+
+PLAYER_CHAR_TEMPLATES = frozenset((PLAYER_CHAR_TEMPLATE, DARK_URGE_TEMPLATE))
+
+# Info.json Origin values that mean "this is the player avatar".
+PLAYER_ORIGINS = frozenset(('Generic', 'DarkUrge'))
+
 
 PARTY_ORIGINS = {
     'c7c13742-bacd-460a-8f65-f864fe41f255': 'Astarion',
@@ -129,7 +137,7 @@ def find_party_character_nodes(nodes: list[dict], player_name: str = 'Player') -
     def walk(ni: int):
         nd = nodes[ni]
         tmpl = nd['attrs'].get('CurrentTemplate', '')
-        if tmpl == PLAYER_CHAR_TEMPLATE:
+        if tmpl in PLAYER_CHAR_TEMPLATES:
             found[player_name] = ni
         elif tmpl in PARTY_ORIGINS:
             found[PARTY_ORIGINS[tmpl]] = ni
