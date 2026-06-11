@@ -97,7 +97,7 @@ QUEST & STORY STATE  (Osiris / StorySave.bin)
     Long rests taken   : 40
     Waypoints unlocked : 18
     Traders met        : 15
-    Tadpoles consumed  : Player x5, Gale x1, Shadowheart x1
+    Tadpoles carried   : Player x5, Gale x1, Shadowheart x1
 
   Companion approval (of the player):
     Shadowheart  100   (dating)

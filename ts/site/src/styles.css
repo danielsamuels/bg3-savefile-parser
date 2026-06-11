@@ -120,6 +120,24 @@ code {
 }
 
 /* Keep the input focusable for keyboard users (display:none would not be). */
+body.busy .drop {
+  border-color: var(--gold);
+  animation: drop-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes drop-pulse {
+  50% {
+    box-shadow: 0 0 0 7px oklch(0.8 0.1 85 / 0.16);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.busy .drop {
+    animation: none;
+    box-shadow: 0 0 0 4px oklch(0.8 0.1 85 / 0.16);
+  }
+}
+
 .drop input {
   position: absolute;
   width: 1px;
@@ -331,11 +349,6 @@ body.has-report .drop-hint {
   font-size: 0.9375rem;
 }
 
-.char-meta .loc {
-  font-family: ui-monospace, "Cascadia Mono", monospace;
-  font-size: 0.875em;
-}
-
 .char-stats {
   display: flex;
   flex-wrap: wrap;
@@ -369,6 +382,10 @@ body.has-report .drop-hint {
 
 .char-head .char-name {
   margin-top: 0;
+}
+
+.char-head.has-portrait + .char-stats {
+  margin-top: 0.3rem;
 }
 
 .char-portrait {
@@ -415,6 +432,10 @@ body.has-report .drop-hint {
   align-items: start;
 }
 
+.campaign-grid .sect-head {
+  margin-top: 0;
+}
+
 .approval-list {
   list-style: none;
   margin: 0;
@@ -426,10 +447,9 @@ body.has-report .drop-hint {
 
 .approval-list li {
   display: grid;
-  grid-template-columns: 7.5rem minmax(6rem, 1fr) 2.2rem auto;
+  grid-template-columns: 7.5rem minmax(4rem, 11rem) 2.2rem auto;
   align-items: center;
   gap: 0.6rem;
-  max-width: 26rem;
 }
 
 .ap-name {
@@ -651,7 +671,7 @@ details.sub ul {
   list-style: none;
   margin: 0.1rem 0 0.35rem;
   padding-left: 1.1rem;
-  color: var(--mute);
+  color: inherit;
   font-size: 0.9375rem;
 }
 

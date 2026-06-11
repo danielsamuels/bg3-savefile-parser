@@ -158,6 +158,15 @@ export function groupHistory(
   return { records: byCampaign.get(campaign)!, campaign, campaigns };
 }
 
+function histTime(savedAt: string): string {
+  const m = savedAt.match(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2}) UTC$/);
+  if (!m) return savedAt.replace(' UTC', '');
+  const d = new Date(`${m[1]}T${m[2]}Z`);
+  return Number.isNaN(d.getTime())
+    ? savedAt.replace(' UTC', '')
+    : d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+}
+
 export function renderHistoryHtml(view: HistoryView): string {
   const { records, campaign, campaigns } = view;
   const select =
@@ -195,7 +204,7 @@ export function renderHistoryHtml(view: HistoryView): string {
               ? ' <span class="hist-stale" title="Parsed by an older version of this site; drop the file again to see the newest fields.">older parse</span>'
               : ''
           }</span>
-          <span class="hist-meta">${esc(r.savedAt.replace(' UTC', ''))} · Lvl ${r.partyLevel} · ${r.gold.toLocaleString('en-GB')} gold</span>
+          <span class="hist-meta">${esc(histTime(r.savedAt))} · Lvl ${r.partyLevel} · ${r.gold.toLocaleString('en-GB')} gold</span>
         </button>
         <button class="hist-del" data-id="${esc(r.id)}" aria-label="Remove ${esc(r.saveName)} from history">×</button>
       </li>`,

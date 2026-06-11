@@ -55,6 +55,7 @@ function parse(file: File): void {
     return;
   }
   setStatus(`Reading ${file.name}…`);
+  document.body.classList.add('busy');
   reportEl.innerHTML = '';
   Promise.all([file.arrayBuffer(), gamedataReady]).then(([buffer]) => {
     worker.postMessage({ kind: 'parse', name: file.name, buffer }, [buffer]);
@@ -185,7 +186,8 @@ const CARRIED_GROUPS: [string, string][] = [
 function itemGroups(items: ItemRef[]): string {
   return CARRIED_GROUPS.map(([key, label]) => {
     const counts = new Map<string, number>();
-    for (const it of items.filter((i) => i.category === key)) {
+    // Gold is money, not luggage; the fold summary already totals it.
+    for (const it of items.filter((i) => i.category === key && !GOLD_STATS.has(i.stats))) {
       const name = it.name ?? it.stats;
       counts.set(name, (counts.get(name) ?? 0) + it.count);
     }
@@ -199,6 +201,16 @@ function itemGroups(items: ItemRef[]): string {
 }
 
 const SKIP_RESOURCES = new Set(['Action', 'Bonus Action', 'Reaction', 'Movement Speed']);
+
+/** "2026-06-11 15:07:39 UTC" -> the user's local time; original on parse failure. */
+function localTime(savedAt: string): string {
+  const m = savedAt.match(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2}) UTC$/);
+  if (!m) return savedAt;
+  const d = new Date(`${m[1]}T${m[2]}Z`);
+  return Number.isNaN(d.getTime())
+    ? savedAt
+    : d.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+}
 
 function renderSaveHead(si: SaveInfo, sourceName: string, thumbUrl: string | null): string {
   const metaRow = (label: string, value: string): string =>
@@ -223,7 +235,7 @@ function renderSaveHead(si: SaveInfo, sourceName: string, thumbUrl: string | nul
         ${metaRow('Difficulty', friendlyDifficulty(si.difficulty))}
         ${metaRow('Supplies', si.camp_supplies ? String(si.camp_supplies) : '')}
         ${metaRow('Recipes', si.recipes?.length ? `${si.recipes.length} known` : '')}
-        ${metaRow('Saved', si.saved_at === '?' ? '' : esc(si.saved_at))}
+        ${metaRow('Saved', si.saved_at === '?' ? '' : esc(localTime(si.saved_at)))}
         ${metaRow('Game version', si.game_version === '?' ? '' : esc(si.game_version))}
       </dl>
       ${mods}
@@ -316,9 +328,7 @@ function renderCharacter(c: CharacterReport, index: number): string {
     .join('; ');
   const xp = c.xp !== null ? ` · ${c.xp.toLocaleString('en-GB')} XP` : '';
   const loc =
-    c.location && !c.at_camp
-      ? ` · <span class="loc" title="subregion">${esc(c.location)}</span>`
-      : '';
+    c.location && !c.at_camp ? ` · <span title="subregion">${esc(c.location)}</span>` : '';
   const hp = c.hp ? ` · ${c.hp.current}/${c.hp.max} HP${c.hp.temp ? ` (+${c.hp.temp})` : ''}` : '';
   const conc = c.concentration
     ? ` · <span class="conc">concentrating on ${esc(c.concentration.name ?? c.concentration.id)}</span>`
@@ -540,10 +550,8 @@ function renderCampaign(story: StoryState, index: number): string {
         <ul class="approval-list">${story.approval
           .map((a) => {
             const pct = Math.max(0, Math.min(100, a.rating));
-            const dating = story.dating.includes(a.name)
-              ? '<span class="ap-dating">dating</span>'
-              : '';
-            return `<li><span class="ap-name">${esc(a.name)}</span><span class="ap-bar"><span style="width:${pct}%"></span></span><span class="ap-val">${a.rating}</span>${dating}</li>`;
+            const dating = story.dating.includes(a.name) ? 'dating' : '';
+            return `<li><span class="ap-name">${esc(a.name)}</span><span class="ap-bar"><span style="width:${pct}%"></span></span><span class="ap-val">${a.rating}</span><span class="ap-dating">${dating}</span></li>`;
           })
           .join('')}</ul>
       </div>`
@@ -692,6 +700,7 @@ worker.onmessage = (ev: MessageEvent) => {
         guardian?: ArrayBuffer | null;
       }
     | { kind: 'error'; message: string };
+  document.body.classList.remove('busy');
   if (msg.kind === 'error') {
     const detail = msg.message.replace(/^Error:\s*/, '').replace(/\s*\([^)]*\)\s*$/, '');
     setStatus(`Couldn't read that file (${detail}). Is it a BG3 .lsv save?`, true);

@@ -176,7 +176,7 @@ function questsLines(q: NonNullable<SaveReport['quests']>, story: SaveReport['st
     out.push(`    Traders met        : ${story.traders_met}`);
     if (story.tadpoles.length) {
       out.push(
-        `    Tadpoles consumed  : ${story.tadpoles.map((t) => `${t.name} x${t.count}`).join(', ')}`,
+        `    Tadpoles carried   : ${story.tadpoles.map((t) => `${t.name} x${t.count}`).join(', ')}`,
       );
     }
     if (story.approval.length) {
