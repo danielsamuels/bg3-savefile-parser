@@ -775,7 +775,7 @@ export function gatherReport(
       classes: charInfo.Classes ?? [],
       level: charInfo.Level ?? '?',
       xp: charInfo['Experience Points (Total)'] ?? null,
-      location: charInfo.Subregion ?? '',
+      location: dn.subregionNameFor(charInfo.Subregion ?? '') ?? charInfo.Subregion ?? '',
       spells: null,
       spells_note: null,
       equipped: [],

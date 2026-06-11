@@ -171,31 +171,55 @@ def parse_lsof(data: bytes) -> list[dict]:
     node_size = 16 if has_keys else 12
     num_nodes = len(nod_data) // node_size
 
-    # Node entries: name-handle (u32), first-attr (u32), parent (i32)
-    # [, keys (u32) when V3].  Only the trailing whole entries are parsed.
-    node_struct = struct.Struct('<I4xi4x' if has_keys else '<I4xi')
-    nodes: list[Node] = [
-        {'name': lkp(names, nh), 'parent': par, 'children': [], 'attrs': {}}
-        for nh, par in node_struct.iter_unpack(nod_data[: num_nodes * node_size])
-    ]
+    name_cache: dict[int, str] = {}
+
+    def attr_name(nh: int) -> str:
+        aname = name_cache.get(nh)
+        if aname is None:
+            aname = name_cache[nh] = lkp(names, nh)
+        return aname
+
+    nodes: list[Node]
+    if has_keys:
+        # V3 node entries: name-handle (u32), parent (i32), next-sibling
+        # (i32, redundant with parent links), first-attribute (u32, -1=none).
+        node_struct = struct.Struct('<Ii4xI')
+        nodes = []
+        first_attrs: list[int] = []
+        for nh, par, fa in node_struct.iter_unpack(nod_data[: num_nodes * node_size]):
+            nodes.append({'name': lkp(names, nh), 'parent': par, 'children': [], 'attrs': {}})
+            first_attrs.append(fa)
+        # V3 attribute entries: name-handle (u32), type-and-length (u32),
+        # next-attribute (i32, -1 ends the node's chain), value offset (u32).
+        attrs = list(struct.Struct('<IIiI').iter_unpack(att_data[: len(att_data) // 16 * 16]))
+        for i, fa in enumerate(first_attrs):
+            j = fa
+            while 0 <= j < len(attrs):
+                nh, tl, nxt, off = attrs[j]
+                val = read_val(val_data, off, tl & 0x3F, tl >> 6)
+                if val is not None:
+                    nodes[i]['attrs'][attr_name(nh)] = val
+                j = nxt
+    else:
+        # V2 node entries: name-handle (u32), first-attr (u32), parent (i32).
+        node_struct = struct.Struct('<I4xi')
+        nodes = [
+            {'name': lkp(names, nh), 'parent': par, 'children': [], 'attrs': {}}
+            for nh, par in node_struct.iter_unpack(nod_data[: num_nodes * node_size])
+        ]
+        # V2 attribute entries: name-handle (u32), type-and-length (u32),
+        # node (i32); values are packed sequentially.
+        data_off = 0
+        for nh, tl, ni in struct.Struct('<IIi').iter_unpack(att_data[: len(att_data) // 12 * 12]):
+            tid = tl & 0x3F
+            length = tl >> 6
+            val = read_val(val_data, data_off, tid, length)
+            if val is not None and ni < num_nodes:
+                nodes[ni]['attrs'][attr_name(nh)] = val
+            data_off += length
 
     for i, nd in enumerate(nodes):
         if 0 <= nd['parent'] < num_nodes:
             nodes[nd['parent']]['children'].append(i)
-
-    # Attribute entries: name-handle (u32), type-and-length (u32), node (i32).
-    # Attribute names repeat heavily, so the handle→name lookup is memoized.
-    name_cache: dict[int, str] = {}
-    data_off = 0
-    for nh, tl, ni in struct.Struct('<IIi').iter_unpack(att_data[: len(att_data) // 12 * 12]):
-        tid = tl & 0x3F
-        length = tl >> 6
-        val = read_val(val_data, data_off, tid, length)
-        if val is not None and ni < num_nodes:
-            aname = name_cache.get(nh)
-            if aname is None:
-                aname = name_cache[nh] = lkp(names, nh)
-            nodes[ni]['attrs'][aname] = val
-        data_off += length
 
     return cast(list[dict], nodes)

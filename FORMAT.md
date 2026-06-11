@@ -363,6 +363,19 @@ layout is used.
 > making that test also wrong. **The correct and final test is `MetadataFormat == 1`**,
 > which this parser now uses.
 
+The V3 layout is exercised in the wild by the game's localization key files
+(`Mods/*/Localization/*_Subregions.lsf`, `Waypointshrines*.lsf`), decoded
+2026-06-11 against `Act2_Subregions.lsf`:
+
+- V3 node entry (16 bytes): `{u32 name handle, i32 parent, i32 next sibling,
+  i32 first attribute (-1 = none)}`. Note the field order differs from V2
+  (parent moves to offset 4).
+- V3 attribute entry (16 bytes): `{u32 name handle, u32 type-and-length,
+  i32 next attribute (-1 ends the node's chain), u32 value offset}`. Values
+  are addressed by the explicit offset rather than packed sequentially, and
+  attributes attach to nodes by following each node's first-attribute chain
+  rather than carrying a node index.
+
 ### String hash table (strings section)
 
 ```
@@ -1266,7 +1279,7 @@ handle indexes straight into this table.
 |------------|--------|
 | LSPK extract (pak + save frames) | ✅ |
 | LSF parse (V2 layout, saves + `_merged.lsf`) | ✅ |
-| V3 (`KeysAndAdjacency`) LSF layout | not exercised by these files; format documented above |
+| V3 (`KeysAndAdjacency`) LSF layout | ✅ decoded (localization key files; node/attr chains documented above) |
 | Character / class / level / XP | ✅ (Info.json) |
 | **Frame 6 MetaData** | ✅ `parse_metadata`: wall-clock save time, save number, campaign/session UUIDs, leader name, RNG seed, mod list |
 | Per-character item ownership | ✅ (Translate matching; ECS container web decoded as cross-check) |
@@ -1285,6 +1298,7 @@ handle indexes straight into this table.
 | Story state (approval, romance, rests, waypoints, tadpoles) | ✅ decoded (Osiris databases, see §9) |
 | Party recipes | ✅ decoded (`RecipeData` string pool refs; see §6) |
 | Character → stats-entity link | ✅ solved (`stats = world + 1`, world via TemplateComponent GUID; see §6) |
+| Subregion display names | ✅ decoded (V3 localization key files → loca; "SHA_Temple_SUB" → "Gauntlet of Shar") |
 | Action resources (spell slots, rage, ki, …) | ✅ decoded (rotated ownerlist; see §6) |
 | Feats + level-up picks | ✅ decoded (`LevelUpComponent` chain; build-matched; see §6) |
 | Concentration + spell cooldowns | ✅ decoded (see §6) |

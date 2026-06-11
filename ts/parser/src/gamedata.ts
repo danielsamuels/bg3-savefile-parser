@@ -13,6 +13,7 @@ export interface GamedataJson {
   quest_objectives?: Record<string, string>;
   action_resources?: Record<string, string>;
   feat_names?: Record<string, string>;
+  subregions?: Record<string, string>;
   class_uuid_names?: Record<string, string>;
 }
 
@@ -28,6 +29,7 @@ export class DisplayNames {
   readonly questObjectives: Record<string, string>;
   readonly actionResources: Record<string, string>;
   readonly featNames: Record<string, string>;
+  readonly subregions: Record<string, string>;
   readonly classUuidNames: Record<string, string>;
 
   constructor(data?: GamedataJson) {
@@ -42,6 +44,7 @@ export class DisplayNames {
     this.questObjectives = data?.quest_objectives ?? {};
     this.actionResources = data?.action_resources ?? {};
     this.featNames = data?.feat_names ?? {};
+    this.subregions = data?.subregions ?? {};
     this.classUuidNames = data?.class_uuid_names ?? {};
   }
 
@@ -67,6 +70,11 @@ export class DisplayNames {
   /** Display name for a feat UUID, or null. */
   featNameFor(uuid: string): string | null {
     return this.featNames[uuid] ?? null;
+  }
+
+  /** Display name for a subregion or waypoint id, or null. */
+  subregionNameFor(id: string): string | null {
+    return this.subregions[id] ?? null;
   }
 
   /** Journal title for a quest, or null if unresolved. */

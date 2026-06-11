@@ -2632,7 +2632,7 @@
    },
    "inspect": null,
    "level": 7,
-   "location": "TWN_Hospital_SUB",
+   "location": "House of Healing",
    "name": "Maia (player)",
    "race": "Elf_HighElf",
    "resources": [
@@ -3222,7 +3222,7 @@
    },
    "inspect": null,
    "level": 7,
-   "location": "TWN_Hospital_SUB",
+   "location": "House of Healing",
    "name": "Karlach",
    "race": "Tiefling_Zariel",
    "resources": [
@@ -3746,7 +3746,7 @@
    },
    "inspect": null,
    "level": 7,
-   "location": "TWN_Hospital_SUB",
+   "location": "House of Healing",
    "name": "Shadowheart",
    "race": "HalfElf_High",
    "resources": [
@@ -5862,7 +5862,7 @@
    },
    "inspect": null,
    "level": 7,
-   "location": "TWN_Hospital_SUB",
+   "location": "House of Healing",
    "name": "Wyll",
    "race": "Human",
    "resources": [
@@ -6195,7 +6195,7 @@
    "hp": null,
    "inspect": null,
    "level": 1,
-   "location": "TWN_Hospital_SUB",
+   "location": "House of Healing",
    "name": "Imp_Summon",
    "race": "Imp",
    "resources": null,

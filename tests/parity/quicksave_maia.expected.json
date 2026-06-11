@@ -2227,7 +2227,7 @@
    },
    "inspect": null,
    "level": 7,
-   "location": "HAV_IsobelRoom_SUB",
+   "location": "Isobel's Room",
    "name": "Maia (player)",
    "race": "Elf_HighElf",
    "resources": [
@@ -2839,7 +2839,7 @@
    },
    "inspect": null,
    "level": 7,
-   "location": "HAV_IsobelRoom_SUB",
+   "location": "Isobel's Room",
    "name": "Wyll",
    "race": "Human",
    "resources": [
@@ -3371,7 +3371,7 @@
    },
    "inspect": null,
    "level": 7,
-   "location": "HAV_IsobelRoom_SUB",
+   "location": "Isobel's Room",
    "name": "Karlach",
    "race": "Tiefling_Zariel",
    "resources": [
@@ -3883,7 +3883,7 @@
    },
    "inspect": null,
    "level": 7,
-   "location": "HAV_IsobelRoom_SUB",
+   "location": "Isobel's Room",
    "name": "Shadowheart",
    "race": "HalfElf_High",
    "resources": [
@@ -5712,7 +5712,7 @@
    "hp": null,
    "inspect": null,
    "level": 1,
-   "location": "HAV_IsobelRoom_SUB",
+   "location": "Isobel's Room",
    "name": "Imp_Summon",
    "race": "Imp",
    "resources": null,

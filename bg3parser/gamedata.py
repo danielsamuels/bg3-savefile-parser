@@ -123,8 +123,20 @@ FEAT_DESCRIPTION_FILES = [
 ]
 
 
+# Subregion display names ("SHA_Temple_SUB" -> "Gauntlet of Shar"): LSF v3
+# localization key files mapping subregion UUID strings to loca handles.
+SUBREGION_LOCALIZATION_FILES = [
+    ('Gustav.pak', 'Mods/Gustav/Localization/Act1_Subregions.lsf'),
+    ('Gustav.pak', 'Mods/GustavDev/Localization/Act1b_Subregions.lsf'),
+    ('Gustav.pak', 'Mods/GustavDev/Localization/Act2_Subregions.lsf'),
+    ('Gustav.pak', 'Mods/GustavDev/Localization/Act3_Subregions.lsf'),
+    ('Gustav.pak', 'Mods/GustavDev/Localization/Waypointshrines2.lsf'),
+    ('Gustav.pak', 'Mods/Gustav/Localization/Waypointshrines.lsf'),
+]
+
+
 # Bump when the resolver logic changes so a stale cache is not silently reused.
-DISPLAYNAME_SCHEMA_VERSION = 13
+DISPLAYNAME_SCHEMA_VERSION = 14
 
 
 def find_game_data_dir() -> str | None:
@@ -200,12 +212,13 @@ def build_displayname_maps(
     dict[str, str],
     dict[str, str],
     dict[str, str],
+    dict[str, str],
 ]:
     """Build display-name and item-stat maps from installed game data.
 
     Returns (guid->name, stats->name, spell_id->name, object_type_stats, stats_to_slot,
     two_handed_stats, sub_spells, quest_names, quest_objectives, action_resources,
-    feat_names).
+    feat_names, subregions).
 
     Results are cached under XDG_CACHE_HOME keyed on the source paks' mtime/size,
     so the ~1 s parse only happens after a game update.
@@ -230,6 +243,7 @@ def build_displayname_maps(
             data.get('quest_objectives', {}),
             data.get('action_resources', {}),
             data.get('feat_names', {}),
+            data.get('subregions', {}),
         )
     except (OSError, ValueError, KeyError):
         pass
@@ -321,6 +335,20 @@ def build_displayname_maps(
                 if label:
                     feat_names[m.group(2)] = label
                 handle = internal = None
+
+    # Subregion (and waypoint shrine) display names from the localization
+    # key files: TranslatedStringKey nodes carry {UUID, Content handle}.
+    subregions: dict[str, str] = {}
+    for pak, name in SUBREGION_LOCALIZATION_FILES:
+        try:
+            for nd in parse_lsof(lspk_extract(os.path.join(data_dir, pak), name)):
+                u, c = nd['attrs'].get('UUID'), nd['attrs'].get('Content')
+                if u and c:
+                    title = handle_to_text.get(c)
+                    if title and '%%%' not in title:
+                        subregions[u] = title
+        except (OSError, KeyError, ValueError):
+            continue
 
     guid_handle: dict[str, str] = {}  # template GUID -> own DisplayName handle ('' if none)
     guid_parent: dict[str, str] = {}  # template GUID -> ParentTemplateId
@@ -544,6 +572,7 @@ def build_displayname_maps(
                     'quest_objectives': quest_objectives,
                     'action_resources': action_resources,
                     'feat_names': feat_names,
+                    'subregions': subregions,
                 },
                 fh,
             )
@@ -561,6 +590,7 @@ def build_displayname_maps(
         quest_objectives,
         action_resources,
         feat_names,
+        subregions,
     )
 
 
@@ -580,6 +610,7 @@ class DisplayNames:
         quest_objectives: dict[str, str] | None = None,
         action_resources: dict[str, str] | None = None,
         feat_names: dict[str, str] | None = None,
+        subregions: dict[str, str] | None = None,
     ):
         self._guid = guid_name
         self._stats = stats_name
@@ -592,6 +623,7 @@ class DisplayNames:
         self.quest_objectives: dict[str, str] = quest_objectives or {}
         self.action_resources: dict[str, str] = action_resources or {}
         self.feat_names: dict[str, str] = feat_names or {}
+        self.subregions: dict[str, str] = subregions or {}
         self.verbose = False  # set to True to append (INTERNAL_NAME) after display names
 
     @classmethod
@@ -627,6 +659,10 @@ class DisplayNames:
     def feat_name_for(self, uuid: str) -> str | None:
         """Display name for a feat UUID, or None."""
         return self.feat_names.get(uuid)
+
+    def subregion_name_for(self, subregion_id: str) -> str | None:
+        """Display name for a subregion or waypoint id, or None."""
+        return self.subregions.get(subregion_id)
 
     def quest_name_for(self, quest_id: str) -> str | None:
         """Return the journal title for a quest, or None if unresolved."""

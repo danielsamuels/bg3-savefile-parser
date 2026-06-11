@@ -751,7 +751,9 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
             classes=char_info.get('Classes', []),
             level=char_info.get('Level', '?'),
             xp=char_info.get('Experience Points (Total)', None),
-            location=char_info.get('Subregion', ''),
+            location=(lambda raw: dn.subregion_name_for(raw) or raw)(
+                char_info.get('Subregion', '')
+            ),
         )
         report.characters.append(char)
 

@@ -169,44 +169,76 @@ export function parseLsof(data: Uint8Array): LsofNode[] {
   const numNodes = Math.floor(nodData.length / nodeSize);
   const ndv = new DataView(nodData.buffer, nodData.byteOffset, nodData.byteLength);
 
+  const adv = new DataView(attData.buffer, attData.byteOffset, attData.byteLength);
+  const vdv = new DataView(valData.buffer, valData.byteOffset, valData.byteLength);
+  const nameCache = new Map<number, string>();
+  const attrName = (nh: number): string => {
+    let aname = nameCache.get(nh);
+    if (aname === undefined) {
+      aname = lkp(names, nh);
+      nameCache.set(nh, aname);
+    }
+    return aname;
+  };
+
   const nodes: LsofNode[] = new Array(numNodes);
-  for (let i = 0; i < numNodes; i++) {
-    const b = i * nodeSize;
-    nodes[i] = {
-      name: lkp(names, ndv.getUint32(b, true)),
-      parent: ndv.getInt32(b + 8, true),
-      children: [],
-      attrs: {},
-    };
+  if (hasKeys) {
+    // V3 node entries: name (u32), parent (i32), next-sibling (i32),
+    // first-attribute (i32, -1 = none).
+    const firstAttrs = new Array<number>(numNodes);
+    for (let i = 0; i < numNodes; i++) {
+      const b = i * nodeSize;
+      nodes[i] = {
+        name: lkp(names, ndv.getUint32(b, true)),
+        parent: ndv.getInt32(b + 4, true),
+        children: [],
+        attrs: {},
+      };
+      firstAttrs[i] = ndv.getInt32(b + 12, true);
+    }
+    // V3 attribute entries: name (u32), type-and-length (u32),
+    // next-attribute (i32, -1 ends the chain), value offset (u32).
+    const numAttrs = Math.floor(attData.length / 16);
+    for (let i = 0; i < numNodes; i++) {
+      let j = firstAttrs[i]!;
+      while (j >= 0 && j < numAttrs) {
+        const b = j * 16;
+        const tl = adv.getUint32(b + 4, true);
+        const off = adv.getUint32(b + 12, true);
+        const val = readVal(valData, vdv, off, tl & 0x3f, tl >>> 6);
+        if (val !== null) nodes[i]!.attrs[attrName(adv.getUint32(b, true))] = val;
+        j = adv.getInt32(b + 8, true);
+      }
+    }
+  } else {
+    for (let i = 0; i < numNodes; i++) {
+      const b = i * nodeSize;
+      nodes[i] = {
+        name: lkp(names, ndv.getUint32(b, true)),
+        parent: ndv.getInt32(b + 8, true),
+        children: [],
+        attrs: {},
+      };
+    }
+    // V2 attribute entries: name-handle (u32), type-and-length (u32), node (i32).
+    const numAttrs = Math.floor(attData.length / 12);
+    let dataOff = 0;
+    for (let i = 0; i < numAttrs; i++) {
+      const b = i * 12;
+      const tl = adv.getUint32(b + 4, true);
+      const tid = tl & 0x3f;
+      const length = tl >>> 6;
+      const ni = adv.getInt32(b + 8, true);
+      const val = readVal(valData, vdv, dataOff, tid, length);
+      if (val !== null && ni < numNodes) {
+        nodes[ni]!.attrs[attrName(adv.getUint32(b, true))] = val;
+      }
+      dataOff += length;
+    }
   }
   for (let i = 0; i < numNodes; i++) {
     const p = nodes[i]!.parent;
     if (p >= 0 && p < numNodes) nodes[p]!.children.push(i);
-  }
-
-  // Attribute entries: name-handle (u32), type-and-length (u32), node (i32).
-  const adv = new DataView(attData.buffer, attData.byteOffset, attData.byteLength);
-  const vdv = new DataView(valData.buffer, valData.byteOffset, valData.byteLength);
-  const nameCache = new Map<number, string>();
-  const numAttrs = Math.floor(attData.length / 12);
-  let dataOff = 0;
-  for (let i = 0; i < numAttrs; i++) {
-    const b = i * 12;
-    const tl = adv.getUint32(b + 4, true);
-    const tid = tl & 0x3f;
-    const length = tl >>> 6;
-    const ni = adv.getInt32(b + 8, true);
-    const val = readVal(valData, vdv, dataOff, tid, length);
-    if (val !== null && ni < numNodes) {
-      const nh = adv.getUint32(b, true);
-      let aname = nameCache.get(nh);
-      if (aname === undefined) {
-        aname = lkp(names, nh);
-        nameCache.set(nh, aname);
-      }
-      nodes[ni]!.attrs[aname] = val;
-    }
-    dataOff += length;
   }
   return nodes;
 }

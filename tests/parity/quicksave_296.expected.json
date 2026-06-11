@@ -2839,7 +2839,7 @@
    },
    "inspect": null,
    "level": 7,
-   "location": "CAMP_SUB",
+   "location": "Campsite",
    "name": "Maia (player)",
    "race": "Elf_HighElf",
    "resources": [
@@ -3473,7 +3473,7 @@
    },
    "inspect": null,
    "level": 7,
-   "location": "CAMP_SUB",
+   "location": "Campsite",
    "name": "Karlach",
    "race": "Tiefling_Zariel",
    "resources": [
@@ -4012,7 +4012,7 @@
    },
    "inspect": null,
    "level": 7,
-   "location": "CAMP_SUB",
+   "location": "Campsite",
    "name": "Shadowheart",
    "race": "HalfElf_High",
    "resources": [
@@ -5936,7 +5936,7 @@
    },
    "inspect": null,
    "level": 7,
-   "location": "CAMP_SUB",
+   "location": "Campsite",
    "name": "Wyll",
    "race": "Human",
    "resources": [
@@ -6263,7 +6263,7 @@
    "hp": null,
    "inspect": null,
    "level": 1,
-   "location": "CAMP_SUB",
+   "location": "Campsite",
    "name": "Imp_Summon",
    "race": "Imp",
    "resources": null,
