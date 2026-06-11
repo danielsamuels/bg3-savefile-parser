@@ -1,6 +1,7 @@
 /** Osiris story-engine state (StorySave.bin): quests, goals, story flags.
  *  Mirrors bg3parser/osiris.py — see that file for the format notes. */
 import { decompFrame } from './lspk.js';
+import { PARTY_ORIGINS } from './party.js';
 
 const OSI_VER_SCRAMBLE = 0x0104;
 const OSI_VER_ADD_QUERY = 0x0106;
@@ -363,6 +364,15 @@ function readGoals(rdr: OsiReader): Map<number, { name: string; flags: number }>
   return goals;
 }
 
+export interface StoryState {
+  approval: { name: string; rating: number }[];
+  dating: string[];
+  long_rests: number;
+  tadpoles: { name: string; count: number }[];
+  waypoints: string[];
+  traders_met: number;
+}
+
 export interface OsirisState {
   version: number;
   quests_active: string[];
@@ -370,6 +380,73 @@ export interface OsirisState {
   goals_finalized: string[];
   global_flags: string[];
   global_flags_total: number;
+  story: StoryState;
+}
+
+const byName = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
+
+/** Distil campaign/social state from the story databases (see osiris.py). */
+function extractStory(nameToFacts: Map<string, ReadValue[][]>): StoryState {
+  const rows = (nm: string): unknown[][] =>
+    (nameToFacts.get(nm) ?? []).map((r) => r.map((c) => c.value));
+
+  const avatarRows = rows('DB_Avatars');
+  const avatar = avatarRows.length && avatarRows[0]!.length ? avatarRows[0]![0] : null;
+
+  const charName = (s: unknown): string | null => {
+    if (typeof s !== 'string' || s.length < 36) return null;
+    if (avatar !== null && s === avatar) return 'Player';
+    return PARTY_ORIGINS[s.slice(-36)] ?? null;
+  };
+
+  const approval = rows('DB_ApprovalRating')
+    .filter((r) => r.length === 3 && avatar !== null && r[1] === avatar)
+    .map((r) => ({ name: charName(r[0]), rating: r[2] as number }))
+    .filter((a): a is { name: string; rating: number } => a.name !== null && a.name !== 'Player')
+    .sort((a, b) => b.rating - a.rating || byName(a.name, b.name));
+
+  const flags = new Set(dbStrings(nameToFacts, 'DB_GlobalFlag'));
+  const dating = rows('DB_CompanionIsDating')
+    .filter((r) => r.length === 2 && typeof r[1] === 'string' && flags.has(r[1] as string))
+    .map((r) => charName(r[0]))
+    .filter((n): n is string => n !== null && n !== 'Player')
+    .sort(byName);
+
+  const counters = new Map(
+    rows('DB_GlobalCounter')
+      .filter((r) => r.length === 2)
+      .map((r) => [r[0] as string, r[1] as number]),
+  );
+
+  const tadpoles = rows('DB_GLO_Tadpoled_Count')
+    .filter((r) => r.length === 2)
+    .map((r) => ({ name: charName(r[0]), count: r[1] as number }))
+    .filter((t): t is { name: string; count: number } => t.name !== null)
+    .sort((a, b) => b.count - a.count || byName(a.name, b.name));
+
+  const waypoints = [
+    ...new Set(
+      rows('DB_WaypointUnlocked')
+        .filter((r) => r.length === 2 && typeof r[0] === 'string' && r[0])
+        .map((r) => r[0] as string),
+    ),
+  ].sort(byName);
+
+  return {
+    approval,
+    dating,
+    long_rests: counters.get('Camp_Rest_Count') ?? 0,
+    tadpoles,
+    waypoints,
+    traders_met: rows('DB_TradeTreasureGeneratedEver').length,
+  };
+}
+
+/** All non-null string values from a single-column database. */
+function dbStrings(nameToFacts: Map<string, ReadValue[][]>, dbName: string): string[] {
+  return (nameToFacts.get(dbName) ?? [])
+    .filter((row) => row.length && row[0]!.isValid && row[0]!.value !== null)
+    .map((row) => String(row[0]!.value));
 }
 
 /** Parse the Osiris story state; null on any failure (caller degrades). */
@@ -413,13 +490,8 @@ export function parseOsiris(frames: Map<string, Uint8Array>): OsirisState | null
       if (facts) nameToFacts.set(nm, facts);
     }
 
-    const singleColStrings = (dbName: string): string[] =>
-      (nameToFacts.get(dbName) ?? [])
-        .filter((row) => row.length && row[0]!.isValid && row[0]!.value !== null)
-        .map((row) => String(row[0]!.value));
-
-    const accepted = new Set(singleColStrings('DB_QuestIsAccepted'));
-    const closed = new Set(singleColStrings('DB_QuestIsClosed'));
+    const accepted = new Set(dbStrings(nameToFacts, 'DB_QuestIsAccepted'));
+    const closed = new Set(dbStrings(nameToFacts, 'DB_QuestIsClosed'));
     const active = [...accepted].filter((q) => !closed.has(q)).sort();
     const closedL = [...closed].sort();
 
@@ -428,7 +500,7 @@ export function parseOsiris(frames: Map<string, Uint8Array>): OsirisState | null
       .map((g) => g.name)
       .sort();
 
-    const globalFlags = singleColStrings('DB_GlobalFlag');
+    const globalFlags = dbStrings(nameToFacts, 'DB_GlobalFlag');
 
     return {
       version: ver,
@@ -437,6 +509,7 @@ export function parseOsiris(frames: Map<string, Uint8Array>): OsirisState | null
       goals_finalized: goalsDone,
       global_flags: globalFlags.slice(0, 50),
       global_flags_total: globalFlags.length,
+      story: extractStory(nameToFacts),
     };
   } catch {
     return null;

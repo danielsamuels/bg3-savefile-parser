@@ -180,6 +180,16 @@ def render_text(report: SaveReport, opts=None) -> str:
         v = report.quests['version']
         quests_version = f'{v >> 8}.{v & 0xFF}'
 
+    tadpole_summary = ''
+    approval_lines: list[str] = []
+    if report.story:
+        tadpole_summary = ', '.join(f'{t["name"]} x{t["count"]}' for t in report.story['tadpoles'])
+        dating = set(report.story['dating'])
+        approval_lines = [
+            f'{a["name"]:<12}{a["rating"]:>4}' + ('   (dating)' if a['name'] in dating else '')
+            for a in report.story['approval']
+        ]
+
     env = make_jinja_env()
     template = env.get_template('report.txt.j2')
 
@@ -195,6 +205,8 @@ def render_text(report: SaveReport, opts=None) -> str:
         verbose=verbose,
         inspect_pattern=report.inspect_pattern,
         quests_version=quests_version,
+        tadpole_summary=tadpole_summary,
+        approval_lines=approval_lines,
     )
     return output
 

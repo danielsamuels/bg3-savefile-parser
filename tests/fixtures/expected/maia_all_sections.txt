@@ -92,6 +92,21 @@ QUEST & STORY STATE  (Osiris / StorySave.bin)
     UND_MyconidCircle
     UND_MyconidRevenge
 
+  Campaign:
+    Long rests taken   : 40
+    Waypoints unlocked : 18
+    Traders met        : 15
+    Tadpoles consumed  : Player x5, Gale x1, Shadowheart x1
+
+  Companion approval (of the player):
+    Shadowheart  100   (dating)
+    Gale          84   (dating)
+    Karlach       70
+    Wyll          60
+    Astarion      31
+    Halsin         0
+    Lae'zel        0
+
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PARTY CHARACTERS

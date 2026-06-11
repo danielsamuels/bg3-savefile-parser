@@ -3,6 +3,7 @@
 import struct
 
 from .lsf import decomp_frame
+from .party import PARTY_ORIGINS
 
 # Osiris story-engine state  (frame 9)
 # ---------------------------------------------------------------------------
@@ -433,6 +434,84 @@ def osi_read_goals(rdr: OsiReader) -> dict:
     return goals
 
 
+def extract_story(name_to_facts: dict) -> dict:
+    """Distil campaign/social state from the story databases.
+
+    Osiris CHARACTER values are strings ending in a 36-char GUID
+    (`S_Player_ShadowHeart_3ed74f06-…`); the suffix maps onto PARTY_ORIGINS.
+    Labels are unreliable (Minthara is `S_GOB_DrowCommander_…`), so matching
+    is always by GUID. The player avatar is identified via DB_Avatars (in an
+    origin run the avatar is itself an `S_Player_X` string) and reported as
+    'Player'.
+    """
+
+    def rows(nm: str) -> list[list]:
+        return [[c.get('value') for c in r] for r in name_to_facts.get(nm, [])]
+
+    avatar_rows = rows('DB_Avatars')
+    avatar = avatar_rows[0][0] if avatar_rows and avatar_rows[0] else None
+
+    def char_name(s) -> str | None:
+        if not isinstance(s, str) or len(s) < 36:
+            return None
+        if avatar is not None and s == avatar:
+            return 'Player'
+        return PARTY_ORIGINS.get(s[-36:])
+
+    # Companion approval toward the player (observed range 0..100; only
+    # characters with at least one approval event have rows).
+    approval = sorted(
+        (
+            {'name': nm, 'rating': r[2]}
+            for r in rows('DB_ApprovalRating')
+            if len(r) == 3
+            and avatar is not None
+            and r[1] == avatar
+            and (nm := char_name(r[0])) not in (None, 'Player')
+        ),
+        key=lambda a: (-a['rating'], a['name']),
+    )
+
+    # Romance: companions whose "is dating the avatar" flag is set.
+    flags = set(get_db_strings(name_to_facts, 'DB_GlobalFlag'))
+    dating = sorted(
+        nm
+        for r in rows('DB_CompanionIsDating')
+        if len(r) == 2 and r[1] in flags and (nm := char_name(r[0])) not in (None, 'Player')
+    )
+
+    counters = {r[0]: r[1] for r in rows('DB_GlobalCounter') if len(r) == 2}
+
+    tadpoles = sorted(
+        (
+            {'name': nm, 'count': r[1]}
+            for r in rows('DB_GLO_Tadpoled_Count')
+            if len(r) == 2 and (nm := char_name(r[0])) is not None
+        ),
+        key=lambda t: (-t['count'], t['name']),
+    )
+
+    waypoints = sorted({r[0] for r in rows('DB_WaypointUnlocked') if len(r) == 2 and r[0]})
+
+    return {
+        'approval': approval,
+        'dating': dating,
+        'long_rests': counters.get('Camp_Rest_Count', 0),
+        'tadpoles': tadpoles,
+        'waypoints': waypoints,
+        'traders_met': len(rows('DB_TradeTreasureGeneratedEver')),
+    }
+
+
+def get_db_strings(name_to_facts: dict, db_name: str) -> list[str]:
+    """All non-None string values from a single-column database."""
+    return [
+        str(row[0]['value'])
+        for row in name_to_facts.get(db_name, [])
+        if row and row[0].get('is_valid') and row[0].get('value') is not None
+    ]
+
+
 def parse_osiris(frames: dict[str, bytes]) -> dict | None:
     """Parse frame 9 (Osiris story state) and return useful quest/story data.
 
@@ -496,22 +575,14 @@ def parse_osiris(frames: dict[str, bytes]) -> dict | None:
             if db_ref in databases:
                 name_to_facts[nm] = databases[db_ref]
 
-        def get_single_col_strings(db_name: str) -> list[str]:
-            """Return all non-None string values from a single-column database."""
-            return [
-                str(row[0]['value'])
-                for row in name_to_facts.get(db_name, [])
-                if row and row[0].get('is_valid') and row[0].get('value') is not None
-            ]
-
-        accepted = set(get_single_col_strings('DB_QuestIsAccepted'))
-        closed = set(get_single_col_strings('DB_QuestIsClosed'))
+        accepted = set(get_db_strings(name_to_facts, 'DB_QuestIsAccepted'))
+        closed = set(get_db_strings(name_to_facts, 'DB_QuestIsClosed'))
         active = sorted(accepted - closed)
         closed_l = sorted(closed)
 
         goals_done = sorted(g['name'] for g in goals.values() if g['flags'] == 0x07 and g['name'])
 
-        global_flags = get_single_col_strings('DB_GlobalFlag')
+        global_flags = get_db_strings(name_to_facts, 'DB_GlobalFlag')
 
         return {
             'version': ver,
@@ -520,6 +591,7 @@ def parse_osiris(frames: dict[str, bytes]) -> dict | None:
             'goals_finalized': goals_done,
             'global_flags': global_flags[:50],
             'global_flags_total': len(global_flags),
+            'story': extract_story(name_to_facts),
         }
 
     except Exception:

@@ -925,5 +925,18 @@
   "save_name": "AutoSave_2",
   "saved_at": "2026-05-23 13:40:42 UTC"
  },
- "source": "autosave_shadowheart_tutorial.lsv"
+ "source": "autosave_shadowheart_tutorial.lsv",
+ "story": {
+  "approval": [
+   {
+    "name": "Lae'zel",
+    "rating": 0
+   }
+  ],
+  "dating": [],
+  "long_rests": 0,
+  "tadpoles": [],
+  "traders_met": 0,
+  "waypoints": []
+ }
 }

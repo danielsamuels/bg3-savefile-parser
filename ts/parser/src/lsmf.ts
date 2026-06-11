@@ -358,7 +358,7 @@ export function solveOwnerShifts(
 export function parseLsmfAbilityScores(blob: Uint8Array): Map<number, number[]> {
   const idx = lsmfComponentIndex(blob);
   const st = idx.get('game.stats.v3.StatsComponent');
-  if (!st || st.elemSize !== 36) return new Map();
+  if (st?.elemSize !== 36) return new Map();
   const { dv } = align(blob);
   const L = blob.length;
   const levels = new Map<number, number>();
@@ -407,7 +407,7 @@ export function parseLsmfHealth(
 ): Map<number, number[]> {
   const idx = lsmfComponentIndex(blob);
   const hl = idx.get('game.stats.v0.HealthComponent');
-  if (!hl || hl.elemSize !== 32) return new Map();
+  if (hl?.elemSize !== 32) return new Map();
   const { dv } = align(blob);
   const L = blob.length;
 
@@ -471,7 +471,7 @@ export function parseLsmfHealth(
 export function parseLsmfCampSupplies(blob: Uint8Array): number | null {
   const idx = lsmfComponentIndex(blob);
   const ts = idx.get('game.camp.v0.TotalSuppliesComponent');
-  if (!ts || ts.elemSize !== 4 || ts.rowCount !== 1) return null;
+  if (ts?.elemSize !== 4 || ts.rowCount !== 1) return null;
   const { bytes, dv } = align(blob);
   if (ts.dataOffset + 4 > bytes.length) return null;
   return dv.getUint32(ts.dataOffset, true);

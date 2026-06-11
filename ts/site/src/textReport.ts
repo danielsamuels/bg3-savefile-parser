@@ -112,7 +112,7 @@ function characterLines(char: CharacterReport): string[] {
   return out;
 }
 
-function questsLines(q: NonNullable<SaveReport['quests']>): string[] {
+function questsLines(q: NonNullable<SaveReport['quests']>, story: SaveReport['story']): string[] {
   const out = [BAR_HEAVY, 'QUEST & STORY STATE  (Osiris / StorySave.bin)', BAR_HEAVY, ''];
   if (q.failed) {
     out.push('  (Osiris parse failed or frame not present)', '', '');
@@ -128,6 +128,27 @@ function questsLines(q: NonNullable<SaveReport['quests']>): string[] {
   out.push(`  Quests closed / resolved (${q.closed.length}):`);
   out.push('  (closed covers completed and failed; no separate failed-quest DB)');
   for (const n of q.closed) out.push(`    ${n.name ?? n.id}`);
+  if (story) {
+    out.push('');
+    out.push('  Campaign:');
+    out.push(`    Long rests taken   : ${story.long_rests}`);
+    out.push(`    Waypoints unlocked : ${story.waypoints.length}`);
+    out.push(`    Traders met        : ${story.traders_met}`);
+    if (story.tadpoles.length) {
+      out.push(
+        `    Tadpoles consumed  : ${story.tadpoles.map((t) => `${t.name} x${t.count}`).join(', ')}`,
+      );
+    }
+    if (story.approval.length) {
+      out.push('');
+      out.push('  Companion approval (of the player):');
+      const dating = new Set(story.dating);
+      for (const a of story.approval) {
+        const tag = dating.has(a.name) ? '   (dating)' : '';
+        out.push(`    ${a.name.padEnd(12)}${String(a.rating).padStart(4)}${tag}`);
+      }
+    }
+  }
   out.push('', '');
   return out;
 }
@@ -159,7 +180,7 @@ export function renderTextReport(report: SaveReport): string {
   lines.push(
     `Item names : ${report.names_resolved ? 'resolved from game data' : 'internal only (name table not loaded)'}`,
   );
-  if (report.quests) lines.push(...questsLines(report.quests));
+  if (report.quests) lines.push(...questsLines(report.quests, report.story));
   lines.push(BAR_HEAVY, 'PARTY CHARACTERS', BAR_HEAVY);
   for (const char of report.characters) {
     if (char.at_camp) continue;

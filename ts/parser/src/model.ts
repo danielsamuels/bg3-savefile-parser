@@ -21,6 +21,7 @@ import {
   WIELDED_COMP,
 } from './lsmf.js';
 import { decompFrame, extractFrames, parseInfoJson } from './lspk.js';
+import type { StoryState } from './osiris.js';
 import { parseOsiris } from './osiris.js';
 import {
   type AttributedItem,
@@ -144,6 +145,7 @@ export interface SaveReport {
   save_info: SaveInfo;
   camp_chest: ItemRef[] | null;
   quests: QuestsReport | null;
+  story: StoryState | null;
   level_items: null;
   inspect_pattern: string;
   names_resolved: boolean;
@@ -640,6 +642,7 @@ export function gatherReport(
     save_info: saveInfo,
     camp_chest: null,
     quests: null,
+    story: null,
     level_items: null,
     inspect_pattern: '',
     names_resolved: dn.available,
@@ -668,6 +671,7 @@ export function gatherReport(
             global_flags: osiris.global_flags,
             global_flags_total: osiris.global_flags_total,
           };
+    if (osiris !== null) report.story = osiris.story;
   }
 
   for (const charInfo of partyInfo) {

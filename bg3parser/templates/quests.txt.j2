@@ -23,5 +23,22 @@ QUEST & STORY STATE  (Osiris / StorySave.bin)
 {% for q in report.quests.closed %}
     {{ q.name or q.id }}
 {% endfor %}
+{% if report.story %}
+
+  Campaign:
+    Long rests taken   : {{ report.story.long_rests }}
+    Waypoints unlocked : {{ report.story.waypoints | length }}
+    Traders met        : {{ report.story.traders_met }}
+{% if tadpole_summary %}
+    Tadpoles consumed  : {{ tadpole_summary }}
+{% endif %}
+{% if approval_lines %}
+
+  Companion approval (of the player):
+{% for line in approval_lines %}
+    {{ line }}
+{% endfor %}
+{% endif %}
+{% endif %}
 
 {% endif %}

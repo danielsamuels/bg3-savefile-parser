@@ -7884,5 +7884,77 @@
   "save_name": "QuickSave_292",
   "saved_at": "2026-06-10 13:49:32 UTC"
  },
- "source": "quicksave_292.lsv"
+ "source": "quicksave_292.lsv",
+ "story": {
+  "approval": [
+   {
+    "name": "Shadowheart",
+    "rating": 100
+   },
+   {
+    "name": "Gale",
+    "rating": 94
+   },
+   {
+    "name": "Karlach",
+    "rating": 75
+   },
+   {
+    "name": "Wyll",
+    "rating": 64
+   },
+   {
+    "name": "Astarion",
+    "rating": 31
+   },
+   {
+    "name": "Halsin",
+    "rating": 0
+   },
+   {
+    "name": "Lae'zel",
+    "rating": 0
+   }
+  ],
+  "dating": [
+   "Shadowheart"
+  ],
+  "long_rests": 42,
+  "tadpoles": [
+   {
+    "count": 5,
+    "name": "Player"
+   },
+   {
+    "count": 1,
+    "name": "Gale"
+   },
+   {
+    "count": 1,
+    "name": "Shadowheart"
+   }
+  ],
+  "traders_met": 16,
+  "waypoints": [
+   "WAYP_CHA_Chapel",
+   "WAYP_CHA_Top",
+   "WAYP_CRE_Creche",
+   "WAYP_CRE_Exterior",
+   "WAYP_CRE_Monastery",
+   "WAYP_DEN_Camp",
+   "WAYP_FOR_Ruins",
+   "WAYP_GOB_Temple",
+   "WAYP_HAG_Swamp",
+   "WAYP_HAV_Outside",
+   "WAYP_MOO_TowerExterior",
+   "WAYP_PLA_Tavern",
+   "WAYP_PLA_Toll",
+   "WAYP_PLA_ZhentDungeon",
+   "WAYP_UND_AdamantineForge",
+   "WAYP_UND_Beach",
+   "WAYP_UND_Duergar",
+   "WAYP_UND_Fort",
+   "WAYP_UND_Myconid"
+  ]
+ }
 }

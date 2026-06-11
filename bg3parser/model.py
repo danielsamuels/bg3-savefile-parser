@@ -144,6 +144,7 @@ class SaveReport:
     save_info: dict | None = None
     camp_chest: list[ItemRef] | None = None
     quests: dict | None = None
+    story: dict | None = None
     level_items: dict | None = None
     inspect_pattern: str = ''
     names_resolved: bool = False
@@ -309,6 +310,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
                 'global_flags': osiris['global_flags'],
                 'global_flags_total': osiris['global_flags_total'],
             }
+            report.story = osiris['story']
 
     lsmf_blob = None
     for nd in nodes0:

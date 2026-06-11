@@ -16,6 +16,14 @@ QUEST & STORY STATE  (Osiris / StorySave.bin)
   Quests closed / resolved (0):
   (closed covers completed and failed; no separate failed-quest DB)
 
+  Campaign:
+    Long rests taken   : 0
+    Waypoints unlocked : 0
+    Traders met        : 0
+
+  Companion approval (of the player):
+    Lae'zel        0
+
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PARTY CHARACTERS
