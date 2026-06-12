@@ -5,7 +5,7 @@
  * - Hashed /assets/ are cache-first (immutable by construction).
  * - gamedata.json and fonts are stale-while-revalidate.
  */
-const CACHE = 'bg3save-v2';
+const CACHE = 'bg3save-v3';
 const SHELL = [
   '/',
   '/manifest.webmanifest',
