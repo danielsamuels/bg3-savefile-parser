@@ -8,7 +8,8 @@ An item's mechanics live in three places, all resolved through the same
   tooltip text the game shows ("Helm's Protection: When you heal another
   creature, ...").
 - `Boosts` / `DefaultBoosts`: machine-readable functor strings ("AC(1)",
-  "UnlockSpell(Target_MistyStep)").
+  "UnlockSpell(Target_MistyStep)"), translated to tooltip English by
+  boosts.translate_boosts; the raw string is kept under `boosts_raw`.
 - Weapon damage and armour class fields, for swap comparisons.
 
 build_effects_map() returns {stats name: record} for every entry that has
@@ -22,6 +23,7 @@ import json
 import os
 import re
 
+from .boosts import split_top, translate_boosts
 from .gamedata import (
     LOCA_FILE,
     LOCA_PAK,
@@ -33,9 +35,10 @@ from .gamedata import (
 from .lspk import lspk_extract, lspk_filelist
 
 # Bump when the extraction logic changes so stale caches are not reused.
-EFFECTS_SCHEMA_VERSION = 1
+EFFECTS_SCHEMA_VERSION = 2
 
 PASSIVE_STATUS_FILE_RE = re.compile(r'/Stats/Generated/Data/(?:Passive|Status_[A-Z]+)\.txt$')
+SPELL_FILE_RE = re.compile(r'/Stats/Generated/Data/Spell_.*\.txt$')
 
 CHAIN_LIMIT = 24
 
@@ -79,6 +82,17 @@ def chain_field(entries: dict[str, dict], name: str, field: str) -> str | None:
     return None
 
 
+def display_names(entries: dict[str, dict], handle_to_text: dict[str, str]) -> dict[str, str]:
+    """{stats name: localized DisplayName}, following the `using` chain."""
+    out: dict[str, str] = {}
+    for name in entries:
+        handle = (chain_field(entries, name, 'DisplayName') or '').split(';')[0]
+        txt = handle_to_text.get(handle)
+        if txt:
+            out[name] = txt
+    return out
+
+
 def prettify_param(param: str) -> str:
     """'DealDamage(2, Piercing)' -> '2 Piercing'; 'Distance(12)' -> '12 m'."""
     param = param.strip()
@@ -89,22 +103,6 @@ def prettify_param(param: str) -> str:
     if fn == 'Distance':
         return f'{args} m'
     return args.replace(',', ' ').replace('  ', ' ')
-
-
-def split_params(raw: str) -> list[str]:
-    """Split DescriptionParams on top-level semicolons (args contain commas)."""
-    parts, depth, cur = [], 0, ''
-    for ch in raw:
-        if ch == ';' and depth == 0:
-            parts.append(cur)
-            cur = ''
-            continue
-        depth += ch == '('
-        depth -= ch == ')'
-        cur += ch
-    if cur.strip():
-        parts.append(cur)
-    return parts
 
 
 def localized_effect(
@@ -120,7 +118,7 @@ def localized_effect(
     desc = text('Description')
     if not desc:
         return None
-    params = split_params(fields.get('DescriptionParams', ''))
+    params = split_top(fields.get('DescriptionParams', ''))
     for i, p in enumerate(params, start=1):
         desc = desc.replace(f'[{i}]', prettify_param(p))
     desc = re.sub(r'<[^>]+>', '', desc)  # strip markup tags (<LSTag ...> etc.)
@@ -146,7 +144,7 @@ def cache_path(data_dir: str) -> str:
 
 
 def build_effects_map(data_dir: str) -> dict[str, dict]:
-    """{stats name: {passives, statuses, boosts, damage, ac}} from game data."""
+    """{stats name: {passives, statuses, boosts, boosts_raw, damage, ac}} from game data."""
     cache = os.environ.get('BG3_EFFECTS_JSON') or cache_path(data_dir)
     try:
         with open(cache, encoding='utf-8') as fh:
@@ -158,6 +156,7 @@ def build_effects_map(data_dir: str) -> dict[str, dict]:
 
     items: dict[str, dict[str, str]] = {}
     effects_src: dict[str, dict[str, str]] = {}  # passives and statuses share a namespace
+    spells_src: dict[str, dict[str, str]] = {}
     for pak_name in STAT_ITEM_PAKS:
         pak_path = os.path.join(data_dir, pak_name)
         try:
@@ -171,6 +170,8 @@ def build_effects_map(data_dir: str) -> dict[str, dict]:
                 target = items
             elif PASSIVE_STATUS_FILE_RE.search(f):
                 target = effects_src
+            elif SPELL_FILE_RE.search(f):
+                target = spells_src
             if target is None:
                 continue
             try:
@@ -185,6 +186,9 @@ def build_effects_map(data_dir: str) -> dict[str, dict]:
                     if fields.get('__using') == name:
                         fields.pop('__using')
                     prev.update(fields)
+
+    spell_names = display_names(spells_src, handle_to_text)
+    passive_names = display_names(effects_src, handle_to_text)
 
     out: dict[str, dict] = {}
     for name in items:
@@ -215,7 +219,10 @@ def build_effects_map(data_dir: str) -> dict[str, dict]:
             if b
         )
         if boosts:
-            rec['boosts'] = boosts
+            rec['boosts_raw'] = boosts
+            lines = translate_boosts(boosts, spell_names, passive_names)
+            if lines:
+                rec['boosts'] = lines
         damage = chain_field(items, name, 'Damage')
         if damage:
             dtype = chain_field(items, name, 'Damage Type') or ''
@@ -270,6 +277,7 @@ class Effects:
             out.append(f'Damage: {rec["damage"]}')
         if 'ac' in rec:
             out.append(f'Armour Class: {rec["ac"]}')
-        if 'boosts' in rec:
-            out.append(f'Boosts: {rec["boosts"]}')
+        boosts = rec.get('boosts')
+        if isinstance(boosts, list):  # legacy artifacts held a raw string here
+            out.extend(boosts)
         return out
