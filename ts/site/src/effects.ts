@@ -9,7 +9,9 @@ export interface EffectText {
 export interface EffectRecord {
   passives?: EffectText[];
   statuses?: EffectText[];
-  boosts?: string;
+  /** Translated display lines; legacy artifacts held a raw functor string. */
+  boosts?: string[];
+  boosts_raw?: string;
   damage?: string;
   ac?: number | string;
 }
@@ -26,6 +28,6 @@ export function effectLines(table: EffectsTable, stats: string): string[] {
   }
   if (rec.damage) out.push(`Damage: ${rec.damage}`);
   if (rec.ac !== undefined) out.push(`Armour Class: ${rec.ac}`);
-  if (rec.boosts) out.push(`Boosts: ${rec.boosts}`);
+  if (Array.isArray(rec.boosts)) out.push(...rec.boosts);
   return out;
 }
