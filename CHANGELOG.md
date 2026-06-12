@@ -23,6 +23,15 @@ All notable changes to this project will be documented here.
   truth; both parsers; all earlier stack ground truths re-verified).
 
 ### Changed
+- **Boosts in plain English**: item boost functors ("Resistance(Fire,
+  Resistant)", "UnlockSpell(Target_MAG_HuntersMark_Grymskull)") are now
+  translated at gamedata build time into the lines a tooltip would show
+  ("Resistance to Fire damage", "Grants spell: Hunter's Mark"), with
+  spell and passive names resolved from the game's localisation. The MCP
+  report, item_info and the site all print the translated lines; the raw
+  functor string stays in effects.json under `boosts_raw`. Internal
+  bookkeeping (Tag, HiddenDuringCinematic, the can't-be-crit pair on
+  world objects) no longer appears at all.
 - **MCP summary tier tuned for build questions**: feats (compact
   'Great Weapon Master (L4)' lines) and XP now ride in the default
   summary, and prepared spells drop unresolved mod macros (Shout_Macro_*)

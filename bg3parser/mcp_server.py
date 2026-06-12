@@ -188,7 +188,7 @@ def item_info(names: str | list[str], limit_per_name: int = 8) -> dict[str, list
     item you are evaluating in a single call ('["hellrider", "spellsparkler",
     "caustic band"]') rather than calling once per item. Each query maps to
     its matches: slot, rarity, and tooltip lines (passives, damage, AC,
-    boosts), straight from the installed game's data — the authoritative
+    boosts in plain English), straight from the installed game's data — the
     answer to "what does this item do", with no save parsing involved.
     Several entries can share one display name (each variant is returned).
     For a whole save's gear at once, parse_save(effects=true, items='magic')
