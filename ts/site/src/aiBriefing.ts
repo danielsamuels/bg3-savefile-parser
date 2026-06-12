@@ -28,6 +28,11 @@ const isScroll = (it: ItemRef): boolean => /scroll/i.test(it.name ?? it.stats);
 const consumables = (items: ItemRef[]): ItemRef[] =>
   items.filter((it) => it.category === 'consumable' || (it.category === 'book' && isScroll(it)));
 
+// Position attribution puts bag contents in `carried` too, so this covers
+// gear stowed in backpacks and pouches, not just loose inventory.
+const gearItems = (items: ItemRef[]): ItemRef[] =>
+  items.filter((it) => it.category === 'weapon' || it.category === 'armour');
+
 /** Aggregate duplicates into "Name xN", sorted by name. */
 function countedNames(items: ItemRef[]): string[] {
   const counts = new Map<string, number>();
@@ -83,6 +88,8 @@ function characterBlock(char: CharacterReport): string[] {
   if (char.undetermined.length) {
     out.push(`- Worn or carried (undetermined): ${countedNames(char.undetermined).join(', ')}`);
   }
+  const spare = countedNames(gearItems(char.carried));
+  if (spare.length) out.push(`- Spare gear carried (incl. bags, unequipped): ${spare.join(', ')}`);
   const cons = countedNames(consumables(char.carried));
   if (cons.length) out.push(`- Consumables carried: ${cons.join(', ')}`);
   return out;
@@ -178,9 +185,7 @@ export function renderAiBriefing(report: SaveReport): string {
 
   if (report.camp_chest !== null) {
     lines.push('', '## Camp chest');
-    const gear = countedNames(
-      report.camp_chest.filter((it) => it.category === 'weapon' || it.category === 'armour'),
-    );
+    const gear = countedNames(gearItems(report.camp_chest));
     if (gear.length) lines.push(`- Gear stored: ${gear.join(', ')}`);
     const cons = countedNames(consumables(report.camp_chest));
     if (cons.length) lines.push(`- Consumables: ${cons.join(', ')}`);

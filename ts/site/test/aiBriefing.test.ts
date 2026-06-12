@@ -36,6 +36,12 @@ describe('AI briefing', () => {
     expect(briefing).toContain('- Abilities: STR ');
   });
 
+  it('lists spare gear carried, including bag contents', () => {
+    expect(briefing).toContain('- Spare gear carried (incl. bags, unequipped): ');
+    // Phalar Aluve sits unequipped in Wyll's inventory in this fixture.
+    expect(briefing).toMatch(/- Spare gear carried[^\n]*Phalar Aluve/);
+  });
+
   it('uses friendly labels, not internal identifiers', () => {
     expect(briefing).toContain('- Region: Shadow-Cursed Lands (Act 2)');
     expect(briefing).toContain('- Difficulty: Balanced');
