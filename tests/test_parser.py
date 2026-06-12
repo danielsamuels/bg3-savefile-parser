@@ -1401,6 +1401,27 @@ def test_item_effects_table():
     # Plain weapons carry their damage line; unknown stats return nothing.
     assert any(ln.startswith('Damage: 1d6') for ln in fx.lines('WPN_Shortsword'))
     assert fx.lines('NOT_A_REAL_STATS_NAME') == []
+    # Boosts arrive translated; the raw functor string rides alongside.
+    rec = fx.for_stats('UNI_RobeOfSummer')
+    assert rec['boosts'] == ['Resistance to Cold damage']
+    assert rec['boosts_raw'].replace(' ', '') == 'Resistance(Cold,Resistant)'
+    assert 'Grants spell: Click Heels' in fx.lines('ARM_BootsOfSpeed')
+
+
+def test_committed_boosts_have_no_untranslated_vocabulary():
+    """Functors the translator claims to know must never fall back to raw."""
+    from bg3parser.effects import Effects
+
+    fx = Effects.load()
+    if not fx.available:
+        pytest.skip('no game install or BG3_EFFECTS_JSON')
+    known = re.compile(
+        r'^(?:AC|Ability|AbilityOverrideMinimum|Resistance|UnlockSpell|Skill'
+        r'|RollBonus|WeaponEnchantment|Proficiency|SpellSaveDC|StatusImmunity)\('
+    )
+    for stats, rec in fx.table.items():
+        for ln in rec.get('boosts', []):
+            assert not known.match(ln), f'{stats}: untranslated boost {ln!r}'
 
 
 def test_mcp_item_info_and_effects():
