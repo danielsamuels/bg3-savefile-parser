@@ -9,7 +9,9 @@ export interface EffectText {
 export interface EffectRecord {
   passives?: EffectText[];
   statuses?: EffectText[];
-  /** Translated display lines; legacy artifacts held a raw functor string. */
+  /** Translated display lines. Records whose raw boosts are all internal
+   *  bookkeeping carry only boosts_raw and render nothing (by design);
+   *  legacy artifacts held a raw functor string here. */
   boosts?: string[];
   boosts_raw?: string;
   damage?: string;

@@ -7,10 +7,15 @@ describe('effect lines', () => {
       robe: {
         boosts: ['Resistance to Cold damage'],
         boosts_raw: 'Resistance(Cold, Resistant)',
+        damage: '1d8 Slashing',
         ac: 10,
       },
     };
-    expect(effectLines(table, 'robe')).toEqual(['Armour Class: 10', 'Resistance to Cold damage']);
+    expect(effectLines(table, 'robe')).toEqual([
+      'Damage: 1d8 Slashing',
+      'Armour Class: 10',
+      'Resistance to Cold damage',
+    ]);
   });
 
   it('skips legacy string boosts from stale artifacts', () => {
