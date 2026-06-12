@@ -631,6 +631,24 @@ parser's `parse_lsmf_membership` scans all ownerlist records to build a
 per-entity membership count; the count is the equipped/carried signal (see
 LIMITS.md).
 
+**Ownerlist order is a global archetype iteration** (✅ established
+2026-06-12). The engine stores entities grouped by archetype
+(bg3se `EntityStorageData`), and every component's ownerlist lists its
+entities in one shared global order: a head block of 11–12 *world*
+entities (the highest entity rows; no class data), one intermediate
+entity, then the main block ascending from entity row 0. Verified
+identical across ~20 character components in five fixture saves, with
+the head/main boundary at position 12 every time. What earlier sessions
+called "rotated ownerlists" and the "~12-row corrupted wrap head" are
+this iteration order read as if it were flat row order. Serialized
+data streams can also carry *more* records than their ownerlist has
+entries: real records for entities of interleaved archetypes that the
+component's ownerlist does not list. The DP shift-solver
+(`solve_owner_shifts`) absorbs these as "phantoms"; their positions sit
+at and inside the head block, not only at its edges, so the solver
+remains the correct reading until the per-archetype record layout is
+fully mapped.
+
 ### Cross-component references: absolute byte-pointers (✅ decoded)
 
 Where one component's row references another entity, the on-disk value is a
@@ -763,26 +781,47 @@ in the `Stack` component's data region but are **not aligned to its 32-byte
 rows**: row-aligned reads produce chimeras; always navigate from the
 `NewStackComponent` pointer.
 
-**Container membership** (✅ decoded 2026-06-11): each inventory's
-`game.inventory.v1.ContainerComponent` row (elem=32) is its item hashmap.
-Two on-disk forms: up to two inline `{EntityId-ptr, 0x2AC<<32|slot}` entries,
-or `{begin, end}` heap-range pairs — one range of `u16` slot keys and one of
-8-byte pointers to the inventory's own `ContainerSlotData` rows. Walking a
-container's value range therefore lists its exact contents independently of
-the ItemFactory position heuristic (which goes stale when items move:
-QuickSave_341 carries a 15-ear alchemy-pouch stack whose factory position
-still claims the camp chest). A `ContainerSlotData` row's second u64 is
-`0x2AC<<32 | slot-index`, not a parent pointer; parent identity comes from
-which container's value range references the row.
+**Container membership** (✅ fully decoded 2026-06-12): each inventory's
+`game.inventory.v1.ContainerComponent` row (elem=32, four u64s) is the
+persisted form of the engine's `HashMap<u16 slot, CSD*>` (bg3se
+`CoreLib/Base/BaseMap.h`). The serializer persists only what enumeration
+needs: the `Keys` and `Values` arrays. `HashKeys` and `NextIds` (the
+bucket/chain arrays) are **not written**; the map is rebuilt on load.
+Two on-disk forms:
 
-Containers are inventory **grid pages** (~13–16 slots for characters), and a
-character's containers freely mix worn and carried items; container identity
-alone does **not** mark equipment. The camp **Traveller's Chest** is simply
-the largest container (256 slots); its contents are fully listable, with item
-identity recovered through `ContainerSlotData → EntityId` and names through
-the LSF instance map or, for items with no Creators entry in the current
-level, `game.templates.v0.TemplateComponent`: whose pool string is a
-*static* root-template GUID, so the GUID→DisplayName path works for it.
+- **Inline form** (1–2 items, no heap allocation):
+  `{item_ptr, gen<<32|slot}` repeated twice (zeroes when absent), where
+  `item_ptr` is an absolute pointer to the item's `EntityId` row.
+  Discriminator: the second u64's high dword is a sane generation
+  (not 0, not FFFFFFFF) and the value is below 2^48.
+- **Heap form** (3+ items): two `{lo, hi}` heap ranges (+48 heap base;
+  `FF…F` = empty). Range 0 is the `Values` array: dense u64 pointers to
+  the inventory's own 16-byte `ContainerSlotData` rows
+  (`{item_ptr u64, slot u32, generation u32}`). Range 1 is the `Keys`
+  array (u16 per item) and can be skipped when enumerating.
+
+Walking range 0 therefore lists a container's exact contents
+independently of the ItemFactory position heuristic (which goes stale
+when items move: QuickSave_341 carries a 15-ear alchemy-pouch stack whose
+factory position still claims the camp chest). The generation dword is a
+per-save epoch (0x2AC in QuickSave_341/345, 0x47A in 347), not a
+constant; parent identity comes from which container's value range
+references a `ContainerSlotData` row, not from the row itself.
+
+One container is always one CC row: an apparent two-row spanning pattern
+(row r's range-1 count matching row r+1's range-0 count) is a
+heap-allocation coincidence between *different* entities' inventories,
+and large inventories do not page. The camp **Traveller's Chest** in
+QuickSave_345 is a single row whose slots run 0..610 (282 items), all
+walked from one range. Item identity is recovered through
+`ContainerSlotData → EntityId` and names through the LSF instance map or,
+for items with no Creators entry in the current level,
+`game.templates.v0.TemplateComponent`: whose pool string is a *static*
+root-template GUID, so the GUID→DisplayName path works for it.
+
+Containers are inventory **grid pages** (~13–16 slots for characters),
+and a character's containers freely mix worn and carried items; container
+identity alone does **not** mark equipment.
 
 ### The equipment cluster (✅ decoded: worn items form a row block)
 
