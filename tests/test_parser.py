@@ -1416,8 +1416,12 @@ def test_committed_boosts_have_no_untranslated_vocabulary():
     if not fx.available:
         pytest.skip('no game install or BG3_EFFECTS_JSON')
     known = re.compile(
-        r'^(?:AC|Ability|AbilityOverrideMinimum|Resistance|UnlockSpell|Skill'
-        r'|RollBonus|WeaponEnchantment|Proficiency|SpellSaveDC|StatusImmunity)\('
+        r'^(?:AC|AbilityOverrideMinimum|Ability|ActionResource|Advantage'
+        r'|CannotBeDisarmed|CharacterWeaponDamage|Disadvantage'
+        r'|FallDamageMultiplier|IgnoreFallDamage|IgnoreResistance|Invulnerable'
+        r'|ItemReturnToOwner|ProficiencyBonus|Proficiency|Resistance|RollBonus'
+        r'|Skill|SpellSaveDC|StatusImmunity|UnlockSpell'
+        r'|WeaponDamage|WeaponEnchantment|WeaponProperty)\('
     )
     for stats, rec in fx.table.items():
         for ln in rec.get('boosts', []):
