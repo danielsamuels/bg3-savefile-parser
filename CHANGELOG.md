@@ -4,6 +4,17 @@ All notable changes to this project will be documented here.
 
 ## Unreleased
 
+### Added
+- quest_outlook MCP tool: answers "which quests should I prioritise" by
+  joining a save's active quests to the game's own quest interaction graph.
+  For each active quest it reports the triggers that will close it (reaching
+  a point of no return, entering or leaving a region, an NPC dying or being
+  defeated, a companion leaving, or another quest progressing) plus a
+  point-of-no-return rollup. The graph is read on demand from the local
+  install's Osiris goal scripts (the declarative `DB_QuestDef_*` tables) and
+  quest prototypes, so it stays correct for the player's patch. MCP-only;
+  needs an installed game.
+
 ### Fixed
 - **Camp chest attribution rebuilt on container maps** (both parsers):
   chest contents now come from the save's inventory hashmaps

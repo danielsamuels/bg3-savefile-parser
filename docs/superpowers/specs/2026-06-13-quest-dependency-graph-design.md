@@ -185,3 +185,31 @@ The agent composes the prioritisation advice from this structured data.
    lookups and the install-gated integration test.
 4. `mcp_server.py`: the `quest_outlook` tool and its test.
 5. Update the MCP server description and any user-facing docs.
+
+## Implementation notes (as built, 2026-06-13)
+
+Deviations and discoveries from the build, kept for posterity:
+
+- Caching: built once per MCP server process (`shared_quest_graph`), not the
+  disk cache the design proposed. The build is about 0.9s and the server is
+  long-lived, so an in-process cache is enough; a disk cache can be added if a
+  per-process CLI command ever needs the graph.
+- New `lspk_extract_many(pak, predicate)` opens the pak and reads its file list
+  once for bulk extraction (the single-file `lspk_extract` re-reads the 145k
+  entry list per call). The whole graph build is one pak open.
+- `ChainedState` has two forms: the documented 4-arg cross-quest form and a
+  3-arg within-quest form `(quest, fromStep, toStep)`. `normalize_edge` handles
+  both and guards against statements with too few args (132 real 3-arg chains
+  would otherwise crash).
+- More edge kinds than first surveyed: `State_ConditionalFlag` and
+  `State_CompanionLeft` join the State family; trigger kinds are
+  point_of_no_return, flag, companion_left, region_enter, region_leave,
+  npc_death, npc_defeated, book_read, quest_chain, conditional.
+- NPC and book triggers label with the internal entity name (e.g.
+  "GLO_DoubtingArtist is defeated"), not a display name; per-entity display
+  names are the known FixedString limit, so the agent interprets the internal
+  name.
+- Built graph on the test install: 1466 edges, 269 terminal, 20 explicit
+  point-of-no-return. quest_outlook on an Act 3 save returns 8 of 18 active
+  quests with closing triggers (0 point-of-no-return groups, since that save
+  is already past the Act 2 gate).
