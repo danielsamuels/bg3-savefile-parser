@@ -19,8 +19,9 @@ from mcp.server.fastmcp import FastMCP
 
 from .discovery import candidate_profile_dirs, find_latest_save, find_save_by_token, glob_saves
 from .effects import Effects
-from .gamedata import DisplayNames
+from .gamedata import DisplayNames, find_game_data_dir
 from .model import SaveReport, gather_report
+from .quest_graph import QuestGraph, build_quest_graph, build_quest_outlook
 from .report_views import (
     DETAIL_LEVELS,
     ITEM_FILTERS,
@@ -42,12 +43,15 @@ server = FastMCP(
         'quests="all". Items carry rarity (absent = common); per-character '
         'and chest gold is summed into a gold field. For gear advice, pass '
         'effects=true to annotate items with their tooltip text, or look up '
-        'a specific item with item_info.'
+        'a specific item with item_info. quest_outlook flags which active '
+        'quests an upcoming action (a point of no return, region change, or '
+        'NPC death) would close, for "what should I prioritise" questions.'
     ),
 )
 
 display_names: DisplayNames | None = None
 effects_table: Effects | None = None
+quest_graph: QuestGraph | None = None
 
 
 def shared_display_names() -> DisplayNames:
@@ -56,6 +60,37 @@ def shared_display_names() -> DisplayNames:
     if display_names is None:
         display_names = DisplayNames.load()
     return display_names
+
+
+def shared_quest_graph() -> QuestGraph | None:
+    """The quest interaction graph, built once per server process.
+
+    Needs a local game install (the graph is read from the paks); returns None
+    when no install is found.
+    """
+    global quest_graph
+    if quest_graph is None:
+        data_dir = find_game_data_dir()
+        if not data_dir:
+            return None
+        quest_graph = build_quest_graph(data_dir, shared_display_names())
+    return quest_graph
+
+
+def resolve_save_path(save: str) -> str:
+    """Resolve 'latest' / a save number / name / path to a save file path."""
+    if save == 'latest':
+        path = find_latest_save()
+    elif os.path.isfile(save):
+        path = save
+    else:
+        path = find_save_by_token(save)
+    if path is None:
+        raise FileNotFoundError(
+            f'No save found for {save!r}. Use list_saves to see what exists, '
+            'or set BG3_SAVE_DIR if the saves live somewhere unusual.'
+        )
+    return path
 
 
 def shared_effects() -> Effects:
@@ -163,17 +198,7 @@ def parse_save(
         quests = 'active' if quests else 'none'
     validate_choice(quests, QUEST_FILTERS, 'quests')
 
-    if save == 'latest':
-        path = find_latest_save()
-    elif os.path.isfile(save):
-        path = save
-    else:
-        path = find_save_by_token(save)
-    if path is None:
-        raise FileNotFoundError(
-            f'No save found for {save!r}. Use list_saves to see what exists, '
-            'or set BG3_SAVE_DIR if the saves live somewhere unusual.'
-        )
+    path = resolve_save_path(save)
     gather_quests = 'quests' in section_list and quests != 'none'
     report = cached_report(path, gather_quests)
     fx = shared_effects() if effects else None
@@ -218,6 +243,45 @@ def item_info(names: str | list[str], limit_per_name: int = 8) -> dict[str, list
                 entry['rarity'] = rarity
             matches.append(entry)
     return out
+
+
+@server.tool()
+def quest_outlook(save: str = 'latest') -> dict:
+    """Which active quests will be closed by an upcoming action, and by what.
+
+    Answers "are there quests I should prioritise?" with the game's own quest
+    interaction graph (read from the installed game data, not model recall):
+    for each active quest in the save, the triggers that will *close* it if you
+    act before finishing it. Triggers are point-of-no-return story advances,
+    entering or leaving a region, an NPC dying or being defeated, a companion
+    leaving, or another quest progressing.
+
+    Returns `active_quests` (only those with a closing trigger; each has its
+    title, current objective, and `terminating_triggers` with a `trigger_kind`,
+    a human `trigger` label, and optional `result_text`), a rolled-up
+    `point_of_no_return_groups` (each point of no return and the quests it would
+    close), and `active_total`. An empty `active_quests` means nothing in the
+    log is at risk from a known trigger.
+
+    `save` is 'latest', a save number ('286'), a name, or an absolute path.
+    Needs a local game install to read the quest graph.
+    """
+    path = resolve_save_path(save)
+    graph = shared_quest_graph()
+    if graph is None:
+        raise RuntimeError(
+            'quest_outlook needs an installed game (set BG3_DATA_DIR if it is '
+            'somewhere unusual) to read the quest interaction graph.'
+        )
+    report = cached_report(path, want_quests=True)
+    if report.quests is None or report.quests.get('failed'):
+        return {
+            'active_quests': [],
+            'point_of_no_return_groups': [],
+            'active_total': 0,
+            'note': 'no quest state could be read from this save',
+        }
+    return build_quest_outlook(report.quests, graph)
 
 
 def main() -> None:

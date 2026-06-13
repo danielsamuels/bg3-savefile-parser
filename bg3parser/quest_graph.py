@@ -297,3 +297,53 @@ def build_quest_graph(data_dir: str, names: DisplayNames | None = None) -> Quest
             seen.add(key)
             edges.append(enrich_edge(edge, step_index, names))
     return QuestGraph(edges)
+
+
+def build_quest_outlook(quests: dict, graph: QuestGraph) -> dict:
+    """Join a save's active quests to the graph: what will close each, and why.
+
+    `quests` is a SaveReport.quests dict (its 'active' list carries each quest's
+    id, name, and current objective). Only quests with at least one terminating
+    trigger are returned (those are the ones worth prioritising); point-of-no-
+    return triggers are also rolled up into groups.
+    """
+    active = quests.get('active', []) if quests else []
+    out_quests: list[dict] = []
+    ponr: dict[str, list[str]] = {}
+    for q in active:
+        qid = q.get('id')
+        title = q.get('name') or qid
+        triggers: list[dict] = []
+        seen: set[tuple] = set()
+        for edge in graph.terminating_edges_for(qid):
+            key = (edge.trigger_kind, edge.trigger_label)
+            if key in seen:
+                continue
+            seen.add(key)
+            trigger = {
+                'trigger_kind': edge.trigger_kind,
+                'trigger': edge.trigger_label,
+                'result': 'closes',
+            }
+            if edge.target_objective_text:
+                trigger['result_text'] = edge.target_objective_text
+            triggers.append(trigger)
+            if edge.trigger_kind == 'point_of_no_return':
+                ponr.setdefault(edge.trigger_label or '', []).append(title)
+        if triggers:
+            out_quests.append(
+                {
+                    'id': qid,
+                    'title': title,
+                    'current_objective': q.get('objective'),
+                    'terminating_triggers': triggers,
+                }
+            )
+    groups = [
+        {'trigger': trig, 'closes': sorted(set(titles))} for trig, titles in sorted(ponr.items())
+    ]
+    return {
+        'active_quests': out_quests,
+        'point_of_no_return_groups': groups,
+        'active_total': len(active),
+    }

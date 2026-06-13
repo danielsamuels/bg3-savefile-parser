@@ -15,6 +15,7 @@ from bg3parser.quest_graph import (
     QuestGraph,
     StepInfo,
     build_quest_graph,
+    build_quest_outlook,
     enrich_edge,
     normalize_edge,
     parse_quest_steps,
@@ -331,3 +332,70 @@ class TestBuildQuestGraph:
         graph = build_quest_graph(GAME_DIR or '', gamedata.DisplayNames.load())
         titled = [e for e in graph.edges if e.quest_title]
         assert len(titled) > 100
+
+
+class TestBuildQuestOutlook:
+    def _graph(self):
+        return QuestGraph(
+            [
+                Edge(
+                    'State',
+                    'point_of_no_return',
+                    'Act2_PONR_g',
+                    'HAG_HagSpawn',
+                    'ReachedNoReturn',
+                    terminal=True,
+                    trigger_label='Act2_PONR',
+                    quest_title='Save Mayrina',
+                ),
+                Edge(
+                    'State',
+                    'point_of_no_return',
+                    'Act2_PONR_g',
+                    'CHA_Chapel',
+                    'LeftRegion',
+                    terminal=True,
+                    trigger_label='Act2_PONR',
+                    quest_title='Explore the Ruins',
+                ),
+                Edge(
+                    'LevelLoaded',
+                    'region_enter',
+                    'BGO',
+                    'OTHER',
+                    'Step',
+                    terminal=False,
+                    trigger_label='entering BGO',
+                ),
+            ]
+        )
+
+    def _quests(self):
+        return {
+            'active': [
+                {'id': 'HAG_HagSpawn', 'name': 'Save Mayrina', 'objective': 'Defeat the hag'},
+                {'id': 'CHA_Chapel', 'name': 'Explore the Ruins', 'objective': 'Look around'},
+                {'id': 'OTHER', 'name': 'Other', 'objective': 'x'},
+            ]
+        }
+
+    def test_lists_only_quests_with_terminating_triggers(self):
+        out = build_quest_outlook(self._quests(), self._graph())
+        titles = {q['title'] for q in out['active_quests']}
+        assert titles == {'Save Mayrina', 'Explore the Ruins'}  # OTHER has no terminal edge
+
+    def test_groups_point_of_no_return(self):
+        out = build_quest_outlook(self._quests(), self._graph())
+        groups = out['point_of_no_return_groups']
+        assert len(groups) == 1
+        assert groups[0]['trigger'] == 'Act2_PONR'
+        assert set(groups[0]['closes']) == {'Save Mayrina', 'Explore the Ruins'}
+
+    def test_quest_carries_objective_and_trigger_detail(self):
+        out = build_quest_outlook(self._quests(), self._graph())
+        mayrina = next(q for q in out['active_quests'] if q['title'] == 'Save Mayrina')
+        assert mayrina['current_objective'] == 'Defeat the hag'
+        trig = mayrina['terminating_triggers'][0]
+        assert trig['result'] == 'closes'
+        assert trig['trigger_kind'] == 'point_of_no_return'
+        assert trig['trigger'] == 'Act2_PONR'
