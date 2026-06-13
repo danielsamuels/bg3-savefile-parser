@@ -55,7 +55,10 @@ server = FastMCP(
         'effects=true to annotate items with their tooltip text, or look up '
         'a specific item with item_info. quest_outlook flags which active '
         'quests an upcoming action (a point of no return, region change, or '
-        'NPC death) would close, for "what should I prioritise" questions.'
+        'NPC death) would close, for "what should I prioritise" questions. '
+        "quest_consequences goes deeper: it evaluates the game's actual Osiris "
+        'rules against a save to derive emergent cause-and-effect that the '
+        'explicit quest edges miss.'
     ),
 )
 

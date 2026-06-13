@@ -5,6 +5,16 @@ All notable changes to this project will be documented here.
 ## Unreleased
 
 ### Added
+- quest_consequences MCP tool: evaluates the game's actual Osiris rules against
+  a save to derive emergent quest cause-and-effect that the explicit DB_QuestDef
+  edges miss. A faithful rule parser (`osiris_rules`) plus an argument-aware
+  forward-chaining engine (`osiris_eval`) seed off the save's live story state,
+  inject a candidate action, and forward-chain through real variable binding to
+  see which quests it drives to a new step. Validated: on a real save, the
+  Moonrise prison purge is shown to close "Rescue Wulbren" through the full
+  imperative chain (purge to kill to death event to perma-defeat to quest fail),
+  the consequence the declarative graph could not see. MCP-only; needs an
+  installed game.
 - quest_outlook MCP tool: answers "which quests should I prioritise" by
   joining a save's active quests to the game's own quest interaction graph.
   For each active quest it reports the triggers that will close it (reaching
