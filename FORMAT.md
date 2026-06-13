@@ -781,6 +781,32 @@ in the `Stack` component's data region but are **not aligned to its 32-byte
 rows**: row-aligned reads produce chimeras; always navigate from the
 `NewStackComponent` pointer.
 
+The engine model behind this (bg3se `eoc::inventory`): a *stack-group*
+entity carries `StackComponent {Array<EntityHandle> Elements,
+Array<StackEntry> Entries}` (`StackEntry = {u16 EntityIndex, u32
+Quantity}`), and each member item carries `StackMemberComponent
+{EntityHandle Stack}` pointing back to its group. The `NewStackComponent`
+record above is a group's `StackComponent`; quantity lives **only** in the
+group's `Entries` (an item has no standalone amount field — the engine's
+only `Amount` fields are in transient request structs).
+
+**Freshly split/moved stacks (the one approximate case).** A stack split
+or moved in the same frame as the save is serialized with its just-created
+group entity as a near-empty **stub**: the group exists (a member's
+`StackMemberComponent` points to it) but its `StackComponent` has not been
+committed yet, so the quantity is absent from the save. The ECS adds
+components through a deferred queue (`EntityStorageData`'s
+`AddedComponentFrameStorageIDs` / `OneFrameComponents`); a save taken
+before the next tick flushes that queue catches the group mid-creation.
+The following save flushes it: the group materialises with its real
+`Entries`, and whichever pile was *not* touched last becomes the stub
+(the roles alternate between consecutive saves). Confirmed exhaustively on
+a 22→3/19 potion split (QuickSave_346/347/348): the missing 19 is in no
+component, heap, `StackEntry` (orphan or referenced), LSF `Item.Amount`,
+or any other frame. Settled saves are byte-exact; a save made immediately
+after shuffling can miscount the just-touched stack, and that count is not
+recoverable from committed state.
+
 **Container membership** (✅ fully decoded 2026-06-12): each inventory's
 `game.inventory.v1.ContainerComponent` row (elem=32, four u64s) is the
 persisted form of the engine's `HashMap<u16 slot, CSD*>` (bg3se
