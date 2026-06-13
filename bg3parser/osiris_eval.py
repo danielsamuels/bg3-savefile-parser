@@ -169,3 +169,17 @@ class Engine:
                         facts_by_pred[new.pred].add(new)
                         worklist.append(new)
         return facts
+
+
+def facts_from_databases(name_to_facts) -> set:
+    """Convert a save's Osiris databases (osiris.read_story) into ground Facts.
+
+    Each database row becomes a Fact keyed by the DB name with its column values
+    as strings (GUIDs stay as-is, ints stringify), so rule conditions referring
+    to live story state can match the save's actual facts.
+    """
+    out = set()
+    for name, rows in name_to_facts.items():
+        for row in rows:
+            out.add(Fact(name, tuple(str(col.get('value')) for col in row)))
+    return out

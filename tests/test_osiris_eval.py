@@ -60,3 +60,18 @@ class TestEngine:
         engine = Engine(rules)
         facts = engine.derive({Fact('DB_Tracked', ('tief', 'HAV'))})
         assert not any(f.pred == 'QuestUpdate' for f in facts)
+
+
+class TestFactsFromDatabases:
+    def test_converts_db_rows_to_ground_facts(self):
+        from bg3parser.osiris_eval import facts_from_databases
+
+        name_to_facts = {
+            'DB_QuestIsClosed': [[{'is_valid': True, 'value': 'HAV_Save'}]],
+            'DB_Tracked': [
+                [{'is_valid': True, 'value': 'tief'}, {'is_valid': True, 'value': 1}],
+            ],
+        }
+        facts = facts_from_databases(name_to_facts)
+        assert Fact('DB_QuestIsClosed', ('HAV_Save',)) in facts
+        assert Fact('DB_Tracked', ('tief', '1')) in facts  # ints stringified, arity kept

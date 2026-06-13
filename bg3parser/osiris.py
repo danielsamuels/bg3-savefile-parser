@@ -512,21 +512,14 @@ def get_db_strings(name_to_facts: dict, db_name: str) -> list[str]:
     ]
 
 
-def parse_osiris(frames: dict[str, bytes]) -> dict | None:
-    """Parse frame 9 (Osiris story state) and return useful quest/story data.
+def read_story(frames: dict[str, bytes]):
+    """Parse frame 9 into (version, name_to_facts, goals), or None on failure.
 
-    Returns a dict with:
-        version        – Osiris version word (int)
-        quests_active  – quests in progress: DB_QuestIsAccepted ∖ DB_QuestIsClosed
-        quests_closed  – resolved quests: DB_QuestIsClosed (completed or failed;
-                         no separate failed-quest DB exists in the save)
-        goals_done     – goal names with flags == 0x07 (completed goals)
-        global_flags   – first 50 strings from DB_GlobalFlag (story-state flags)
-
-    Returns None on any parse failure so the caller can degrade gracefully.
-    The full parse must read all sections in order (Types → Enums → DivObjects →
-    Functions → Nodes → Adapters → Databases → Goals → GlobalActions) before the
-    Databases section is reachable; this costs ~1–2 s on a typical save.
+    `name_to_facts` is the full live story database: `{db_name: [row, ...]}`
+    where each row is a list of `{is_valid, value}` columns. This is the
+    Osiris fact base the rule engine needs as its baseline. The parse must read
+    all sections in order (Types → Enums → DivObjects → Functions → Nodes →
+    Adapters → Databases → Goals → GlobalActions); ~1-2 s on a typical save.
     """
     try:
         if 'StorySave.bin' not in frames:
@@ -575,6 +568,30 @@ def parse_osiris(frames: dict[str, bytes]) -> dict | None:
             if db_ref in databases:
                 name_to_facts[nm] = databases[db_ref]
 
+        return ver, name_to_facts, goals
+
+    except Exception:
+        return None
+
+
+def parse_osiris(frames: dict[str, bytes]) -> dict | None:
+    """Parse frame 9 (Osiris story state) and return useful quest/story data.
+
+    Returns a dict with:
+        version        – Osiris version word (int)
+        quests_active  – quests in progress: DB_QuestIsAccepted ∖ DB_QuestIsClosed
+        quests_closed  – resolved quests: DB_QuestIsClosed (completed or failed;
+                         no separate failed-quest DB exists in the save)
+        goals_done     – goal names with flags == 0x07 (completed goals)
+        global_flags   – first 50 strings from DB_GlobalFlag (story-state flags)
+
+    Returns None on any parse failure so the caller can degrade gracefully.
+    """
+    res = read_story(frames)
+    if res is None:
+        return None
+    ver, name_to_facts, goals = res
+    try:
         accepted = set(get_db_strings(name_to_facts, 'DB_QuestIsAccepted'))
         closed = set(get_db_strings(name_to_facts, 'DB_QuestIsClosed'))
         active = sorted(accepted - closed)
@@ -593,6 +610,5 @@ def parse_osiris(frames: dict[str, bytes]) -> dict | None:
             'global_flags_total': len(global_flags),
             'story': extract_story(name_to_facts),
         }
-
     except Exception:
         return None
