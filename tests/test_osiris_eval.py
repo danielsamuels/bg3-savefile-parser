@@ -61,6 +61,24 @@ class TestEngine:
         facts = engine.derive({Fact('DB_Tracked', ('tief', 'HAV'))})
         assert not any(f.pred == 'QuestUpdate' for f in facts)
 
+    def test_consequences_returns_only_the_caused_delta(self):
+        # baseline context (the tracked prisoner) is matchable but not echoed;
+        # only what the injected cause derives is returned.
+        rules = parse_rules(PROGRAM)
+        engine = Engine(rules)
+        delta = engine.consequences(
+            {Fact('Event', ('free_ns',))},
+            {Fact('DB_Tracked', ('tief', 'HAV'))},
+        )
+        assert Fact('QuestUpdate', ('HAV', 'Failed')) in delta
+        assert Fact('DB_Tracked', ('tief', 'HAV')) not in delta  # context not echoed
+
+    def test_builtin_die_emits_died_event(self):
+        prog = 'KBSECTION\nIF\nDied(_c)\nTHEN\nDB_GotDeath(_c);\nEXITSECTION\n'
+        engine = Engine(parse_rules(prog))
+        delta = engine.derive({Fact('Die', ('bob', 'DEATHTYPE.DoT', '1'))})
+        assert Fact('DB_GotDeath', ('bob',)) in delta
+
 
 class TestFactsFromDatabases:
     def test_converts_db_rows_to_ground_facts(self):

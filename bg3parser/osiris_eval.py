@@ -37,6 +37,19 @@ def is_assumed_builtin(pred: str) -> bool:
     return pred.startswith('QRY_')
 
 
+def builtin_events(fact) -> list:
+    """Osiris engine built-ins that emit events goal rules react to.
+
+    The engine, not the goal scripts, links a built-in call to its event (e.g.
+    the `Die` call fires the `Died` event, which the death-handling library
+    rules consume). These are stable engine semantics, modelled as a small
+    table so deterministic chains through them resolve.
+    """
+    if fact.pred == 'Die' and fact.args:
+        return [Fact('Died', (fact.args[0],))]
+    return []
+
+
 def match_atom(atom, fact: Fact, binding: dict):
     """Unify a rule atom (with variables) against a ground fact. Returns the
     extended binding, or None if they cannot unify."""
@@ -155,20 +168,44 @@ class Engine:
 
     def derive(self, initial_facts) -> set:
         """Forward-chain to the fixpoint of facts reachable from the seeds."""
-        facts = set(initial_facts)
+        return self.consequences(initial_facts, ())
+
+    def consequences(self, cause_facts, context_facts) -> set:
+        """Facts newly derivable *because of* the cause, given a baseline context.
+
+        `context_facts` (the save's live database) are matchable but are not
+        propagated: they already fired their rules in the real game, so their
+        effects are already in the save. Only `cause_facts` and what they derive
+        drive forward chaining, so the work is bounded to the cause's downstream
+        rather than the whole game state's closure. Returns just the delta (the
+        consequences), not the context.
+        """
+        facts = set(context_facts)
         facts_by_pred = defaultdict(set)
         for f in facts:
             facts_by_pred[f.pred].add(f)
-        worklist = list(facts)
+        derived: set = set()
+        worklist: list = []
+
+        def absorb(new):
+            if new in facts:
+                return
+            facts.add(new)
+            facts_by_pred[new.pred].add(new)
+            derived.add(new)
+            worklist.append(new)
+            for ev in builtin_events(new):
+                absorb(ev)
+
+        for f in cause_facts:
+            absorb(f)
         while worklist:
             fact = worklist.pop()
             for rule in self.by_pred.get(fact.pred, ()):
                 for new in self.fire(rule, facts_by_pred):
-                    if new not in facts:
-                        facts.add(new)
-                        facts_by_pred[new.pred].add(new)
-                        worklist.append(new)
-        return facts
+                    absorb(new)
+        # the seeds themselves are not consequences
+        return derived - set(cause_facts)
 
 
 def facts_from_databases(name_to_facts) -> set:
