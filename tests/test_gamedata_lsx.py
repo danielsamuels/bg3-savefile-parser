@@ -8,6 +8,7 @@ from bg3parser import lsx
 from bg3parser.gamedata import (
     parse_action_resources,
     parse_feat_names,
+    parse_lsx_label_map,
     parse_objective_texts,
     parse_quest_titles,
 )
@@ -47,6 +48,30 @@ class TestLsxHelpers:
 
 
 HANDLES = {'h_title': 'Save Mayrina', 'h_obj': 'Defeat the hag', 'h_empty': '%%% EMPTY'}
+
+
+class TestParseLsxLabelMap:
+    def test_resolves_handle_and_skips_keyless_and_labelless_nodes(self):
+        text = (
+            '<save>'
+            '<node id="A"><attribute id="K" value="k1"/><attribute id="H" handle="h_title"/></node>'
+            '<node id="A"><attribute id="H" handle="h_title"/></node>'  # no key -> skipped
+            '<node id="A"><attribute id="K" value="k2"/></node>'  # no label -> skipped
+            '</save>'
+        )
+        assert parse_lsx_label_map(text, HANDLES, key='K', handle='H') == {'k1': 'Save Mayrina'}
+
+    def test_falls_back_to_raw_attribute_when_handle_unresolved(self):
+        text = (
+            '<save><node id="A">'
+            '<attribute id="K" value="k1"/>'
+            '<attribute id="H" handle="h_empty"/>'  # placeholder -> unresolved
+            '<attribute id="F" value="internal"/>'
+            '</node></save>'
+        )
+        assert parse_lsx_label_map(text, HANDLES, key='K', handle='H', fallback='F') == {
+            'k1': 'internal'
+        }
 
 
 class TestParseQuestTitles:

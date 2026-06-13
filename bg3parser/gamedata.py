@@ -192,58 +192,55 @@ def _resolved_label(handle: str | None, fallback: str | None, handle_to_text: di
     return fallback
 
 
+def parse_lsx_label_map(
+    lsx_text: str,
+    handle_to_text: dict[str, str],
+    *,
+    key: str,
+    handle: str,
+    fallback: str | None = None,
+) -> dict[str, str]:
+    """Map a `key` attribute to a resolved label across an LSX file's nodes.
+
+    For every node carrying the `key` attribute, the `handle` attribute is
+    resolved through the loca map (falling back to the raw `fallback` attribute
+    when one is named); nodes without a usable label are skipped.
+    """
+    out: dict[str, str] = {}
+    for node in lsx.all_nodes(lsx.parse(lsx_text)):
+        a = lsx.attrs(node)
+        key_val = a.get(key)
+        if not key_val:
+            continue
+        fb = a.get(fallback) if fallback else None
+        label = _resolved_label(a.get(handle), fb, handle_to_text)
+        if label:
+            out[key_val] = label
+    return out
+
+
 def parse_quest_titles(lsx_text: str, handle_to_text: dict[str, str]) -> dict[str, str]:
     """Map QuestID -> resolved QuestTitle from quest_prototypes.lsx."""
-    out: dict[str, str] = {}
-    for node in lsx.iter_nodes(lsx.parse(lsx_text), 'Quest'):
-        a = lsx.attrs(node)
-        quest_id, handle = a.get('QuestID'), a.get('QuestTitle')
-        if quest_id and handle:
-            title = _resolved_label(handle, None, handle_to_text)
-            if title:
-                out[quest_id] = title
-    return out
+    return parse_lsx_label_map(lsx_text, handle_to_text, key='QuestID', handle='QuestTitle')
 
 
 def parse_objective_texts(lsx_text: str, handle_to_text: dict[str, str]) -> dict[str, str]:
     """Map ObjectiveID -> resolved Description from objective_prototypes.lsx."""
-    out: dict[str, str] = {}
-    for node in lsx.iter_nodes(lsx.parse(lsx_text), 'Objective'):
-        a = lsx.attrs(node)
-        objective_id, handle = a.get('ObjectiveID'), a.get('Description')
-        if objective_id and handle:
-            title = _resolved_label(handle, None, handle_to_text)
-            if title:
-                out[objective_id] = title
-    return out
+    return parse_lsx_label_map(lsx_text, handle_to_text, key='ObjectiveID', handle='Description')
 
 
 def parse_action_resources(lsx_text: str, handle_to_text: dict[str, str]) -> dict[str, str]:
-    """Map a resource UUID -> its display name (or internal Name) by node."""
-    out: dict[str, str] = {}
-    for node in lsx.all_nodes(lsx.parse(lsx_text)):
-        a = lsx.attrs(node)
-        uuid = a.get('UUID')
-        if not uuid:
-            continue
-        label = _resolved_label(a.get('DisplayName'), a.get('Name'), handle_to_text)
-        if label:
-            out[uuid] = label
-    return out
+    """Map a resource UUID -> DisplayName (or internal Name) from ActionResourceDefinitions.lsx."""
+    return parse_lsx_label_map(
+        lsx_text, handle_to_text, key='UUID', handle='DisplayName', fallback='Name'
+    )
 
 
 def parse_feat_names(lsx_text: str, handle_to_text: dict[str, str]) -> dict[str, str]:
-    """Map a FeatId -> its display name (or internal ExactMatch) by node."""
-    out: dict[str, str] = {}
-    for node in lsx.all_nodes(lsx.parse(lsx_text)):
-        a = lsx.attrs(node)
-        feat_id = a.get('FeatId')
-        if not feat_id:
-            continue
-        label = _resolved_label(a.get('DisplayName'), a.get('ExactMatch'), handle_to_text)
-        if label:
-            out[feat_id] = label
-    return out
+    """Map a FeatId -> DisplayName (or internal ExactMatch) from FeatDescriptions.lsx."""
+    return parse_lsx_label_map(
+        lsx_text, handle_to_text, key='FeatId', handle='DisplayName', fallback='ExactMatch'
+    )
 
 
 def cache_path(data_dir: str) -> str:
