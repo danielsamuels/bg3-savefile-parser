@@ -74,10 +74,12 @@ class TestEngine:
         assert Fact('DB_Tracked', ('tief', 'HAV')) not in delta  # context not echoed
 
     def test_builtin_die_emits_died_event(self):
-        prog = 'KBSECTION\nIF\nDied(_c)\nTHEN\nDB_GotDeath(_c);\nEXITSECTION\n'
+        # Die fires the Died event; here Died closes a quest, so the chain is
+        # quest-relevant and survives pruning.
+        prog = 'KBSECTION\nIF\nDied(_c)\nTHEN\nQuestUpdate("Q", "Dead");\nEXITSECTION\n'
         engine = Engine(parse_rules(prog))
         delta = engine.derive({Fact('Die', ('bob', 'DEATHTYPE.DoT', '1'))})
-        assert Fact('DB_GotDeath', ('bob',)) in delta
+        assert Fact('QuestUpdate', ('Q', 'Dead')) in delta
 
 
 class TestFactsFromDatabases:

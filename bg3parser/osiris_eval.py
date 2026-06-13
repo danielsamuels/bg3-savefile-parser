@@ -37,6 +37,42 @@ def is_assumed_builtin(pred: str) -> bool:
     return pred.startswith('QRY_')
 
 
+BUILTIN_EVENT_EDGES = {'Die': ('Died',)}
+
+
+def relevant_predicates(rules, targets=('QuestUpdate', 'QuestClose')) -> set:
+    """Predicates that can transitively lead to a target (quest) action.
+
+    Computed backward over the rules: if a rule produces a relevant action
+    (directly, or via a built-in event like Die->Died), all of its condition
+    predicates — positive AND negated (a NOT needs the fact derived to evaluate
+    it) — become relevant. Every fact needed to derive a quest outcome lies in
+    this cone, so pruning forward propagation to it preserves all quest results
+    while skipping the unrelated cascade (VFX, approval, combat cleanup).
+    """
+    relevant = set(targets)
+    changed = True
+    while changed:
+        changed = False
+        for rule in rules:
+            produced = set()
+            for a in rule.actions:
+                if a.retract:
+                    continue
+                produced.add(a.atom.pred)
+                produced.update(BUILTIN_EVENT_EDGES.get(a.atom.pred, ()))
+            if produced & relevant:
+                for c in rule.conditions:
+                    if c.atom is not None and c.atom.pred not in relevant:
+                        relevant.add(c.atom.pred)
+                        changed = True
+    # a built-in emitter is relevant when the event it emits is
+    for src, evs in BUILTIN_EVENT_EDGES.items():
+        if any(e in relevant for e in evs):
+            relevant.add(src)
+    return relevant
+
+
 def builtin_events(fact) -> list:
     """Osiris engine built-ins that emit events goal rules react to.
 
@@ -103,13 +139,17 @@ class Engine:
 
     def __init__(self, rules):
         self.rules = rules
-        # index: predicate -> rules with that predicate in a positive condition,
-        # so a newly derived fact only re-checks the rules it could affect.
-        self.by_pred = defaultdict(list)
+        # index: predicate -> [(rule, condition_index)] for each positive
+        # condition, so a new fact joins only at the positions it can fill
+        # (semi-naive: fire on the delta, don't re-solve the whole rule).
+        self.positions = defaultdict(list)
         for rule in rules:
-            preds = {c.atom.pred for c in rule.conditions if c.atom is not None and not c.negated}
-            for p in preds:
-                self.by_pred[p].append(rule)
+            for idx, c in enumerate(rule.conditions):
+                if c.atom is not None and not c.negated:
+                    self.positions[c.atom.pred].append((rule, idx))
+        # predicates that can transitively reach a quest action; forward
+        # propagation is pruned to these so the unrelated cascade is skipped.
+        self.relevant = relevant_predicates(rules)
 
     def solve(self, conditions, facts_by_pred, binding=None, i=0):
         """Yield every binding extending `binding` that satisfies conditions."""
@@ -154,18 +194,6 @@ class Engine:
             args.append(v)
         return Fact(atom.pred, tuple(args))
 
-    def fire(self, rule, facts_by_pred):
-        """All facts a rule produces against the current fact base."""
-        out = set()
-        for binding in self.solve(rule.conditions, facts_by_pred):
-            for action in rule.actions:
-                if action.retract:
-                    continue
-                fact = self.instantiate(action.atom, binding)
-                if fact is not None:
-                    out.add(fact)
-        return out
-
     def derive(self, initial_facts) -> set:
         """Forward-chain to the fixpoint of facts reachable from the seeds."""
         return self.consequences(initial_facts, ())
@@ -187,8 +215,11 @@ class Engine:
         derived: set = set()
         worklist: list = []
 
-        def absorb(new):
+        def absorb(new, force=False):
             if new in facts:
+                return
+            # prune derived facts that cannot lead to a quest outcome
+            if not force and new.pred not in self.relevant:
                 return
             facts.add(new)
             facts_by_pred[new.pred].add(new)
@@ -198,12 +229,21 @@ class Engine:
                 absorb(ev)
 
         for f in cause_facts:
-            absorb(f)
+            absorb(f, force=True)
         while worklist:
             fact = worklist.pop()
-            for rule in self.by_pred.get(fact.pred, ()):
-                for new in self.fire(rule, facts_by_pred):
-                    absorb(new)
+            for rule, idx in self.positions.get(fact.pred, ()):
+                b0 = match_atom(rule.conditions[idx].atom, fact, {})
+                if b0 is None:
+                    continue
+                others = [c for j, c in enumerate(rule.conditions) if j != idx]
+                for binding in self.solve(others, facts_by_pred, b0):
+                    for action in rule.actions:
+                        if action.retract:
+                            continue
+                        nf = self.instantiate(action.atom, binding)
+                        if nf is not None:
+                            absorb(nf)
         # the seeds themselves are not consequences
         return derived - set(cause_facts)
 
