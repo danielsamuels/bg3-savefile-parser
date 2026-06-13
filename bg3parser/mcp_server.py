@@ -20,8 +20,18 @@ from mcp.server.fastmcp import FastMCP
 from .discovery import candidate_profile_dirs, find_latest_save, find_save_by_token, glob_saves
 from .effects import Effects
 from .gamedata import DisplayNames, find_game_data_dir
+from .lspk import extract_frames, lspk_extract
 from .model import SaveReport, gather_report
-from .quest_graph import QuestGraph, build_quest_graph, build_quest_outlook
+from .osiris import read_story
+from .osiris_eval import Fact, facts_from_databases
+from .quest_analysis import QuestAnalyser, named_consequences
+from .quest_graph import (
+    QUEST_PROTOTYPES_PATH,
+    QuestGraph,
+    build_quest_graph,
+    build_quest_outlook,
+    parse_quest_steps,
+)
 from .report_views import (
     DETAIL_LEVELS,
     ITEM_FILTERS,
@@ -75,6 +85,33 @@ def shared_quest_graph() -> QuestGraph | None:
             return None
         quest_graph = build_quest_graph(data_dir, shared_display_names())
     return quest_graph
+
+
+quest_analyser: QuestAnalyser | None = None
+quest_step_index: dict | None = None
+
+
+def shared_quest_analyser() -> QuestAnalyser | None:
+    """The Osiris rule engine analyser, built once per process (needs install)."""
+    global quest_analyser
+    if quest_analyser is None:
+        data_dir = find_game_data_dir()
+        if not data_dir:
+            return None
+        quest_analyser = QuestAnalyser.load(data_dir)
+    return quest_analyser
+
+
+def shared_quest_step_index() -> dict:
+    """(quest_id, step) -> StepInfo from the quest prototypes, built once."""
+    global quest_step_index
+    if quest_step_index is None:
+        data_dir = find_game_data_dir()
+        if not data_dir:
+            return {}
+        data = lspk_extract(os.path.join(data_dir, 'Gustav.pak'), QUEST_PROTOTYPES_PATH)
+        quest_step_index = parse_quest_steps(data.decode('utf-8', 'replace'))
+    return quest_step_index
 
 
 def resolve_save_path(save: str) -> str:
@@ -282,6 +319,48 @@ def quest_outlook(save: str = 'latest') -> dict:
             'note': 'no quest state could be read from this save',
         }
     return build_quest_outlook(report.quests, graph)
+
+
+@server.tool()
+def quest_consequences(action: str, save: str = 'latest') -> dict:
+    """Determine which of your active quests an action would change or close.
+
+    Unlike quest_outlook (which reads the designers' explicit DB_QuestDef edges),
+    this *evaluates the game's actual Osiris rules* against your save: it seeds
+    the rule engine with this save's live story state, injects the action, and
+    forward-chains to see which quests it drives to a new step. That catches
+    emergent consequences the explicit edges miss -- e.g. the Moonrise prison
+    purge killing the tracked prisoners and failing the rescue quests.
+
+    `action` is an Osiris action predicate: a proc or event, e.g.
+    'PROC_MOO_Assault_PurgePrison'. Results are derived from the game files and
+    this save, not model recall. Each affected quest gives its title, the step
+    it moves to, and whether that step is terminal (closes the quest).
+
+    `save` is 'latest', a save number, a name, or a path. Needs a game install.
+    Slower than the other tools (it loads and evaluates the whole rule base).
+    """
+    analyser = shared_quest_analyser()
+    if analyser is None:
+        raise RuntimeError(
+            'quest_consequences needs an installed game (set BG3_DATA_DIR if '
+            'it is somewhere unusual) to read the Osiris rules.'
+        )
+    path = resolve_save_path(save)
+    res = read_story(extract_frames(path))
+    if res is None:
+        return {'action': action, 'affected_quests': [], 'note': 'no story state in this save'}
+    _ver, name_to_facts, _goals = res
+    baseline = facts_from_databases(name_to_facts)
+    report = cached_report(path, want_quests=True)
+    active = None
+    if report.quests and not report.quests.get('failed'):
+        active = {q['id'] for q in report.quests.get('active', [])}
+    outcomes = analyser.consequences(baseline, {Fact(action, ())})
+    affected = named_consequences(
+        outcomes, active, shared_display_names(), shared_quest_step_index()
+    )
+    return {'action': action, 'affected_quests': affected}
 
 
 def main() -> None:

@@ -75,3 +75,27 @@ class QuestAnalyser:
         """
         delta = self.engine.consequences(set(cause_facts), baseline_facts)
         return quest_outcomes(delta)
+
+
+def named_consequences(outcomes, active_quests, names, step_index) -> list:
+    """Shape raw (quest_id, step) outcomes into a save-scoped, readable report.
+
+    Keeps only quests the player currently has open (`active_quests`), resolves
+    each quest's title (`names.quest_name_for`), and marks whether the step is
+    terminal (closes the quest) using the quest prototypes' UnlockDisable. Any
+    of `active_quests` / `names` / `step_index` may be None to skip that step.
+    """
+    results = []
+    for quest, step in sorted(outcomes):
+        if active_quests is not None and quest not in active_quests:
+            continue
+        info = step_index.get((quest, step)) if step_index else None
+        results.append(
+            {
+                'quest_id': quest,
+                'title': (names.quest_name_for(quest) if names else None) or quest,
+                'step': step,
+                'terminal': bool(info and info.unlock_disable == 2),
+            }
+        )
+    return results
