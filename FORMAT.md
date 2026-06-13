@@ -843,7 +843,13 @@ walked from one range. Item identity is recovered through
 `ContainerSlotData → EntityId` and names through the LSF instance map or,
 for items with no Creators entry in the current level,
 `game.templates.v0.TemplateComponent`: whose pool string is a *static*
-root-template GUID, so the GUID→DisplayName path works for it.
+root-template GUID, so the GUID→DisplayName path works for it. This last
+fallback is reliable **only** for genuinely static world objects (the
+chest itself, fixed scenery). Per-entity `TemplateComponent` reads are not
+generally recoverable: the row's `ptr` and `idx` fields are per-row arena
+cursors (`idx ≈ 6 × row`, no per-entity information), so `ptr+48` reads a
+neighbouring interned string for the majority of rows. Use the LSF
+Creators (`e2t`) path for instance items; see [LIMITS.md](LIMITS.md).
 
 Containers are inventory **grid pages** (~13–16 slots for characters),
 and a character's containers freely mix worn and carried items; container

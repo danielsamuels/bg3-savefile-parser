@@ -233,6 +233,17 @@ The parser reads the following from the ECS blob:
   showed every item reverts to "new" on load; the seen-state is session-only
   UI memory, so the whole inventory starts unseen each session and no
   corresponding state exists in the save to decode.
+- Per-entity `TemplateComponent` template references: the on-disk row's
+  pointer and index fields are per-row arena cursors (the index is just
+  `6 × row`), not a reference to the entity's interned template string, so
+  the string a row "points at" is a neighbour for most rows. Template and
+  item names come from the LSF Creators map instead (reliable); the static
+  pool string is usable only for fixed world objects like the chest.
+- A freshly split or moved stack's count, when the save was taken in the
+  same frame as the move: the new stack-group entity is serialised before
+  its `StackComponent` clears the ECS deferred-add queue, so the quantity
+  is not in committed state (see FORMAT.md). Settled saves are exact; a
+  save made mid-shuffle can miscount the just-touched stack.
 
 ## Development
 
