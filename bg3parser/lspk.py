@@ -1,5 +1,6 @@
 """LSPK package container: save frames, SaveInfo.json, meta.lsf, thumbnail."""
 
+import contextlib
 import io
 import json
 import struct
@@ -250,6 +251,18 @@ def lspk_filelist(fh) -> dict[str, tuple]:
     return out
 
 
+def decompress_entry(blob: bytes, flags: int, unc: int) -> bytes:
+    """Decompress one LSPK entry per its flags (none / zlib-less LZ4 / zstd)."""
+    method = flags & 0x0F
+    if method == 0:
+        return blob[:unc]
+    if method == 2:
+        return lz4.block.decompress(blob, uncompressed_size=unc)
+    if method == 3:
+        return zstd.ZstdDecompressor().decompress(blob)
+    raise ValueError(f'unknown LSPK compression method {method}')
+
+
 def lspk_extract(pak_path: str, name: str) -> bytes:
     """Extract and decompress a single file from an LSPK v18 package."""
     with open(pak_path, 'rb') as fh:
@@ -263,11 +276,27 @@ def lspk_extract(pak_path: str, name: str) -> bytes:
         with open(src, 'rb') as pf:
             pf.seek(offset)
             blob = pf.read(sod if sod else unc)
-    method = flags & 0x0F
-    if method == 0:
-        return blob[:unc]
-    if method == 2:
-        return lz4.block.decompress(blob, uncompressed_size=unc)
-    if method == 3:
-        return zstd.ZstdDecompressor().decompress(blob)
-    raise ValueError(f'unknown LSPK compression method {method}')
+    return decompress_entry(blob, flags, unc)
+
+
+def lspk_extract_many(pak_path, predicate) -> dict[str, bytes]:
+    """Extract every file matching predicate(name), reading the file list once.
+
+    `lspk_extract` re-reads the (large) file list on every call; this opens the
+    pak once for bulk extraction. Sibling part files are opened on demand.
+    """
+    out: dict[str, bytes] = {}
+    with open(pak_path, 'rb') as fh, contextlib.ExitStack() as stack:
+        flist = lspk_filelist(fh)
+        parts: dict[int, io.BufferedReader] = {0: fh}
+        for name, (offset, part, flags, sod, unc) in flist.items():
+            if not predicate(name):
+                continue
+            pf = parts.get(part)
+            if pf is None:
+                pf = stack.enter_context(open(pak_path[:-4] + f'_{part}.pak', 'rb'))
+                parts[part] = pf
+            pf.seek(offset)
+            blob = pf.read(sod if sod else unc)
+            out[name] = decompress_entry(blob, flags, unc)
+    return out
