@@ -101,7 +101,7 @@ game.character_creation.v2.PassiveSelector | 56 | 28 | N | GUID-like heap-ptr +m
 game.character_creation.v3.LevelUpComponent | 16 | 7 | Y | NEEDS-HEAP | ~ eoc::character_creation::LevelUpComponent: {begin,end} heap range of LevelUpData (Class/SubClass/Feat/AccessorySet Guids + 7 ability ints + spells); same shape as the decoded progression chain
 game.character_creation.v0.StateComponent | 1 | 7 | Y | u8-enum PACKED? | [OTHER-AGENT] ~ eoc::character_creation::StateComponent [bool HasDummy; bool Canceled; uint8_t field_2] — e.g. values=0,32,...
 game.character_creation.v1.CharacterCreationStatsComponent | 88 | 7 | Y | heap-range GUID-like heap-ptr +u32-small(9 distinct) | [OTHER-AGENT] ~ eoc::CharacterCreationStatsComponent [Guid Race; Gui...
-game.character_creation.v0.OriginComponent | 16 | 7 | Y | mixed/opaque | [OTHER-AGENT] ~ eoc::OriginComponent [Guid field_18; FixedString Origin]
+game.character_creation.v0.OriginComponent | 16 | 7 | Y | DECODED | ~ eoc::OriginComponent: {ptr,len} pool string OR inline 16B origin UUID (see FORMAT.md §6); per-character origin
 game.character_creation.v0.VoiceComponent | 16 | 7 | Y | GUID-like | [OTHER-AGENT] ~ eoc::VoiceComponent [Guid Voice] — e.g. b8b4a974-b045-45f6-9516-b457b8773abd | 2bb39cf2-4649-4238...
 game.character_creation.v0.AppearanceVisualTagComponent | 16 | 3 | Y | GUID-like | [OTHER-AGENT] ~ esv::character_creation::AppearanceVisualTagComponent [Array<Guid> Tags] — e.g. e79ada7e-e9be-4582...
 game.character_creation.v0.GodComponent | 16 | 7 | Y | DECODED | ~ esv::character_creation::GodComponent: 16B inline Guid God
@@ -161,7 +161,7 @@ game.interrupt.v0.PreferencesComponent | 32 | 238 | Y | heap-range | per-entity 
 game.inventory.v0.CanBeInComponent | 1 | 1396 | Y | u8-varied | ~ eoc::inventory::CanBeInComponent (TAG: presence-only; bytes=junk) — e.g. 58 distinct, min=0 max=216
 game.inventory.v0.CannotBeTakenOutComponent | 1 | 1 | Y | all-zero | ~ eoc::inventory::CannotBeTakenOutComponent (TAG: presence-only; bytes=junk)
 game.inventory.v0.ContainerSlotData | 16 | 1280 | N | heap-ptr +u32-small(197 distinct) | [DECODED] ~ ContainerSlotData [EntityHandle Item; uint32_t field_8}]
-game.inventory.v1.ContainerComponent | 32 | 564 | Y | mixed/opaque | [DECODED] ~ eoc::inventory::ContainerComponent [HashMap<uint16_t, ContainerSlotData> Items]
+game.inventory.v1.ContainerComponent | 32 | 564 | Y | DECODED | ~ eoc::inventory::ContainerComponent: HashMap<u16,CSD> Items; inline {item_ptr,gen<<32|slot}x2 or heap form (FORMAT.md §6)
 game.inventory.v3.Type | 8 | 564 | N | u32-ish counters | ~ eoc::trigger::TypeComponent [uint8_t Type]
 game.inventory.v4.DataComponent | 16 | 564 | Y | GUID-like | ~ eoc::inventory::DataComponent [[[bg3::legacy(field_0)]] InventoryType Type; [[bg3::legacy(Flags)]] uint16_t SlotLimit] — e.g. 00000001...
 game.inventory.v1.IsOwnedComponent | 8 | 564 | Y | heap-ptr | [DECODED] ~ eoc::inventory::IsOwnedComponent [EntityHandle Owner]
@@ -322,8 +322,8 @@ game.visual.v5.CharacterCreationTemplateOverrideComponent | 16 | 1 | Y | DECODED
 game.v0.WeaponSetComponent | 8 | 258 | Y | TAG | ~ eoc::WeaponSetComponent: uint8 WeaponSetType but on-disk 8B pool-ptr junk, no clean enum; presence-only
 game.v0.EState | 8 | 2 | N | heap-ptr | enum-value pool: u64 rows referenced by pointer from sibling components
 game.body_type.v0.EBodyType | 8 | 2 | N | constant | enum-value pool: u64 rows referenced by pointer from sibling components — e.g. row=a85f2d0000000000
-game.attitude.v0.EIdentityState | 8 | 1 | N | mixed/opaque | enum-value pool: u64 rows referenced by pointer from sibling components
-game.camp.v1.EEndTheDayState | 8 | 1 | N | mixed/opaque | enum-value pool: u64 rows referenced by pointer from sibling components
+game.attitude.v0.EIdentityState | 8 | 1 | N | ENUM-POOL | u64 rows referenced by pointer from sibling components
+game.camp.v1.EEndTheDayState | 8 | 1 | N | ENUM-POOL | u64 rows referenced by pointer from sibling components
 game.capabilities.v0.ELootableCapabilities | 8 | 2 | N | bool-flags | enum-value pool: u64 rows referenced by pointer from sibling components
 game.capabilities.v0.EActionCapabilities | 8 | 1 | N | all-zero | enum-value pool: u64 rows referenced by pointer from sibling components
 game.capabilities.v0.ERestCapabilities | 8 | 1 | N | bool-flags | enum-value pool: u64 rows referenced by pointer from sibling components
