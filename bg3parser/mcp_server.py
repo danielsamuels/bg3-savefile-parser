@@ -56,9 +56,8 @@ server = FastMCP(
         'a specific item with item_info. quest_outlook flags which active '
         'quests an upcoming action (a point of no return, region change, or '
         'NPC death) would close, for "what should I prioritise" questions. '
-        "quest_consequences goes deeper: it evaluates the game's actual Osiris "
-        'rules against a save to derive emergent cause-and-effect that the '
-        'explicit quest edges miss.'
+        'quest_consequences goes deeper, reporting which active quests a '
+        'specific game action would change or close.'
     ),
 )
 
@@ -214,16 +213,16 @@ def parse_save(
     `detail` shapes characters: 'summary' (default) gives race/class/level,
     XP, ability scores, HP, feats, worn gear keyed by slot (null = empty
     slot, so an open ring slot is visible), carried items, gold, and
-    prepared spell names (mod macros and performances filtered out);
-    'full' adds the complete spell book with prepared flags, action
-    resources, and internal IDs — rarely needed for gear or build advice.
+    prepared spell names; 'full' adds the complete spell book with prepared
+    flags, action resources, and internal IDs — rarely needed for gear or
+    build advice.
 
     `items` filters carried and camp-chest items: 'magic' (equippable with
     above-common rarity), 'equipment' (anything equippable), or 'all'
     (default; includes consumables and junk).
 
     `quests` is 'active' (default), 'all' (adds closed quest names), or
-    'none'. Quest parsing costs ~2s; 'none' skips it.
+    'none' (the cheapest; skips quest parsing).
 
     `effects=True` annotates items with their in-game tooltip text (passive
     names and descriptions, damage, AC, boost strings) — use it for gear
@@ -253,8 +252,7 @@ def item_info(names: str | list[str], limit_per_name: int = 8) -> dict[str, list
     item you are evaluating in a single call ('["hellrider", "spellsparkler",
     "caustic band"]') rather than calling once per item. Each query maps to
     its matches: slot, rarity, and tooltip lines (passives, damage, AC,
-    boosts in plain English), straight from the installed game's data — the
-    answer to "what does this item do", with no save parsing involved.
+    boosts in plain English) — the answer to "what does this item do".
     Several entries can share one display name (each variant is returned).
     For a whole save's gear at once, parse_save(effects=true, items='magic')
     is usually the better shape.
@@ -289,12 +287,11 @@ def item_info(names: str | list[str], limit_per_name: int = 8) -> dict[str, list
 def quest_outlook(save: str = 'latest') -> dict:
     """Which active quests will be closed by an upcoming action, and by what.
 
-    Answers "are there quests I should prioritise?" with the game's own quest
-    interaction graph (read from the installed game data, not model recall):
-    for each active quest in the save, the triggers that will *close* it if you
-    act before finishing it. Triggers are point-of-no-return story advances,
-    entering or leaving a region, an NPC dying or being defeated, a companion
-    leaving, or another quest progressing.
+    Answers "are there quests I should prioritise?": for each active quest in
+    the save, the triggers that will *close* it if you act before finishing it.
+    Triggers are point-of-no-return story advances, entering or leaving a
+    region, an NPC dying or being defeated, a companion leaving, or another
+    quest progressing.
 
     Returns `active_quests` (only those with a closing trigger; each has its
     title, current objective, and `terminating_triggers` with a `trigger_kind`,
@@ -328,20 +325,16 @@ def quest_outlook(save: str = 'latest') -> dict:
 def quest_consequences(action: str, save: str = 'latest') -> dict:
     """Determine which of your active quests an action would change or close.
 
-    Unlike quest_outlook (which reads the designers' explicit DB_QuestDef edges),
-    this *evaluates the game's actual Osiris rules* against your save: it seeds
-    the rule engine with this save's live story state, injects the action, and
-    forward-chains to see which quests it drives to a new step. That catches
-    emergent consequences the explicit edges miss -- e.g. the Moonrise prison
+    Unlike quest_outlook (which reads the designers' explicit quest edges), this
+    catches emergent consequences those edges miss -- e.g. the Moonrise prison
     purge killing the tracked prisoners and failing the rescue quests.
 
     `action` is an Osiris action predicate: a proc or event, e.g.
-    'PROC_MOO_Assault_PurgePrison'. Results are derived from the game files and
-    this save, not model recall. Each affected quest gives its title, the step
-    it moves to, and whether that step is terminal (closes the quest).
+    'PROC_MOO_Assault_PurgePrison'. Each affected quest gives its title, the
+    step it moves to, and whether that step is terminal (closes the quest).
 
     `save` is 'latest', a save number, a name, or a path. Needs a game install.
-    Slower than the other tools (it loads and evaluates the whole rule base).
+    Slower than the other tools.
     """
     analyser = shared_quest_analyser()
     if analyser is None:
