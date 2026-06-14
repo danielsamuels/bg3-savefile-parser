@@ -193,32 +193,41 @@ class TestNormalizeEdge:
         assert normalize_edge(QuestDefStmt('SomethingElse', ['a', 'b'])) is None
 
 
-QUEST_PROTOTYPE_SAMPLE = """<node id="Quest">
-    <attribute id="QuestID" type="FixedString" value="HAG_HagSpawn"/>
-    <attribute id="QuestTitle" type="TranslatedString" handle="h0001" version="4"/>
-    <children>
-        <node id="QuestStep">
-            <attribute id="ID" type="FixedString" value="HuntEthel"/>
-            <attribute id="Objective" type="FixedString" value="HAG_HagSpawn_HuntEthel"/>
-            <attribute id="UnlockDisable" type="uint8" value="0"/>
+QUEST_PROTOTYPE_SAMPLE = """<?xml version="1.0" encoding="UTF-8"?>
+<save>
+  <region id="quests">
+    <node id="root">
+      <children>
+        <node id="Quest">
+            <attribute id="QuestID" type="FixedString" value="HAG_HagSpawn"/>
+            <attribute id="QuestTitle" type="TranslatedString" handle="h0001" version="4"/>
+            <children>
+                <node id="QuestStep">
+                    <attribute id="ID" type="FixedString" value="HuntEthel"/>
+                    <attribute id="Objective" type="FixedString" value="HAG_HagSpawn_HuntEthel"/>
+                    <attribute id="UnlockDisable" type="uint8" value="0"/>
+                </node>
+                <node id="QuestStep">
+                    <attribute id="ID" type="FixedString" value="ReachedNoReturn"/>
+                    <attribute id="Objective" type="FixedString" value="HAG_HagSpawn_COMPLETION"/>
+                    <attribute id="UnlockDisable" type="uint8" value="2"/>
+                </node>
+            </children>
         </node>
-        <node id="QuestStep">
-            <attribute id="ID" type="FixedString" value="ReachedNoReturn"/>
-            <attribute id="Objective" type="FixedString" value="HAG_HagSpawn_COMPLETION"/>
-            <attribute id="UnlockDisable" type="uint8" value="2"/>
+        <node id="Quest">
+            <attribute id="QuestID" type="FixedString" value="CHA_Chapel"/>
+            <children>
+                <node id="QuestStep">
+                    <attribute id="ID" type="FixedString" value="LeftRegion"/>
+                    <attribute id="Objective" type="FixedString" value="CHA_Chapel_COMPLETION"/>
+                    <attribute id="UnlockDisable" type="uint8" value="2"/>
+                </node>
+            </children>
         </node>
-    </children>
-</node>
-<node id="Quest">
-    <attribute id="QuestID" type="FixedString" value="CHA_Chapel"/>
-    <children>
-        <node id="QuestStep">
-            <attribute id="ID" type="FixedString" value="LeftRegion"/>
-            <attribute id="Objective" type="FixedString" value="CHA_Chapel_COMPLETION"/>
-            <attribute id="UnlockDisable" type="uint8" value="2"/>
-        </node>
-    </children>
-</node>"""
+      </children>
+    </node>
+  </region>
+</save>"""
 
 
 class TestParseQuestSteps:

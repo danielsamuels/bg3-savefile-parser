@@ -6,6 +6,7 @@ import os
 import re
 import struct
 
+from . import lsx
 from .lsf import parse_lsof
 from .lspk import lspk_extract, lspk_filelist
 
@@ -136,7 +137,7 @@ SUBREGION_LOCALIZATION_FILES = [
 
 
 # Bump when the resolver logic changes so a stale cache is not silently reused.
-DISPLAYNAME_SCHEMA_VERSION = 15
+DISPLAYNAME_SCHEMA_VERSION = 16
 
 
 def find_game_data_dir() -> str | None:
@@ -177,6 +178,69 @@ def parse_loca(blob: bytes) -> dict[str, str]:
         out[key] = blob[tp : tp + length - 1].decode('utf-8', 'replace').strip()
         tp += length
     return out
+
+
+def _resolved_label(handle: str | None, fallback: str | None, handle_to_text: dict[str, str]):
+    """Localised text for a handle, falling back to an internal name.
+
+    Hidden/internal entries carry a '%%%' placeholder string; those are treated
+    as unresolved so the internal fallback (or nothing) is used instead.
+    """
+    title = handle_to_text.get(handle or '')
+    if title and '%%%' not in title:
+        return title
+    return fallback
+
+
+def parse_lsx_label_map(
+    lsx_text: str,
+    handle_to_text: dict[str, str],
+    *,
+    key: str,
+    handle: str,
+    fallback: str | None = None,
+) -> dict[str, str]:
+    """Map a `key` attribute to a resolved label across an LSX file's nodes.
+
+    For every node carrying the `key` attribute, the `handle` attribute is
+    resolved through the loca map (falling back to the raw `fallback` attribute
+    when one is named); nodes without a usable label are skipped.
+    """
+    out: dict[str, str] = {}
+    for node in lsx.all_nodes(lsx.parse(lsx_text)):
+        a = lsx.attrs(node)
+        key_val = a.get(key)
+        if not key_val:
+            continue
+        fb = a.get(fallback) if fallback else None
+        label = _resolved_label(a.get(handle), fb, handle_to_text)
+        if label:
+            out[key_val] = label
+    return out
+
+
+def parse_quest_titles(lsx_text: str, handle_to_text: dict[str, str]) -> dict[str, str]:
+    """Map QuestID -> resolved QuestTitle from quest_prototypes.lsx."""
+    return parse_lsx_label_map(lsx_text, handle_to_text, key='QuestID', handle='QuestTitle')
+
+
+def parse_objective_texts(lsx_text: str, handle_to_text: dict[str, str]) -> dict[str, str]:
+    """Map ObjectiveID -> resolved Description from objective_prototypes.lsx."""
+    return parse_lsx_label_map(lsx_text, handle_to_text, key='ObjectiveID', handle='Description')
+
+
+def parse_action_resources(lsx_text: str, handle_to_text: dict[str, str]) -> dict[str, str]:
+    """Map a resource UUID -> DisplayName (or internal Name) from ActionResourceDefinitions.lsx."""
+    return parse_lsx_label_map(
+        lsx_text, handle_to_text, key='UUID', handle='DisplayName', fallback='Name'
+    )
+
+
+def parse_feat_names(lsx_text: str, handle_to_text: dict[str, str]) -> dict[str, str]:
+    """Map a FeatId -> DisplayName (or internal ExactMatch) from FeatDescriptions.lsx."""
+    return parse_lsx_label_map(
+        lsx_text, handle_to_text, key='FeatId', handle='DisplayName', fallback='ExactMatch'
+    )
 
 
 def cache_path(data_dir: str) -> str:
@@ -252,91 +316,39 @@ def build_displayname_maps(
 
     handle_to_text = parse_loca(lspk_extract(os.path.join(data_dir, LOCA_PAK), LOCA_FILE))
 
-    # Quest titles: pair each QuestID with the QuestTitle handle that follows
-    # it inside the same <node id="Quest"> (QuestSteps carry neither attribute).
+    def _read_lsx(pak: str, name: str) -> str | None:
+        try:
+            return lspk_extract(os.path.join(data_dir, pak), name).decode('utf-8', 'replace')
+        except (OSError, KeyError, ValueError):
+            return None
+
+    # Quest titles (QuestID -> QuestTitle) from quest_prototypes.lsx.
     quest_names: dict[str, str] = {}
-    quest_attr_re = re.compile(r'id="(QuestID|QuestTitle)"[^>]*?(?:value|handle)="([^"]*)"')
     for pak, name in QUEST_PROTOTYPE_FILES:
-        try:
-            text = lspk_extract(os.path.join(data_dir, pak), name).decode('utf-8', 'replace')
-        except (OSError, KeyError, ValueError):
-            continue
-        current_quest = None
-        for m in quest_attr_re.finditer(text):
-            if m.group(1) == 'QuestID':
-                current_quest = m.group(2)
-            elif current_quest:
-                title = handle_to_text.get(m.group(2))
-                # Hidden/internal quests carry the '%%% EMPTY' placeholder title.
-                if title and '%%%' not in title:
-                    quest_names[current_quest] = title
-                current_quest = None
+        text = _read_lsx(pak, name)
+        if text is not None:
+            quest_names.update(parse_quest_titles(text, handle_to_text))
 
-    # Objective texts: inside an <node id="Objective"> the attributes sort
-    # alphabetically, so the Description handle PRECEDES the ObjectiveID.
+    # Objective texts (ObjectiveID -> Description) from objective_prototypes.lsx.
     quest_objectives: dict[str, str] = {}
-    objective_attr_re = re.compile(
-        r'id="(ObjectiveID|Description)"[^>]*?(?:value|handle)="([^"]*)"'
-    )
     for pak, name in OBJECTIVE_PROTOTYPE_FILES:
-        try:
-            text = lspk_extract(os.path.join(data_dir, pak), name).decode('utf-8', 'replace')
-        except (OSError, KeyError, ValueError):
-            continue
-        pending_handle = None
-        for m in objective_attr_re.finditer(text):
-            if m.group(1) == 'Description':
-                pending_handle = m.group(2)
-            elif pending_handle:
-                title = handle_to_text.get(pending_handle)
-                if title and '%%%' not in title:
-                    quest_objectives[m.group(2)] = title
-                pending_handle = None
+        text = _read_lsx(pak, name)
+        if text is not None:
+            quest_objectives.update(parse_objective_texts(text, handle_to_text))
 
-    # Action resources: inside each node the attributes sort alphabetically,
-    # so DisplayName precedes Name, which precedes UUID.
+    # Action resources (UUID -> display/internal name).
     action_resources: dict[str, str] = {}
-    resource_attr_re = re.compile(r'id="(DisplayName|Name|UUID)"[^>]*?(?:value|handle)="([^"]*)"')
     for pak, name in ACTION_RESOURCE_FILES:
-        try:
-            text = lspk_extract(os.path.join(data_dir, pak), name).decode('utf-8', 'replace')
-        except (OSError, KeyError, ValueError):
-            continue
-        handle = internal = None
-        for m in resource_attr_re.finditer(text):
-            if m.group(1) == 'DisplayName':
-                handle = m.group(2)
-            elif m.group(1) == 'Name':
-                internal = m.group(2)
-            else:
-                title = handle_to_text.get(handle or '')
-                label = title if title and '%%%' not in title else internal
-                if label:
-                    action_resources[m.group(2)] = label
-                handle = internal = None
+        text = _read_lsx(pak, name)
+        if text is not None:
+            action_resources.update(parse_action_resources(text, handle_to_text))
 
-    # Feats: DisplayName handle, then ExactMatch (internal name), then FeatId.
+    # Feats (FeatId -> display/internal name).
     feat_names: dict[str, str] = {}
-    feat_attr_re = re.compile(
-        r'id="(DisplayName|ExactMatch|FeatId)"[^>]*?(?:value|handle)="([^"]*)"'
-    )
     for pak, name in FEAT_DESCRIPTION_FILES:
-        try:
-            text = lspk_extract(os.path.join(data_dir, pak), name).decode('utf-8', 'replace')
-        except (OSError, KeyError, ValueError):
-            continue
-        handle = internal = None
-        for m in feat_attr_re.finditer(text):
-            if m.group(1) == 'DisplayName':
-                handle = m.group(2)
-            elif m.group(1) == 'ExactMatch':
-                internal = m.group(2)
-            else:
-                title = handle_to_text.get(handle or '')
-                label = title if title and '%%%' not in title else internal
-                if label:
-                    feat_names[m.group(2)] = label
-                handle = internal = None
+        text = _read_lsx(pak, name)
+        if text is not None:
+            feat_names.update(parse_feat_names(text, handle_to_text))
 
     # Subregion (and waypoint shrine) display names from the localization
     # key files: TranslatedStringKey nodes carry {UUID, Content handle}.

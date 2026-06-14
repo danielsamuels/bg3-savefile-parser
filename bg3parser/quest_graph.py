@@ -10,6 +10,7 @@ import os
 import re
 from dataclasses import dataclass
 
+from . import lsx
 from .gamedata import DisplayNames
 from .lspk import lspk_extract_many
 
@@ -91,36 +92,26 @@ class QuestGraph:
         return [e for e in self.edges if e.quest_id == quest_id or e.source_quest == quest_id]
 
 
-QUEST_NODE_RE = re.compile(r'<node id="Quest">(.*?)(?=<node id="Quest">|\Z)', re.DOTALL)
-QUESTID_RE = re.compile(r'<attribute id="QuestID"[^>]*value="([^"]+)"')
-STEP_NODE_RE = re.compile(r'<node id="QuestStep">(.*?)</node>', re.DOTALL)
-STEP_ID_RE = re.compile(r'<attribute id="ID"[^>]*value="([^"]+)"')
-STEP_OBJ_RE = re.compile(r'<attribute id="Objective"[^>]*value="([^"]+)"')
-STEP_UNLOCK_RE = re.compile(r'<attribute id="UnlockDisable"[^>]*value="([^"]+)"')
-
-
 def parse_quest_steps(lsx_text: str) -> dict[tuple[str, str], StepInfo]:
     """Map (quest_id, step_id) -> StepInfo from quest_prototypes.lsx.
 
-    Each QuestStep belongs to its enclosing Quest node; the step's own ID,
-    Objective and UnlockDisable attributes precede any child nodes, so a
-    non-greedy step match still captures them.
+    Each QuestStep is read from inside its enclosing Quest node, so the step is
+    attributed to the right quest regardless of how the document nests them.
     """
     out: dict[tuple[str, str], StepInfo] = {}
-    for block in QUEST_NODE_RE.findall(lsx_text):
-        qid = QUESTID_RE.search(block)
-        if not qid:
+    root = lsx.parse(lsx_text)
+    for quest in lsx.iter_nodes(root, 'Quest'):
+        quest_id = lsx.attrs(quest).get('QuestID')
+        if not quest_id:
             continue
-        quest = qid.group(1)
-        for step_block in STEP_NODE_RE.findall(block):
-            sid = STEP_ID_RE.search(step_block)
-            if not sid:
+        for step in lsx.iter_nodes(quest, 'QuestStep'):
+            a = lsx.attrs(step)
+            step_id = a.get('ID')
+            if not step_id:
                 continue
-            obj = STEP_OBJ_RE.search(step_block)
-            unlock = STEP_UNLOCK_RE.search(step_block)
-            out[(quest, sid.group(1))] = StepInfo(
-                objective_id=obj.group(1) if obj else '',
-                unlock_disable=int(unlock.group(1)) if unlock else 0,
+            out[(quest_id, step_id)] = StepInfo(
+                objective_id=a.get('Objective') or '',
+                unlock_disable=int(a.get('UnlockDisable') or 0),
             )
     return out
 
