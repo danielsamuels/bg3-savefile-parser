@@ -238,15 +238,30 @@ GridDefinition
        ├─ Buffer   ScratchBuffer   577,366 bytes on disk
        │                           LZ4-block compressed; Size attr = 5,112,224
        │                           (decompress with lz4.block.decompress(buf, uncompressed_size=Size))
-       │                           Decompressed content: proprietary navmesh format (not decoded)
        ├─ Size     UInt            5,112,224   (uncompressed byte count for Buffer)
-       └─ SubgridDefinition  ×362  (Object tiles — one per navmesh sub-region)
-            ├─ MapKey     UInt     (tile identity, u32)
-            ├─ Width      Int      (grid cells, varies; e.g. 2–128)
-            ├─ Height     Int      (grid cells)
-            ├─ Position   Vec3     (world-space origin of this tile)
-            └─ LoadedExternally  Bool
+       └─ SubgridDefinition       (one container node; its Object children are the tiles)
+            └─ Object  ×362        (one per navmesh subgrid)
+                 ├─ MapKey     UInt     (tile identity, u32)
+                 ├─ Width      Int      (grid cells, varies; e.g. 2–128)
+                 ├─ Height     Int      (grid cells)
+                 ├─ Position   Vec3     (world-space origin of this subgrid)
+                 └─ LoadedExternally  Bool
 ```
+
+**Decoded buffer (✅ 2026-06-14).** The decompressed buffer is the navmesh
+**height plane**: a flat concatenation of per-subgrid tile arrays in `Object`
+order, **2 bytes per tile**, each subgrid `Width × Height` tiles in row-major
+order (`index = x + y*Width`). Byte accounting is exact:
+`len(decompressed) == Σ(Width × Height)` over **all** subgrids (including
+`LoadedExternally` ones), and `Size / total_tiles == 2.0`. The per-tile `u16`
+is the tile's local height: `world_y = Position.y + u16 / 50.0` (the `1/50` is
+bg3se's `AiGridTile::HeightScale`; proven by mode-matching subgrid floors to
+`−Position.y × 50`). No sentinel; values are continuous 0..~10159 (≈0..203 m).
+The 16-byte in-memory `AiGridTile` (separate min/max heights, flags, metadata)
+is the inflated runtime form; the save persists only this single height plane.
+Validated byte-exact on every level of `quicksave_286`/`quicksave_291`. (Prior
+doc said "×362 SubgridDefinition"; those counts are the `Object` children of the
+single `SubgridDefinition` node, corrected above.)
 
 Grid bounds (from `ShroudData` header): X ∈ [−867, 3759], Z ∈ [−2088, 852].
 
@@ -256,7 +271,7 @@ Grid bounds (from `ShroudData` header): X ∈ [−867, 3759], Z ∈ [−2088, 85
 ShroudData   ScratchBuffer   213,088 bytes
 ```
 
-`ShroudData` layout (verified by byte inspection):
+`ShroudData` layout (✅ fully decoded 2026-06-14; stored raw, not LZ4-wrapped):
 
 | Offset | Type | Field |
 |-------:|------|-------|
@@ -264,8 +279,16 @@ ShroudData   ScratchBuffer   213,088 bytes
 | 4 | i32 | min_z = −2088 |
 | 8 | i32 | max_x = 3759 |
 | 12 | i32 | max_z = 852 |
-| 16–31 | — | 16 zero bytes |
-| 32… | — | opaque runtime-serialised visibility data (not structurally decoded) |
+| 16… | u8[] | visibility grid: **1 byte per 8×8-metre cell**, row-major |
+
+The grid is `grid_w × grid_h` bytes where `grid_w = ceil((max_x−min_x)/8)`,
+`grid_h = ceil((max_z−min_z)/8)`, so `total = 16 + grid_w × grid_h`. Each cell
+is the per-cell reveal intensity: `0x00` = unexplored/fully shrouded, `0xFF` =
+fully revealed, with a thin antialiased band of intermediate values at reveal
+edges. Exact on every level tested (CRE 579×368 → 213,072 + 16 = 213,088;
+WLD 529×305; SCL 792×570; the tutorial and CC levels). The "16 zero bytes at
+16–31" the prior doc noted were just the first 16 grid cells (an unexplored
+corner reading zero); the header is **16 bytes, not 32**.
 
 **`NewAge` LSMF blob:** 3,581,032 bytes (same ECS format as frame 0; see §6).
 
@@ -1000,22 +1023,67 @@ Character world `Translate` triples (`<fff`) appear in the blob 5–8× each
 (= `605, 605` as two u16, entity-index-like markers) with `FF`-filled
 rotation/scale fields. These give a known-value entry point into entity framing.
 
-### What blocks a full decode
+### What blocks a full decode (the proven residue)
 
-The directory is now decoded (any component's `{elem_size, row_count,
-data_offset}` is a lookup away; see above), and entity identity for a *known*
-item is recoverable via the `CurrentTemplate → entity_guid → EntityId` bridge.
-What remains genuinely blocked:
+The directory, ownerlists, heap, string pool, spell/class/inventory/stats
+chains, the navmesh and shroud buffers (§1a), and the Osiris compiled network
+(§9) are all decoded; the component census (COMPONENTS.md) is classified down to
+~8 still-opaque rows. Everything that remains genuinely unreadable from the save
+is **live runtime state the engine never serialises to disk** — proven per item,
+not assumed:
 
-1. **`EntityHandle` decoding.** `MemberData.handle_b` is a well-formed
-   `EntityHandle` (`uint64 = Index(32) | Salt(22)<<32 | Type(10)<<54`; Salt≈852,
-   Type=0, confirmed from bg3se source and byte inspection). Its `Index` field
-   is in the billions: a position in the live game's global entity pool, not the
-   save's local table. There is **no handle → GUID / handle → row table anywhere
-   in the on-disk LSF tree** (confirmed by exhaustive whole-tree search). Any
-   information gated behind a live `EntityHandle` is unresolvable from the save
-   file alone.
-2. **Exact equipment slot** (Helmet / Boots / Amulet / …). The save stores no
+1. **`EntityHandle` → GUID (exhaustively proven absent, 2026-06-14).** Residual
+   `EntityHandle` values (`MemberData.handle_b`, `DeathData` causes, the
+   party-group and turn-based handles) decode as
+   `uint64 = Index(32) | Salt(22)<<32 | Type(10)<<54` with `Index` in the
+   billions: slots in the live global entity pool. There is **no handle → GUID
+   or handle → row mapping anywhere on disk** — searched the whole LSMF blob,
+   **all** LSPK frames, and the 47 MB Osiris DB across 8 fixtures: 0 real
+   handles ever sit adjacent to a non-null `EntityId` GUID, no parallel handle
+   column exists, and Osiris keys world objects by *persistent template GUID
+   strings* in a namespace disjoint from runtime `EntityId`. The positive reason:
+   the serialiser rewrites every on-disk entity cross-reference into a
+   **byte-pointer into the `core.v0.EntityId` data region** (verified for
+   `ContainerSlotData`, `IsOwnedComponent`, `OwneeCurrentComponent` — all
+   resolve as `(ptr − eid_off)/16 → row`, none handle-shaped), so the surviving
+   handles are leftovers nothing on disk dereferences. Recovering the map needs
+   Script Extender at runtime (`Ext.Entity.Get(handle)`), the only thing that
+   sees live RAM.
+2. **Runtime-pointer component values are split (2026-06-14).** The death/status
+   "opaque" family is not uniformly so: the engine stores enum-typed members as
+   absolute byte-pointers into a per-save enum-value pool (the `ESourceType`
+   mechanism), and those **are recoverable** — `DeathTypeComponent`'s
+   `EDeathType`, `IncapacitatedComponent`'s `EIncapacitationReason`, and
+   `unsheath.v8.StateComponent`'s `EState`/`EPriority` all read out (subject to
+   the archetype-head shift-solver for per-entity attribution). Only the
+   `EntityHandle`/heap-pointer fields are live-only: `DeathComponent`'s
+   `Animation`/`Health`/`IsResurrected`, `DeathData`'s `Cause`/`CauseOwner`
+   handles (its `CauseUuid` is serialisation filler, not a persistent GUID), and
+   `IncapacitatedComponent`'s HashMap value-half (dangling node pointers).
+3. **The `ComponentDesc` hash (proven needs the game binary, 2026-06-14).** The
+   u64 per descriptor is a deterministic content hash of the type (identical
+   across 3 unrelated fixtures and across two blobs of one save), but it is **not
+   any standard string hash** of any on-disk name form — tested FNV-1/1a,
+   Murmur2/3, xxHash, CRC32/64, djb2, sdbm, Jenkins, against the bare leaf, the
+   directory name, and the bg3se-prefixed engine names (`eoc::inventory::…`),
+   with seeds/casing variants: 0 matches across all 355. bg3se confirms the
+   engine derives a type's index from the binary's RTTI symbol maps, never by
+   hashing its name. Usable only as a stable type fingerprint across versions.
+4. **FixedString resolution: resolved — there was nothing to crack
+   (2026-06-14).** The engine `FixedString` is a process-local `u32` index into
+   a pointer-based runtime table, so it is structurally non-serialisable; the
+   save never writes indices. Every FixedString the save persists is dereferenced
+   to materialised ASCII at write time and stored as a `{heap_ptr+48, length}`
+   reference into the string pool — the same convention the parser already uses
+   for spell IDs, recipes, and passive names. Confirmed on three fixtures
+   (`UsageCountComponent` passive names like `TAD_DrainAbility`,
+   `ArchetypeComponent.ActiveArchetype`, `ScriptedExplosionComponent.Projectile`
+   all read directly). The dead-end on per-row `TemplateComponent.idx` was a
+   hunt for a global index table that the format simply does not contain; the
+   per-row pointer there is arena bump-cursor state (so per-instance template
+   names still come from the LSF Creators map), but that is a property of that
+   one component, not a missing string mechanism.
+5. **Exact equipment slot** (Helmet / Boots / Amulet / …). The save stores no
    *explicit* `ItemSlot` value, established by a byte-level sweep: for 12
    simultaneously-equipped items whose slots were known, no byte position in
    any LSMF component owned by those items consistently equalled the expected
@@ -1031,8 +1099,12 @@ What remains genuinely blocked:
    (upper) UI ring slot) and QuickSave_292 (dual-wielded weapons: the
    earlier row is the main hand). The `position` field within the entry is
    the inventory-grid cell and does *not* track the UI order.
-3. The blob contains no slot-name or full-component-name strings to anchor on
+6. The blob contains no slot-name or full-component-name strings to anchor on
    beyond the directory.
+7. **Mid-shuffle stack counts** and the **"new item" UI flag**: not in committed
+   state at all (the deferred stack-component add queue, and session-only UI
+   memory respectively) — proven absent, recoverable only from a settled save /
+   not at all. See the stack-group and inventory sections above.
 
 > Approaches that **failed** and shouldn't be retried as-is: treating the
 > per-component GUID arrays as ownership lists (they're ordered by entity handle
