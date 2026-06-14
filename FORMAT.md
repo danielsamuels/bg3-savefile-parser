@@ -73,7 +73,7 @@ All integers are little-endian.
   - [File header (unscrambled, 193 bytes total)](#file-header-unscrambled-193-bytes-total)
   - [Section order and observed sizes (QuickSave_242)](#section-order-and-observed-sizes-quicksave_242)
   - [Value encoding (ver ≥ `OSI_VER_VALUE_FLAGS`)](#value-encoding-ver--osi_ver_value_flags)
-  - [Node types and parse layout](#node-types-and-parse-layout)
+  - [The compiled Rete network: Nodes and Adapters](#the-compiled-rete-network-nodes-and-adapters)
   - [Key quest-state databases](#key-quest-state-databases)
   - [Story-state databases: semantic catalogue (✅ surveyed 2026-06)](#story-state-databases-semantic-catalogue--surveyed-2026-06)
   - [Current quest objectives (LSF Journal, not Osiris)](#current-quest-objectives-lsf-journal-not-osiris)
@@ -1461,8 +1461,8 @@ Version-feature gates (version word thresholds):
 | Enums | 780 | (ver ≥ `OSI_VER_ENUMS`) `u32` count + `(u16 id, u32 enum_count, (string, u64)…)` |
 | DivObjects | 2799 | `u32` count + `(name, u8, u32, u32, u32, u32)` per entry |
 | Functions | 2803 | `u32` count + complex signature per entry |
-| Nodes | 1,562,961 | `u32` count + variable-length node records |
-| Adapters | 20,335,037 | `u32` count + `(u32, Tuple, logical_map, physical_map)` |
+| Nodes | 1,562,961 | `u32` count + per-type node records (the Rete network; see below) |
+| Adapters | 20,335,037 | `u32` count + `(u32 index, Tuple constants, logical_indices, logical_to_physical)` |
 | Databases | 27,143,800 | `u32` count + `(u32 idx, ParameterList, u32 fact_count, facts)` |
 | Goals | 42,457,920 | `u32` count + goal records |
 | GlobalActions | 47,731,502 | `u32` count + Call records |
@@ -1494,25 +1494,98 @@ Builtin type dispatch for `'0'` (type alias applied first):
 | 4, 5 | String, GuidString | `u8` has_value + string if non-zero |
 | other | (string-like) | same as 4/5 |
 
-### Node types and parse layout
+### The compiled Rete network: Nodes and Adapters
 
-Nodes are consumed sequentially. Each starts with `u8 node_type, u32 node_id,
-u32 db_ref, string name`. If `name` is non-empty, a `u8` param-count follows.
-A `(db_ref, name)` pair with both non-zero is the database-name record.
+The Nodes and Adapters sections together are the compiled rule engine — a
+Rete discrimination network. Osiris rules are not stored as source; they are
+stored as this network of nodes that match incoming facts and fire actions.
+Both sections are fully decoded (every field named, every cross-reference
+resolves); they were previously only walked for byte alignment. The live
+quest/story state the report needs lives in the Databases section (the fact
+base), so the network itself is decoded for format completeness rather than
+to drive features.
 
-| Type | ID | Extra payload |
-|------|-----|---------------|
-| DatabaseNode | 1 | `u32` referenced-by count + count × NodeEntryItem |
+Decoded against `QuickSave_242`: 151,610 nodes and 211,228 adapters. The node
+mix is stable across the save set — 7,985 DatabaseNode, 8,913 ProcNode, 326
+DivQuery, 60,178 And, 18,736 NotAnd, 3,099 RelOp, 50,301 Rule, 5
+InternalQuery, 2,067 UserQuery. All 211,228 adapters are referenced by exactly
+one join/rel node; all 104,531 ReferencedBy edges, all parent-node refs, and
+all node `db_ref`s resolve.
+
+`NodeEntryItem` (NEI), the Rete trigger edge, is three `u32`s:
+`(node_ref, entry_point, goal_ref)`. `node_ref` is the downstream node that
+fires when this node emits a row; `entry_point` selects that node's input
+(left vs. right for a join); `goal_ref` is the goal owning the edge (`0` =
+none).
+
+#### Node records
+
+Each node begins with the shared base: `u8 node_type, u32 node_id, u32 db_ref,
+string name`. A `u8 num_params` follows only when `name` is non-empty. A
+`(db_ref, name)` pair with both non-zero is the database-name record that
+labels a Database from the next-but-one section.
+
+| Type | ID | Body after the base |
+|------|-----|---------------------|
+| DatabaseNode | 1 | `u32` ReferencedBy count + that many NEI (the rule edges reading this database) |
 | ProcNode | 2 | same as DatabaseNode |
-| DivQueryNode | 3 | nothing |
-| AndNode | 4 | 1×NEI + 4×ref_u32 + ref_u32 + NEI + u8 + ref_u32 + NEI + u8 |
-| NotAndNode | 5 | same as AndNode |
-| RelOpNode | 6 | NEI + 2×ref_u32 + ref_u32 + NEI + u8 + i8 + i8 + Value + Value + i32 |
-| RuleNode | 7 | NEI + 2×ref_u32 + ref_u32 + NEI + u8 + calls-list + vars-list + u32 + (bool if ver≥ADD_QUERY) |
+| DivQueryNode | 3 | nothing (base only) |
 | InternalQueryNode | 8 | nothing |
 | UserQueryNode | 9 | nothing |
+| AndNode | 4 | NextNode (NEI) + JoinNode body |
+| NotAndNode | 5 | same as AndNode |
+| RelOpNode | 6 | NextNode (NEI) + RelNode body + the comparison |
+| RuleNode | 7 | NextNode (NEI) + RelNode body + calls + variables + line + is_query |
 
-`NEI` = NodeEntryItem = `(ref_u32, u32, ref_u32)`.
+The two tree-node bodies (their fields are named, not just counted):
+
+`RelNode` body (RelOp and Rule — a single-parent join):
+
+| Field | Type | Meaning |
+|-------|------|---------|
+| `parent_ref` | `u32` | upstream node feeding this one |
+| `adapter_ref` | `u32` | adapter reshaping the parent's tuple into this node's columns |
+| `rel_db_node_ref` | `u32` | database node joined against (0 if none) |
+| `rel_join` | NEI | the join edge into that database |
+| `rel_indirection` | `u8` | indirection level for the joined column |
+
+`JoinNode` body (And and NotAnd — a two-input join): the same five fields per
+side, ordered `left_parent_ref, right_parent_ref, left_adapter_ref,
+right_adapter_ref`, then `left_db_node_ref, left_db_join (NEI),
+left_indirection (u8)`, then the matching right-side triple.
+
+RelOpNode appends the comparison: `i8 left_value_index, i8 right_value_index,
+Value left_value, Value right_value, i32 rel_op`. A value index of `-1` means
+"use the inline Value"; otherwise the comparison reads that column from the
+adapted tuple. `rel_op` is the operator: `0 <`, `1 <=`, `2 >`, `3 >=`,
+`4 ==`, `5 !=` (all six observed).
+
+RuleNode appends the rule's right-hand side: a `u32`-counted list of Calls
+(the THEN actions), a `u8`-counted list of Variables (`osi_read_variable`;
+pre-`OSI_VER_VALUE_FLAGS` each is preceded by a `u8` type tag that must be 1),
+a `u32` source line, and — for ver ≥ `OSI_VER_ADD_QUERY` — a `bool is_query`
+marking query rules.
+
+#### Adapters section
+
+An adapter reshapes one node's output tuple into the column layout the next
+node expects. Each record is `(u32 index, Tuple constants, logical_indices,
+logical_to_physical)`:
+
+| Field | Type | Meaning |
+|-------|------|---------|
+| `index` | `u32` | adapter id (the `adapter_ref` targets above) |
+| `constants` | Tuple | constant output columns, keyed by logical index |
+| `logical_indices` | `u8` count + that many `i8` | one entry per output physical column |
+| `logical_to_physical` | `u8` count + that many `(u8 key, u8 value)` | output tuple's logical→physical column map |
+
+Each `logical_indices` entry is the source for one output column: a value `>= 0`
+copies that logical column from the input tuple; `-1` emits a constant (from
+`constants`, if one is mapped to that position) or a null. `logical_to_physical`
+then names the output columns so downstream nodes can address them by logical
+index. Every map value indexes within the produced physical tuple on all
+fixtures (0 overflow), and savegame adapters can be zero-padded with `0`
+logical indices that resolve to null variables (per lslib's `Adapter.Adapt`).
 
 ### Key quest-state databases
 

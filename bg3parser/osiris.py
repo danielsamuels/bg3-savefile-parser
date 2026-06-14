@@ -230,8 +230,14 @@ def osi_read_tuple(rdr: OsiReader) -> list:
     return items
 
 
-def osi_read_node_entry_item(rdr: OsiReader) -> tuple:
-    return (rdr.ref_u32(), rdr.u32(), rdr.ref_u32())
+def osi_read_node_entry_item(rdr: OsiReader) -> dict:
+    """A NodeEntryItem: a Rete trigger edge (target node, entry point, source goal).
+
+    `node_ref` is the downstream node fired when this node produces a row;
+    `entry_point` selects which input of that node (left/right for joins);
+    `goal_ref` is the goal that owns the edge (0 = none).
+    """
+    return {'node_ref': rdr.ref_u32(), 'entry_point': rdr.u32(), 'goal_ref': rdr.ref_u32()}
 
 
 def osi_read_call(rdr: OsiReader) -> dict:
@@ -311,85 +317,155 @@ def osi_read_param_list(rdr: OsiReader) -> list:
     return [rdr.type_id() for _ in range(c)]
 
 
+def osi_read_node_base(rdr: OsiReader) -> tuple:
+    """The fields every node shares: db_ref (u32), name, and num_params.
+
+    `num_params` is present in the stream only when `name` is non-empty.
+    """
+    db_ref = rdr.u32()
+    name = rdr.string()
+    num_params = rdr.u8() if name else 0
+    return db_ref, name, num_params
+
+
+def osi_read_rel_node_tail(rdr: OsiReader) -> dict:
+    """RelNode body: a single-parent join used by RelOp and Rule nodes.
+
+    Layout: ParentRef, AdapterRef, RelDatabaseNodeRef, RelJoin (NEI),
+    RelDatabaseIndirection (u8). The adapter reshapes the parent's output
+    tuple into this node's input columns.
+    """
+    return {
+        'parent_ref': rdr.ref_u32(),
+        'adapter_ref': rdr.ref_u32(),
+        'rel_db_node_ref': rdr.ref_u32(),
+        'rel_join': osi_read_node_entry_item(rdr),
+        'rel_indirection': rdr.u8(),
+    }
+
+
+def osi_read_join_node_tail(rdr: OsiReader) -> dict:
+    """JoinNode body: the two-input join used by And and NotAnd nodes.
+
+    Layout: Left/RightParentRef, Left/RightAdapterRef, then per side a
+    DatabaseNodeRef + join NEI + indirection byte. Each adapter reshapes its
+    parent's output into the join's column space.
+    """
+    return {
+        'left_parent_ref': rdr.ref_u32(),
+        'right_parent_ref': rdr.ref_u32(),
+        'left_adapter_ref': rdr.ref_u32(),
+        'right_adapter_ref': rdr.ref_u32(),
+        'left_db_node_ref': rdr.ref_u32(),
+        'left_db_join': osi_read_node_entry_item(rdr),
+        'left_indirection': rdr.u8(),
+        'right_db_node_ref': rdr.ref_u32(),
+        'right_db_join': osi_read_node_entry_item(rdr),
+        'right_indirection': rdr.u8(),
+    }
+
+
 def osi_read_nodes(rdr: OsiReader) -> dict:
-    """Read the Nodes section; returns {db_ref: name} for DatabaseNode/ProcNode entries."""
+    """Read the Nodes section: the full compiled Rete network.
+
+    Returns `{node_id: node}` where each node is a dict carrying its type,
+    `db_ref`, `name`, `num_params`, and the per-type body (ReferencedBy edges
+    for data nodes; parent/adapter refs and join wiring for tree nodes; the
+    comparison for RelOp; calls/variables for Rule). The `(db_ref, name)`
+    pairs with both non-zero are the database-name records used to label the
+    Databases section.
+    """
     n = rdr.u32()
-    db_names: dict = {}
+    nodes: dict = {}
     for _ in range(n):
         nt = rdr.u8()
-        rdr.u32()  # node id
-        db_ref = rdr.ref_u32()
-        nm = rdr.string()
-        if nm:
-            rdr.u8()  # param count (present when name non-empty)
-        if nm and db_ref:
-            db_names[db_ref] = nm
+        node_id = rdr.u32()
+        db_ref, name, num_params = osi_read_node_base(rdr)
+        node: dict = {
+            'id': node_id,
+            'type': nt,
+            'db_ref': db_ref,
+            'name': name,
+            'num_params': num_params,
+        }
+
         if nt in (OSI_NODE_DATABASE, OSI_NODE_PROC):
-            # DataNode extra: ReferencedBy list
+            # DataNode: the list of rule edges that read from this database/proc.
             rc = rdr.u32()
-            for _ in range(rc):
-                osi_read_node_entry_item(rdr)
+            node['referenced_by'] = [osi_read_node_entry_item(rdr) for _ in range(rc)]
         elif nt in (OSI_NODE_DIV_QUERY, OSI_NODE_INT_QUERY, OSI_NODE_USER_QUERY):
-            pass
+            pass  # Query nodes carry only the base fields.
         elif nt in (OSI_NODE_AND, OSI_NODE_NOT_AND):
-            osi_read_node_entry_item(rdr)
-            rdr.ref_u32()
-            rdr.ref_u32()
-            rdr.ref_u32()
-            rdr.ref_u32()
-            rdr.ref_u32()
-            osi_read_node_entry_item(rdr)
-            rdr.u8()
-            rdr.ref_u32()
-            osi_read_node_entry_item(rdr)
-            rdr.u8()
+            node['next_node'] = osi_read_node_entry_item(rdr)
+            node.update(osi_read_join_node_tail(rdr))
         elif nt == OSI_NODE_REL_OP:
-            osi_read_node_entry_item(rdr)
-            rdr.ref_u32()
-            rdr.ref_u32()
-            rdr.ref_u32()
-            osi_read_node_entry_item(rdr)
-            rdr.u8()
-            rdr.i8()
-            rdr.i8()
-            osi_read_value(rdr)
-            osi_read_value(rdr)
-            rdr.i32()
+            node['next_node'] = osi_read_node_entry_item(rdr)
+            node.update(osi_read_rel_node_tail(rdr))
+            node['left_value_index'] = rdr.i8()
+            node['right_value_index'] = rdr.i8()
+            node['left_value'] = osi_read_value(rdr)
+            node['right_value'] = osi_read_value(rdr)
+            node['rel_op'] = rdr.i32()  # RelOpType: 0=<,1=<=,2=>,3=>=,4===,5=!=
         elif nt == OSI_NODE_RULE:
-            osi_read_node_entry_item(rdr)
-            rdr.ref_u32()
-            rdr.ref_u32()
-            rdr.ref_u32()
-            osi_read_node_entry_item(rdr)
-            rdr.u8()
+            node['next_node'] = osi_read_node_entry_item(rdr)
+            node.update(osi_read_rel_node_tail(rdr))
             cc = rdr.u32()
-            for _ in range(cc):
-                osi_read_call(rdr)
+            node['calls'] = [osi_read_call(rdr) for _ in range(cc)]
             vc = rdr.u8()
+            variables = []
             for _ in range(vc):
                 if rdr.ver < OSI_VER_VALUE_FLAGS:
-                    rdr.u8()
-                osi_read_variable(rdr)
-            rdr.u32()
+                    rdr.u8()  # legacy per-variable type tag (must be 1)
+                variables.append(osi_read_variable(rdr))
+            node['variables'] = variables
+            node['line'] = rdr.u32()
             if rdr.ver >= OSI_VER_ADD_QUERY:
-                rdr.bool()
+                node['is_query'] = rdr.bool()
         else:
             raise ValueError(f'Unknown Osiris node type {nt} at pos {rdr.pos}')
-    return db_names
+        nodes[node_id] = node
+    return nodes
 
 
-def osi_skip_adapters(rdr: OsiReader) -> None:
+def osi_node_db_names(nodes: dict) -> dict:
+    """The `{db_ref: name}` label map: nodes with both a name and a database."""
+    return {nd['db_ref']: nd['name'] for nd in nodes.values() if nd['name'] and nd['db_ref']}
+
+
+def osi_read_adapters(rdr: OsiReader) -> dict:
+    """Read the Adapters section: column reshapers between Rete nodes.
+
+    An adapter rewrites an input tuple into an output tuple. Each record is
+    `(index, constants, logical_indices, logical_to_physical)`:
+
+      * `constants` — a Tuple of constant output columns (logical index → value).
+      * `logical_indices` — one sbyte per output physical column. A value >= 0
+        copies that logical column from the input tuple; -1 emits a constant
+        (from `constants`) or a null when no constant is mapped.
+      * `logical_to_physical` — `{logical_index: physical_index}` naming the
+        output tuple's columns so downstream nodes can address them.
+
+    Returns `{adapter_index: adapter}`.
+    """
     n = rdr.u32()
+    adapters: dict = {}
     for _ in range(n):
-        rdr.u32()
-        osi_read_tuple(rdr)
+        index = rdr.u32()
+        constants = osi_read_tuple(rdr)
         lc = rdr.u8()
-        for _ in range(lc):
-            rdr.i8()
+        logical_indices = [rdr.i8() for _ in range(lc)]
         mc = rdr.u8()
+        logical_to_physical = {}
         for _ in range(mc):
-            rdr.u8()
-            rdr.u8()
+            key = rdr.u8()
+            logical_to_physical[key] = rdr.u8()
+        adapters[index] = {
+            'index': index,
+            'constants': constants,
+            'logical_indices': logical_indices,
+            'logical_to_physical': logical_to_physical,
+        }
+    return adapters
 
 
 def osi_read_databases(rdr: OsiReader) -> dict:
@@ -553,8 +629,9 @@ def read_story(frames: dict[str, bytes]):
             osi_skip_enums(rdr)
         osi_skip_div_objects(rdr)
         osi_skip_functions(rdr)
-        db_names = osi_read_nodes(rdr)
-        osi_skip_adapters(rdr)
+        nodes = osi_read_nodes(rdr)
+        db_names = osi_node_db_names(nodes)
+        osi_read_adapters(rdr)
         databases = osi_read_databases(rdr)
         goals = osi_read_goals(rdr)
         # GlobalActions — consume so parse is complete
