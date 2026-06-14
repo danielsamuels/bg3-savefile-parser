@@ -1488,8 +1488,12 @@ handle indexes straight into this table.
 | LSMF descriptor `hash` field | ❌ a static engine type ID; matches no standard hash of any name form; cracking it needs the game binary's type registry |
 | LSMF inventory container web | ✅ decoded (`OwnerComponent`, `IsOwnedComponent`, `ContainerComponent`, `ContainerSlotData`) |
 | LSMF `MemberComponent` / `MemberData` structure | ✅ traced (8-byte pointer + 16-byte {ptr\_a, EntityHandle}); historical-ownership bookkeeping, not live location |
-| LSMF `EntityHandle` → GUID translation | ❌ no on-disk table; requires live game state |
-| Osiris story (frame 9) | ✅ (`parse_osiris`): quest state, goal flags, story flags |
+| LSMF `EntityHandle` → GUID translation | ❌ no on-disk table (exhaustively proven across all frames + Osiris DB, 8 fixtures); cross-refs are EntityId byte-pointers, residual handles are live-only; needs Script Extender |
+| LSMF FixedString resolution | ✅ not serialised as indices — strings are materialised ASCII via the `{ptr+48, len}` pool convention (the "global table" hunt was moot) |
+| LSMF component census | ✅ classified (COMPONENTS.md): ~8 rows remain genuinely opaque, all proven live-only (EntityHandle/runtime-pointer fields) |
+| Osiris story (frame 9) | ✅ fully decoded (`parse_osiris` / `read_story`): quest state, goal flags, story flags, **and the compiled Rete network — Nodes + Adapters** (§9) |
+| AiGrid navmesh buffer (frames 2/5) | ✅ decoded: 2-byte-per-tile height plane, `world_y = Position.y + u16/50` (§1a) |
+| Shroud / fog-of-war buffer | ✅ decoded: 16-byte header + 1 byte per 8×8 m visibility cell (§1a) |
 
 ---
 

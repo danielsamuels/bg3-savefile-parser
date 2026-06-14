@@ -225,9 +225,15 @@ The parser reads the following from the ECS blob:
 
 - `ItemSlot` per worn item: not present in the save (byte-sweep verified);
   derived from item stats instead, exactly as the engine does on load.
-- Live `EntityHandle` values (`MemberData.handle_b` and friends): indices
-  into the running game's global entity pool with no on-disk translation
-  table; anything gated exclusively behind one is unreachable from the save.
+- Live `EntityHandle` values (`MemberData.handle_b`, the `DeathData` causes,
+  the party-group and turn-based handles): indices into the running game's
+  global entity pool. There is no handle → GUID translation table anywhere on
+  disk — proven exhaustively across the whole LSMF blob, **all** LSPK frames,
+  and the 47 MB Osiris DB on 8 fixtures. The serialiser rewrites every on-disk
+  entity cross-reference into a byte-pointer into `core.v0.EntityId` (so
+  `ContainerSlotData`/`IsOwnedComponent`/`OwneeCurrentComponent` resolve to a
+  row), leaving these handles as leftovers nothing on disk dereferences.
+  Anything gated exclusively behind one needs Script Extender at runtime.
 - The "new item" inventory indicator: not serialised at all. A controlled
   experiment (QuickSave_296–301: hover-clearing items, saving, reloading)
   showed every item reverts to "new" on load; the seen-state is session-only
