@@ -1,5 +1,6 @@
 """Display-name and stat resolution from installed game data."""
 
+import contextlib
 import hashlib
 import json
 import os
@@ -278,12 +279,13 @@ def build_displayname_maps(
     dict[str, str],
     dict[str, str],
     dict[str, str],
+    dict[str, int],
 ]:
     """Build display-name and item-stat maps from installed game data.
 
     Returns (guid->name, stats->name, spell_id->name, object_type_stats, stats_to_slot,
     two_handed_stats, sub_spells, quest_names, quest_objectives, action_resources,
-    feat_names, subregions, stats_to_rarity).
+    feat_names, subregions, stats_to_rarity, spell_id->level).
 
     Results are cached under XDG_CACHE_HOME keyed on the source paks' mtime/size,
     so the ~1 s parse only happens after a game update.
@@ -310,6 +312,7 @@ def build_displayname_maps(
             data.get('feat_names', {}),
             data.get('subregions', {}),
             data.get('rarity', {}),
+            data.get('spell_levels', {}),
         )
     except (OSError, ValueError, KeyError):
         pass
@@ -445,12 +448,18 @@ def build_displayname_maps(
                 # Sub-spells (e.g. each Disguise Self appearance) declare the
                 # container spell they belong to; '' explicitly detaches.
                 cont_m = re.search(r'data "SpellContainerID" "([^"]*)"', block_text)
+                # Spell level: 0 = cantrip, >=1 = leveled. Channel-Divinity and
+                # other non-spell abilities declare no Level. Upcast variants
+                # inherit it through the `using` chain.
+                lvl_m = re.search(r'data "Level" "([^"]*)"', block_text)
+                lvl = lvl_m.group(1) if lvl_m and lvl_m.group(1) != '' else None
                 prev = spell_raw.get(entry_name)
                 if prev is None:
                     spell_raw[entry_name] = {
                         'display': dn_m.group(1) if dn_m else None,
                         'using': using,
                         'container': cont_m.group(1) if cont_m else None,
+                        'level': lvl,
                     }
                 else:
                     if prev['display'] is None and dn_m:
@@ -459,8 +468,11 @@ def build_displayname_maps(
                         prev['using'] = using
                     if prev['container'] is None and cont_m:
                         prev['container'] = cont_m.group(1)
+                    if prev['level'] is None and lvl is not None:
+                        prev['level'] = lvl
 
     spell_name: dict[str, str] = {}
+    spell_levels: dict[str, int] = {}
     sub_spell_list: list[str] = []
     for entry_name in spell_raw:
         cur: str | None = entry_name
@@ -474,6 +486,19 @@ def build_displayname_maps(
                 txt = handle_to_text.get(info['display'])
                 if txt:
                     spell_name[entry_name] = txt
+                break
+            cur = info['using']
+        # Level resolves along its own using-chain (upcast variants inherit).
+        cur = entry_name
+        seen = set()
+        while cur and cur not in seen:
+            seen.add(cur)
+            info = spell_raw.get(cur)
+            if info is None:
+                break
+            if info['level'] is not None:
+                with contextlib.suppress(ValueError):
+                    spell_levels[entry_name] = int(info['level'])
                 break
             cur = info['using']
         # A spell is a sub-spell if the first SpellContainerID declared along
@@ -602,6 +627,7 @@ def build_displayname_maps(
                     'guid': guid_name,
                     'stats': stats_name,
                     'spells': spell_name,
+                    'spell_levels': spell_levels,
                     'object_types': object_type_stats_list,
                     'stats_slots': stats_to_slot,
                     'two_handed': two_handed_stats_list,
@@ -631,6 +657,7 @@ def build_displayname_maps(
         feat_names,
         subregions,
         stats_to_rarity,
+        spell_levels,
     )
 
 
@@ -652,10 +679,12 @@ class DisplayNames:
         feat_names: dict[str, str] | None = None,
         subregions: dict[str, str] | None = None,
         stats_to_rarity: dict[str, str] | None = None,
+        spell_levels: dict[str, int] | None = None,
     ):
         self._guid = guid_name
         self._stats = stats_name
         self._spells = spell_name or {}
+        self._spell_levels = spell_levels or {}
         self.object_type_stats: frozenset[str] = object_type_stats or frozenset()
         self.stats_to_slot: dict[str, str] = stats_to_slot or {}
         self.two_handed_stats: frozenset[str] = two_handed_stats or frozenset()
@@ -721,6 +750,15 @@ class DisplayNames:
     def spell_name_for(self, spell_id: str) -> str | None:
         """Return the display name for a spell, or None if unresolved."""
         return self._spells.get(spell_id)
+
+    def spell_level_for(self, spell_id: str) -> int | None:
+        """Return the spell level (0 = cantrip), or None for non-spell abilities.
+
+        Upcast variants (Target_Banishment_5) fall back to the base prototype.
+        """
+        if spell_id in self._spell_levels:
+            return self._spell_levels[spell_id]
+        return self._spell_levels.get(re.sub(r'_\d+$', '', spell_id))
 
     def fmt_spell(self, spell_id: str) -> str:
         dn = self._spells.get(spell_id)

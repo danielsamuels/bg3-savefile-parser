@@ -110,6 +110,11 @@ class SpellRef:
     name: str | None = None
     category: str = 'spell'  # 'spell' | 'sub-spell' | 'basic-action'
     prepared: bool | None = None  # None = no preparation data for the entity
+    # SpellSourceType of the prepared entry: 0 = class (player-chosen),
+    # 1 = subclass (always-prepared, e.g. cleric domain), 2 = race,
+    # 3 = item, 6 = base action, 7 = weapon. None = not in the prepared set.
+    source: int | None = None
+    level: int | None = None  # 0 = cantrip, >=1 leveled; None = non-spell ability
 
 
 @dataclass
@@ -517,14 +522,21 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
 
         A book entry is prepared when its base prototype name (upcast _N
         suffix stripped) appears in the entity's PreparedSpells; entities
-        without preparation data get prepared=None throughout.
+        without preparation data get prepared=None throughout. Each prepared
+        entry carries its SpellSourceType (class/subclass/race/item/...) so the
+        player-chosen list (source 0) can be told from the always-prepared
+        subclass set; spell level lets cantrips be separated from leveled
+        spells.
         """
         prepared = prepared_spells.get(ent)
-        prepared_bases = (
-            {re.sub(r'_\d+$', '', name) for name, _st, _g in prepared}
-            if prepared is not None
-            else None
-        )
+        # base prototype name -> lowest source type (class 0 beats item 3 etc.)
+        prepared_source: dict[str, int] | None = None
+        if prepared is not None:
+            prepared_source = {}
+            for name, st, _g in prepared:
+                base = re.sub(r'_\d+$', '', name)
+                if st >= 0 and (base not in prepared_source or st < prepared_source[base]):
+                    prepared_source[base] = st
         refs = []
         for sid in sorted(set(spellbooks[ent])):
             if sid in COMMON_ACTION_SPELLS:
@@ -533,11 +545,22 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
                 cat = 'sub-spell'
             else:
                 cat = 'spell'
-            is_prepared = (
-                re.sub(r'_\d+$', '', sid) in prepared_bases if prepared_bases is not None else None
-            )
+            base = re.sub(r'_\d+$', '', sid)
+            if prepared_source is None:
+                is_prepared: bool | None = None
+                source = None
+            else:
+                source = prepared_source.get(base)
+                is_prepared = source is not None
             refs.append(
-                SpellRef(id=sid, name=dn.spell_name_for(sid), category=cat, prepared=is_prepared)
+                SpellRef(
+                    id=sid,
+                    name=dn.spell_name_for(sid),
+                    category=cat,
+                    prepared=is_prepared,
+                    source=source,
+                    level=dn.spell_level_for(sid),
+                )
             )
         return refs
 

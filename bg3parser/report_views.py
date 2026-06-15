@@ -107,28 +107,73 @@ def equipped_view(char: CharacterReport, dn: DisplayNames, fx: Effects | None = 
     return slots
 
 
-def prepared_spell_names(char: CharacterReport) -> list[str]:
-    """Class spells the character can cast right now, by display name.
+def prepared_spell_groups(char: CharacterReport) -> dict[str, list[str]]:
+    """Group a character's castable spells the way the game's UI does.
 
-    Basic actions and sub-spells are dropped; when the book carries no
-    preparation data (known casters always have it) the whole class-spell
-    list stands in. Upcast duplicates collapse on the shared display name.
-    Entries with no resolved display name (mod-injected macros like
-    Shout_Macro_*) and instrument performances are noise for build
-    questions and stay out of the summary; detail='full' keeps everything.
+    'prepared_spells' is the player-chosen leveled list (source = class): the
+    spells a prepared caster picked and a known caster knows. The rest are
+    castable but not chosen: 'always_prepared' (subclass grants, e.g. a
+    cleric's domain spells), 'cantrips' (always available, never count against
+    the prepared limit), and 'item_spells' (granted by equipment). Basic
+    actions and sub-spells are dropped; upcast duplicates collapse on the
+    shared display name. Unresolved names (mod macros) and instrument
+    performances stay out; detail='full' keeps everything.
+
+    When the book carries no preparation data, the whole class-spell list
+    stands in under 'prepared_spells' as a best effort.
     """
     real = [s for s in char.spells or [] if s.category == 'spell']
-    has_prep_data = any(s.prepared is not None for s in real)
-    picked = [s for s in real if s.prepared] if has_prep_data else real
-    names: list[str] = []
-    seen: set[str] = set()
-    for s in picked:
-        if s.name is None or s.name.startswith('Perform'):
-            continue
-        if s.name not in seen:
-            seen.add(s.name)
-            names.append(s.name)
-    return names
+
+    def names(seq) -> list[str]:
+        out: list[str] = []
+        seen: set[str] = set()
+        for s in seq:
+            if s.name is None or s.name.startswith('Perform'):
+                continue
+            if s.name not in seen:
+                seen.add(s.name)
+                out.append(s.name)
+        return out
+
+    if not any(s.prepared is not None for s in real):
+        return {'prepared_spells': names(real)}
+
+    def lvl(s) -> int:
+        return s.level or 0
+
+    # Progression-sourced leveled spells (source 0/1/2: class, subclass, race),
+    # grouped by source. The source NUMBER does not uniformly mean
+    # chosen-vs-locked across classes (a cleric's chosen spells are source 0
+    # while a warlock's known spells are source 1), so the player's managed
+    # list is taken to be the largest progression group; the rest are
+    # always-prepared grants (a cleric's domain, a warlock's invocations).
+    prog: dict[int, list] = {}
+    for s in real:
+        if s.prepared and s.source is not None and 0 <= s.source < 3 and lvl(s) >= 1:
+            prog.setdefault(s.source, []).append(s)
+
+    groups: dict[str, list[str]] = {'prepared_spells': []}
+    if prog:
+        headline = max(prog, key=lambda k: len(names(prog[k])))
+        groups['prepared_spells'] = names(prog[headline])
+        always = names(s for k, seq in prog.items() if k != headline for s in seq)
+        if always:
+            groups['always_prepared'] = always
+
+    items = names(s for s in real if s.prepared and s.source == 3 and lvl(s) >= 1)
+    cantrips = names(s for s in real if s.prepared and s.level == 0)
+    other = names(
+        s
+        for s in real
+        if s.prepared and lvl(s) >= 1 and (s.source is None or s.source >= 4) and s.source != 3
+    )
+    if cantrips:
+        groups['cantrips'] = cantrips
+    if items:
+        groups['item_spells'] = items
+    if other:
+        groups['other_prepared'] = other
+    return groups
 
 
 def feat_label(feat: dict) -> str:
@@ -184,11 +229,14 @@ def character_view(
     undetermined = [item_view(r, dn, fx) for r in char.undetermined if keep_item(r, dn, items)]
     if undetermined:
         out['undetermined'] = undetermined
-    spells = prepared_spell_names(char)
-    if spells:
-        out['prepared_spells'] = spells
+    groups = prepared_spell_groups(char)
+    if groups.get('prepared_spells'):
+        out['prepared_spells'] = groups['prepared_spells']
     elif char.spells_note:
         out['spells_note'] = char.spells_note
+    for key in ('always_prepared', 'cantrips', 'item_spells', 'other_prepared'):
+        if groups.get(key):
+            out[key] = groups[key]
     if char.concentration:
         out['concentrating_on'] = char.concentration.get('name') or char.concentration.get('id')
     return out

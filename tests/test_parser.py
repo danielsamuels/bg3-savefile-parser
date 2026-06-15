@@ -977,6 +977,78 @@ def test_parse_lsmf_spellbooks_direct():
     assert {'Warlock', 'Barbarian', 'Cleric', 'Fighter'} <= named
 
 
+def test_prepared_spells_source_types_resolve():
+    """parse_lsmf_prepared_spells must dereference the SpellSourceType: class (0)
+    and subclass (1) progression values live just past the indexed ESourceType
+    rows, so a row-table lookup misses them and collapses to -1. The deref must
+    recover them — both 0 and 1 must appear, and -1 must be rare."""
+    frames = parser.extract_frames(QUICKSAVE_MAIA)
+    nodes0 = lsf.parse_lsof(lsf.decomp_frame(frames['Globals.lsf']))
+    blob = next(
+        nd['attrs']['NewAge'] for nd in nodes0 if nd['name'] == 'NewAge' and nd['parent'] == -1
+    )
+    prep = lsmf.parse_lsmf_prepared_spells(blob)
+    sources = [st for entries in prep.values() for _n, st, _g in entries]
+    assert sources, 'expected prepared-spell entries'
+    present = set(sources)
+    assert 0 in present and 1 in present, 'class (0) and subclass (1) must resolve'
+    assert sources.count(-1) / len(sources) < 0.05, 'almost nothing should be unresolved'
+
+
+def test_prepared_spell_groups_split_chosen_from_always_prepared():
+    """A domain cleric's chosen spells, always-prepared domain spells, and
+    cantrips must land in distinct groups. QuickSave_Maia's Shadowheart is a
+    Trickery Domain cleric: the domain set (Disguise Self, Pass Without Trace,
+    Mirror Image, Polymorph) is always-prepared and must never appear in the
+    player-chosen 'prepared_spells' list."""
+    model = parser.gather_report(QUICKSAVE_MAIA)
+    sh = next(c for c in model.characters if c.name == 'Shadowheart')
+    groups = report_views.prepared_spell_groups(sh)
+    chosen = set(groups['prepared_spells'])
+    always = set(groups.get('always_prepared', []))
+    cantrips = set(groups.get('cantrips', []))
+
+    # Trickery Domain (subclass) spells are always-prepared, not chosen.
+    domain = {'Disguise Self', 'Pass Without Trace', 'Mirror Image', 'Polymorph'}
+    assert domain <= always
+    assert not (domain & chosen)
+    # Genuinely chosen leveled spells head the prepared list.
+    assert {'Spirit Guardians', 'Banishment', 'Spiritual Weapon'} <= chosen
+    # Cantrips are their own group and never count as prepared.
+    assert 'Sacred Flame' in cantrips
+    assert 'Sacred Flame' not in chosen
+    # The three groups are pairwise disjoint.
+    assert not (chosen & always) and not (chosen & cantrips) and not (always & cantrips)
+
+
+def test_prepared_list_excludes_cantrips_and_actions():
+    """Every name in prepared_spells must be a leveled spell (level >= 1): no
+    cantrips, no basic actions, no item/weapon grants."""
+    model = parser.gather_report(QUICKSAVE_MAIA)
+    sh = next(c for c in model.characters if c.name == 'Shadowheart')
+    chosen = set(report_views.prepared_spell_groups(sh)['prepared_spells'])
+    assert chosen
+    # Every base spell-category entry whose name is in the prepared list must be
+    # leveled (>= 1). (Match category 'spell' only: sub-spells can share a name.)
+    leveled_matches = [s for s in sh.spells or [] if s.category == 'spell' and s.name in chosen]
+    assert leveled_matches
+    for s in leveled_matches:
+        assert (s.level or 0) >= 1
+
+
+def test_spell_level_for_resolves_cantrips_and_leveled():
+    """gamedata must expose spell levels: 0 for cantrips, the slot level for
+    leveled spells, None for non-spell abilities (Channel Divinity)."""
+    dn = gamedata.DisplayNames.load()
+    if not dn.available:
+        pytest.skip('no game data available')
+    assert dn.spell_level_for('Target_SacredFlame') == 0
+    assert dn.spell_level_for('Target_Banishment') == 4
+    assert dn.spell_level_for('Shout_TurnUndead') is None
+    # Upcast variants fall back to the base prototype.
+    assert dn.spell_level_for('Target_Banishment_5') == 4
+
+
 def test_stats_entity_link():
     """The template link must give the exact stats entity for every known character."""
     frames = parser.extract_frames(QUICKSAVE_MAIA)
@@ -1457,9 +1529,12 @@ def test_mcp_item_info_and_effects():
 
 
 def test_mcp_summary_spell_noise_and_feats():
-    """Summary prepared spells drop mod macros and performances; feats and
-    XP ride in the summary tier (QuickSave_341: Maia has camp-notification
-    mod macros, a lute, and two feats)."""
+    """Summary spell groups drop mod macros and performances; feats and XP ride
+    in the summary tier (QuickSave_341: Maia is a Battle Master Fighter with
+    camp-notification mod macros, a lute, and two feats). A martial build has no
+    prepared spellcasting, so 'prepared_spells' is absent — but the macros and
+    performances must not leak into any spell group, and Fire Bolt must be
+    grouped as a cantrip."""
     pytest.importorskip('mcp')
     from bg3parser import mcp_server
 
@@ -1467,9 +1542,12 @@ def test_mcp_summary_spell_noise_and_feats():
         str(FIXTURE_DIR / 'quicksave_341.lsv'), sections=['party'], quests=False
     )
     maia = next(c for c in report['party'] if c['name'].startswith('Maia'))
-    spells = maia.get('prepared_spells', [])
-    assert spells, 'expected prepared spells'
-    assert not any(s.startswith(('Shout_', 'Perform')) for s in spells)
+    spell_groups = ('prepared_spells', 'always_prepared', 'cantrips', 'item_spells')
+    all_spells = [name for key in spell_groups for name in maia.get(key, [])]
+    assert all_spells, 'expected at least one grouped spell'
+    raw_prefixes = ('Shout_', 'Target_', 'Projectile_', 'Perform')
+    assert not any(s.startswith(raw_prefixes) for s in all_spells)
+    assert 'Fire Bolt' in maia.get('cantrips', [])
     if mcp_server.shared_display_names().feat_names:
         assert any('(L' in f for f in maia.get('feats', []))
     assert isinstance(maia.get('xp'), int)

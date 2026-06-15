@@ -914,9 +914,11 @@ def parse_lsmf_prepared_spells(blob: bytes) -> dict[int, list[tuple[str, int, st
     ranges); the fourth range is the PreparedSpells array of 24-byte
     SpellMetaId records {string pointer, length, pad, detail pointer}. The
     detail record holds a pointer into the game.spell.v0.ESourceType value
-    pool (the SpellSourceType: 0/1/2 progression = class/subclass/race,
-    3 = item boost, 6 = base spell set, 7 = weapon attack) followed by the
-    ProgressionSource GUID.
+    pool followed by the ProgressionSource GUID. Dereferencing that pointer
+    yields the SpellSourceType: 0 = class, 1 = subclass, 2 = race,
+    3 = item boost, 6 = base spell set, 7 = weapon attack. Player-chosen
+    prepared spells are source 0; the always-prepared subclass set (e.g. a
+    cleric's domain spells) is source 1.
 
     The prepares ownerlist is written in an older entity numbering than the
     spell-book/classes ownerlists (rows shift as entities are created), so
@@ -925,20 +927,12 @@ def parse_lsmf_prepared_spells(blob: bytes) -> dict[int, list[tuple[str, int, st
     """
     idx = lsmf_component_index(blob)
     sp = idx.get('game.spell.v0.SpellBookPrepares')
-    et = idx.get('game.spell.v0.ESourceType')
-    if not (sp and et):
+    if not sp:
         return {}
     elem, rows, off, owners = sp
     if elem != 80:
         return {}
     L = len(blob)
-
-    e_elem, e_rows, e_off, _ = et
-    source_pool = {
-        e_off + r * e_elem - LSMF_HEAP_BASE: struct.unpack_from('<Q', blob, e_off + r * e_elem)[0]
-        for r in range(e_rows)
-        if e_off + (r + 1) * e_elem <= L
-    }
 
     def heap_str(ptr: int, ln: int) -> str | None:
         p0 = ptr + LSMF_HEAP_BASE
@@ -964,10 +958,17 @@ def parse_lsmf_prepared_spells(blob: bytes) -> dict[int, list[tuple[str, int, st
             source_type, source_guid = -1, ''
             d0 = detail + LSMF_HEAP_BASE
             if 0 < d0 <= L - 24:
-                eptr = struct.unpack_from('<Q', blob, d0)[0]
-                if eptr in source_pool:
-                    source_type = source_pool[eptr]
-                    source_guid = guid_le_str(blob[d0 + 8 : d0 + 24])
+                # The detail record is {pointer-into-ESourceType-pool, GUID}.
+                # Dereference the pointer to read the SpellSourceType value
+                # directly: the ESourceType component under-reports its row
+                # count, so the class(0)/subclass(1) values sit just past the
+                # indexed rows and a row-table lookup misses them.
+                eptr = struct.unpack_from('<Q', blob, d0)[0] + LSMF_HEAP_BASE
+                if 0 < eptr <= L - 8:
+                    val = struct.unpack_from('<Q', blob, eptr)[0]
+                    if val < 1024:  # plausible enum value, not a stray pointer
+                        source_type = val
+                        source_guid = guid_le_str(blob[d0 + 8 : d0 + 24])
             entries.append((name, source_type, source_guid))
         if entries and len(entries) > len(raw_map.get(ent, ())):
             raw_map[ent] = entries
