@@ -449,6 +449,64 @@ def collect_inventory_items(nodes: list[dict]) -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
+# Vendor stock (items generated for sale, not yet bought)
+# ---------------------------------------------------------------------------
+#
+# A merchant's auto-generated wares carry `UnsoldGenerated` on their Item node
+# and, like carried gear, share the seller's exact `Translate`.  So the for-sale
+# pool is "every UnsoldGenerated item", and each one attributes to its merchant
+# by matching its position against the character position map below — the same
+# position-based ownership the rest of the parser uses, no ECS decode required.
+
+
+def build_character_position_map(node_lists: list[list[dict]]) -> dict[tuple, str]:
+    """Map each character's exact Translate -> its CurrentTemplate GUID.
+
+    Pools every supplied node list (Globals and/or level caches); the first
+    character seen at a position wins. Used to name the merchant a vendor item
+    sits with.
+    """
+    out: dict[tuple, str] = {}
+    for nodes in node_lists:
+        root = next(
+            (i for i, nd in enumerate(nodes) if nd['name'] == 'Characters' and nd['parent'] == -1),
+            None,
+        )
+        if root is None:
+            continue
+        stack = list(nodes[root]['children'])
+        while stack:
+            nd = nodes[stack.pop()]
+            pos = nd['attrs'].get('Translate')
+            tmpl = nd['attrs'].get('CurrentTemplate', '')
+            if isinstance(pos, tuple) and tmpl:
+                out.setdefault(pos, tmpl)
+            stack.extend(nd['children'])
+    return out
+
+
+def collect_unsold_items(node_lists: list[list[dict]]) -> list[dict]:
+    """Every item flagged UnsoldGenerated (merchant stock not yet purchased).
+
+    Returns one {stats, template, pos} per physical instance; a stack of five
+    appears as five entries, so quantities come out by counting.
+    """
+    result: list[dict] = []
+    for nodes in node_lists:
+        for nd in nodes:
+            a = nd['attrs']
+            if a.get('UnsoldGenerated') is True and a.get('Stats'):
+                result.append(
+                    {
+                        'stats': a['Stats'],
+                        'template': a.get('CurrentTemplate', ''),
+                        'pos': a.get('Translate'),
+                    }
+                )
+    return result
+
+
+# ---------------------------------------------------------------------------
 # Per-character item attribution (position-based ownership)
 # ---------------------------------------------------------------------------
 #

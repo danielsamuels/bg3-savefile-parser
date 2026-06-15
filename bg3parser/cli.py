@@ -42,6 +42,11 @@ def main():
     ap.add_argument(
         '--all-items', action='store_true', help='include full item list for the current level'
     )
+    ap.add_argument(
+        '--vendors',
+        action='store_true',
+        help="list every merchant's for-sale stock (items generated and not yet bought)",
+    )
     ap.add_argument('--limits', action='store_true', help='include known limitations note')
     ap.add_argument(
         '--verbose',

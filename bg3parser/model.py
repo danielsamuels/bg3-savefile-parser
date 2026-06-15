@@ -46,6 +46,7 @@ from .party import (
     PARTY_ORIGINS,
     PLAYER_CHAR_TEMPLATES,
     PLAYER_ORIGINS,
+    build_character_position_map,
     build_entity_template_map,
     build_instance_entity_lists,
     build_template_stats_map,
@@ -56,6 +57,7 @@ from .party import (
     collect_inventory_items,
     collect_items_by_position,
     collect_status_equipped_items,
+    collect_unsold_items,
     ecs_resolve_equipped,
     equipment_cluster,
     find_camp_chest,
@@ -155,6 +157,16 @@ class LevelItemEntry:
 
 
 @dataclass
+class VendorEntry:
+    """One merchant's for-sale stock (items flagged UnsoldGenerated)."""
+
+    name: str | None  # merchant display name, None if unresolved/unattributed
+    template_guid: str  # merchant character template ('' = unattributed bucket)
+    total: int  # item count across the stock
+    items: list[ItemRef] = field(default_factory=list)
+
+
+@dataclass
 class SaveReport:
     source: str
     characters: list[CharacterReport] = field(default_factory=list)
@@ -163,6 +175,7 @@ class SaveReport:
     quests: dict | None = None
     story: dict | None = None
     level_items: dict | None = None
+    vendors: list[VendorEntry] | None = None
     inspect_pattern: str = ''
     names_resolved: bool = False
 
@@ -989,5 +1002,41 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
             'unique': len(counts),
             'entries': entries,
         }
+
+    # ---- Vendor stock (--vendors) -----------------------------------------
+    # Items the game generated for sale (UnsoldGenerated), attributed to the
+    # merchant they sit with by shared world position. The level caches are
+    # the canonical item pool (same source as --all-items); merchant character
+    # nodes there give each seller a name.
+    if opt('vendors'):
+        char_pos_map = build_character_position_map([nodes0] + all_lc_node_lists)
+        # Each physical seller is one position (a merchant's wares all share
+        # its world transform); items with no character there pool into a
+        # single unattributed bucket keyed on the sentinel position None.
+        by_pos: dict[object, dict[tuple[str, str], int]] = {}
+        for item in collect_unsold_items(all_lc_node_lists):
+            seller = item['pos'] if item['pos'] in char_pos_map else None
+            key = (item['stats'], item['template'])
+            counts_for = by_pos.setdefault(seller, {})
+            counts_for[key] = counts_for.get(key, 0) + 1
+
+        vendors: list[VendorEntry] = []
+        for pos, item_counts in by_pos.items():
+            merchant_guid = char_pos_map.get(pos, '') if pos is not None else ''
+            items = [
+                item_ref(stats, guid, count=count)
+                for (stats, guid), count in sorted(item_counts.items())
+            ]
+            vendors.append(
+                VendorEntry(
+                    name=dn.name_for('', merchant_guid) if merchant_guid else None,
+                    template_guid=merchant_guid,
+                    total=sum(item_counts.values()),
+                    items=items,
+                )
+            )
+        # Biggest shops first; the unattributed bucket (no template) sinks last.
+        vendors.sort(key=lambda v: (v.template_guid == '', -v.total, v.name or '~'))
+        report.vendors = vendors
 
     return report

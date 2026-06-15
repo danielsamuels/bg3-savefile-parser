@@ -1,0 +1,21 @@
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VENDOR STOCK  ({{ vendors_data.shops | length }} merchants)
+Each merchant's for-sale stock — items generated and not yet sold,
+attributed by shared world position, biggest shops first. Merchant names
+need the game data installed (otherwise internal template ids).
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{% for v in vendors_data.shops %}
+
+  {{ v.name }}  ({{ v.total }} item{{ 's' if v.total != 1 else '' }}):
+{% for label, lines in v.groups %}
+    {{ label }}:
+{% for line in lines %}
+      – {{ line }}
+{% endfor %}
+{% endfor %}
+{% endfor %}
+{% if vendors_data.omitted %}
+
+  (+{{ vendors_data.omitted }} ambient NPCs with trivial stock (<{{ vendor_min_stock }} items) omitted; use --json for the full set.)
+{% endif %}

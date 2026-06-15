@@ -152,6 +152,41 @@ def prepare_level_items(report: SaveReport, verbose: bool) -> list:
     return entries
 
 
+# A real merchant carries a stocked shelf; ambient NPCs/creatures carry a
+# stray generated tradeable (a torch, a banana, one creature-drop ingredient).
+# The text report shows only non-trivial stock; --json keeps every vendor.
+VENDOR_MIN_STOCK = 5
+
+
+def prepare_vendors(report: SaveReport, verbose: bool) -> dict:
+    """Pre-compute per-vendor stock (real shops only), grouped by category."""
+    if report.vendors is None:
+        return {'shops': [], 'omitted': 0}
+    shops = []
+    omitted = 0
+    for v in report.vendors:
+        if v.total < VENDOR_MIN_STOCK:
+            omitted += 1
+            continue
+        groups: list[tuple[str, list[str]]] = []
+        for key, label in CARRIED_GROUP_LABELS:
+            counts: Counter = Counter()
+            for i in v.items:
+                if i.category == key:
+                    counts[fmt_item(i, verbose)] += i.count
+            lines = [f'{lbl} x{n}' if n > 1 else lbl for lbl, n in sorted(counts.items())]
+            if lines:
+                groups.append((label, lines))
+        shops.append(
+            {
+                'name': v.name or ('Unknown merchant' if v.template_guid else 'Unattributed stock'),
+                'total': v.total,
+                'groups': groups,
+            }
+        )
+    return {'shops': shops, 'omitted': omitted}
+
+
 def make_jinja_env() -> Environment:
     """Create the Jinja2 environment with registered format filters."""
     env = Environment(
@@ -183,6 +218,7 @@ def render_text(report: SaveReport, opts=None) -> str:
         for char in report.characters
     ]
     level_items_entries = prepare_level_items(report, verbose=verbose)
+    vendors_data = prepare_vendors(report, verbose=verbose)
 
     # Camp chest contents, grouped like a carried inventory.
     camp_chest_groups: list[tuple[str, list[str]]] = []
@@ -230,6 +266,8 @@ def render_text(report: SaveReport, opts=None) -> str:
         chars_data=chars_data,
         camp_chest_groups=camp_chest_groups,
         level_items_entries=level_items_entries,
+        vendors_data=vendors_data,
+        vendor_min_stock=VENDOR_MIN_STOCK,
         spells_notes=SPELLS_NOTES,
         equipment_notes=EQUIPMENT_NOTES,
         fmt_item=fmt_item,
