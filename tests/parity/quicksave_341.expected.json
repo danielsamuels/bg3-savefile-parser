@@ -3222,248 +3222,330 @@
     {
      "category": "spell",
      "id": "Projectile_DisarmingAttack",
+     "level": null,
      "name": "Disarming Attack (Ranged)",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Projectile_FireBolt",
+     "level": 0,
      "name": "Fire Bolt",
-     "prepared": true
+     "prepared": true,
+     "source": 2
     },
     {
      "category": "spell",
      "id": "Projectile_HamstringShot",
+     "level": null,
      "name": "Hamstring Shot",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "basic-action",
      "id": "Projectile_Jump",
+     "level": null,
      "name": "Jump",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Projectile_MAG_PushingAttack",
+     "level": null,
      "name": "Pushing Attack (Ranged)",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "basic-action",
      "id": "Projectile_MainHandAttack",
+     "level": null,
      "name": "Ranged Attack",
-     "prepared": true
+     "prepared": true,
+     "source": 7
     },
     {
      "category": "spell",
      "id": "Projectile_MenacingAttack",
+     "level": null,
      "name": "Menacing Attack (Ranged)",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Projectile_TripAttack",
+     "level": null,
      "name": "Trip Attack (Ranged)",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Shout_ActionSurge",
+     "level": null,
      "name": "Action Surge",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "sub-spell",
      "id": "Shout_Bard_Perform_BardDance_Lute",
+     "level": null,
      "name": "Perform 'Bard Dance'",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "spell",
      "id": "Shout_Bard_Perform_Lute",
+     "level": null,
      "name": "Perform",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "sub-spell",
      "id": "Shout_Bard_Perform_Stargazing_Lute",
+     "level": null,
      "name": "Perform 'Old Time Battles'",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "sub-spell",
      "id": "Shout_Bard_Perform_ThePower_Lute",
+     "level": null,
      "name": "Perform 'The Power'",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "basic-action",
      "id": "Shout_Dash",
+     "level": null,
      "name": "Dash",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Shout_Disengage",
+     "level": null,
      "name": "Disengage",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Shout_Hide",
+     "level": null,
      "name": "Hide",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Shout_Macro_Mods_Camp_Night_Utils",
+     "level": null,
      "name": null,
-     "prepared": true
+     "prepared": true,
+     "source": 9
     },
     {
      "category": "spell",
      "id": "Shout_Macro_Mods_Change_Camp_Night_Notifications",
+     "level": null,
      "name": null,
-     "prepared": true
+     "prepared": true,
+     "source": 9
     },
     {
      "category": "spell",
      "id": "Shout_Macro_Mods_Purge_Camp_Night_Notifications",
+     "level": null,
      "name": null,
-     "prepared": true
+     "prepared": true,
+     "source": 9
     },
     {
      "category": "spell",
      "id": "Shout_PrecisionAttack",
+     "level": null,
      "name": "Precision Attack",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Shout_SecondWind",
+     "level": null,
      "name": "Second Wind",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Shout_SteadyRanged",
+     "level": null,
      "name": "Brace (Ranged)",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "spell",
      "id": "Shout_TAD_PsionicOverload",
+     "level": null,
      "name": "Psionic Overload",
-     "prepared": true
+     "prepared": true,
+     "source": 22
     },
     {
      "category": "basic-action",
      "id": "Target_Dip",
+     "level": null,
      "name": "Dip",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Target_DisarmingAttack",
+     "level": null,
      "name": "Disarming Attack (Melee)",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Target_FreedomOfMovement",
+     "level": 4,
      "name": "Freedom of Movement",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_GLO_DangerousBook_SpeakWithDead",
+     "level": 3,
      "name": "Speak with Dead",
-     "prepared": true
+     "prepared": true,
+     "source": 9
     },
     {
      "category": "basic-action",
      "id": "Target_Help",
+     "level": null,
      "name": "Help",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Target_MAG_HuntersMark_Grymskull",
+     "level": 1,
      "name": "Hunter's Mark",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "basic-action",
      "id": "Target_MainHandAttack",
+     "level": null,
      "name": "Main Hand Attack",
-     "prepared": true
+     "prepared": true,
+     "source": 7
     },
     {
      "category": "spell",
      "id": "Target_MenacingAttack",
+     "level": null,
      "name": "Menacing Attack (Melee)",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "basic-action",
      "id": "Target_Shove",
+     "level": null,
      "name": "Shove",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Target_TAD_ConcentratedBlast",
+     "level": null,
      "name": "Concentrated Blast",
-     "prepared": true
+     "prepared": true,
+     "source": 22
     },
     {
      "category": "spell",
      "id": "Target_TAD_ShieldOfThralls",
+     "level": null,
      "name": "Shield of Thralls",
-     "prepared": true
+     "prepared": true,
+     "source": 22
     },
     {
      "category": "spell",
      "id": "Target_TAD_TransfuseHealth",
+     "level": null,
      "name": "Transfuse Health",
-     "prepared": true
+     "prepared": true,
+     "source": 22
     },
     {
      "category": "spell",
      "id": "Target_TripAttack",
+     "level": null,
      "name": "Trip Attack (Melee)",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Target_UNI_MistyStep_NightWalkers",
+     "level": 2,
      "name": "Misty Step",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "basic-action",
      "id": "Throw_ImprovisedWeapon",
+     "level": null,
      "name": "Improvised Melee Weapon",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Throw_Throw",
+     "level": null,
      "name": "Throw",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Wall_WallOfFire",
+     "level": 4,
      "name": "Wall of Fire",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Zone_Cleave",
+     "level": null,
      "name": "Cleave",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     }
    ],
    "spells_note": null,
@@ -3826,1538 +3908,2050 @@
     {
      "category": "spell",
      "id": "Projectile_FireBolt",
+     "level": 0,
      "name": "Fire Bolt",
-     "prepared": true
+     "prepared": true,
+     "source": 2
     },
     {
      "category": "spell",
      "id": "Projectile_Fireball",
+     "level": 3,
      "name": "Fireball",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Projectile_Fireball_4",
+     "level": 3,
      "name": "Fireball",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Projectile_GuidingBolt",
+     "level": 1,
      "name": "Guiding Bolt",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Projectile_GuildingBolt_2",
+     "level": 1,
      "name": "Guiding Bolt",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Projectile_GuildingBolt_3",
+     "level": 1,
      "name": "Guiding Bolt",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Projectile_GuildingBolt_4",
+     "level": 1,
      "name": "Guiding Bolt",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Projectile_HamstringShot",
+     "level": null,
      "name": "Hamstring Shot",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "basic-action",
      "id": "Projectile_Jump",
+     "level": null,
      "name": "Jump",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Projectile_MainHandAttack",
+     "level": null,
      "name": "Ranged Attack",
-     "prepared": true
+     "prepared": true,
+     "source": 7
     },
     {
      "category": "spell",
      "id": "Projectile_ScorchingRay",
+     "level": 2,
      "name": "Scorching Ray",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Projectile_ScorchingRay_3",
+     "level": 2,
      "name": "Scorching Ray",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Projectile_ScorchingRay_4",
+     "level": 2,
      "name": "Scorching Ray",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Shout_Aid",
+     "level": 2,
      "name": "Aid",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Shout_Aid_3",
+     "level": 2,
      "name": "Aid",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Shout_Aid_4",
+     "level": 2,
      "name": "Aid",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Shout_BeaconOfHope",
+     "level": 3,
      "name": "Beacon of Hope",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Shout_BeaconOfHope_4",
+     "level": 3,
      "name": "Beacon of Hope",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Shout_BladeWard",
+     "level": 0,
      "name": "Blade Ward",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "basic-action",
      "id": "Shout_Dash",
+     "level": null,
      "name": "Dash",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Shout_Disengage",
+     "level": null,
      "name": "Disengage",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Shout_HealingWord_Mass",
+     "level": 3,
      "name": "Mass Healing Word",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Shout_HealingWord_Mass_4",
+     "level": 3,
      "name": "Mass Healing Word",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "basic-action",
      "id": "Shout_Hide",
+     "level": null,
      "name": "Hide",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Shout_MAG_Aid3_Self",
+     "level": 3,
      "name": "Shield of Devotion: Aid",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "spell",
      "id": "Shout_MAG_HealingWord_Mass",
+     "level": 3,
      "name": "Mass Healing Word",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "spell",
      "id": "Shout_PrayerOfHealing",
+     "level": 2,
      "name": "Prayer of Healing",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Shout_PrayerOfHealing_3",
+     "level": 2,
      "name": "Prayer of Healing",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Shout_PrayerOfHealing_4",
+     "level": 2,
      "name": "Prayer of Healing",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Shout_ProduceFlame",
+     "level": 0,
      "name": "Produce Flame",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Shout_RadianceOfTheDawn",
+     "level": null,
      "name": "Radiance of the Dawn",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Shout_SpiritGuardians",
+     "level": 3,
      "name": "Spirit Guardians",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "sub-spell",
      "id": "Shout_SpiritGuardians_Necrotic",
+     "level": 3,
      "name": "Spirit Guardians",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Shout_SpiritGuardians_Necrotic_4",
+     "level": 3,
      "name": "Spirit Guardians",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Shout_SpiritGuardians_Radiant",
+     "level": 3,
      "name": "Spirit Guardians",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Shout_SpiritGuardians_Radiant_4",
+     "level": 3,
      "name": "Spirit Guardians",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Shout_TurnUndead",
+     "level": null,
      "name": "Turn Undead",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Target_AnimateDead",
+     "level": 3,
      "name": "Animate Dead",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_AnimateDead_Skeleton",
+     "level": 3,
      "name": "Animate Dead: Skeleton",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_AnimateDead_Skeleton_4",
+     "level": 4,
      "name": "Animate Dead: Skeleton Squad",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_AnimateDead_Zombie",
+     "level": 3,
      "name": "Animate Dead: Zombie",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_AnimateDead_Zombie_4",
+     "level": 4,
      "name": "Animate Dead: Zombie Battalion",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Bane",
+     "level": 1,
      "name": "Bane",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Bane_2",
+     "level": 1,
      "name": "Bane",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Bane_3",
+     "level": 1,
      "name": "Bane",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Bane_4",
+     "level": 1,
      "name": "Bane",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Banishment",
+     "level": 4,
      "name": "Banishment",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Target_BestowCurse",
+     "level": 3,
      "name": "Bestow Curse",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_BestowCurse_4",
+     "level": 3,
      "name": "Bestow Curse",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_BestowCurse_Ability_Charisma",
+     "level": 3,
      "name": "Bestow Curse: Charisma Disadvantage",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_BestowCurse_Ability_Charisma_4",
+     "level": 3,
      "name": "Bestow Curse: Charisma Disadvantage",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_BestowCurse_Ability_Constitution",
+     "level": 3,
      "name": "Bestow Curse: Constitution Disadvantage",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_BestowCurse_Ability_Constitution_4",
+     "level": 3,
      "name": "Bestow Curse: Constitution Disadvantage",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_BestowCurse_Ability_Dexterity",
+     "level": 3,
      "name": "Bestow Curse: Dexterity Disadvantage",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_BestowCurse_Ability_Dexterity_4",
+     "level": 3,
      "name": "Bestow Curse: Dexterity Disadvantage",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_BestowCurse_Ability_Intelligence",
+     "level": 3,
      "name": "Bestow Curse: Intelligence Disadvantage",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_BestowCurse_Ability_Intelligence_4",
+     "level": 3,
      "name": "Bestow Curse: Intelligence Disadvantage",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_BestowCurse_Ability_Strength",
+     "level": 3,
      "name": "Bestow Curse: Strength Disadvantage",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_BestowCurse_Ability_Strength_4",
+     "level": 3,
      "name": "Bestow Curse: Strength Disadvantage",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_BestowCurse_Ability_Wisdom",
+     "level": 3,
      "name": "Bestow Curse: Wisdom Disadvantage",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_BestowCurse_Ability_Wisdom_4",
+     "level": 3,
      "name": "Bestow Curse: Wisdom Disadvantage",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_BestowCurse_Attack",
+     "level": 3,
      "name": "Bestow Curse: Attack Disadvantage",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_BestowCurse_Attack_4",
+     "level": 3,
      "name": "Bestow Curse: Attack Disadvantage",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_BestowCurse_ExtraDamage",
+     "level": 3,
      "name": "Bestow Curse: Additional Damage",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_BestowCurse_ExtraDamage_4",
+     "level": 3,
      "name": "Bestow Curse: Additional Damage",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_BestowCurse_SkipTurn",
+     "level": 3,
      "name": "Bestow Curse: Dread",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_BestowCurse_SkipTurn_4",
+     "level": 3,
      "name": "Bestow Curse: Dread",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Bless",
+     "level": 1,
      "name": "Bless",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Bless_2",
+     "level": 1,
      "name": "Bless",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Bless_3",
+     "level": 1,
      "name": "Bless",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Bless_4",
+     "level": 1,
      "name": "Bless",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Blindness",
+     "level": 2,
      "name": "Blindness",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Target_Blindness_3",
+     "level": 2,
      "name": "Blindness",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Target_Blindness_4",
+     "level": 2,
      "name": "Blindness",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Target_CalmEmotions",
+     "level": 2,
      "name": "Calm Emotions",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_CalmEmotions_3",
+     "level": 2,
      "name": "Calm Emotions",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_CalmEmotions_4",
+     "level": 2,
      "name": "Calm Emotions",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_Command_Approach",
+     "level": 1,
      "name": "Command: Approach",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_Command_Approach_2",
+     "level": 1,
      "name": "Command: Approach",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_Command_Approach_3",
+     "level": 1,
      "name": "Command: Approach",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_Command_Approach_4",
+     "level": 1,
      "name": "Command: Approach",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Command_Container",
+     "level": 1,
      "name": "Command",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Target_Command_Container_2",
+     "level": 1,
      "name": "Command",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Target_Command_Container_3",
+     "level": 1,
      "name": "Command",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Target_Command_Container_4",
+     "level": 1,
      "name": "Command",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "sub-spell",
      "id": "Target_Command_Drop",
+     "level": 1,
      "name": "Command: Drop",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_Command_Drop_2",
+     "level": 1,
      "name": "Command: Drop",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_Command_Drop_3",
+     "level": 1,
      "name": "Command: Drop",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_Command_Drop_4",
+     "level": 1,
      "name": "Command: Drop",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_Command_Flee",
+     "level": 1,
      "name": "Command: Flee",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_Command_Flee_2",
+     "level": 1,
      "name": "Command: Flee",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_Command_Flee_3",
+     "level": 1,
      "name": "Command: Flee",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_Command_Flee_4",
+     "level": 1,
      "name": "Command: Flee",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_Command_Grovel",
+     "level": 1,
      "name": "Command: Grovel",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_Command_Grovel_2",
+     "level": 1,
      "name": "Command: Grovel",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_Command_Grovel_3",
+     "level": 1,
      "name": "Command: Grovel",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_Command_Grovel_4",
+     "level": 1,
      "name": "Command: Grovel",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_Command_Halt",
+     "level": 1,
      "name": "Command: Halt",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_Command_Halt_2",
+     "level": 1,
      "name": "Command: Halt",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_Command_Halt_3",
+     "level": 1,
      "name": "Command: Halt",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_Command_Halt_4",
+     "level": 1,
      "name": "Command: Halt",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_ConcussiveSmash",
+     "level": null,
      "name": "Concussive Smash",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "spell",
      "id": "Target_CreateDestroyWater",
+     "level": 1,
      "name": "Create or Destroy Water",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_CreateWater",
+     "level": 1,
      "name": "Create Water",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_CreateWater_2",
+     "level": 1,
      "name": "Create Water",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_CreateWater_3",
+     "level": 1,
      "name": "Create Water",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_CreateWater_4",
+     "level": 1,
      "name": "Create Water",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_CureWounds",
+     "level": 1,
      "name": "Cure Wounds",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_CureWounds_2",
+     "level": 1,
      "name": "Cure Wounds",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_CureWounds_3",
+     "level": 1,
      "name": "Cure Wounds",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_CureWounds_4",
+     "level": 1,
      "name": "Cure Wounds",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_Daylight",
+     "level": 3,
      "name": "Daylight: Sphere",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "sub-spell",
      "id": "Target_Daylight_4",
+     "level": 3,
      "name": "Daylight: Sphere",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Target_Daylight_Container",
+     "level": 3,
      "name": "Daylight",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Target_Daylight_Container_4",
+     "level": 3,
      "name": "Daylight",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "sub-spell",
      "id": "Target_Daylight_Enchantment",
+     "level": 3,
      "name": "Daylight: Enchant Item",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "sub-spell",
      "id": "Target_Daylight_Enchantment_4",
+     "level": 3,
      "name": "Daylight: Enchant Item",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Target_DeathWard",
+     "level": 4,
      "name": "Death Ward",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_DestroyWater",
+     "level": 1,
      "name": "Destroy Water",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_DestroyWater_2",
+     "level": 1,
      "name": "Destroy Water",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_DestroyWater_3",
+     "level": 1,
      "name": "Destroy Water",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_DestroyWater_4",
+     "level": 1,
      "name": "Destroy Water",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "basic-action",
      "id": "Target_Dip",
+     "level": null,
      "name": "Dip",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Target_EnhanceAbility",
+     "level": 2,
      "name": "Enhance Ability",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Target_EnhanceAbility_3",
+     "level": 2,
      "name": "Enhance Ability",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Target_EnhanceAbility_4",
+     "level": 2,
      "name": "Enhance Ability",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "sub-spell",
      "id": "Target_EnhanceAbility_BearsEndurance",
+     "level": 2,
      "name": "Bear's Endurance",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_EnhanceAbility_BearsEndurance_3",
+     "level": 2,
      "name": "Bear's Endurance",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_EnhanceAbility_BearsEndurance_4",
+     "level": 2,
      "name": "Bear's Endurance",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_EnhanceAbility_BullsStrength",
+     "level": 2,
      "name": "Bull's Strength",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_EnhanceAbility_BullsStrength_3",
+     "level": 2,
      "name": "Bull's Strength",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_EnhanceAbility_BullsStrength_4",
+     "level": 2,
      "name": "Bull's Strength",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_EnhanceAbility_CatsGrace",
+     "level": 2,
      "name": "Cat's Grace",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_EnhanceAbility_CatsGrace_3",
+     "level": 2,
      "name": "Cat's Grace",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_EnhanceAbility_CatsGrace_4",
+     "level": 2,
      "name": "Cat's Grace",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_EnhanceAbility_EaglesSplendor",
+     "level": 2,
      "name": "Eagle's Splendour",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_EnhanceAbility_EaglesSplendor_3",
+     "level": 2,
      "name": "Eagle's Splendour",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_EnhanceAbility_EaglesSplendor_4",
+     "level": 2,
      "name": "Eagle's Splendour",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_EnhanceAbility_FoxsCunning",
+     "level": 2,
      "name": "Fox's Cunning",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_EnhanceAbility_FoxsCunning_3",
+     "level": 2,
      "name": "Fox's Cunning",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_EnhanceAbility_FoxsCunning_4",
+     "level": 2,
      "name": "Fox's Cunning",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_EnhanceAbility_OwlsWisdom",
+     "level": 2,
      "name": "Owl's Wisdom",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_EnhanceAbility_OwlsWisdom_3",
+     "level": 2,
      "name": "Owl's Wisdom",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_EnhanceAbility_OwlsWisdom_4",
+     "level": 2,
      "name": "Owl's Wisdom",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_FaerieFire",
+     "level": 1,
      "name": "Faerie Fire",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Target_FaerieFire_2",
+     "level": 1,
      "name": "Faerie Fire",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Target_FaerieFire_3",
+     "level": 1,
      "name": "Faerie Fire",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Target_FaerieFire_4",
+     "level": 1,
      "name": "Faerie Fire",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Target_FeignDeath",
+     "level": 3,
      "name": "Feign Death",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_FeignDeath_4",
+     "level": 3,
      "name": "Feign Death",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_FlamingSphere",
+     "level": 2,
      "name": "Flaming Sphere",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Target_FlamingSphere_3",
+     "level": 2,
      "name": "Flaming Sphere",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Target_FlamingSphere_4",
+     "level": 2,
      "name": "Flaming Sphere",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Target_GlyphOfWarding",
+     "level": 3,
      "name": "Glyph of Warding",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_GlyphOfWarding_Acid",
+     "level": 3,
      "name": "Glyph of Warding: Acid",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_GlyphOfWarding_Acid_4",
+     "level": 3,
      "name": "Glyph of Warding: Acid",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_GlyphOfWarding_Cold",
+     "level": 3,
      "name": "Glyph of Warding: Cold",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_GlyphOfWarding_Cold_4",
+     "level": 3,
      "name": "Glyph of Warding: Cold",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_GlyphOfWarding_Detonation",
+     "level": 3,
      "name": "Glyph of Warding: Detonation",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_GlyphOfWarding_Detonation_4",
+     "level": 3,
      "name": "Glyph of Warding: Detonation",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_GlyphOfWarding_Fire",
+     "level": 3,
      "name": "Glyph of Warding: Fire",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_GlyphOfWarding_Fire_4",
+     "level": 3,
      "name": "Glyph of Warding: Fire",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_GlyphOfWarding_Lightning",
+     "level": 3,
      "name": "Glyph of Warding: Lightning",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_GlyphOfWarding_Lightning_4",
+     "level": 3,
      "name": "Glyph of Warding: Lightning",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_GlyphOfWarding_Sleep",
+     "level": 3,
      "name": "Glyph of Warding: Sleep",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_GlyphOfWarding_Sleep_4",
+     "level": 3,
      "name": "Glyph of Warding: Sleep",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_GlyphOfWarding_Thunder",
+     "level": 3,
      "name": "Glyph of Warding: Thunder",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_GlyphOfWarding_Thunder_4",
+     "level": 3,
      "name": "Glyph of Warding: Thunder",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_GuardianOfFaith",
+     "level": 4,
      "name": "Guardian of Faith",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Target_Guidance",
+     "level": 0,
      "name": "Guidance",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Target_HealingWord",
+     "level": 1,
      "name": "Healing Word",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Target_HealingWord_2",
+     "level": 1,
      "name": "Healing Word",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Target_HealingWord_3",
+     "level": 1,
      "name": "Healing Word",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Target_HealingWord_4",
+     "level": 1,
      "name": "Healing Word",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "basic-action",
      "id": "Target_Help",
+     "level": null,
      "name": "Help",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Target_HoldPerson",
+     "level": 2,
      "name": "Hold Person",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_HoldPerson_3",
+     "level": 2,
      "name": "Hold Person",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_HoldPerson_4",
+     "level": 2,
      "name": "Hold Person",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_InflictWounds",
+     "level": 1,
      "name": "Inflict Wounds",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_InflictWounds_2",
+     "level": 1,
      "name": "Inflict Wounds",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_InflictWounds_3",
+     "level": 1,
      "name": "Inflict Wounds",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_InflictWounds_4",
+     "level": 1,
      "name": "Inflict Wounds",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_LesserRestoration",
+     "level": 2,
      "name": "Lesser Restoration",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_LesserRestoration_3",
+     "level": 2,
      "name": "Lesser Restoration",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_LesserRestoration_4",
+     "level": 2,
      "name": "Lesser Restoration",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Light",
+     "level": 0,
      "name": "Light",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Target_MAG_HealingWord",
+     "level": 1,
      "name": "Healing Word",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "spell",
      "id": "Target_MAG_HuntersMark",
+     "level": 1,
      "name": "Hunter's Mark",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "basic-action",
      "id": "Target_MainHandAttack",
+     "level": null,
      "name": "Main Hand Attack",
-     "prepared": true
+     "prepared": true,
+     "source": 7
     },
     {
      "category": "spell",
      "id": "Target_ProtectionFromEnergy",
+     "level": 3,
      "name": "Protection from Energy",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_ProtectionFromEnergy_Acid",
+     "level": 3,
      "name": "Protection from Energy: Acid",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_ProtectionFromEnergy_Acid_4",
+     "level": 3,
      "name": "Protection from Energy: Acid",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_ProtectionFromEnergy_Cold",
+     "level": 3,
      "name": "Protection from Energy: Cold",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_ProtectionFromEnergy_Cold_4",
+     "level": 3,
      "name": "Protection from Energy: Cold",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_ProtectionFromEnergy_Fire",
+     "level": 3,
      "name": "Protection from Energy: Fire",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_ProtectionFromEnergy_Fire_4",
+     "level": 3,
      "name": "Protection from Energy: Fire",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_ProtectionFromEnergy_Lightning",
+     "level": 3,
      "name": "Protection from Energy: Lightning",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_ProtectionFromEnergy_Lightning_4",
+     "level": 3,
      "name": "Protection from Energy: Lightning",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_ProtectionFromEnergy_Thunder",
+     "level": 3,
      "name": "Protection from Energy: Thunder",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_ProtectionFromEnergy_Thunder_4",
+     "level": 3,
      "name": "Protection from Energy: Thunder",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_ProtectionFromEvilAndGood",
+     "level": 1,
      "name": "Protection from Evil and Good",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_ProtectionFromEvilAndGood_2",
+     "level": 1,
      "name": "Protection from Evil and Good",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_ProtectionFromEvilAndGood_3",
+     "level": 1,
      "name": "Protection from Evil and Good",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_ProtectionFromEvilAndGood_4",
+     "level": 1,
      "name": "Protection from Evil and Good",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_ProtectionFromPoison",
+     "level": 2,
      "name": "Protection from Poison",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_ProtectionFromPoison_3",
+     "level": 2,
      "name": "Protection from Poison",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_ProtectionFromPoison_4",
+     "level": 2,
      "name": "Protection from Poison",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_RemoveCurse",
+     "level": 3,
      "name": "Remove Curse",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_RemoveCurse_4",
+     "level": 3,
      "name": "Remove Curse",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_SacredFlame",
+     "level": 0,
      "name": "Sacred Flame",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Target_Sanctuary",
+     "level": 1,
      "name": "Sanctuary",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Target_Sanctuary_2",
+     "level": 1,
      "name": "Sanctuary",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Target_Sanctuary_3",
+     "level": 1,
      "name": "Sanctuary",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Target_Sanctuary_4",
+     "level": 1,
      "name": "Sanctuary",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Target_ShieldOfFaith",
+     "level": 1,
      "name": "Shield of Faith",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_ShieldOfFaith_2",
+     "level": 1,
      "name": "Shield of Faith",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_ShieldOfFaith_3",
+     "level": 1,
      "name": "Shield of Faith",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_ShieldOfFaith_4",
+     "level": 1,
      "name": "Shield of Faith",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "basic-action",
      "id": "Target_Shove",
+     "level": null,
      "name": "Shove",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Target_Silence",
+     "level": 2,
      "name": "Silence",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Silence_3",
+     "level": 2,
      "name": "Silence",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Silence_4",
+     "level": 2,
      "name": "Silence",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_SpeakWithDead",
+     "level": 3,
      "name": "Speak with Dead",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_SpeakWithDead_4",
+     "level": 3,
      "name": "Speak with Dead",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_SpiritualWeapon",
+     "level": 2,
      "name": "Spiritual Weapon",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_SpiritualWeapon_Greataxe",
+     "level": 2,
      "name": "Spiritual Weapon: Greataxe",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_SpiritualWeapon_Greataxe_3",
+     "level": 2,
      "name": "Spiritual Weapon: Greataxe",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_SpiritualWeapon_Greataxe_4",
+     "level": 2,
      "name": "Spiritual Weapon: Greataxe",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_SpiritualWeapon_Greatsword",
+     "level": 2,
      "name": "Spiritual Weapon: Greatsword",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_SpiritualWeapon_Greatsword_3",
+     "level": 2,
      "name": "Spiritual Weapon: Greatsword",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_SpiritualWeapon_Greatsword_4",
+     "level": 2,
      "name": "Spiritual Weapon: Greatsword",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_SpiritualWeapon_Halberd",
+     "level": 2,
      "name": "Spiritual Weapon: Halberd",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_SpiritualWeapon_Halberd_3",
+     "level": 2,
      "name": "Spiritual Weapon: Halberd",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_SpiritualWeapon_Halberd_4",
+     "level": 2,
      "name": "Spiritual Weapon: Halberd",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_SpiritualWeapon_Maul",
+     "level": 2,
      "name": "Spiritual Weapon: Maul",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_SpiritualWeapon_Maul_3",
+     "level": 2,
      "name": "Spiritual Weapon: Maul",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_SpiritualWeapon_Maul_4",
+     "level": 2,
      "name": "Spiritual Weapon: Maul",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_SpiritualWeapon_Spear",
+     "level": 2,
      "name": "Spiritual Weapon: Spear",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_SpiritualWeapon_Spear_3",
+     "level": 2,
      "name": "Spiritual Weapon: Spear",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_SpiritualWeapon_Spear_4",
+     "level": 2,
      "name": "Spiritual Weapon: Spear",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_SpiritualWeapon_Trident",
+     "level": 2,
      "name": "Spiritual Weapon: Trident",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_SpiritualWeapon_Trident_3",
+     "level": 2,
      "name": "Spiritual Weapon: Trident",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_SpiritualWeapon_Trident_4",
+     "level": 2,
      "name": "Spiritual Weapon: Trident",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Topple",
+     "level": null,
      "name": "Topple",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_WardingBond",
+     "level": 2,
      "name": "Warding Bond",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_WardingBond_3",
+     "level": 2,
      "name": "Warding Bond",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_WardingBond_4",
+     "level": 2,
      "name": "Warding Bond",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Teleportation_Revivify",
+     "level": 3,
      "name": "Revivify",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Teleportation_Revivify_4",
+     "level": 3,
      "name": "Revivify",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "basic-action",
      "id": "Throw_ImprovisedWeapon",
+     "level": null,
      "name": "Improvised Melee Weapon",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Throw_Throw",
+     "level": null,
      "name": "Throw",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Zone_BurningHands",
+     "level": 1,
      "name": "Burning Hands",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Zone_BurningHands_2",
+     "level": 1,
      "name": "Burning Hands",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Zone_BurningHands_3",
+     "level": 1,
      "name": "Burning Hands",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Zone_BurningHands_4",
+     "level": 1,
      "name": "Burning Hands",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Zone_MAG_BloodOfLathander_Sunbeam",
+     "level": 6,
      "name": "Sunbeam",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     }
    ],
    "spells_note": null,
@@ -5732,188 +6326,250 @@
     {
      "category": "basic-action",
      "id": "Projectile_Jump",
+     "level": null,
      "name": "Jump",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Projectile_MainHandAttack",
+     "level": null,
      "name": "Ranged Attack",
-     "prepared": true
+     "prepared": true,
+     "source": 7
     },
     {
      "category": "spell",
      "id": "Projectile_PiercingShot",
+     "level": null,
      "name": "Piercing Shot",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "sub-spell",
      "id": "Projectile_Smite_Branding_ZarielTiefling",
+     "level": 2,
      "name": "Branding Smite (Ranged)",
-     "prepared": true
+     "prepared": true,
+     "source": 2
     },
     {
      "category": "spell",
      "id": "Rush_MAG_Barbarian_Armor_Trample",
+     "level": null,
      "name": "Bull Rush",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "spell",
      "id": "Shout_BootsOfSpeed",
+     "level": null,
      "name": "Click Heels",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "basic-action",
      "id": "Shout_Dash",
+     "level": null,
      "name": "Dash",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Shout_Disengage",
+     "level": null,
      "name": "Disengage",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Shout_Hide",
+     "level": null,
      "name": "Hide",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Shout_MAG_FlamingFist_ScoutRing_Blur",
+     "level": 2,
      "name": "Blur",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "spell",
      "id": "Shout_Rage_Totem_Tiger",
+     "level": null,
      "name": "Rage: Tiger Heart",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Shout_SpeakWithAnimals_Barbarian",
+     "level": 1,
      "name": "Speak with Animals",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Shout_SteadyRangedCrossbow",
+     "level": null,
      "name": "Brace (Ranged)",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "spell",
      "id": "Shout_Thaumaturgy",
+     "level": null,
      "name": "Thaumaturgy",
-     "prepared": true
+     "prepared": true,
+     "source": 2
     },
     {
      "category": "basic-action",
      "id": "Target_Dip",
+     "level": null,
      "name": "Dip",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Target_Help",
+     "level": null,
      "name": "Help",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Target_MAG_FlamingFist_ScoutRing_Invisibility",
+     "level": 2,
      "name": "Invisibility",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "basic-action",
      "id": "Target_MainHandAttack",
+     "level": null,
      "name": "Main Hand Attack",
-     "prepared": true
+     "prepared": true,
+     "source": 7
     },
     {
      "category": "spell",
      "id": "Target_PommelStrike",
+     "level": null,
      "name": "Pommel Strike",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "spell",
      "id": "Target_RecklessAttack",
+     "level": null,
      "name": "Reckless Attack",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "basic-action",
      "id": "Target_Shove",
+     "level": null,
      "name": "Shove",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "sub-spell",
      "id": "Target_Smite_Branding_ZarielTiefling",
+     "level": 2,
      "name": "Branding Smite (Melee)",
-     "prepared": true
+     "prepared": true,
+     "source": 2
     },
     {
      "category": "spell",
      "id": "Target_Smite_Branding_ZarielTiefling_Container",
+     "level": 2,
      "name": "Legacy of Avernus: Branding Smite",
-     "prepared": true
+     "prepared": true,
+     "source": 2
     },
     {
      "category": "spell",
      "id": "Target_Smite_Searing_ZarielTiefling",
+     "level": 1,
      "name": "Legacy of Avernus: Searing Smite",
-     "prepared": true
+     "prepared": true,
+     "source": 2
     },
     {
      "category": "spell",
      "id": "Target_UNI_MistyStep_DrowCommander_Amulet",
+     "level": 2,
      "name": "Misty Step",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "basic-action",
      "id": "Target_UnarmedAttack",
+     "level": null,
      "name": "Unarmed Strike",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "basic-action",
      "id": "Throw_ImprovisedWeapon",
+     "level": null,
      "name": "Improvised Melee Weapon",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Throw_Throw",
+     "level": null,
      "name": "Throw",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Zone_Cleave",
+     "level": null,
      "name": "Cleave",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "spell",
      "id": "Zone_Mag_WeaponAction_GiantBlade",
+     "level": null,
      "name": "Colossal Onslaught",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "spell",
      "id": "Zone_TigersBloodlust",
+     "level": null,
      "name": "Tiger's Bloodlust",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     }
    ],
    "spells_note": null,
@@ -6292,242 +6948,322 @@
     {
      "category": "spell",
      "id": "Projectile_EldritchBlast",
+     "level": 0,
      "name": "Eldritch Blast",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Projectile_Fireball_4",
+     "level": 3,
      "name": "Fireball",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Projectile_HamstringShot",
+     "level": null,
      "name": "Hamstring Shot",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "basic-action",
      "id": "Projectile_Jump",
+     "level": null,
      "name": "Jump",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Projectile_MainHandAttack",
+     "level": null,
      "name": "Ranged Attack",
-     "prepared": true
+     "prepared": true,
+     "source": 7
     },
     {
      "category": "spell",
      "id": "Projectile_ScorchingRay_CircletOfBlasting",
+     "level": 2,
      "name": "Scorching Ray",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Shout_ArmorOfAgathys_4",
+     "level": 1,
      "name": "Armour of Agathys",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Shout_BladeWard",
+     "level": 0,
      "name": "Blade Ward",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "basic-action",
      "id": "Shout_Dash",
+     "level": null,
      "name": "Dash",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Shout_Disengage",
+     "level": null,
      "name": "Disengage",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Shout_Hide",
+     "level": null,
      "name": "Hide",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Shout_MAG_SpellSlotRestoration_PearlOfPower",
+     "level": null,
      "name": "Pearlescent Restoration",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "sub-spell",
      "id": "Shout_MAG_SpellSlotRestoration_PearlOfPower_1",
+     "level": null,
      "name": "Pearlescent Restoration Level 1",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "sub-spell",
      "id": "Shout_MAG_SpellSlotRestoration_PearlOfPower_2",
+     "level": null,
      "name": "Pearlescent Restoration Level 2",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "sub-spell",
      "id": "Shout_MAG_SpellSlotRestoration_PearlOfPower_3",
+     "level": null,
      "name": "Pearlescent Restoration Level 3",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "spell",
      "id": "Shout_UND_Invisibility_ShadowOfMenzoberranzan",
+     "level": null,
      "name": "Shrouded in Shadow",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "spell",
      "id": "Target_CloudOfDaggers_4",
+     "level": 2,
      "name": "Cloud of Daggers",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Target_Counterspell_4",
+     "level": 3,
      "name": "Counterspell",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "basic-action",
      "id": "Target_Dip",
+     "level": null,
      "name": "Dip",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "sub-spell",
      "id": "Target_FindFamiliar_Cat_Ritual",
+     "level": 1,
      "name": "Find Familiar: Cat",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "sub-spell",
      "id": "Target_FindFamiliar_Crab_Ritual",
+     "level": 1,
      "name": "Find Familiar: Crab",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "sub-spell",
      "id": "Target_FindFamiliar_Frog_Ritual",
+     "level": 1,
      "name": "Find Familiar: Frog",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "sub-spell",
      "id": "Target_FindFamiliar_Rat_Ritual",
+     "level": 1,
      "name": "Find Familiar: Rat",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "sub-spell",
      "id": "Target_FindFamiliar_Raven_Ritual",
+     "level": 1,
      "name": "Find Familiar: Raven",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Target_FindFamiliar_Ritual",
+     "level": 1,
      "name": "Find Familiar",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "sub-spell",
      "id": "Target_FindFamiliar_Spider_Ritual",
+     "level": 1,
      "name": "Find Familiar: Spider",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "basic-action",
      "id": "Target_Help",
+     "level": null,
      "name": "Help",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Target_HungerOfHadar_4",
+     "level": 3,
      "name": "Hunger of Hadar",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Target_MinorIllusion",
+     "level": 0,
      "name": "Minor Illusion",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Target_MistyStep_4",
+     "level": 2,
      "name": "Misty Step",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "sub-spell",
      "id": "Target_PactOfTheChain_Imp",
+     "level": 1,
      "name": "Find Familiar: Imp",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "sub-spell",
      "id": "Target_PactOfTheChain_Quasit",
+     "level": 1,
      "name": "Find Familiar: Quasit",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Target_Polymorph",
+     "level": 4,
      "name": "Polymorph",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "basic-action",
      "id": "Target_Shove",
+     "level": null,
      "name": "Shove",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Target_Slash_New",
+     "level": null,
      "name": "Lacerate",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_SurvivalInstinct",
+     "level": null,
      "name": "Survival Instinct",
-     "prepared": true
+     "prepared": true,
+     "source": 9
     },
     {
      "category": "spell",
      "id": "Teleportation_DimensionDoor",
+     "level": 4,
      "name": "Dimension Door",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "basic-action",
      "id": "Throw_ImprovisedWeapon",
+     "level": null,
      "name": "Improvised Melee Weapon",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Throw_Throw",
+     "level": null,
      "name": "Throw",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Wall_WallOfFire",
+     "level": 4,
      "name": "Wall of Fire",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     }
    ],
    "spells_note": null,
@@ -6792,128 +7528,170 @@
     {
      "category": "spell",
      "id": "Projectile_FireBolt",
+     "level": 0,
      "name": "Fire Bolt",
-     "prepared": true
+     "prepared": true,
+     "source": 2
     },
     {
      "category": "basic-action",
      "id": "Projectile_Jump",
+     "level": null,
      "name": "Jump",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Projectile_MainHandAttack",
+     "level": null,
      "name": "Ranged Attack",
-     "prepared": true
+     "prepared": true,
+     "source": 7
     },
     {
      "category": "spell",
      "id": "Projectile_PiercingShot",
+     "level": null,
      "name": "Piercing Shot",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "basic-action",
      "id": "Shout_Dash",
+     "level": null,
      "name": "Dash",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Shout_Dash_CunningAction",
+     "level": null,
      "name": "Cunning Action: Dash",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "basic-action",
      "id": "Shout_Disengage",
+     "level": null,
      "name": "Disengage",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Shout_Disengage_CunningAction",
+     "level": null,
      "name": "Cunning Action: Disengage",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "basic-action",
      "id": "Shout_Hide",
+     "level": null,
      "name": "Hide",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Shout_Hide_BonusAction",
+     "level": null,
      "name": "Cunning Action: Hide",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "basic-action",
      "id": "Target_Dip",
+     "level": null,
      "name": "Dip",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Target_Help",
+     "level": null,
      "name": "Help",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Target_MainHandAttack",
+     "level": null,
      "name": "Main Hand Attack",
-     "prepared": true
+     "prepared": true,
+     "source": 7
     },
     {
      "category": "spell",
      "id": "Target_MistyStep",
+     "level": 2,
      "name": "Misty Step",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_MistyStep_3",
+     "level": 2,
      "name": "Misty Step",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_OpeningAttack",
+     "level": null,
      "name": "Flourish",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "spell",
      "id": "Target_PiercingThrust",
+     "level": null,
      "name": "Piercing Strike",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "basic-action",
      "id": "Target_Shove",
+     "level": null,
      "name": "Shove",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Target_VampireBite_Astarion",
+     "level": null,
      "name": "Vampire Bite",
-     "prepared": true
+     "prepared": true,
+     "source": 9
     },
     {
      "category": "basic-action",
      "id": "Throw_ImprovisedWeapon",
+     "level": null,
      "name": "Improvised Melee Weapon",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Throw_Throw",
+     "level": null,
      "name": "Throw",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     }
    ],
    "spells_note": null,
@@ -7208,572 +7986,762 @@
     {
      "category": "spell",
      "id": "Projectile_FireBolt",
+     "level": 0,
      "name": "Fire Bolt",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Projectile_Fireball",
+     "level": 3,
      "name": "Fireball",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Projectile_IceKnife",
+     "level": 1,
      "name": "Ice Knife",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Projectile_IceKnife_2",
+     "level": 1,
      "name": "Ice Knife",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Projectile_IceKnife_3",
+     "level": 1,
      "name": "Ice Knife",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "basic-action",
      "id": "Projectile_Jump",
+     "level": null,
      "name": "Jump",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Projectile_MagicMissile",
+     "level": 1,
      "name": "Magic Missile",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Projectile_MagicMissile_2",
+     "level": 1,
      "name": "Magic Missile",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Projectile_MagicMissile_3",
+     "level": 1,
      "name": "Magic Missile",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "basic-action",
      "id": "Projectile_MainHandAttack",
+     "level": null,
      "name": "Ranged Attack",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Projectile_RayOfEnfeeblement",
+     "level": 2,
      "name": "Ray of Enfeeblement",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Projectile_RayOfEnfeeblement_3",
+     "level": 2,
      "name": "Ray of Enfeeblement",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Projectile_RayOfFrost",
+     "level": 0,
      "name": "Ray of Frost",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Projectile_RayOfSickness",
+     "level": 1,
      "name": "Ray of Sickness",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Projectile_RayOfSickness_2",
+     "level": 1,
      "name": "Ray of Sickness",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Projectile_RayOfSickness_3",
+     "level": 1,
      "name": "Ray of Sickness",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Projectile_ScorchingRay",
+     "level": 2,
      "name": "Scorching Ray",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Projectile_ScorchingRay_3",
+     "level": 2,
      "name": "Scorching Ray",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Projectile_WitchBolt",
+     "level": 1,
      "name": "Witch Bolt",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Projectile_WitchBolt_2",
+     "level": 1,
      "name": "Witch Bolt",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Projectile_WitchBolt_3",
+     "level": 1,
      "name": "Witch Bolt",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Shout_ArcaneRecovery",
+     "level": null,
      "name": "Arcane Recovery",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "sub-spell",
      "id": "Shout_ArcaneRecovery_1",
+     "level": null,
      "name": "Arcane Recovery: Level 1",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "sub-spell",
      "id": "Shout_ArcaneRecovery_2",
+     "level": null,
      "name": "Arcane Recovery: Level 2",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "sub-spell",
      "id": "Shout_ArcaneRecovery_3",
+     "level": null,
      "name": "Arcane Recovery: Level 3",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Shout_Blink",
+     "level": 3,
      "name": "Blink",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Shout_Blur",
+     "level": 2,
      "name": "Blur",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Shout_Blur_3",
+     "level": 2,
      "name": "Blur",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "basic-action",
      "id": "Shout_Dash",
+     "level": null,
      "name": "Dash",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Shout_DetectThoughts",
+     "level": 2,
      "name": "Detect Thoughts",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Shout_DetectThoughts_3",
+     "level": 2,
      "name": "Detect Thoughts",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "basic-action",
      "id": "Shout_Disengage",
+     "level": null,
      "name": "Disengage",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Shout_FeatherFall",
+     "level": 1,
      "name": "Feather Fall",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Shout_FeatherFall_2",
+     "level": 1,
      "name": "Feather Fall",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Shout_FeatherFall_3",
+     "level": 1,
      "name": "Feather Fall",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "basic-action",
      "id": "Shout_Hide",
+     "level": null,
      "name": "Hide",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Shout_MirrorImage",
+     "level": 2,
      "name": "Mirror Image",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Shout_MirrorImage_3",
+     "level": 2,
      "name": "Mirror Image",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Shout_Shield_Wizard",
+     "level": 1,
      "name": "Shield",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Shout_Shield_Wizard_2",
+     "level": 1,
      "name": "Shield",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Shout_Shield_Wizard_3",
+     "level": 1,
      "name": "Shield",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Target_AnimateDead",
+     "level": 3,
      "name": "Animate Dead",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_AnimateDead_Skeleton",
+     "level": 3,
      "name": "Animate Dead: Skeleton",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "sub-spell",
      "id": "Target_AnimateDead_Zombie",
+     "level": 3,
      "name": "Animate Dead: Zombie",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_CloudOfDaggers",
+     "level": 2,
      "name": "Cloud of Daggers",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Target_CloudOfDaggers_3",
+     "level": 2,
      "name": "Cloud of Daggers",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Target_ConcussiveSmash",
+     "level": null,
      "name": "Concussive Smash",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "spell",
      "id": "Target_Counterspell",
+     "level": 3,
      "name": "Counterspell",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Darkness",
+     "level": 2,
      "name": "Darkness",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Darkness_3",
+     "level": 2,
      "name": "Darkness",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "basic-action",
      "id": "Target_Dip",
+     "level": null,
      "name": "Dip",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Target_END_Gale_ActivateNethereseOrb",
+     "level": null,
      "name": "Netherese Orb Blast",
-     "prepared": true
+     "prepared": true,
+     "source": 9
     },
     {
      "category": "spell",
      "id": "Target_FOR_ThayanCellar_SummonQuasit",
+     "level": 1,
      "name": "Find Familiar: Cheeky Quasit",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Fly",
+     "level": 3,
      "name": "Grant Flight",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_FogCloud",
+     "level": 1,
      "name": "Fog Cloud",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_FogCloud_2",
+     "level": 1,
      "name": "Fog Cloud",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_FogCloud_3",
+     "level": 1,
      "name": "Fog Cloud",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Grease",
+     "level": 1,
      "name": "Grease",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Grease_2",
+     "level": 1,
      "name": "Grease",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Grease_3",
+     "level": 1,
      "name": "Grease",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Haste",
+     "level": 3,
      "name": "Haste",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "basic-action",
      "id": "Target_Help",
+     "level": null,
      "name": "Help",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Target_HoldPerson",
+     "level": 2,
      "name": "Hold Person",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_HoldPerson_3",
+     "level": 2,
      "name": "Hold Person",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Invisibility",
+     "level": 2,
      "name": "Invisibility",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Invisibility_3",
+     "level": 2,
      "name": "Invisibility",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_MAG_EnsnaringStrike_Shield",
+     "level": 1,
      "name": "Woad's Ensnaring Strike",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "spell",
      "id": "Target_MageArmor",
+     "level": 1,
      "name": "Mage Armour",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Target_MageArmor_2",
+     "level": 1,
      "name": "Mage Armour",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Target_MageArmor_3",
+     "level": 1,
      "name": "Mage Armour",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Target_MageHand",
+     "level": 0,
      "name": "Mage Hand",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Target_MagicWeapon",
+     "level": 2,
      "name": "Magic Weapon",
-     "prepared": true
+     "prepared": true,
+     "source": 18
     },
     {
      "category": "spell",
      "id": "Target_MagicWeapon_3",
+     "level": 2,
      "name": "Magic Weapon",
-     "prepared": true
+     "prepared": true,
+     "source": 18
     },
     {
      "category": "basic-action",
      "id": "Target_MainHandAttack",
+     "level": null,
      "name": "Main Hand Attack",
-     "prepared": true
+     "prepared": true,
+     "source": 7
     },
     {
      "category": "spell",
      "id": "Target_MinorIllusion",
+     "level": 0,
      "name": "Minor Illusion",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Target_ProtectionFromEvilAndGood",
+     "level": 1,
      "name": "Protection from Evil and Good",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_ProtectionFromEvilAndGood_2",
+     "level": 1,
      "name": "Protection from Evil and Good",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_ProtectionFromEvilAndGood_3",
+     "level": 1,
      "name": "Protection from Evil and Good",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Shatter",
+     "level": 2,
      "name": "Shatter",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "spell",
      "id": "Target_Shatter_3",
+     "level": 2,
      "name": "Shatter",
-     "prepared": true
+     "prepared": true,
+     "source": 1
     },
     {
      "category": "basic-action",
      "id": "Target_Shove",
+     "level": null,
      "name": "Shove",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Target_Sleep",
+     "level": 1,
      "name": "Sleep",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Sleep_2",
+     "level": 1,
      "name": "Sleep",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Sleep_3",
+     "level": 1,
      "name": "Sleep",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_SleetStorm",
+     "level": 3,
      "name": "Sleet Storm",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Target_Slow",
+     "level": 3,
      "name": "Slow",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "basic-action",
      "id": "Throw_ImprovisedWeapon",
+     "level": null,
      "name": "Improvised Melee Weapon",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Throw_Throw",
+     "level": null,
      "name": "Throw",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Zone_BurningHands",
+     "level": 1,
      "name": "Burning Hands",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Zone_BurningHands_2",
+     "level": 1,
      "name": "Burning Hands",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Zone_BurningHands_3",
+     "level": 1,
      "name": "Burning Hands",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Zone_Fear",
+     "level": 3,
      "name": "Fear",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "spell",
      "id": "Zone_Thunderwave",
+     "level": 1,
      "name": "Thunderwave",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Zone_Thunderwave_2",
+     "level": 1,
      "name": "Thunderwave",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Zone_Thunderwave_3",
+     "level": 1,
      "name": "Thunderwave",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     }
    ],
    "spells_note": null,
@@ -7994,116 +8962,154 @@
     {
      "category": "basic-action",
      "id": "Projectile_Jump",
+     "level": null,
      "name": "Jump",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Shout_DEN_Halsin_WildShape_Bear",
+     "level": null,
      "name": "Wild Shape: Cave Bear",
-     "prepared": true
+     "prepared": true,
+     "source": 5
     },
     {
      "category": "basic-action",
      "id": "Shout_Dash",
+     "level": null,
      "name": "Dash",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Shout_Disengage",
+     "level": null,
      "name": "Disengage",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Shout_Hide",
+     "level": null,
      "name": "Hide",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Target_CallLightning",
+     "level": 3,
      "name": "Call Lightning",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "basic-action",
      "id": "Target_Dip",
+     "level": null,
      "name": "Dip",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Target_HealingWord",
+     "level": 1,
      "name": "Healing Word",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "basic-action",
      "id": "Target_Help",
+     "level": null,
      "name": "Help",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Target_MainHandAttack",
+     "level": null,
      "name": "Main Hand Attack",
-     "prepared": true
+     "prepared": true,
+     "source": 7
     },
     {
      "category": "spell",
      "id": "Target_MistyStep",
+     "level": 2,
      "name": "Misty Step",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "spell",
      "id": "Target_MistyStep_3",
+     "level": 2,
      "name": "Misty Step",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "basic-action",
      "id": "Target_Shove",
+     "level": null,
      "name": "Shove",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Target_Topple",
+     "level": null,
      "name": "Topple",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "basic-action",
      "id": "Throw_ImprovisedWeapon",
+     "level": null,
      "name": "Improvised Melee Weapon",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Throw_Throw",
+     "level": null,
      "name": "Throw",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Zone_Thunderwave",
+     "level": 1,
      "name": "Thunderwave",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "spell",
      "id": "Zone_Thunderwave_2",
+     "level": 1,
      "name": "Thunderwave",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "spell",
      "id": "Zone_Thunderwave_3",
+     "level": 1,
      "name": "Thunderwave",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     }
    ],
    "spells_note": null,

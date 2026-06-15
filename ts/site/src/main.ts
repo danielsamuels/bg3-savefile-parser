@@ -229,24 +229,93 @@ function renderSaveHead(si: SaveInfo, sourceName: string, thumbUrl: string | nul
   </header>`;
 }
 
+/** Group castable spells the way the game's UI does, mirroring
+ *  bg3parser/report_views.py prepared_spell_groups. 'prepared' is the
+ *  player-chosen leveled list; the rest are castable but not chosen. */
+function groupSpells(spells: SpellRef[]): {
+  prepared: string[];
+  always: string[];
+  cantrips: string[];
+  items: string[];
+  other: string[];
+} {
+  const real = spells.filter((s) => s.category === 'spell');
+  const dedup = (seq: SpellRef[]): string[] => {
+    const out: string[] = [];
+    const seen = new Set<string>();
+    for (const s of seq) {
+      const n = s.name;
+      if (!n || n.startsWith('Perform') || seen.has(n)) continue;
+      seen.add(n);
+      out.push(n);
+    }
+    return out;
+  };
+  if (!real.some((s) => s.prepared !== null)) {
+    return { prepared: dedup(real).sort(), always: [], cantrips: [], items: [], other: [] };
+  }
+  const lvl = (s: SpellRef): number => s.level ?? 0;
+
+  // Progression-sourced leveled spells (source 0/1/2), grouped by source. The
+  // source number does not uniformly mean chosen-vs-locked across classes, so
+  // the player's managed list is taken to be the largest progression group;
+  // the rest are always-prepared grants.
+  const prog = new Map<number, SpellRef[]>();
+  for (const s of real) {
+    if (s.prepared && s.source !== null && s.source >= 0 && s.source < 3 && lvl(s) >= 1) {
+      if (!prog.has(s.source)) prog.set(s.source, []);
+      prog.get(s.source)!.push(s);
+    }
+  }
+  let prepared: string[] = [];
+  let always: string[] = [];
+  if (prog.size) {
+    let headline = -1;
+    let best = -1;
+    for (const [k, seq] of prog) {
+      const c = dedup(seq).length;
+      if (c > best) {
+        best = c;
+        headline = k;
+      }
+    }
+    prepared = dedup(prog.get(headline)!).sort();
+    const alwaysRefs: SpellRef[] = [];
+    for (const [k, seq] of prog) if (k !== headline) alwaysRefs.push(...seq);
+    always = dedup(alwaysRefs).sort();
+  }
+  const items = dedup(real.filter((s) => s.prepared && s.source === 3 && lvl(s) >= 1)).sort();
+  const cantrips = dedup(real.filter((s) => s.prepared && s.level === 0)).sort();
+  const other = dedup(
+    real.filter(
+      (s) => s.prepared && lvl(s) >= 1 && (s.source === null || s.source >= 4) && s.source !== 3,
+    ),
+  ).sort();
+  return { prepared, always, cantrips, items, other };
+}
+
 function renderSpells(spells: SpellRef[]): string {
   const labels = (cat: string): string[] =>
     [...new Set(spells.filter((s) => s.category === cat).map((s) => s.name ?? s.id))].sort();
-  const shown = labels('spell');
   const sub = labels('sub-spell');
   const basic = labels('basic-action');
-  if (!shown.length && !sub.length && !basic.length) return '';
-
-  // A display name is prepared when any of its refs (upcast variants share
-  // a name) is prepared; null preparation data hides the markers entirely.
-  const preparedNames = new Set(
-    spells.filter((s) => s.prepared && s.category === 'spell').map((s) => s.name ?? s.id),
-  );
-  const hasPrepData = spells.some((s) => s.prepared !== null);
-  const preparedShown = shown.filter((n) => preparedNames.has(n));
+  const g = groupSpells(spells);
+  if (
+    !g.prepared.length &&
+    !g.always.length &&
+    !g.cantrips.length &&
+    !g.items.length &&
+    !g.other.length &&
+    !sub.length &&
+    !basic.length
+  ) {
+    return '';
+  }
 
   const foldNote = [
-    hasPrepData && preparedShown.length ? `${preparedShown.length} prepared` : '',
+    g.always.length ? `${g.always.length} always prepared` : '',
+    g.cantrips.length ? `${g.cantrips.length} cantrips` : '',
+    g.items.length ? `${g.items.length} from items` : '',
     sub.length ? `+${sub.length} sub-spells` : '',
     basic.length ? `+${basic.length} basic actions` : '',
   ]
@@ -259,17 +328,22 @@ function renderSpells(spells: SpellRef[]): string {
          <ul class="items">${list.map((n) => `<li>${esc(n)}</li>`).join('')}</ul></details>`
       : '';
 
+  const preparedBlock = g.prepared.length
+    ? `<ul class="items">${g.prepared
+        .map((n) => `<li class="prep" title="prepared">${esc(n)}</li>`)
+        .join('')}</ul>`
+    : '<p class="char-note">No prepared spells.</p>';
+
   return `<details class="fold">
-    <summary>Spells &amp; abilities <span class="count">${shown.length}</span>${
+    <summary>Spells &amp; abilities <span class="count">${g.prepared.length}</span>${
       foldNote ? `<span class="fold-note">${foldNote}</span>` : ''
     }</summary>
     <div>
-      <ul class="items">${shown
-        .map(
-          (n) =>
-            `<li${preparedNames.has(n) ? ' class="prep" title="prepared"' : ''}>${esc(n)}</li>`,
-        )
-        .join('')}</ul>
+      ${preparedBlock}
+      ${subList('Always prepared', g.always)}
+      ${subList('Cantrips', g.cantrips)}
+      ${subList('From items', g.items)}
+      ${subList('Other prepared', g.other)}
       ${subList('Sub-spells (upcasts & variants)', sub)}
       ${subList('Basic actions', basic)}
     </div>

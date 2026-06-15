@@ -198,164 +198,218 @@
     {
      "category": "spell",
      "id": "Projectile_AcidSplash",
+     "level": 0,
      "name": "Acid Splash",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Projectile_ChromaticOrb",
+     "level": 1,
      "name": "Chromatic Orb",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "sub-spell",
      "id": "Projectile_ChromaticOrb_Acid",
+     "level": 1,
      "name": "Chromatic Orb: Acid",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "sub-spell",
      "id": "Projectile_ChromaticOrb_Cold",
+     "level": 1,
      "name": "Chromatic Orb: Cold",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "sub-spell",
      "id": "Projectile_ChromaticOrb_Fire",
+     "level": 1,
      "name": "Chromatic Orb: Fire",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "sub-spell",
      "id": "Projectile_ChromaticOrb_Lightning",
+     "level": 1,
      "name": "Chromatic Orb: Lightning",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "sub-spell",
      "id": "Projectile_ChromaticOrb_Poison",
+     "level": 1,
      "name": "Chromatic Orb: Poison",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "sub-spell",
      "id": "Projectile_ChromaticOrb_Thunder",
+     "level": 1,
      "name": "Chromatic Orb: Thunder",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Projectile_GuidingBolt",
+     "level": 1,
      "name": "Guiding Bolt",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "basic-action",
      "id": "Projectile_Jump",
+     "level": null,
      "name": "Jump",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Projectile_MagicMissile",
+     "level": 1,
      "name": "Magic Missile",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "basic-action",
      "id": "Shout_Dash",
+     "level": null,
      "name": "Dash",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Shout_Disengage",
+     "level": null,
      "name": "Disengage",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Shout_Hide",
+     "level": null,
      "name": "Hide",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Shout_Macro_Mods_Change_Camp_Night_Notifications",
+     "level": null,
      "name": null,
-     "prepared": true
+     "prepared": true,
+     "source": 9
     },
     {
      "category": "spell",
      "id": "Target_ChillTouch",
+     "level": 0,
      "name": "Bone Chill",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "spell",
      "id": "Target_ConcussiveSmash",
+     "level": null,
      "name": "Concussive Smash",
-     "prepared": false
+     "prepared": false,
+     "source": null
     },
     {
      "category": "basic-action",
      "id": "Target_Dip",
+     "level": null,
      "name": "Dip",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Target_Help",
+     "level": null,
      "name": "Help",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Target_Light",
+     "level": 0,
      "name": "Light",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "basic-action",
      "id": "Target_MainHandAttack",
+     "level": null,
      "name": "Main Hand Attack",
-     "prepared": true
+     "prepared": true,
+     "source": 7
     },
     {
      "category": "basic-action",
      "id": "Target_Shove",
+     "level": null,
      "name": "Shove",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Target_Topple",
+     "level": null,
      "name": "Topple",
-     "prepared": true
+     "prepared": true,
+     "source": 3
     },
     {
      "category": "spell",
      "id": "Target_TrueStrike",
+     "level": 0,
      "name": "True Strike",
-     "prepared": true
+     "prepared": true,
+     "source": 0
     },
     {
      "category": "basic-action",
      "id": "Throw_ImprovisedWeapon",
+     "level": null,
      "name": "Improvised Melee Weapon",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "basic-action",
      "id": "Throw_Throw",
+     "level": null,
      "name": "Throw",
-     "prepared": true
+     "prepared": true,
+     "source": 6
     },
     {
      "category": "spell",
      "id": "Zone_BreathWeapon_Cold",
+     "level": null,
      "name": "Frost Breath",
-     "prepared": true
+     "prepared": true,
+     "source": 2
     }
    ],
    "spells_note": null,

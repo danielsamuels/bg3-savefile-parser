@@ -99,6 +99,10 @@ export interface SpellRef {
   name: string | null;
   category: string;
   prepared: boolean | null;
+  // SpellSourceType of the prepared entry: 0 = class, 1 = subclass, 2 = race,
+  // 3 = item, 6 = base action, 7 = weapon. null = not in the prepared set.
+  source: number | null;
+  level: number | null; // 0 = cantrip, >=1 leveled; null = non-spell ability
 }
 
 export interface CharacterReport {
@@ -504,21 +508,40 @@ export function gatherReport(
 
   // A book entry is prepared when its base prototype name (upcast _N suffix
   // stripped) appears in the entity's PreparedSpells; entities without
-  // preparation data get prepared=null throughout.
+  // preparation data get prepared=null throughout. Each prepared entry carries
+  // its SpellSourceType (class/subclass/race/item/...) so the player-chosen
+  // list can be told from always-prepared grants; spell level separates
+  // cantrips from leveled spells.
   const stripUpcast = (sid: string): string => sid.replace(/_\d+$/, '');
   const spellRefs = (ent: number): SpellRef[] => {
     const prepared = preparedSpells.get(ent);
-    const preparedBases = prepared ? new Set(prepared.map(([n]) => stripUpcast(n))) : null;
-    return [...new Set(spellbooks.get(ent)!)].sort().map((sid) => ({
-      id: sid,
-      name: dn.spellNameFor(sid),
-      category: COMMON_ACTION_SPELLS.has(sid)
-        ? 'basic-action'
-        : dn.subSpells.has(sid)
-          ? 'sub-spell'
-          : 'spell',
-      prepared: preparedBases ? preparedBases.has(stripUpcast(sid)) : null,
-    }));
+    // base prototype name -> lowest source type (class 0 beats item 3 etc.)
+    let preparedSource: Map<string, number> | null = null;
+    if (prepared) {
+      preparedSource = new Map();
+      for (const [name, st] of prepared) {
+        if (st < 0) continue;
+        const base = stripUpcast(name);
+        const prev = preparedSource.get(base);
+        if (prev === undefined || st < prev) preparedSource.set(base, st);
+      }
+    }
+    return [...new Set(spellbooks.get(ent)!)].sort().map((sid) => {
+      const base = stripUpcast(sid);
+      const source = preparedSource ? (preparedSource.get(base) ?? null) : null;
+      return {
+        id: sid,
+        name: dn.spellNameFor(sid),
+        category: COMMON_ACTION_SPELLS.has(sid)
+          ? 'basic-action'
+          : dn.subSpells.has(sid)
+            ? 'sub-spell'
+            : 'spell',
+        prepared: preparedSource ? source !== null : null,
+        source,
+        level: dn.spellLevelFor(sid),
+      };
+    });
   };
 
   const lsmfEcs = lsmfBlob ? parseLsmfMembership(lsmfBlob) : null;
