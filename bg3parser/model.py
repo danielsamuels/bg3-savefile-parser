@@ -68,6 +68,10 @@ from .party import (
     split_equipped_carried,
 )
 
+# SpellSourceType for Astral-Touched Tadpole (illithid) powers. Some of these
+# (Force Tunnel, Fly) live in PreparedSpells but not the standard spell book.
+ILLITHID_SOURCE = 22
+
 # Basic actions present in every character's spell book; folded out of the
 # default spell list by the text view.
 COMMON_ACTION_SPELLS = frozenset(
@@ -527,6 +531,11 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         player-chosen list (source 0) can be told from the always-prepared
         subclass set; spell level lets cantrips be separated from leveled
         spells.
+
+        The illithid movement powers Force Tunnel and Fly are in PreparedSpells
+        but not the standard spell book, so illithid (source 22) prepared
+        entries missing from the book are folded in too. Other out-of-book
+        prepared entries are left alone to keep the spell list stable.
         """
         prepared = prepared_spells.get(ent)
         # base prototype name -> lowest source type (class 0 beats item 3 etc.)
@@ -537,14 +546,23 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
                 base = re.sub(r'_\d+$', '', name)
                 if st >= 0 and (base not in prepared_source or st < prepared_source[base]):
                     prepared_source[base] = st
-        refs = []
-        for sid in sorted(set(spellbooks[ent])):
+
+        book_ids = set(spellbooks[ent])
+        extra_ids = (
+            {name for name, st, _g in prepared if st == ILLITHID_SOURCE and name not in book_ids}
+            if prepared is not None
+            else set()
+        )
+
+        def classify(sid: str) -> str:
             if sid in COMMON_ACTION_SPELLS:
-                cat = 'basic-action'
-            elif sid in dn.sub_spells:
-                cat = 'sub-spell'
-            else:
-                cat = 'spell'
+                return 'basic-action'
+            if sid in dn.sub_spells:
+                return 'sub-spell'
+            return 'spell'
+
+        refs = []
+        for sid in sorted(book_ids | extra_ids):
             base = re.sub(r'_\d+$', '', sid)
             if prepared_source is None:
                 is_prepared: bool | None = None
@@ -556,7 +574,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
                 SpellRef(
                     id=sid,
                     name=dn.spell_name_for(sid),
-                    category=cat,
+                    category=classify(sid),
                     prepared=is_prepared,
                     source=source,
                     level=dn.spell_level_for(sid),

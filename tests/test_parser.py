@@ -1036,6 +1036,30 @@ def test_prepared_list_excludes_cantrips_and_actions():
         assert (s.level or 0) >= 1
 
 
+def test_illithid_powers_grouped_separately():
+    """Astral-Touched Tadpole active powers (SpellSourceType 22, no spell level)
+    must surface in their own group, not vanish. QuickSave_Maia's Maia has the
+    psionic actives."""
+    model = parser.gather_report(QUICKSAVE_MAIA)
+    maia = next(c for c in model.characters if c.name.startswith('Maia'))
+    groups = report_views.prepared_spell_groups(maia)
+    illithid = set(groups.get('illithid_powers', []))
+    assert {'Psionic Overload', 'Concentrated Blast', 'Transfuse Health'} <= illithid
+    # They are not leaked into the leveled or cantrip groups.
+    assert not (illithid & set(groups.get('prepared_spells', [])))
+    assert not (illithid & set(groups.get('cantrips', [])))
+
+
+def test_prepared_powers_outside_spellbook_are_included():
+    """Granted powers that live outside the standard spell book (a prepared
+    entry whose id is absent from the book) must still appear as SpellRefs."""
+    model = parser.gather_report(QUICKSAVE_MAIA)
+    maia = next(c for c in model.characters if c.name.startswith('Maia'))
+    # Every source-22 illithid entry the save records as prepared is present.
+    ids = {s.id for s in maia.spells or []}
+    assert any(i.startswith('Target_TAD_') or i.startswith('Shout_TAD_') for i in ids)
+
+
 def test_spell_level_for_resolves_cantrips_and_leveled():
     """gamedata must expose spell levels: 0 for cantrips, the slot level for
     leveled spells, None for non-spell abilities (Channel Divinity)."""

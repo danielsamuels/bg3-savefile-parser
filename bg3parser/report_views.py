@@ -14,7 +14,7 @@ import dataclasses
 
 from .effects import Effects
 from .gamedata import DisplayNames
-from .model import CharacterReport, ItemRef, SaveReport
+from .model import ILLITHID_SOURCE, CharacterReport, ItemRef, SaveReport
 
 SECTIONS = ('meta', 'party', 'camp', 'camp_chest', 'quests')
 DETAIL_LEVELS = ('summary', 'full')
@@ -114,10 +114,11 @@ def prepared_spell_groups(char: CharacterReport) -> dict[str, list[str]]:
     spells a prepared caster picked and a known caster knows. The rest are
     castable but not chosen: 'always_prepared' (subclass grants, e.g. a
     cleric's domain spells), 'cantrips' (always available, never count against
-    the prepared limit), and 'item_spells' (granted by equipment). Basic
-    actions and sub-spells are dropped; upcast duplicates collapse on the
-    shared display name. Unresolved names (mod macros) and instrument
-    performances stay out; detail='full' keeps everything.
+    the prepared limit), 'item_spells' (granted by equipment), and
+    'illithid_powers' (the Astral-Touched Tadpole active powers). Basic actions
+    and sub-spells are dropped; upcast duplicates collapse on the shared display
+    name. Unresolved names (mod macros) and instrument performances stay out;
+    detail='full' keeps everything.
 
     When the book carries no preparation data, the whole class-spell list
     stands in under 'prepared_spells' as a best effort.
@@ -160,17 +161,26 @@ def prepared_spell_groups(char: CharacterReport) -> dict[str, list[str]]:
         if always:
             groups['always_prepared'] = always
 
+    # Astral-Touched Tadpole active powers carry SpellSourceType 22 (verified
+    # exclusive to TAD_* powers across saves) and no spell level, so they fall
+    # through every other group.
+    illithid = names(s for s in real if s.prepared and s.source == ILLITHID_SOURCE)
     items = names(s for s in real if s.prepared and s.source == 3 and lvl(s) >= 1)
     cantrips = names(s for s in real if s.prepared and s.level == 0)
     other = names(
         s
         for s in real
-        if s.prepared and lvl(s) >= 1 and (s.source is None or s.source >= 4) and s.source != 3
+        if s.prepared
+        and lvl(s) >= 1
+        and (s.source is None or s.source >= 4)
+        and s.source not in (3, ILLITHID_SOURCE)
     )
     if cantrips:
         groups['cantrips'] = cantrips
     if items:
         groups['item_spells'] = items
+    if illithid:
+        groups['illithid_powers'] = illithid
     if other:
         groups['other_prepared'] = other
     return groups
@@ -234,7 +244,7 @@ def character_view(
         out['prepared_spells'] = groups['prepared_spells']
     elif char.spells_note:
         out['spells_note'] = char.spells_note
-    for key in ('always_prepared', 'cantrips', 'item_spells', 'other_prepared'):
+    for key in ('always_prepared', 'cantrips', 'item_spells', 'illithid_powers', 'other_prepared'):
         if groups.get(key):
             out[key] = groups[key]
     if char.concentration:

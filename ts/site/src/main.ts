@@ -232,11 +232,15 @@ function renderSaveHead(si: SaveInfo, sourceName: string, thumbUrl: string | nul
 /** Group castable spells the way the game's UI does, mirroring
  *  bg3parser/report_views.py prepared_spell_groups. 'prepared' is the
  *  player-chosen leveled list; the rest are castable but not chosen. */
+/** SpellSourceType for Astral-Touched Tadpole (illithid) powers. */
+const ILLITHID_SOURCE = 22;
+
 function groupSpells(spells: SpellRef[]): {
   prepared: string[];
   always: string[];
   cantrips: string[];
   items: string[];
+  illithid: string[];
   other: string[];
 } {
   const real = spells.filter((s) => s.category === 'spell');
@@ -252,7 +256,14 @@ function groupSpells(spells: SpellRef[]): {
     return out;
   };
   if (!real.some((s) => s.prepared !== null)) {
-    return { prepared: dedup(real).sort(), always: [], cantrips: [], items: [], other: [] };
+    return {
+      prepared: dedup(real).sort(),
+      always: [],
+      cantrips: [],
+      items: [],
+      illithid: [],
+      other: [],
+    };
   }
   const lvl = (s: SpellRef): number => s.level ?? 0;
 
@@ -284,14 +295,22 @@ function groupSpells(spells: SpellRef[]): {
     for (const [k, seq] of prog) if (k !== headline) alwaysRefs.push(...seq);
     always = dedup(alwaysRefs).sort();
   }
+  // Illithid (Astral-Touched Tadpole) active powers carry source 22 and no
+  // spell level, so they fall through every other group.
+  const illithid = dedup(real.filter((s) => s.prepared && s.source === ILLITHID_SOURCE)).sort();
   const items = dedup(real.filter((s) => s.prepared && s.source === 3 && lvl(s) >= 1)).sort();
   const cantrips = dedup(real.filter((s) => s.prepared && s.level === 0)).sort();
   const other = dedup(
     real.filter(
-      (s) => s.prepared && lvl(s) >= 1 && (s.source === null || s.source >= 4) && s.source !== 3,
+      (s) =>
+        s.prepared &&
+        lvl(s) >= 1 &&
+        (s.source === null || s.source >= 4) &&
+        s.source !== 3 &&
+        s.source !== ILLITHID_SOURCE,
     ),
   ).sort();
-  return { prepared, always, cantrips, items, other };
+  return { prepared, always, cantrips, items, illithid, other };
 }
 
 function renderSpells(spells: SpellRef[]): string {
@@ -305,6 +324,7 @@ function renderSpells(spells: SpellRef[]): string {
     !g.always.length &&
     !g.cantrips.length &&
     !g.items.length &&
+    !g.illithid.length &&
     !g.other.length &&
     !sub.length &&
     !basic.length
@@ -316,6 +336,7 @@ function renderSpells(spells: SpellRef[]): string {
     g.always.length ? `${g.always.length} always prepared` : '',
     g.cantrips.length ? `${g.cantrips.length} cantrips` : '',
     g.items.length ? `${g.items.length} from items` : '',
+    g.illithid.length ? `${g.illithid.length} illithid` : '',
     sub.length ? `+${sub.length} sub-spells` : '',
     basic.length ? `+${basic.length} basic actions` : '',
   ]
@@ -343,6 +364,7 @@ function renderSpells(spells: SpellRef[]): string {
       ${subList('Always prepared', g.always)}
       ${subList('Cantrips', g.cantrips)}
       ${subList('From items', g.items)}
+      ${subList('Illithid powers', g.illithid)}
       ${subList('Other prepared', g.other)}
       ${subList('Sub-spells (upcasts & variants)', sub)}
       ${subList('Basic actions', basic)}
