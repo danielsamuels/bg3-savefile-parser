@@ -53,7 +53,9 @@ server = FastMCP(
         'quests="all". Items carry rarity (absent = common); per-character '
         'and chest gold is summed into a gold field. For gear advice, pass '
         'effects=true to annotate items with their tooltip text, or look up '
-        'a specific item with item_info. quest_outlook flags which active '
+        'a specific item with item_info. vendors lists what merchants in a save '
+        'have for sale (generated, not-yet-bought stock) by merchant, for '
+        '"where can I buy X" questions. quest_outlook flags which active '
         'quests an upcoming action (a point of no return, region change, or '
         'NPC death) would close, for "what should I prioritise" questions. '
         "quest_consequences goes deeper: it evaluates the game's actual Osiris "
@@ -152,16 +154,22 @@ parse_cache: dict[str, tuple[tuple[int, int], SaveReport]] = {}
 PARSE_CACHE_MAX = 4
 
 
-def cached_report(path: str, want_quests: bool) -> SaveReport:
+def cached_report(path: str, want_quests: bool = False, want_vendors: bool = False) -> SaveReport:
     fingerprint = (os.stat(path).st_mtime_ns, os.path.getsize(path))
     hit = parse_cache.get(path)
-    if hit is not None and hit[0] == fingerprint:
-        report = hit[1]
-        if not want_quests or report.quests is not None:
+    cached = hit[1] if hit is not None and hit[0] == fingerprint else None
+    if cached is not None:
+        quests_ok = not want_quests or cached.quests is not None
+        vendors_ok = not want_vendors or cached.vendors is not None
+        if quests_ok and vendors_ok:
             parse_cache.pop(path)  # reinsert: keep recently used entries alive
-            parse_cache[path] = (fingerprint, report)
-            return report
-    report = gather_report(path, opts=Namespace(quests=want_quests))
+            parse_cache[path] = (fingerprint, cached)
+            return cached
+    # Re-gather, but keep any optional section the cached report already had so
+    # alternating tool calls about one save don't thrash each other's data.
+    need_quests = want_quests or (cached is not None and cached.quests is not None)
+    need_vendors = want_vendors or (cached is not None and cached.vendors is not None)
+    report = gather_report(path, opts=Namespace(quests=need_quests, vendors=need_vendors))
     parse_cache.pop(path, None)
     parse_cache[path] = (fingerprint, report)
     while len(parse_cache) > PARSE_CACHE_MAX:
@@ -283,6 +291,61 @@ def item_info(names: str | list[str], limit_per_name: int = 8) -> dict[str, list
                 entry['rarity'] = rarity
             matches.append(entry)
     return out
+
+
+@server.tool()
+def vendors(save: str = 'latest', min_stock: int = 5, name: str = '', limit: int = 0) -> dict:
+    """List what merchants in a save have for sale, by merchant.
+
+    For-sale stock is the items the game generated for a trader that the player
+    has not yet bought (the save's `UnsoldGenerated` flag), attributed to the
+    seller by shared world position -- straight from the save, no model recall.
+    Answers "where can I buy X" / "what's in stock right now".
+
+    Only merchants currently loaded in the save are present (the active region
+    and cached chunks); a trader in a region you have not visited or whose stock
+    has not been generated will not appear.
+
+    `save` is 'latest', a save number ('286'), a name, or an absolute path.
+
+    `min_stock` hides ambient NPCs carrying a stray tradeable: only merchants
+    with at least this many items are returned (default 5). Pass 0 for every
+    attributed seller, including single-item ones.
+
+    `name` keeps only merchants whose display name matches this case-insensitive
+    substring (e.g. 'dammon'); empty matches all.
+
+    `limit` caps the number of merchants returned (biggest stock first); 0 = no
+    cap. Each merchant gives its `name`, item `total`, and `items` (display
+    name, internal stats id, `count`, category, and rarity where above common).
+    """
+    path = resolve_save_path(save)
+    report = cached_report(path, want_vendors=True)
+    dn = shared_display_names()
+    query = name.strip().lower()
+    out = []
+    for v in report.vendors or []:
+        if v.total < max(0, min_stock):
+            continue
+        label = v.name or (v.template_guid and 'Unknown merchant') or 'Unattributed stock'
+        if query and query not in label.lower():
+            continue
+        items = []
+        for i in v.items:
+            entry: dict = {
+                'name': i.name or i.stats,
+                'stats': i.stats,
+                'count': i.count,
+                'category': i.category,
+            }
+            rarity = dn.rarity_for(i.stats)
+            if rarity:
+                entry['rarity'] = rarity
+            items.append(entry)
+        out.append({'name': label, 'total': v.total, 'items': items})
+        if limit and len(out) >= limit:
+            break
+    return {'save': os.path.splitext(os.path.basename(path))[0], 'merchants': out}
 
 
 @server.tool()

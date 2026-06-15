@@ -1488,6 +1488,25 @@ def test_mcp_item_info_and_effects():
     assert 'effects' not in str(plain)
 
 
+def test_mcp_vendors():
+    """vendors lists merchants' for-sale stock, filtered to real shops."""
+    pytest.importorskip('mcp')
+    from bg3parser import mcp_server
+
+    save = str(FIXTURE_DIR / 'quicksave_286.lsv')
+    res = mcp_server.vendors(save=save, min_stock=5)
+    assert res['save'] == 'quicksave_286'
+    shops = res['merchants']
+    assert len(shops) == 7  # ground truth: 7 merchants with non-trivial stock
+    assert shops[0]['total'] == 94  # biggest first
+    assert shops[0]['total'] == sum(i['count'] for i in shops[0]['items'])
+    assert all(i['stats'] and i['count'] >= 1 and 'category' in i for i in shops[0]['items'])
+
+    # min_stock=0 includes the ambient tail; limit caps the list.
+    assert len(mcp_server.vendors(save=save, min_stock=0)['merchants']) == 161
+    assert len(mcp_server.vendors(save=save, min_stock=5, limit=3)['merchants']) == 3
+
+
 def test_mcp_summary_spell_noise_and_feats():
     """Summary prepared spells drop mod macros and performances; feats and
     XP ride in the summary tier (QuickSave_341: Maia has camp-notification

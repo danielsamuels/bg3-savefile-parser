@@ -14,6 +14,10 @@ All notable changes to this project will be documented here.
   notes how many ambient NPCs with a stray tradeable were omitted; `--json`
   keeps every attributed vendor. Python/CLI only for now; the TypeScript port
   emits `vendors: null` to hold parity.
+- `vendors` MCP tool: lists a save's merchants and their for-sale stock by
+  merchant (display name, count, category, rarity), for "where can I buy X" /
+  "what's in stock" questions. `min_stock` filters to real shops (default 5),
+  `name` matches a merchant, `limit` caps the list.
 - quest_consequences MCP tool: evaluates the game's actual Osiris rules against
   a save to derive emergent quest cause-and-effect that the explicit DB_QuestDef
   edges miss. A faithful rule parser (`osiris_rules`) plus an argument-aware
