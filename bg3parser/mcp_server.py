@@ -54,8 +54,8 @@ server = FastMCP(
         'and chest gold is summed into a gold field. For gear advice, pass '
         'effects=true to annotate items with their tooltip text, or look up '
         'a specific item with item_info. vendors lists what merchants in a save '
-        'have for sale (generated, not-yet-bought stock) by merchant, for '
-        '"where can I buy X" questions. quest_outlook flags which active '
+        'have for sale, by merchant, for "where can I buy X" questions. '
+        'quest_outlook flags which active '
         'quests an upcoming action (a point of no return, region change, or '
         'NPC death) would close, for "what should I prioritise" questions. '
         "quest_consequences goes deeper: it evaluates the game's actual Osiris "
@@ -297,20 +297,15 @@ def item_info(names: str | list[str], limit_per_name: int = 8) -> dict[str, list
 def vendors(save: str = 'latest', min_stock: int = 5, name: str = '', limit: int = 0) -> dict:
     """List what merchants in a save have for sale, by merchant.
 
-    For-sale stock is the items the game generated for a trader that the player
-    has not yet bought (the save's `UnsoldGenerated` flag), attributed to the
-    seller by shared world position -- straight from the save, no model recall.
-    Answers "where can I buy X" / "what's in stock right now".
-
-    Only merchants currently loaded in the save are present (the active region
-    and cached chunks); a trader in a region you have not visited or whose stock
-    has not been generated will not appear.
+    Use for "where can I buy X" or "what's in stock" questions. Only merchants
+    loaded in the save appear, so a trader in a region you have not visited, or
+    whose shop you have never opened, will not be listed.
 
     `save` is 'latest', a save number ('286'), a name, or an absolute path.
 
-    `min_stock` hides ambient NPCs carrying a stray tradeable: only merchants
-    with at least this many items are returned (default 5). Pass 0 for every
-    attributed seller, including single-item ones.
+    `min_stock` hides NPCs carrying just a stray tradeable: only merchants with
+    at least this many items are returned (default 5). Pass 0 for every seller,
+    including single-item ones.
 
     `name` keeps only merchants whose display name matches this case-insensitive
     substring (e.g. 'dammon'); empty matches all.
