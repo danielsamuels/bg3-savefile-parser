@@ -9,6 +9,14 @@ calls about the same save return instantly.
 Run with the `mcp` extra installed:
 
     uv run --extra mcp bg3save-mcp
+
+Convention for tool descriptions (the docstrings below, which the calling
+agent sees): include only what an agent needs to choose the tool and call it
+correctly — its purpose and when to reach for it, scope/limitation caveats
+that change tool choice or result interpretation, and the parameters and
+result shape. Leave out implementation internals (how the data is derived,
+flag/field names, attribution mechanics, "no model recall" provenance); those
+belong in code comments or the CHANGELOG, not the agent-facing description.
 """
 
 import datetime
