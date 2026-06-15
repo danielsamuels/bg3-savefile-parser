@@ -240,7 +240,6 @@ function groupSpells(spells: SpellRef[]): {
   always: string[];
   cantrips: string[];
   items: string[];
-  illithid: string[];
   other: string[];
 } {
   const real = spells.filter((s) => s.category === 'spell');
@@ -256,14 +255,7 @@ function groupSpells(spells: SpellRef[]): {
     return out;
   };
   if (!real.some((s) => s.prepared !== null)) {
-    return {
-      prepared: dedup(real).sort(),
-      always: [],
-      cantrips: [],
-      items: [],
-      illithid: [],
-      other: [],
-    };
+    return { prepared: dedup(real).sort(), always: [], cantrips: [], items: [], other: [] };
   }
   const lvl = (s: SpellRef): number => s.level ?? 0;
 
@@ -295,9 +287,7 @@ function groupSpells(spells: SpellRef[]): {
     for (const [k, seq] of prog) if (k !== headline) alwaysRefs.push(...seq);
     always = dedup(alwaysRefs).sort();
   }
-  // Illithid (Astral-Touched Tadpole) active powers carry source 22 and no
-  // spell level, so they fall through every other group.
-  const illithid = dedup(real.filter((s) => s.prepared && s.source === ILLITHID_SOURCE)).sort();
+  // Illithid (source 22) powers are rendered in their own section, not here.
   const items = dedup(real.filter((s) => s.prepared && s.source === 3 && lvl(s) >= 1)).sort();
   const cantrips = dedup(real.filter((s) => s.prepared && s.level === 0)).sort();
   const other = dedup(
@@ -310,7 +300,32 @@ function groupSpells(spells: SpellRef[]): {
         s.source !== ILLITHID_SOURCE,
     ),
   ).sort();
-  return { prepared, always, cantrips, items, illithid, other };
+  return { prepared, always, cantrips, items, other };
+}
+
+/** Active Astral-Touched Tadpole (illithid) powers, by display name. Only the
+ *  actives (source 22) are recoverable from a save; passive illithid powers are
+ *  applied via the FixedString-hashed passive system and aren't stored
+ *  per-character in a decodable form. */
+function illithidPowers(spells: SpellRef[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const s of spells) {
+    if (s.source === ILLITHID_SOURCE && s.name && !seen.has(s.name)) {
+      seen.add(s.name);
+      out.push(s.name);
+    }
+  }
+  return out.sort();
+}
+
+function renderIllithid(spells: SpellRef[]): string {
+  const powers = illithidPowers(spells);
+  if (!powers.length) return '';
+  return `<details class="fold" open>
+    <summary>Illithid powers <span class="count">${powers.length}</span></summary>
+    <ul class="items">${powers.map((n) => `<li>${esc(n)}</li>`).join('')}</ul>
+  </details>`;
 }
 
 function renderSpells(spells: SpellRef[]): string {
@@ -324,7 +339,6 @@ function renderSpells(spells: SpellRef[]): string {
     !g.always.length &&
     !g.cantrips.length &&
     !g.items.length &&
-    !g.illithid.length &&
     !g.other.length &&
     !sub.length &&
     !basic.length
@@ -336,7 +350,6 @@ function renderSpells(spells: SpellRef[]): string {
     g.always.length ? `${g.always.length} always prepared` : '',
     g.cantrips.length ? `${g.cantrips.length} cantrips` : '',
     g.items.length ? `${g.items.length} from items` : '',
-    g.illithid.length ? `${g.illithid.length} illithid` : '',
     sub.length ? `+${sub.length} sub-spells` : '',
     basic.length ? `+${basic.length} basic actions` : '',
   ]
@@ -364,7 +377,6 @@ function renderSpells(spells: SpellRef[]): string {
       ${subList('Always prepared', g.always)}
       ${subList('Cantrips', g.cantrips)}
       ${subList('From items', g.items)}
-      ${subList('Illithid powers', g.illithid)}
       ${subList('Other prepared', g.other)}
       ${subList('Sub-spells (upcasts & variants)', sub)}
       ${subList('Basic actions', basic)}
@@ -509,6 +521,7 @@ function renderCharacter(c: CharacterReport, index: number): string {
       ? `<details class="fold"><summary>Carried <span class="count">${carriedItems}</span>${goldNote}</summary><div>${carriedGroups}</div></details>`
       : '';
 
+  const illithid = c.spells ? renderIllithid(c.spells) : '';
   const spells = c.spells ? renderSpells(c.spells) : '';
   const spellsNote =
     !spells && c.spells_note
@@ -516,7 +529,7 @@ function renderCharacter(c: CharacterReport, index: number): string {
       : '';
 
   return `<section class="char" style="--i:${index}">${head}
-    ${equippedList}${undetermined}${carried}${spells}${spellsNote}
+    ${equippedList}${undetermined}${carried}${illithid}${spells}${spellsNote}
   </section>`;
 }
 

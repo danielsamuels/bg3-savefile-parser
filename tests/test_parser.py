@@ -1036,18 +1036,21 @@ def test_prepared_list_excludes_cantrips_and_actions():
         assert (s.level or 0) >= 1
 
 
-def test_illithid_powers_grouped_separately():
+def test_illithid_powers_separate_section():
     """Astral-Touched Tadpole active powers (SpellSourceType 22, no spell level)
-    must surface in their own group, not vanish. QuickSave_Maia's Maia has the
-    psionic actives."""
+    surface in their own section, not under spells. QuickSave_Maia's Maia has
+    the psionic actives."""
     model = parser.gather_report(QUICKSAVE_MAIA)
     maia = next(c for c in model.characters if c.name.startswith('Maia'))
-    groups = report_views.prepared_spell_groups(maia)
-    illithid = set(groups.get('illithid_powers', []))
+    illithid = set(report_views.illithid_powers(maia))
     assert {'Psionic Overload', 'Concentrated Blast', 'Transfuse Health'} <= illithid
-    # They are not leaked into the leveled or cantrip groups.
-    assert not (illithid & set(groups.get('prepared_spells', [])))
-    assert not (illithid & set(groups.get('cantrips', [])))
+    # They are not duplicated into any spell group.
+    groups = report_views.prepared_spell_groups(maia)
+    for key in ('prepared_spells', 'always_prepared', 'cantrips', 'item_spells', 'other_prepared'):
+        assert not (illithid & set(groups.get(key, [])))
+    # The summary view places illithid_powers as its own field.
+    view = report_views.character_view(maia, gamedata.DisplayNames.load(), 'summary', 'all')
+    assert set(view.get('illithid_powers', [])) == illithid
 
 
 def test_prepared_powers_outside_spellbook_are_included():

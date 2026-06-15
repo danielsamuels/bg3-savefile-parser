@@ -114,9 +114,9 @@ def prepared_spell_groups(char: CharacterReport) -> dict[str, list[str]]:
     spells a prepared caster picked and a known caster knows. The rest are
     castable but not chosen: 'always_prepared' (subclass grants, e.g. a
     cleric's domain spells), 'cantrips' (always available, never count against
-    the prepared limit), 'item_spells' (granted by equipment), and
-    'illithid_powers' (the Astral-Touched Tadpole active powers). Basic actions
-    and sub-spells are dropped; upcast duplicates collapse on the shared display
+    the prepared limit), and 'item_spells' (granted by equipment). Illithid
+    powers are reported separately (see illithid_powers). Basic actions and
+    sub-spells are dropped; upcast duplicates collapse on the shared display
     name. Unresolved names (mod macros) and instrument performances stay out;
     detail='full' keeps everything.
 
@@ -161,10 +161,7 @@ def prepared_spell_groups(char: CharacterReport) -> dict[str, list[str]]:
         if always:
             groups['always_prepared'] = always
 
-    # Astral-Touched Tadpole active powers carry SpellSourceType 22 (verified
-    # exclusive to TAD_* powers across saves) and no spell level, so they fall
-    # through every other group.
-    illithid = names(s for s in real if s.prepared and s.source == ILLITHID_SOURCE)
+    # Illithid (source 22) powers are reported in their own section, not here.
     items = names(s for s in real if s.prepared and s.source == 3 and lvl(s) >= 1)
     cantrips = names(s for s in real if s.prepared and s.level == 0)
     other = names(
@@ -179,11 +176,28 @@ def prepared_spell_groups(char: CharacterReport) -> dict[str, list[str]]:
         groups['cantrips'] = cantrips
     if items:
         groups['item_spells'] = items
-    if illithid:
-        groups['illithid_powers'] = illithid
     if other:
         groups['other_prepared'] = other
     return groups
+
+
+def illithid_powers(char: CharacterReport) -> list[str]:
+    """Active Astral-Touched Tadpole (illithid) powers, by display name.
+
+    These carry SpellSourceType 22 (verified exclusive to TAD_* powers) and no
+    spell level. Only the active powers are recoverable from a save: the passive
+    illithid powers (Illithid Persuasion, Favourable Beginnings, ...) are
+    applied via the FixedString-hashed passive system and are not stored
+    per-character in a decodable form (Favourable Beginnings' id is absent from
+    the blob entirely). Upcast duplicates collapse on the shared display name.
+    """
+    out: list[str] = []
+    seen: set[str] = set()
+    for s in char.spells or []:
+        if s.source == ILLITHID_SOURCE and s.name and s.name not in seen:
+            seen.add(s.name)
+            out.append(s.name)
+    return sorted(out)
 
 
 def feat_label(feat: dict) -> str:
@@ -239,12 +253,15 @@ def character_view(
     undetermined = [item_view(r, dn, fx) for r in char.undetermined if keep_item(r, dn, items)]
     if undetermined:
         out['undetermined'] = undetermined
+    illithid = illithid_powers(char)
+    if illithid:
+        out['illithid_powers'] = illithid
     groups = prepared_spell_groups(char)
     if groups.get('prepared_spells'):
         out['prepared_spells'] = groups['prepared_spells']
     elif char.spells_note:
         out['spells_note'] = char.spells_note
-    for key in ('always_prepared', 'cantrips', 'item_spells', 'illithid_powers', 'other_prepared'):
+    for key in ('always_prepared', 'cantrips', 'item_spells', 'other_prepared'):
         if groups.get(key):
             out[key] = groups[key]
     if char.concentration:
