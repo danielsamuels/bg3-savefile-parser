@@ -1013,16 +1013,17 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         # Each physical seller is one position (a merchant's wares all share
         # its world transform); items with no character there pool into a
         # single unattributed bucket keyed on the sentinel position None.
-        by_pos: dict[object, dict[tuple[str, str], int]] = {}
+        by_pos: dict[tuple | None, dict[tuple[str, str], int]] = {}
         for item in collect_unsold_items(all_lc_node_lists):
-            seller = item['pos'] if item['pos'] in char_pos_map else None
+            pos = item['pos']
+            seller = pos if pos in char_pos_map else None
             key = (item['stats'], item['template'])
             counts_for = by_pos.setdefault(seller, {})
             counts_for[key] = counts_for.get(key, 0) + 1
 
         vendors: list[VendorEntry] = []
-        for pos, item_counts in by_pos.items():
-            merchant_guid = char_pos_map.get(pos, '') if pos is not None else ''
+        for seller_pos, item_counts in by_pos.items():
+            merchant_guid = char_pos_map[seller_pos] if seller_pos is not None else ''
             items = [
                 item_ref(stats, guid, count=count)
                 for (stats, guid), count in sorted(item_counts.items())
