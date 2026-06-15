@@ -29,6 +29,7 @@ from .lsmf import (
     parse_lsmf_health,
     parse_lsmf_inventory_owners,
     parse_lsmf_membership,
+    parse_lsmf_power_container,
     parse_lsmf_prepared_spells,
     parse_lsmf_recipes,
     parse_lsmf_spellbooks,
@@ -141,6 +142,10 @@ class CharacterReport:
     location: str
     spells: list[SpellRef] | None = None
     spells_note: str | None = None  # 'ambiguous-build' | 'not-found'
+    # Illithid (tadpole) powers, by display name, when the save's PowerContainer
+    # is populated for this character (the recently-viewed one). None when it
+    # isn't, in which case only the active powers are recoverable (from spells).
+    illithid_powers: list[str] | None = None
     equipped: list[ItemRef] = field(default_factory=list)
     undetermined: list[ItemRef] = field(default_factory=list)
     carried: list[ItemRef] = field(default_factory=list)
@@ -373,10 +378,12 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
     concentration: dict[int, str] = {}
     levelup_records: list[dict] = []
     cc_names: list[str] = []
+    power_container: dict[int, list[str]] = {}
     if lsmf_blob:
         spellbooks = parse_lsmf_spellbooks(lsmf_blob)
         entity_classes = parse_lsmf_classes(lsmf_blob)
         prepared_spells = parse_lsmf_prepared_spells(lsmf_blob)
+        power_container = parse_lsmf_power_container(lsmf_blob)
         supplies = parse_lsmf_camp_supplies(lsmf_blob)
         ability_scores = parse_lsmf_ability_scores(lsmf_blob)
         health = parse_lsmf_health(lsmf_blob, ability_scores, CLASS_UUID_NAMES)
@@ -915,7 +922,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
                     if base_class and camp_base_classes.count(base_class) == 1
                     else None
                 )
-            if ent is not None:
+            if ent is not None and ent in entity_classes:
                 char.classes = [
                     {'Main': CLASS_UUID_NAMES.get(cg, '?')}
                     | ({'Sub': CLASS_UUID_NAMES.get(sg, '?')} if sg != NULL_UUID else {})
@@ -1030,5 +1037,30 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
             'unique': len(counts),
             'entries': entries,
         }
+
+    # Illithid powers: the PowerContainer names the full set (actives AND
+    # passives like Illithid Persuasion / Favourable Beginnings) but only for
+    # the recently-viewed character, and in its own entity epoch — so it is
+    # attributed by matching its active-power ids to a character's source-22
+    # actives (epoch-independent). Only an unambiguous match is trusted; when
+    # two party members share an identical active set the passives are left off
+    # rather than guessed. Characters without a match keep their actives, which
+    # are always recoverable from the spell book (source 22).
+    if power_container:
+        char_actives: dict[str, set[str]] = {}
+        for char in report.characters:
+            acts = {s.id for s in char.spells or [] if s.source == ILLITHID_SOURCE}
+            if acts:
+                char_actives[char.name] = acts
+        for powers in power_container.values():
+            active_ids = {p for p in powers if dn.spell_name_for(p)}
+            if not active_ids:
+                continue
+            matches = [nm for nm, acts in char_actives.items() if acts == active_ids]
+            if len(matches) == 1:
+                resolved = sorted({n for n in (dn.power_name_for(p) for p in powers) if n})
+                for char in report.characters:
+                    if char.name == matches[0]:
+                        char.illithid_powers = resolved
 
     return report

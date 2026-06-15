@@ -945,6 +945,46 @@ export function parseLsmfPreparedSpells(blob: Uint8Array): Map<number, [string, 
   return out;
 }
 
+/** Illithid (tadpole) powers: entity row -> [power ID, ...]. PowerContainer
+ *  rows are 16-byte {begin, end} ranges into an array of 16-byte {string ptr,
+ *  length} records. Only the recently-viewed character's row is populated.
+ *  Mirrors bg3parser/lsmf.py parse_lsmf_power_container. */
+export function parseLsmfPowerContainer(blob: Uint8Array): Map<number, string[]> {
+  const idx = lsmfComponentIndex(blob);
+  const pc = idx.get('game.tadpole_tree.v0.PowerContainerComponent');
+  const out = new Map<number, string[]>();
+  if (!pc || pc.elemSize !== 16) return out;
+  const { bytes, dv } = align(blob);
+  const L = bytes.length;
+  const dec = new TextDecoder();
+  for (let k = 0; k < pc.rowCount; k++) {
+    const ent = pc.ownerRows[k]!;
+    const base = pc.dataOffset + k * pc.elemSize;
+    const begin = u64(dv, base);
+    const end = u64(dv, base + 8);
+    const size = end - begin;
+    if (!(begin >= 0 && begin < end && end <= L && size % 16 === 0 && size <= 16 * 256)) continue;
+    const powers: string[] = [];
+    for (let p = begin + LSMF_HEAP_BASE; p < end + LSMF_HEAP_BASE; p += 16) {
+      const sptr = u64(dv, p);
+      const ln = u64(dv, p + 8);
+      const p0 = sptr + LSMF_HEAP_BASE;
+      if (!(ln > 0 && ln <= 128 && p0 > 0 && p0 <= L - ln)) continue;
+      let ok = true;
+      for (let i = 0; i < ln; i++) {
+        const ch = bytes[p0 + i]!;
+        if (ch < 0x20 || ch >= 0x7f) {
+          ok = false;
+          break;
+        }
+      }
+      if (ok) powers.push(dec.decode(bytes.subarray(p0, p0 + ln)));
+    }
+    if (powers.length) out.set(ent, powers);
+  }
+  return out;
+}
+
 export function parseLsmfContainerPositions(blob: Uint8Array): Map<number, number> {
   const out = new Map<number, number>();
   for (const [ent, rows] of parseLsmfAllContainerPositions(blob)) out.set(ent, rows[0]!);

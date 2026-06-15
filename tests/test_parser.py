@@ -1063,6 +1063,32 @@ def test_prepared_powers_outside_spellbook_are_included():
     assert any(i.startswith('Target_TAD_') or i.startswith('Shout_TAD_') for i in ids)
 
 
+QUICKSAVE_419 = str(FIXTURE_DIR / 'quicksave_419.lsv')
+
+
+def test_power_container_decodes_illithid_powers():
+    """The tadpole PowerContainer names the full per-character illithid set,
+    actives and passives. QuickSave_419 has a populated container; its passive
+    codenames must resolve (TAD_PeaceBreaker -> 'Favourable Beginnings')."""
+    frames = parser.extract_frames(QUICKSAVE_419)
+    nodes0 = lsf.parse_lsof(lsf.decomp_frame(frames['Globals.lsf']))
+    blob = next(
+        nd['attrs']['NewAge'] for nd in nodes0 if nd['name'] == 'NewAge' and nd['parent'] == -1
+    )
+    pc = lsmf.parse_lsmf_power_container(blob)
+    assert pc, 'expected a populated PowerContainer'
+    powers = next(iter(pc.values()))
+    # Mixed actives + passives, all TAD_/illithid-namespaced.
+    assert 'TAD_IllithidPersuasion' in powers
+    assert any(p.endswith('TAD_ConcentratedBlast') for p in powers)
+    dn = gamedata.DisplayNames.load()
+    if dn.available:
+        assert dn.power_name_for('TAD_PeaceBreaker') == 'Favourable Beginnings'
+        assert dn.power_name_for('Shout_TAD_PsionicOverload') == 'Psionic Overload'
+        resolved = {dn.power_name_for(p) for p in powers}
+        assert 'Illithid Persuasion' in resolved and 'Favourable Beginnings' in resolved
+
+
 def test_spell_level_for_resolves_cantrips_and_leveled():
     """gamedata must expose spell levels: 0 for cantrips, the slot level for
     leveled spells, None for non-spell abilities (Channel Divinity)."""

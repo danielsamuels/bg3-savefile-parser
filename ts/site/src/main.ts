@@ -303,11 +303,9 @@ function groupSpells(spells: SpellRef[]): {
   return { prepared, always, cantrips, items, other };
 }
 
-/** Active Astral-Touched Tadpole (illithid) powers, by display name. Only the
- *  actives (source 22) are recoverable from a save; passive illithid powers are
- *  applied via the FixedString-hashed passive system and aren't stored
- *  per-character in a decodable form. */
-function illithidPowers(spells: SpellRef[]): string[] {
+/** Active Astral-Touched Tadpole (illithid) powers from the spell book (source
+ *  22). Fallback when the model didn't resolve the full PowerContainer set. */
+function illithidActives(spells: SpellRef[]): string[] {
   const seen = new Set<string>();
   const out: string[] = [];
   for (const s of spells) {
@@ -319,8 +317,10 @@ function illithidPowers(spells: SpellRef[]): string[] {
   return out.sort();
 }
 
-function renderIllithid(spells: SpellRef[]): string {
-  const powers = illithidPowers(spells);
+/** The character's illithid powers: the full set (actives + passives) from the
+ *  PowerContainer when the model resolved it, else the actives from the book. */
+function renderIllithid(c: CharacterReport): string {
+  const powers = c.illithid_powers ?? illithidActives(c.spells ?? []);
   if (!powers.length) return '';
   return `<details class="fold" open>
     <summary>Illithid powers <span class="count">${powers.length}</span></summary>
@@ -521,7 +521,7 @@ function renderCharacter(c: CharacterReport, index: number): string {
       ? `<details class="fold"><summary>Carried <span class="count">${carriedItems}</span>${goldNote}</summary><div>${carriedGroups}</div></details>`
       : '';
 
-  const illithid = c.spells ? renderIllithid(c.spells) : '';
+  const illithid = renderIllithid(c);
   const spells = c.spells ? renderSpells(c.spells) : '';
   const spellsNote =
     !spells && c.spells_note

@@ -992,6 +992,46 @@ def parse_lsmf_prepared_spells(blob: bytes) -> dict[int, list[tuple[str, int, st
     return {ent + delta: entries for ent, entries in raw_map.items()}
 
 
+def parse_lsmf_power_container(blob: bytes) -> dict[int, list[str]]:
+    """Extract illithid (tadpole) powers: entity row -> [power ID, ...].
+
+    game.tadpole_tree.v0.PowerContainerComponent rows are 16-byte {begin, end}
+    heap ranges into an array of 16-byte {string pointer, length} records, each
+    naming an unlocked power (active spell IDs like Shout_TAD_PsionicOverload
+    and passive IDs like TAD_PeaceBreaker). The row shares the spell-book entity
+    numbering. Only the most-recently-viewed character's container is populated;
+    other rows are the empty sentinel (begin == end == -1).
+    """
+    idx = lsmf_component_index(blob)
+    pc = idx.get('game.tadpole_tree.v0.PowerContainerComponent')
+    if not pc:
+        return {}
+    elem, rows, off, owners = pc
+    if elem != 16:
+        return {}
+    L = len(blob)
+    out: dict[int, list[str]] = {}
+    for k, ent in enumerate(owners):
+        if k >= rows:
+            break
+        begin, end = struct.unpack_from('<QQ', blob, off + k * elem)
+        size = end - begin
+        if not (0 <= begin < end <= L and size % 16 == 0 and size <= 16 * 256):
+            continue
+        powers: list[str] = []
+        for ptr in range(begin + LSMF_HEAP_BASE, end + LSMF_HEAP_BASE, 16):
+            sptr, ln = struct.unpack_from('<QQ', blob, ptr)
+            p0 = sptr + LSMF_HEAP_BASE
+            if not (0 < ln <= 128 and 0 < p0 <= L - ln):
+                continue
+            raw = blob[p0 : p0 + ln]
+            if all(0x20 <= ch < 0x7F for ch in raw):
+                powers.append(raw.decode('ascii'))
+        if powers:
+            out[ent] = powers
+    return out
+
+
 def parse_lsmf_container_positions(blob: bytes) -> dict[int, int]:
     """Map entity row -> its game.inventory.v0.ContainerSlotData row index.
 

@@ -21,6 +21,7 @@ import {
   parseLsmfHealth,
   parseLsmfInventoryOwners,
   parseLsmfMembership,
+  parseLsmfPowerContainer,
   parseLsmfPreparedSpells,
   parseLsmfRecipes,
   parseLsmfSpellbooks,
@@ -114,6 +115,7 @@ export interface CharacterReport {
   location: string;
   spells: SpellRef[] | null;
   spells_note: string | null;
+  illithid_powers: string[] | null;
   equipped: ItemRef[];
   undetermined: ItemRef[];
   carried: ItemRef[];
@@ -362,6 +364,7 @@ export function gatherReport(
   const preparedSpells = lsmfBlob
     ? parseLsmfPreparedSpells(lsmfBlob)
     : new Map<number, [string, number, string][]>();
+  const powerContainer = lsmfBlob ? parseLsmfPowerContainer(lsmfBlob) : new Map<number, string[]>();
   const supplies = lsmfBlob ? parseLsmfCampSupplies(lsmfBlob) : null;
   saveInfo.camp_supplies = supplies || null;
   saveInfo.recipes = lsmfBlob ? parseLsmfRecipes(lsmfBlob) : [];
@@ -850,6 +853,7 @@ export function gatherReport(
       location: dn.subregionNameFor(charInfo.Subregion ?? '') ?? charInfo.Subregion ?? '',
       spells: null,
       spells_note: null,
+      illithid_powers: null,
       equipped: [],
       undetermined: [],
       carried: [],
@@ -933,6 +937,7 @@ export function gatherReport(
         location: 'camp',
         spells: null,
         spells_note: null,
+        illithid_powers: null,
         equipped: [],
         undetermined: [],
         carried: [],
@@ -1070,6 +1075,34 @@ export function gatherReport(
         )
         .filter(([stats]) => stats)
         .map(([stats, , guid]) => itemRef(stats, guid, { count: chestCount(stats) }));
+    }
+  }
+
+  // Illithid powers: the PowerContainer names the full set (actives AND
+  // passives) but only for the recently-viewed character, in its own entity
+  // epoch. Attribute it by matching its active-power ids to a character's
+  // source-22 actives (epoch-independent); only an unambiguous match is
+  // trusted. Mirrors bg3parser/model.py. ILLITHID_SOURCE = 22.
+  if (powerContainer.size) {
+    const charActives = new Map<string, Set<string>>();
+    for (const char of report.characters) {
+      const acts = new Set((char.spells ?? []).filter((s) => s.source === 22).map((s) => s.id));
+      if (acts.size) charActives.set(char.name, acts);
+    }
+    for (const powers of powerContainer.values()) {
+      const activeIds = new Set(powers.filter((p) => dn.spellNameFor(p)));
+      if (!activeIds.size) continue;
+      const eq = (a: Set<string>, b: Set<string>) =>
+        a.size === b.size && [...a].every((x) => b.has(x));
+      const matches = [...charActives.entries()].filter(([, acts]) => eq(acts, activeIds));
+      if (matches.length === 1) {
+        const resolved = [
+          ...new Set(powers.map((p) => dn.powerNameFor(p)).filter((n): n is string => !!n)),
+        ].sort();
+        for (const char of report.characters) {
+          if (char.name === matches[0]![0]) char.illithid_powers = resolved;
+        }
+      }
     }
   }
 

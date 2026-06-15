@@ -252,6 +252,7 @@
     "temp": 0,
     "temp_max": 0
    },
+   "illithid_powers": null,
    "inspect": null,
    "level": 1,
    "location": "",
@@ -1058,6 +1059,7 @@
     "temp": 0,
     "temp_max": 0
    },
+   "illithid_powers": null,
    "inspect": null,
    "level": 1,
    "location": "",

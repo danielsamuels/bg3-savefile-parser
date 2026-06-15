@@ -47,6 +47,7 @@ def main() -> None:
         subregions,
         stats_to_rarity,
         spell_levels,
+        passive_names,
     ) = build_displayname_maps(data_dir)
 
     payload = {
@@ -54,6 +55,7 @@ def main() -> None:
         'stats': stats_name,
         'spells': spell_name,
         'spell_levels': spell_levels,
+        'passive_names': passive_names,
         'object_types': sorted(object_types),
         'stats_slots': stats_to_slot,
         'two_handed': sorted(two_handed),

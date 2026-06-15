@@ -182,15 +182,17 @@ def prepared_spell_groups(char: CharacterReport) -> dict[str, list[str]]:
 
 
 def illithid_powers(char: CharacterReport) -> list[str]:
-    """Active Astral-Touched Tadpole (illithid) powers, by display name.
+    """Astral-Touched Tadpole (illithid) powers, by display name.
 
-    These carry SpellSourceType 22 (verified exclusive to TAD_* powers) and no
-    spell level. Only the active powers are recoverable from a save: the passive
-    illithid powers (Illithid Persuasion, Favourable Beginnings, ...) are
-    applied via the FixedString-hashed passive system and are not stored
-    per-character in a decodable form (Favourable Beginnings' id is absent from
-    the blob entirely). Upcast duplicates collapse on the shared display name.
+    The complete set (actives and passives, e.g. Illithid Persuasion, Favourable
+    Beginnings) comes from the save's PowerContainer when it is populated for
+    this character — the recently-viewed one (model sets char.illithid_powers).
+    Otherwise only the active powers are recoverable: those carry SpellSourceType
+    22 (verified exclusive to TAD_* powers). Upcast duplicates collapse on the
+    shared display name.
     """
+    if char.illithid_powers is not None:
+        return char.illithid_powers
     out: list[str] = []
     seen: set[str] = set()
     for s in char.spells or []:
