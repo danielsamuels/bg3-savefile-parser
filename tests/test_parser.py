@@ -1036,6 +1036,82 @@ def test_prepared_list_excludes_cantrips_and_actions():
         assert (s.level or 0) >= 1
 
 
+def test_illithid_powers_separate_section():
+    """Astral-Touched Tadpole active powers (SpellSourceType 22, no spell level)
+    surface in their own section, not under spells. QuickSave_Maia's Maia has
+    the psionic actives."""
+    model = parser.gather_report(QUICKSAVE_MAIA)
+    maia = next(c for c in model.characters if c.name.startswith('Maia'))
+    illithid = set(report_views.illithid_powers(maia))
+    assert {'Psionic Overload', 'Concentrated Blast', 'Transfuse Health'} <= illithid
+    # They are not duplicated into any spell group.
+    groups = report_views.prepared_spell_groups(maia)
+    for key in ('prepared_spells', 'always_prepared', 'cantrips', 'item_spells', 'other_prepared'):
+        assert not (illithid & set(groups.get(key, [])))
+    # The summary view places illithid_powers as its own field.
+    view = report_views.character_view(maia, gamedata.DisplayNames.load(), 'summary', 'all')
+    assert set(view.get('illithid_powers', [])) == illithid
+
+
+def test_prepared_powers_outside_spellbook_are_included():
+    """Granted powers that live outside the standard spell book (a prepared
+    entry whose id is absent from the book) must still appear as SpellRefs."""
+    model = parser.gather_report(QUICKSAVE_MAIA)
+    maia = next(c for c in model.characters if c.name.startswith('Maia'))
+    # Every source-22 illithid entry the save records as prepared is present.
+    ids = {s.id for s in maia.spells or []}
+    assert any(i.startswith('Target_TAD_') or i.startswith('Shout_TAD_') for i in ids)
+
+
+QUICKSAVE_419 = str(FIXTURE_DIR / 'quicksave_419.lsv')
+
+
+def test_power_lists_decode_every_character():
+    """Each tadpoled character's full illithid set (actives + passives) persists
+    as a packed power array. QuickSave_419: one party member has the deep tree,
+    others share a smaller set, camp companions have only Illithid Persuasion."""
+    frames = parser.extract_frames(QUICKSAVE_419)
+    nodes0 = lsf.parse_lsof(lsf.decomp_frame(frames['Globals.lsf']))
+    blob = next(
+        nd['attrs']['NewAge'] for nd in nodes0 if nd['name'] == 'NewAge' and nd['parent'] == -1
+    )
+    arrays = lsmf.parse_lsmf_power_lists(blob)
+    assert len(arrays) >= 4, 'expected one array per tadpoled character'
+    # Every array starts with the root power.
+    assert all(a[0] == 'TAD_IllithidPersuasion' for a in arrays)
+    # The deepest array mixes actives and passives.
+    deepest = max(arrays, key=len)
+    assert any(p.endswith('TAD_ConcentratedBlast') for p in deepest)  # active
+    assert 'TAD_LuckOfTheFarRealms' in deepest  # passive
+
+
+def test_power_name_resolves_passive_codenames():
+    """Passive codenames differ from display names and resolve via Passive.txt."""
+    dn = gamedata.DisplayNames.load()
+    if not dn.available:
+        pytest.skip('no game data available')
+    assert dn.power_name_for('TAD_PeaceBreaker') == 'Favourable Beginnings'
+    assert dn.power_name_for('TAD_LuckOfTheFarRealms') == 'Luck of the Far Realms'
+    assert dn.power_name_for('Shout_TAD_PsionicOverload') == 'Psionic Overload'
+
+
+def test_illithid_powers_attributed_per_character():
+    """The full set (incl passives) is attributed to each character by matching
+    its active subset to the character's source-22 actives. In QuickSave_419 the
+    player has the deep tree; companions resolve to their own sets."""
+    model = parser.gather_report(QUICKSAVE_419)
+    by_name = {c.name: c for c in model.characters}
+    maia = next(c for n, c in by_name.items() if n.startswith('Maia'))
+    # Maia's full list includes passives the spell book alone can't give.
+    assert maia.illithid_powers is not None
+    assert {'Illithid Persuasion', 'Favourable Beginnings', 'Luck of the Far Realms'} <= set(
+        maia.illithid_powers
+    )
+    # A camp companion tadpoled with only the root passive resolves to it.
+    others = [c for c in model.characters if c.illithid_powers == ['Illithid Persuasion']]
+    assert others, 'expected a companion with only Illithid Persuasion'
+
+
 def test_spell_level_for_resolves_cantrips_and_leveled():
     """gamedata must expose spell levels: 0 for cantrips, the slot level for
     leveled spells, None for non-spell abilities (Channel Divinity)."""

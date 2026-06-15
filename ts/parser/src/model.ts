@@ -21,6 +21,7 @@ import {
   parseLsmfHealth,
   parseLsmfInventoryOwners,
   parseLsmfMembership,
+  parseLsmfPowerLists,
   parseLsmfPreparedSpells,
   parseLsmfRecipes,
   parseLsmfSpellbooks,
@@ -114,6 +115,7 @@ export interface CharacterReport {
   location: string;
   spells: SpellRef[] | null;
   spells_note: string | null;
+  illithid_powers: string[] | null;
   equipped: ItemRef[];
   undetermined: ItemRef[];
   carried: ItemRef[];
@@ -363,6 +365,7 @@ export function gatherReport(
   const preparedSpells = lsmfBlob
     ? parseLsmfPreparedSpells(lsmfBlob)
     : new Map<number, [string, number, string][]>();
+  const powerLists = lsmfBlob ? parseLsmfPowerLists(lsmfBlob) : [];
   const supplies = lsmfBlob ? parseLsmfCampSupplies(lsmfBlob) : null;
   saveInfo.camp_supplies = supplies || null;
   saveInfo.recipes = lsmfBlob ? parseLsmfRecipes(lsmfBlob) : [];
@@ -512,7 +515,10 @@ export function gatherReport(
   // preparation data get prepared=null throughout. Each prepared entry carries
   // its SpellSourceType (class/subclass/race/item/...) so the player-chosen
   // list can be told from always-prepared grants; spell level separates
-  // cantrips from leveled spells.
+  // cantrips from leveled spells. Illithid (source 22) powers that live outside
+  // the standard spell book (Force Tunnel, Fly) are folded in too; other
+  // out-of-book prepared entries are left alone to keep the spell list stable.
+  const ILLITHID_SOURCE = 22;
   const stripUpcast = (sid: string): string => sid.replace(/_\d+$/, '');
   const spellRefs = (ent: number): SpellRef[] => {
     const prepared = preparedSpells.get(ent);
@@ -527,7 +533,12 @@ export function gatherReport(
         if (prev === undefined || st < prev) preparedSource.set(base, st);
       }
     }
-    return [...new Set(spellbooks.get(ent)!)].sort().map((sid) => {
+    const bookIds = new Set(spellbooks.get(ent)!);
+    const ids = new Set(bookIds);
+    if (prepared)
+      for (const [name, st] of prepared)
+        if (st === ILLITHID_SOURCE && !bookIds.has(name)) ids.add(name);
+    return [...ids].sort().map((sid) => {
       const base = stripUpcast(sid);
       const source = preparedSource ? (preparedSource.get(base) ?? null) : null;
       return {
@@ -844,6 +855,7 @@ export function gatherReport(
       location: dn.subregionNameFor(charInfo.Subregion ?? '') ?? charInfo.Subregion ?? '',
       spells: null,
       spells_note: null,
+      illithid_powers: null,
       equipped: [],
       undetermined: [],
       carried: [],
@@ -927,6 +939,7 @@ export function gatherReport(
         location: 'camp',
         spells: null,
         spells_note: null,
+        illithid_powers: null,
         equipped: [],
         undetermined: [],
         carried: [],
@@ -1064,6 +1077,35 @@ export function gatherReport(
         )
         .filter(([stats]) => stats)
         .map(([stats, , guid]) => itemRef(stats, guid, { count: chestCount(stats) }));
+    }
+  }
+
+  // Illithid powers: every tadpoled character's full set (actives AND passives)
+  // persists in the packed power arrays. They carry no entity id, so each is
+  // attributed by matching its active subset to a character's source-22 actives
+  // (epoch-independent), assigning the full list only when all arrays sharing
+  // that active subset have identical content. Mirrors bg3parser/model.py.
+  if (powerLists.length) {
+    // active-subset key -> distinct full name-lists (JSON) for that subset
+    const byActive = new Map<string, Map<string, string[]>>();
+    for (const powers of powerLists) {
+      const actives = [...new Set(powers.filter((p) => dn.spellNameFor(p)))].sort().join('|');
+      const names = [
+        ...new Set(powers.map((p) => dn.powerNameFor(p)).filter((n): n is string => !!n)),
+      ].sort();
+      if (names.length) {
+        if (!byActive.has(actives)) byActive.set(actives, new Map());
+        byActive.get(actives)!.set(JSON.stringify(names), names);
+      }
+    }
+    for (const char of report.characters) {
+      const acts = [...new Set((char.spells ?? []).filter((s) => s.source === 22).map((s) => s.id))]
+        .sort()
+        .join('|');
+      const cands = byActive.get(acts);
+      if (cands && cands.size === 1) {
+        char.illithid_powers = [...cands.values()][0]!;
+      }
     }
   }
 

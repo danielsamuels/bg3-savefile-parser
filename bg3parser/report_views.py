@@ -14,7 +14,7 @@ import dataclasses
 
 from .effects import Effects
 from .gamedata import DisplayNames
-from .model import CharacterReport, ItemRef, SaveReport
+from .model import ILLITHID_SOURCE, CharacterReport, ItemRef, SaveReport
 
 SECTIONS = ('meta', 'party', 'camp', 'camp_chest', 'quests')
 DETAIL_LEVELS = ('summary', 'full')
@@ -114,10 +114,11 @@ def prepared_spell_groups(char: CharacterReport) -> dict[str, list[str]]:
     spells a prepared caster picked and a known caster knows. The rest are
     castable but not chosen: 'always_prepared' (subclass grants, e.g. a
     cleric's domain spells), 'cantrips' (always available, never count against
-    the prepared limit), and 'item_spells' (granted by equipment). Basic
-    actions and sub-spells are dropped; upcast duplicates collapse on the
-    shared display name. Unresolved names (mod macros) and instrument
-    performances stay out; detail='full' keeps everything.
+    the prepared limit), and 'item_spells' (granted by equipment). Illithid
+    powers are reported separately (see illithid_powers). Basic actions and
+    sub-spells are dropped; upcast duplicates collapse on the shared display
+    name. Unresolved names (mod macros) and instrument performances stay out;
+    detail='full' keeps everything.
 
     When the book carries no preparation data, the whole class-spell list
     stands in under 'prepared_spells' as a best effort.
@@ -160,12 +161,16 @@ def prepared_spell_groups(char: CharacterReport) -> dict[str, list[str]]:
         if always:
             groups['always_prepared'] = always
 
+    # Illithid (source 22) powers are reported in their own section, not here.
     items = names(s for s in real if s.prepared and s.source == 3 and lvl(s) >= 1)
     cantrips = names(s for s in real if s.prepared and s.level == 0)
     other = names(
         s
         for s in real
-        if s.prepared and lvl(s) >= 1 and (s.source is None or s.source >= 4) and s.source != 3
+        if s.prepared
+        and lvl(s) >= 1
+        and (s.source is None or s.source >= 4)
+        and s.source not in (3, ILLITHID_SOURCE)
     )
     if cantrips:
         groups['cantrips'] = cantrips
@@ -174,6 +179,27 @@ def prepared_spell_groups(char: CharacterReport) -> dict[str, list[str]]:
     if other:
         groups['other_prepared'] = other
     return groups
+
+
+def illithid_powers(char: CharacterReport) -> list[str]:
+    """Astral-Touched Tadpole (illithid) powers, by display name.
+
+    The complete set (actives and passives, e.g. Illithid Persuasion, Favourable
+    Beginnings) comes from the save's PowerContainer when it is populated for
+    this character — the recently-viewed one (model sets char.illithid_powers).
+    Otherwise only the active powers are recoverable: those carry SpellSourceType
+    22 (verified exclusive to TAD_* powers). Upcast duplicates collapse on the
+    shared display name.
+    """
+    if char.illithid_powers is not None:
+        return char.illithid_powers
+    out: list[str] = []
+    seen: set[str] = set()
+    for s in char.spells or []:
+        if s.source == ILLITHID_SOURCE and s.name and s.name not in seen:
+            seen.add(s.name)
+            out.append(s.name)
+    return sorted(out)
 
 
 def feat_label(feat: dict) -> str:
@@ -229,6 +255,9 @@ def character_view(
     undetermined = [item_view(r, dn, fx) for r in char.undetermined if keep_item(r, dn, items)]
     if undetermined:
         out['undetermined'] = undetermined
+    illithid = illithid_powers(char)
+    if illithid:
+        out['illithid_powers'] = illithid
     groups = prepared_spell_groups(char)
     if groups.get('prepared_spells'):
         out['prepared_spells'] = groups['prepared_spells']

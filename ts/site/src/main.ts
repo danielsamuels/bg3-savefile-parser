@@ -232,6 +232,9 @@ function renderSaveHead(si: SaveInfo, sourceName: string, thumbUrl: string | nul
 /** Group castable spells the way the game's UI does, mirroring
  *  bg3parser/report_views.py prepared_spell_groups. 'prepared' is the
  *  player-chosen leveled list; the rest are castable but not chosen. */
+/** SpellSourceType for Astral-Touched Tadpole (illithid) powers. */
+const ILLITHID_SOURCE = 22;
+
 function groupSpells(spells: SpellRef[]): {
   prepared: string[];
   always: string[];
@@ -284,14 +287,45 @@ function groupSpells(spells: SpellRef[]): {
     for (const [k, seq] of prog) if (k !== headline) alwaysRefs.push(...seq);
     always = dedup(alwaysRefs).sort();
   }
+  // Illithid (source 22) powers are rendered in their own section, not here.
   const items = dedup(real.filter((s) => s.prepared && s.source === 3 && lvl(s) >= 1)).sort();
   const cantrips = dedup(real.filter((s) => s.prepared && s.level === 0)).sort();
   const other = dedup(
     real.filter(
-      (s) => s.prepared && lvl(s) >= 1 && (s.source === null || s.source >= 4) && s.source !== 3,
+      (s) =>
+        s.prepared &&
+        lvl(s) >= 1 &&
+        (s.source === null || s.source >= 4) &&
+        s.source !== 3 &&
+        s.source !== ILLITHID_SOURCE,
     ),
   ).sort();
   return { prepared, always, cantrips, items, other };
+}
+
+/** Active Astral-Touched Tadpole (illithid) powers from the spell book (source
+ *  22). Fallback when the model didn't resolve the full PowerContainer set. */
+function illithidActives(spells: SpellRef[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const s of spells) {
+    if (s.source === ILLITHID_SOURCE && s.name && !seen.has(s.name)) {
+      seen.add(s.name);
+      out.push(s.name);
+    }
+  }
+  return out.sort();
+}
+
+/** The character's illithid powers: the full set (actives + passives) from the
+ *  PowerContainer when the model resolved it, else the actives from the book. */
+function renderIllithid(c: CharacterReport): string {
+  const powers = c.illithid_powers ?? illithidActives(c.spells ?? []);
+  if (!powers.length) return '';
+  return `<details class="fold" open>
+    <summary>Illithid powers <span class="count">${powers.length}</span></summary>
+    <ul class="items">${powers.map((n) => `<li>${esc(n)}</li>`).join('')}</ul>
+  </details>`;
 }
 
 function renderSpells(spells: SpellRef[]): string {
@@ -487,6 +521,7 @@ function renderCharacter(c: CharacterReport, index: number): string {
       ? `<details class="fold"><summary>Carried <span class="count">${carriedItems}</span>${goldNote}</summary><div>${carriedGroups}</div></details>`
       : '';
 
+  const illithid = renderIllithid(c);
   const spells = c.spells ? renderSpells(c.spells) : '';
   const spellsNote =
     !spells && c.spells_note
@@ -494,7 +529,7 @@ function renderCharacter(c: CharacterReport, index: number): string {
       : '';
 
   return `<section class="char" style="--i:${index}">${head}
-    ${equippedList}${undetermined}${carried}${spells}${spellsNote}
+    ${equippedList}${undetermined}${carried}${illithid}${spells}${spellsNote}
   </section>`;
 }
 

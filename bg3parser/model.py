@@ -29,6 +29,7 @@ from .lsmf import (
     parse_lsmf_health,
     parse_lsmf_inventory_owners,
     parse_lsmf_membership,
+    parse_lsmf_power_lists,
     parse_lsmf_prepared_spells,
     parse_lsmf_recipes,
     parse_lsmf_spellbooks,
@@ -69,6 +70,10 @@ from .party import (
     resolve_slot_conflicts,
     split_equipped_carried,
 )
+
+# SpellSourceType for Astral-Touched Tadpole (illithid) powers. Some of these
+# (Force Tunnel, Fly) live in PreparedSpells but not the standard spell book.
+ILLITHID_SOURCE = 22
 
 # Basic actions present in every character's spell book; folded out of the
 # default spell list by the text view.
@@ -139,6 +144,10 @@ class CharacterReport:
     location: str
     spells: list[SpellRef] | None = None
     spells_note: str | None = None  # 'ambiguous-build' | 'not-found'
+    # Illithid (tadpole) powers, by display name (actives + passives), from the
+    # packed power arrays when one is confidently attributed to this character.
+    # None when no confident match; the view then falls back to active powers.
+    illithid_powers: list[str] | None = None
     equipped: list[ItemRef] = field(default_factory=list)
     undetermined: list[ItemRef] = field(default_factory=list)
     carried: list[ItemRef] = field(default_factory=list)
@@ -382,10 +391,12 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
     concentration: dict[int, str] = {}
     levelup_records: list[dict] = []
     cc_names: list[str] = []
+    power_lists: list[list[str]] = []
     if lsmf_blob:
         spellbooks = parse_lsmf_spellbooks(lsmf_blob)
         entity_classes = parse_lsmf_classes(lsmf_blob)
         prepared_spells = parse_lsmf_prepared_spells(lsmf_blob)
+        power_lists = parse_lsmf_power_lists(lsmf_blob)
         supplies = parse_lsmf_camp_supplies(lsmf_blob)
         ability_scores = parse_lsmf_ability_scores(lsmf_blob)
         health = parse_lsmf_health(lsmf_blob, ability_scores, CLASS_UUID_NAMES)
@@ -540,6 +551,11 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         player-chosen list (source 0) can be told from the always-prepared
         subclass set; spell level lets cantrips be separated from leveled
         spells.
+
+        The illithid movement powers Force Tunnel and Fly are in PreparedSpells
+        but not the standard spell book, so illithid (source 22) prepared
+        entries missing from the book are folded in too. Other out-of-book
+        prepared entries are left alone to keep the spell list stable.
         """
         prepared = prepared_spells.get(ent)
         # base prototype name -> lowest source type (class 0 beats item 3 etc.)
@@ -550,14 +566,23 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
                 base = re.sub(r'_\d+$', '', name)
                 if st >= 0 and (base not in prepared_source or st < prepared_source[base]):
                     prepared_source[base] = st
-        refs = []
-        for sid in sorted(set(spellbooks[ent])):
+
+        book_ids = set(spellbooks[ent])
+        extra_ids = (
+            {name for name, st, _g in prepared if st == ILLITHID_SOURCE and name not in book_ids}
+            if prepared is not None
+            else set()
+        )
+
+        def classify(sid: str) -> str:
             if sid in COMMON_ACTION_SPELLS:
-                cat = 'basic-action'
-            elif sid in dn.sub_spells:
-                cat = 'sub-spell'
-            else:
-                cat = 'spell'
+                return 'basic-action'
+            if sid in dn.sub_spells:
+                return 'sub-spell'
+            return 'spell'
+
+        refs = []
+        for sid in sorted(book_ids | extra_ids):
             base = re.sub(r'_\d+$', '', sid)
             if prepared_source is None:
                 is_prepared: bool | None = None
@@ -569,7 +594,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
                 SpellRef(
                     id=sid,
                     name=dn.spell_name_for(sid),
-                    category=cat,
+                    category=classify(sid),
                     prepared=is_prepared,
                     source=source,
                     level=dn.spell_level_for(sid),
@@ -910,7 +935,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
                     if base_class and camp_base_classes.count(base_class) == 1
                     else None
                 )
-            if ent is not None:
+            if ent is not None and ent in entity_classes:
                 char.classes = [
                     {'Main': CLASS_UUID_NAMES.get(cg, '?')}
                     | ({'Sub': CLASS_UUID_NAMES.get(sg, '?')} if sg != NULL_UUID else {})
@@ -1062,5 +1087,28 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         # Biggest shops first; the unattributed bucket (no template) sinks last.
         vendors.sort(key=lambda v: (v.template_guid == '', -v.total, v.name or '~'))
         report.vendors = vendors
+
+    # Illithid powers: every tadpoled character's full set (actives AND passives
+    # like Illithid Persuasion / Favourable Beginnings) persists in the packed
+    # power arrays. They carry no entity id, so each is attributed to a character
+    # by matching its active-power subset to that character's source-22 actives
+    # (epoch-independent). A character is assigned the full list only when all
+    # arrays sharing its active subset have identical content — so same-build
+    # party members (identical lists) resolve cleanly, while two genuinely
+    # different builds that happen to share an active set are left as actives
+    # only rather than guessed. Characters without a confident match keep their
+    # actives, always recoverable from the spell book (source 22).
+    if power_lists:
+        by_active: dict[frozenset[str], set[tuple[str, ...]]] = {}
+        for powers in power_lists:
+            actives = frozenset(p for p in powers if dn.spell_name_for(p))
+            names = tuple(sorted({n for n in (dn.power_name_for(p) for p in powers) if n}))
+            if names:
+                by_active.setdefault(actives, set()).add(names)
+        for char in report.characters:
+            acts = frozenset(s.id for s in char.spells or [] if s.source == ILLITHID_SOURCE)
+            cands = by_active.get(acts)
+            if cands and len(cands) == 1:
+                char.illithid_powers = list(next(iter(cands)))
 
     return report

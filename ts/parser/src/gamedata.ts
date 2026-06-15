@@ -6,6 +6,7 @@ export interface GamedataJson {
   stats: Record<string, string>;
   spells?: Record<string, string>;
   spell_levels?: Record<string, number>;
+  passive_names?: Record<string, string>;
   object_types?: string[];
   stats_slots?: Record<string, string>;
   two_handed?: string[];
@@ -23,6 +24,7 @@ export class DisplayNames {
   readonly stats: Record<string, string>;
   readonly spells: Record<string, string>;
   readonly spellLevels: Record<string, number>;
+  readonly passives: Record<string, string>;
   readonly objectTypeStats: Set<string>;
   readonly statsToSlot: Record<string, string>;
   readonly twoHandedStats: Set<string>;
@@ -39,6 +41,7 @@ export class DisplayNames {
     this.stats = data?.stats ?? {};
     this.spells = data?.spells ?? {};
     this.spellLevels = data?.spell_levels ?? {};
+    this.passives = data?.passive_names ?? {};
     this.objectTypeStats = new Set(data?.object_types ?? []);
     this.statsToSlot = data?.stats_slots ?? {};
     this.twoHandedStats = new Set(data?.two_handed ?? []);
@@ -71,6 +74,12 @@ export class DisplayNames {
     if (spellId in this.spellLevels) return this.spellLevels[spellId]!;
     const base = spellId.replace(/_\d+$/, '');
     return this.spellLevels[base] ?? null;
+  }
+
+  /** Display name for an illithid power id: a spell (Shout_TAD_*) or passive
+   *  (TAD_PeaceBreaker -> 'Favourable Beginnings'); null if neither. */
+  powerNameFor(powerId: string): string | null {
+    return this.spells[powerId] ?? this.passives[powerId] ?? null;
   }
 
   /** Display name for an action-resource UUID, or null. */

@@ -280,12 +280,13 @@ def build_displayname_maps(
     dict[str, str],
     dict[str, str],
     dict[str, int],
+    dict[str, str],
 ]:
     """Build display-name and item-stat maps from installed game data.
 
     Returns (guid->name, stats->name, spell_id->name, object_type_stats, stats_to_slot,
     two_handed_stats, sub_spells, quest_names, quest_objectives, action_resources,
-    feat_names, subregions, stats_to_rarity, spell_id->level).
+    feat_names, subregions, stats_to_rarity, spell_id->level, passive_id->name).
 
     Results are cached under XDG_CACHE_HOME keyed on the source paks' mtime/size,
     so the ~1 s parse only happens after a game update.
@@ -313,6 +314,7 @@ def build_displayname_maps(
             data.get('subregions', {}),
             data.get('rarity', {}),
             data.get('spell_levels', {}),
+            data.get('passive_names', {}),
         )
     except (OSError, ValueError, KeyError):
         pass
@@ -516,6 +518,38 @@ def build_displayname_maps(
                 break
             cur = info['using']
 
+    # Passive display names, scoped to the Astral-Touched Tadpole (illithid)
+    # tree (TAD_* ids) — the only passives the report needs to resolve, kept
+    # small so the client-downloaded gamedata.json stays lean. The internal
+    # codename differs from the display name (TAD_PeaceBreaker = "Favourable
+    # Beginnings"), so the in-game name only comes from here.
+    passive_names: dict[str, str] = {}
+    for pak_name in STAT_ITEM_PAKS:
+        pak_path = os.path.join(data_dir, pak_name)
+        try:
+            with open(pak_path, 'rb') as fh:
+                flist = lspk_filelist(fh)
+            passive_files = sorted(
+                k for k in flist if re.search(r'/Stats/Generated/Data/Passive.*\.txt$', k)
+            )
+        except (OSError, ValueError):
+            continue
+        for pf in passive_files:
+            try:
+                text = lspk_extract(pak_path, pf).decode('utf-8', errors='replace')
+            except (OSError, KeyError, ValueError):
+                continue
+            for block_match in re.finditer(r'^new entry "(TAD_[^"]+)"', text, re.MULTILINE):
+                entry_name = block_match.group(1)
+                start = block_match.end()
+                next_block = re.search(r'^new entry', text[start:], re.MULTILINE)
+                block_text = text[start : start + (next_block.start() if next_block else len(text))]
+                dn_m = re.search(r'data "DisplayName" "([^";]+)', block_text)
+                if dn_m:
+                    txt = handle_to_text.get(dn_m.group(1))
+                    if txt and '%%%' not in txt:
+                        passive_names[entry_name] = txt
+
     # Item stat files: Armor.txt / Weapon.txt / Object.txt from item paks.
     # Used to (a) identify Object-type items that cannot be equipped, and
     # (b) resolve the equipment slot for each item (following the `using` chain).
@@ -628,6 +662,7 @@ def build_displayname_maps(
                     'stats': stats_name,
                     'spells': spell_name,
                     'spell_levels': spell_levels,
+                    'passive_names': passive_names,
                     'object_types': object_type_stats_list,
                     'stats_slots': stats_to_slot,
                     'two_handed': two_handed_stats_list,
@@ -658,6 +693,7 @@ def build_displayname_maps(
         subregions,
         stats_to_rarity,
         spell_levels,
+        passive_names,
     )
 
 
@@ -680,11 +716,13 @@ class DisplayNames:
         subregions: dict[str, str] | None = None,
         stats_to_rarity: dict[str, str] | None = None,
         spell_levels: dict[str, int] | None = None,
+        passive_names: dict[str, str] | None = None,
     ):
         self._guid = guid_name
         self._stats = stats_name
         self._spells = spell_name or {}
         self._spell_levels = spell_levels or {}
+        self._passives = passive_names or {}
         self.object_type_stats: frozenset[str] = object_type_stats or frozenset()
         self.stats_to_slot: dict[str, str] = stats_to_slot or {}
         self.two_handed_stats: frozenset[str] = two_handed_stats or frozenset()
@@ -759,6 +797,11 @@ class DisplayNames:
         if spell_id in self._spell_levels:
             return self._spell_levels[spell_id]
         return self._spell_levels.get(re.sub(r'_\d+$', '', spell_id))
+
+    def power_name_for(self, power_id: str) -> str | None:
+        """Display name for an illithid power id: a spell (Shout_TAD_*) or a
+        passive (TAD_PeaceBreaker -> 'Favourable Beginnings'); None if neither."""
+        return self._spells.get(power_id) or self._passives.get(power_id)
 
     def fmt_spell(self, spell_id: str) -> str:
         dn = self._spells.get(spell_id)
