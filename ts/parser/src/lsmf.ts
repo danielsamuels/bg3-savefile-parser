@@ -856,17 +856,9 @@ export function parseLsmfCampSupplies(blob: Uint8Array): number | null {
 export function parseLsmfPreparedSpells(blob: Uint8Array): Map<number, [string, number, string][]> {
   const idx = lsmfComponentIndex(blob);
   const sp = idx.get('game.spell.v0.SpellBookPrepares');
-  const et = idx.get('game.spell.v0.ESourceType');
-  if (!sp || !et || sp.elemSize !== 80) return new Map();
+  if (!sp || sp.elemSize !== 80) return new Map();
   const { bytes, dv } = align(blob);
   const L = bytes.length;
-
-  const sourcePool = new Map<number, number>();
-  for (let r = 0; r < et.rowCount; r++) {
-    const off = et.dataOffset + r * et.elemSize;
-    if (off + et.elemSize > L) break;
-    sourcePool.set(off - LSMF_HEAP_BASE, u64(dv, off));
-  }
 
   const heapStr = (ptr: number, ln: number): string | null => {
     const p0 = ptr + LSMF_HEAP_BASE;
@@ -899,11 +891,17 @@ export function parseLsmfPreparedSpells(blob: Uint8Array): Map<number, [string, 
       let sourceGuid = '';
       const d0 = detail + LSMF_HEAP_BASE;
       if (d0 > 0 && d0 <= L - 24) {
-        const eptr = u64(dv, d0);
-        const st = sourcePool.get(eptr);
-        if (st !== undefined) {
-          sourceType = st;
-          sourceGuid = guidLeStr(bytes, d0 + 8);
+        // Dereference the pointer into the ESourceType pool directly: the
+        // component under-reports its row count, so the class(0)/subclass(1)
+        // values sit just past the indexed rows and a row-table lookup misses
+        // them. See bg3parser/lsmf.py parse_lsmf_prepared_spells.
+        const eptr = u64(dv, d0) + LSMF_HEAP_BASE;
+        if (eptr > 0 && eptr <= L - 8) {
+          const val = u64(dv, eptr);
+          if (val < 1024) {
+            sourceType = val;
+            sourceGuid = guidLeStr(bytes, d0 + 8);
+          }
         }
       }
       entries.push([name, sourceType, sourceGuid]);
