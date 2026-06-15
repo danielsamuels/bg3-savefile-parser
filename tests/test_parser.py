@@ -1149,6 +1149,38 @@ def test_all_items():
     assert 'items total' in report
 
 
+def test_vendors_model():
+    """--vendors attributes every UnsoldGenerated item to a merchant position."""
+    model = gather_model(str(FIXTURE_DIR / 'quicksave_286.lsv'), opts=Namespace(vendors=True))
+    assert model.vendors is not None
+    # Ground truth for QuickSave_286: 543 for-sale items across 161 positions,
+    # all attributed; the biggest shop carries 94 (see UnsoldGenerated count).
+    assert len(model.vendors) == 161
+    assert sum(v.total for v in model.vendors) == 543
+    assert model.vendors[0].total == 94
+    # Sorted biggest-first; every line is a real, counted item.
+    assert [v.total for v in model.vendors] == sorted(
+        (v.total for v in model.vendors), reverse=True
+    )
+    for v in model.vendors:
+        assert v.total == sum(i.count for i in v.items)
+        assert all(i.stats and i.count >= 1 for i in v.items)
+
+
+def test_vendors_text_filters_to_real_shops():
+    """The text report shows only non-trivial stock and notes the omitted tail."""
+    report = build_report(str(FIXTURE_DIR / 'quicksave_286.lsv'), opts=Namespace(vendors=True))
+    assert 'VENDOR STOCK  (7 merchants)' in report
+    assert '154 ambient NPCs with trivial stock' in report
+
+
+def test_vendors_absent_by_default():
+    """Without --vendors the section and model field stay empty."""
+    model = gather_model(QUICKSAVE_MAIA)
+    assert model.vendors is None
+    assert 'VENDOR STOCK' not in build_report(QUICKSAVE_MAIA)
+
+
 def test_limits():
     """--limits must emit the known-limitations note."""
     report = build_report(QUICKSAVE_MAIA, opts=Namespace(limits=True))
@@ -1526,6 +1558,25 @@ def test_mcp_item_info_and_effects():
     # Without the flag, no effects keys appear.
     plain = mcp_server.parse_save(QUICKSAVE_MAIA, sections=['party'], quests=False)
     assert 'effects' not in str(plain)
+
+
+def test_mcp_vendors():
+    """vendors lists merchants' for-sale stock, filtered to real shops."""
+    pytest.importorskip('mcp')
+    from bg3parser import mcp_server
+
+    save = str(FIXTURE_DIR / 'quicksave_286.lsv')
+    res = mcp_server.vendors(save=save, min_stock=5)
+    assert res['save'] == 'quicksave_286'
+    shops = res['merchants']
+    assert len(shops) == 7  # ground truth: 7 merchants with non-trivial stock
+    assert shops[0]['total'] == 94  # biggest first
+    assert shops[0]['total'] == sum(i['count'] for i in shops[0]['items'])
+    assert all(i['stats'] and i['count'] >= 1 and 'category' in i for i in shops[0]['items'])
+
+    # min_stock=0 includes the ambient tail; limit caps the list.
+    assert len(mcp_server.vendors(save=save, min_stock=0)['merchants']) == 161
+    assert len(mcp_server.vendors(save=save, min_stock=5, limit=3)['merchants']) == 3
 
 
 def test_mcp_summary_spell_noise_and_feats():

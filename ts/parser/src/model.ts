@@ -189,6 +189,7 @@ export interface SaveReport {
   quests: QuestsReport | null;
   story: StoryState | null;
   level_items: null;
+  vendors: null;
   inspect_pattern: string;
   names_resolved: boolean;
 }
@@ -795,6 +796,7 @@ export function gatherReport(
     quests: null,
     story: null,
     level_items: null,
+    vendors: null,
     inspect_pattern: '',
     names_resolved: dn.available,
   };

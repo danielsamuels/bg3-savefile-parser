@@ -45,6 +45,9 @@ CAMP CHEST  ({{ report.camp_chest | length }} item types)
 {% if report.level_items is not none %}
 {% include 'level_items.txt.j2' %}
 {% endif %}
+{% if report.vendors is not none %}
+{% include 'vendors.txt.j2' %}
+{% endif %}
 {% if opts.limits %}
 {% include 'limits.txt.j2' %}
 {% endif %}

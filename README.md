@@ -47,6 +47,9 @@ uv run bg3save
 # Extra sections and switches:
 uv run bg3save 286 --save-info --quests --carried --all-items --verbose
 
+# List every merchant's for-sale stock (items generated and not yet bought):
+uv run bg3save 286 --vendors
+
 # Machine-readable output for building on top of the parser:
 uv run bg3save 286 --json
 ```
