@@ -47,6 +47,22 @@ function align(blob: Uint8Array): AlignedBlob {
 
 const u64 = (dv: DataView, off: number) => Number(dv.getBigUint64(off, true));
 
+/** First index >= from where needle occurs in haystack, or -1 (byte search). */
+function indexOf(haystack: Uint8Array, needle: Uint8Array, from: number): number {
+  const last = haystack.length - needle.length;
+  for (let i = from; i <= last; i++) {
+    let m = true;
+    for (let j = 0; j < needle.length; j++) {
+      if (haystack[i + j] !== needle[j]) {
+        m = false;
+        break;
+      }
+    }
+    if (m) return i;
+  }
+  return -1;
+}
+
 /** Parse the LSMF header, component descriptors, and ownerlist table.
  *  Returns null on any parse failure. Cached per blob object — the ownerlist
  *  sweep walks the whole blob and dominates parse time. */
@@ -945,44 +961,66 @@ export function parseLsmfPreparedSpells(blob: Uint8Array): Map<number, [string, 
   return out;
 }
 
-/** Illithid (tadpole) powers: entity row -> [power ID, ...]. PowerContainer
- *  rows are 16-byte {begin, end} ranges into an array of 16-byte {string ptr,
- *  length} records. Only the recently-viewed character's row is populated.
- *  Mirrors bg3parser/lsmf.py parse_lsmf_power_container. */
-export function parseLsmfPowerContainer(blob: Uint8Array): Map<number, string[]> {
-  const idx = lsmfComponentIndex(blob);
-  const pc = idx.get('game.tadpole_tree.v0.PowerContainerComponent');
-  const out = new Map<number, string[]>();
-  if (!pc || pc.elemSize !== 16) return out;
+const TADPOLE_ROOT_POWER = 'TAD_IllithidPersuasion';
+
+/** Every tadpoled character's illithid power set, one power-ID list per entity.
+ *  Each set is a packed array of 16-byte {string ptr, length} records, the
+ *  arrays sit back-to-back, and each begins with the root power
+ *  TAD_IllithidPersuasion, which delimits them. These persist for all
+ *  characters; they carry no entity id (callers attribute by content). Mirrors
+ *  bg3parser/lsmf.py parse_lsmf_power_lists. */
+export function parseLsmfPowerLists(blob: Uint8Array): string[][] {
   const { bytes, dv } = align(blob);
   const L = bytes.length;
   const dec = new TextDecoder();
-  for (let k = 0; k < pc.rowCount; k++) {
-    const ent = pc.ownerRows[k]!;
-    const base = pc.dataOffset + k * pc.elemSize;
-    const begin = u64(dv, base);
-    const end = u64(dv, base + 8);
-    const size = end - begin;
-    if (!(begin >= 0 && begin < end && end <= L && size % 16 === 0 && size <= 16 * 256)) continue;
-    const powers: string[] = [];
-    for (let p = begin + LSMF_HEAP_BASE; p < end + LSMF_HEAP_BASE; p += 16) {
-      const sptr = u64(dv, p);
-      const ln = u64(dv, p + 8);
-      const p0 = sptr + LSMF_HEAP_BASE;
-      if (!(ln > 0 && ln <= 128 && p0 > 0 && p0 <= L - ln)) continue;
-      let ok = true;
-      for (let i = 0; i < ln; i++) {
-        const ch = bytes[p0 + i]!;
-        if (ch < 0x20 || ch >= 0x7f) {
-          ok = false;
-          break;
-        }
-      }
-      if (ok) powers.push(dec.decode(bytes.subarray(p0, p0 + ln)));
+  const recName = (p: number): string | null => {
+    if (!(p >= 0 && p <= L - 16)) return null;
+    const sptr = u64(dv, p);
+    const ln = u64(dv, p + 8);
+    const p0 = sptr + LSMF_HEAP_BASE;
+    if (!(ln > 0 && ln <= 128 && p0 > 0 && p0 <= L - ln)) return null;
+    for (let i = 0; i < ln; i++) {
+      const ch = bytes[p0 + i]!;
+      if (ch < 0x20 || ch >= 0x7f) return null;
     }
-    if (powers.length) out.set(ent, powers);
+    return dec.decode(bytes.subarray(p0, p0 + ln));
+  };
+  const isPower = (n: string | null): boolean =>
+    n !== null && (n.includes('TAD') || n.includes('ForceTunnel') || n.includes('Levitate'));
+
+  const root = new TextEncoder().encode(TADPOLE_ROOT_POWER);
+  const starts = new Set<number>();
+  let s = 0;
+  for (;;) {
+    const i = indexOf(bytes, root, s);
+    if (i < 0) break;
+    // a {ptr, len} record naming the root power: 8 bytes ptr (i - HEAP_BASE) + 8 bytes len
+    const record = new Uint8Array(16);
+    new DataView(record.buffer).setBigUint64(0, BigInt(i - LSMF_HEAP_BASE), true);
+    new DataView(record.buffer).setBigUint64(8, BigInt(root.length), true);
+    let q = 0;
+    for (;;) {
+      const r = indexOf(bytes, record, q);
+      if (r < 0) break;
+      if (r % 8 === 0) starts.add(r);
+      q = r + 1;
+    }
+    s = i + 1;
   }
-  return out;
+
+  const arrays: string[][] = [];
+  for (const st of [...starts].sort((a, b) => a - b)) {
+    const powers = [TADPOLE_ROOT_POWER];
+    let p = st + 16;
+    for (;;) {
+      const name = recName(p);
+      if (!isPower(name) || name === TADPOLE_ROOT_POWER) break;
+      powers.push(name!);
+      p += 16;
+    }
+    arrays.push(powers);
+  }
+  return arrays;
 }
 
 export function parseLsmfContainerPositions(blob: Uint8Array): Map<number, number> {

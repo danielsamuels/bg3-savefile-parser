@@ -21,7 +21,7 @@ import {
   parseLsmfHealth,
   parseLsmfInventoryOwners,
   parseLsmfMembership,
-  parseLsmfPowerContainer,
+  parseLsmfPowerLists,
   parseLsmfPreparedSpells,
   parseLsmfRecipes,
   parseLsmfSpellbooks,
@@ -364,7 +364,7 @@ export function gatherReport(
   const preparedSpells = lsmfBlob
     ? parseLsmfPreparedSpells(lsmfBlob)
     : new Map<number, [string, number, string][]>();
-  const powerContainer = lsmfBlob ? parseLsmfPowerContainer(lsmfBlob) : new Map<number, string[]>();
+  const powerLists = lsmfBlob ? parseLsmfPowerLists(lsmfBlob) : [];
   const supplies = lsmfBlob ? parseLsmfCampSupplies(lsmfBlob) : null;
   saveInfo.camp_supplies = supplies || null;
   saveInfo.recipes = lsmfBlob ? parseLsmfRecipes(lsmfBlob) : [];
@@ -1078,30 +1078,31 @@ export function gatherReport(
     }
   }
 
-  // Illithid powers: the PowerContainer names the full set (actives AND
-  // passives) but only for the recently-viewed character, in its own entity
-  // epoch. Attribute it by matching its active-power ids to a character's
-  // source-22 actives (epoch-independent); only an unambiguous match is
-  // trusted. Mirrors bg3parser/model.py. ILLITHID_SOURCE = 22.
-  if (powerContainer.size) {
-    const charActives = new Map<string, Set<string>>();
-    for (const char of report.characters) {
-      const acts = new Set((char.spells ?? []).filter((s) => s.source === 22).map((s) => s.id));
-      if (acts.size) charActives.set(char.name, acts);
+  // Illithid powers: every tadpoled character's full set (actives AND passives)
+  // persists in the packed power arrays. They carry no entity id, so each is
+  // attributed by matching its active subset to a character's source-22 actives
+  // (epoch-independent), assigning the full list only when all arrays sharing
+  // that active subset have identical content. Mirrors bg3parser/model.py.
+  if (powerLists.length) {
+    // active-subset key -> distinct full name-lists (JSON) for that subset
+    const byActive = new Map<string, Map<string, string[]>>();
+    for (const powers of powerLists) {
+      const actives = [...new Set(powers.filter((p) => dn.spellNameFor(p)))].sort().join('|');
+      const names = [
+        ...new Set(powers.map((p) => dn.powerNameFor(p)).filter((n): n is string => !!n)),
+      ].sort();
+      if (names.length) {
+        if (!byActive.has(actives)) byActive.set(actives, new Map());
+        byActive.get(actives)!.set(JSON.stringify(names), names);
+      }
     }
-    for (const powers of powerContainer.values()) {
-      const activeIds = new Set(powers.filter((p) => dn.spellNameFor(p)));
-      if (!activeIds.size) continue;
-      const eq = (a: Set<string>, b: Set<string>) =>
-        a.size === b.size && [...a].every((x) => b.has(x));
-      const matches = [...charActives.entries()].filter(([, acts]) => eq(acts, activeIds));
-      if (matches.length === 1) {
-        const resolved = [
-          ...new Set(powers.map((p) => dn.powerNameFor(p)).filter((n): n is string => !!n)),
-        ].sort();
-        for (const char of report.characters) {
-          if (char.name === matches[0]![0]) char.illithid_powers = resolved;
-        }
+    for (const char of report.characters) {
+      const acts = [...new Set((char.spells ?? []).filter((s) => s.source === 22).map((s) => s.id))]
+        .sort()
+        .join('|');
+      const cands = byActive.get(acts);
+      if (cands && cands.size === 1) {
+        char.illithid_powers = [...cands.values()][0]!;
       }
     }
   }

@@ -29,7 +29,7 @@ from .lsmf import (
     parse_lsmf_health,
     parse_lsmf_inventory_owners,
     parse_lsmf_membership,
-    parse_lsmf_power_container,
+    parse_lsmf_power_lists,
     parse_lsmf_prepared_spells,
     parse_lsmf_recipes,
     parse_lsmf_spellbooks,
@@ -378,12 +378,12 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
     concentration: dict[int, str] = {}
     levelup_records: list[dict] = []
     cc_names: list[str] = []
-    power_container: dict[int, list[str]] = {}
+    power_lists: list[list[str]] = []
     if lsmf_blob:
         spellbooks = parse_lsmf_spellbooks(lsmf_blob)
         entity_classes = parse_lsmf_classes(lsmf_blob)
         prepared_spells = parse_lsmf_prepared_spells(lsmf_blob)
-        power_container = parse_lsmf_power_container(lsmf_blob)
+        power_lists = parse_lsmf_power_lists(lsmf_blob)
         supplies = parse_lsmf_camp_supplies(lsmf_blob)
         ability_scores = parse_lsmf_ability_scores(lsmf_blob)
         health = parse_lsmf_health(lsmf_blob, ability_scores, CLASS_UUID_NAMES)
@@ -1038,29 +1038,27 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
             'entries': entries,
         }
 
-    # Illithid powers: the PowerContainer names the full set (actives AND
-    # passives like Illithid Persuasion / Favourable Beginnings) but only for
-    # the recently-viewed character, and in its own entity epoch — so it is
-    # attributed by matching its active-power ids to a character's source-22
-    # actives (epoch-independent). Only an unambiguous match is trusted; when
-    # two party members share an identical active set the passives are left off
-    # rather than guessed. Characters without a match keep their actives, which
-    # are always recoverable from the spell book (source 22).
-    if power_container:
-        char_actives: dict[str, set[str]] = {}
+    # Illithid powers: every tadpoled character's full set (actives AND passives
+    # like Illithid Persuasion / Favourable Beginnings) persists in the packed
+    # power arrays. They carry no entity id, so each is attributed to a character
+    # by matching its active-power subset to that character's source-22 actives
+    # (epoch-independent). A character is assigned the full list only when all
+    # arrays sharing its active subset have identical content — so same-build
+    # party members (identical lists) resolve cleanly, while two genuinely
+    # different builds that happen to share an active set are left as actives
+    # only rather than guessed. Characters without a confident match keep their
+    # actives, always recoverable from the spell book (source 22).
+    if power_lists:
+        by_active: dict[frozenset[str], set[tuple[str, ...]]] = {}
+        for powers in power_lists:
+            actives = frozenset(p for p in powers if dn.spell_name_for(p))
+            names = tuple(sorted({n for n in (dn.power_name_for(p) for p in powers) if n}))
+            if names:
+                by_active.setdefault(actives, set()).add(names)
         for char in report.characters:
-            acts = {s.id for s in char.spells or [] if s.source == ILLITHID_SOURCE}
-            if acts:
-                char_actives[char.name] = acts
-        for powers in power_container.values():
-            active_ids = {p for p in powers if dn.spell_name_for(p)}
-            if not active_ids:
-                continue
-            matches = [nm for nm, acts in char_actives.items() if acts == active_ids]
-            if len(matches) == 1:
-                resolved = sorted({n for n in (dn.power_name_for(p) for p in powers) if n})
-                for char in report.characters:
-                    if char.name == matches[0]:
-                        char.illithid_powers = resolved
+            acts = frozenset(s.id for s in char.spells or [] if s.source == ILLITHID_SOURCE)
+            cands = by_active.get(acts)
+            if cands and len(cands) == 1:
+                char.illithid_powers = list(next(iter(cands)))
 
     return report

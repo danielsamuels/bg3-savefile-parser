@@ -3242,7 +3242,9 @@
     "temp": 0,
     "temp_max": 0
    },
-   "illithid_powers": null,
+   "illithid_powers": [
+    "Illithid Persuasion"
+   ],
    "inspect": null,
    "level": 7,
    "location": "House of Healing",
@@ -3919,7 +3921,9 @@
     "temp": 0,
     "temp_max": 0
    },
-   "illithid_powers": null,
+   "illithid_powers": [
+    "Illithid Persuasion"
+   ],
    "inspect": null,
    "level": 7,
    "location": "House of Healing",
@@ -4506,7 +4510,9 @@
     "temp": 0,
     "temp_max": 0
    },
-   "illithid_powers": null,
+   "illithid_powers": [
+    "Illithid Persuasion"
+   ],
    "inspect": null,
    "level": 7,
    "location": "House of Healing",
@@ -7201,7 +7207,9 @@
     "temp": 0,
     "temp_max": 0
    },
-   "illithid_powers": null,
+   "illithid_powers": [
+    "Illithid Persuasion"
+   ],
    "inspect": null,
    "level": 7,
    "location": "House of Healing",
@@ -7617,7 +7625,9 @@
    "equipped": [],
    "feats": null,
    "hp": null,
-   "illithid_powers": null,
+   "illithid_powers": [
+    "Illithid Persuasion"
+   ],
    "inspect": null,
    "level": 1,
    "location": "House of Healing",
@@ -7818,7 +7828,9 @@
     "temp": 0,
     "temp_max": 0
    },
-   "illithid_powers": null,
+   "illithid_powers": [
+    "Illithid Persuasion"
+   ],
    "inspect": null,
    "level": 6,
    "location": "camp",
@@ -8163,7 +8175,9 @@
     "temp": 0,
     "temp_max": 0
    },
-   "illithid_powers": null,
+   "illithid_powers": [
+    "Illithid Persuasion"
+   ],
    "inspect": null,
    "level": 6,
    "location": "camp",
@@ -9116,7 +9130,9 @@
     "temp": 0,
     "temp_max": 0
    },
-   "illithid_powers": null,
+   "illithid_powers": [
+    "Illithid Persuasion"
+   ],
    "inspect": null,
    "level": 5,
    "location": "camp",

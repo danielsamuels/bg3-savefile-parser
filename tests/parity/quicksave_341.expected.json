@@ -3155,7 +3155,17 @@
     "temp": 0,
     "temp_max": 0
    },
-   "illithid_powers": null,
+   "illithid_powers": [
+    "Ability Drain",
+    "Concentrated Blast",
+    "Cull the Weak",
+    "Favourable Beginnings",
+    "Illithid Persuasion",
+    "Luck of the Far Realms",
+    "Psionic Overload",
+    "Shield of Thralls",
+    "Transfuse Health"
+   ],
    "inspect": null,
    "level": 7,
    "location": "Gauntlet of Shar",
@@ -3826,7 +3836,9 @@
     "temp": 0,
     "temp_max": 0
    },
-   "illithid_powers": null,
+   "illithid_powers": [
+    "Illithid Persuasion"
+   ],
    "inspect": null,
    "level": 7,
    "location": "Gauntlet of Shar",
@@ -6277,7 +6289,9 @@
     "temp": 0,
     "temp_max": 0
    },
-   "illithid_powers": null,
+   "illithid_powers": [
+    "Illithid Persuasion"
+   ],
    "inspect": null,
    "level": 7,
    "location": "Gauntlet of Shar",
@@ -6876,7 +6890,9 @@
     "temp": 0,
     "temp_max": 0
    },
-   "illithid_powers": null,
+   "illithid_powers": [
+    "Illithid Persuasion"
+   ],
    "inspect": null,
    "level": 7,
    "location": "Gauntlet of Shar",
@@ -7481,7 +7497,9 @@
     "temp": 0,
     "temp_max": 0
    },
-   "illithid_powers": null,
+   "illithid_powers": [
+    "Illithid Persuasion"
+   ],
    "inspect": null,
    "level": 6,
    "location": "camp",
@@ -7916,7 +7934,9 @@
     "temp": 0,
     "temp_max": 0
    },
-   "illithid_powers": null,
+   "illithid_powers": [
+    "Illithid Persuasion"
+   ],
    "inspect": null,
    "level": 6,
    "location": "camp",
@@ -8893,7 +8913,9 @@
     "temp": 0,
     "temp_max": 0
    },
-   "illithid_powers": null,
+   "illithid_powers": [
+    "Illithid Persuasion"
+   ],
    "inspect": null,
    "level": 5,
    "location": "camp",

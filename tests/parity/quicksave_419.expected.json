@@ -3215,7 +3215,15 @@
     "temp": 0,
     "temp_max": 0
    },
-   "illithid_powers": null,
+   "illithid_powers": [
+    "Concentrated Blast",
+    "Favourable Beginnings",
+    "Fly",
+    "Force Tunnel",
+    "Illithid Persuasion",
+    "Psionic Overload",
+    "Transfuse Health"
+   ],
    "inspect": null,
    "level": 9,
    "location": "Wyrm's Lookout",
@@ -4159,7 +4167,19 @@
     "temp": 0,
     "temp_max": 0
    },
-   "illithid_powers": null,
+   "illithid_powers": [
+    "Ability Drain",
+    "Concentrated Blast",
+    "Cull the Weak",
+    "Favourable Beginnings",
+    "Fly",
+    "Force Tunnel",
+    "Illithid Persuasion",
+    "Luck of the Far Realms",
+    "Psionic Overload",
+    "Shield of Thralls",
+    "Transfuse Health"
+   ],
    "inspect": null,
    "level": 9,
    "location": "Wyrm's Lookout",
@@ -4843,7 +4863,15 @@
     "temp": 0,
     "temp_max": 0
    },
-   "illithid_powers": null,
+   "illithid_powers": [
+    "Concentrated Blast",
+    "Favourable Beginnings",
+    "Fly",
+    "Force Tunnel",
+    "Illithid Persuasion",
+    "Psionic Overload",
+    "Transfuse Health"
+   ],
    "inspect": null,
    "level": 9,
    "location": "Wyrm's Lookout",
@@ -8082,7 +8110,9 @@
     "temp": 0,
     "temp_max": 0
    },
-   "illithid_powers": null,
+   "illithid_powers": [
+    "Illithid Persuasion"
+   ],
    "inspect": null,
    "level": 9,
    "location": "Wyrm's Lookout",
@@ -8808,7 +8838,9 @@
     "temp": 0,
     "temp_max": 0
    },
-   "illithid_powers": null,
+   "illithid_powers": [
+    "Illithid Persuasion"
+   ],
    "inspect": null,
    "level": 6,
    "location": "camp",
@@ -9223,7 +9255,9 @@
     "temp": 0,
     "temp_max": 0
    },
-   "illithid_powers": null,
+   "illithid_powers": [
+    "Illithid Persuasion"
+   ],
    "inspect": null,
    "level": 6,
    "location": "camp",
@@ -10199,7 +10233,9 @@
     "temp": 0,
     "temp_max": 0
    },
-   "illithid_powers": null,
+   "illithid_powers": [
+    "Illithid Persuasion"
+   ],
    "inspect": null,
    "level": 8,
    "location": "camp",
@@ -10529,7 +10565,9 @@
     "temp": 0,
     "temp_max": 0
    },
-   "illithid_powers": null,
+   "illithid_powers": [
+    "Illithid Persuasion"
+   ],
    "inspect": null,
    "level": 6,
    "location": "camp",

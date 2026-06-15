@@ -992,44 +992,71 @@ def parse_lsmf_prepared_spells(blob: bytes) -> dict[int, list[tuple[str, int, st
     return {ent + delta: entries for ent, entries in raw_map.items()}
 
 
-def parse_lsmf_power_container(blob: bytes) -> dict[int, list[str]]:
-    """Extract illithid (tadpole) powers: entity row -> [power ID, ...].
+TADPOLE_ROOT_POWER = 'TAD_IllithidPersuasion'
 
-    game.tadpole_tree.v0.PowerContainerComponent rows are 16-byte {begin, end}
-    heap ranges into an array of 16-byte {string pointer, length} records, each
-    naming an unlocked power (active spell IDs like Shout_TAD_PsionicOverload
-    and passive IDs like TAD_PeaceBreaker). The row shares the spell-book entity
-    numbering. Only the most-recently-viewed character's container is populated;
-    other rows are the empty sentinel (begin == end == -1).
+
+def parse_lsmf_power_lists(blob: bytes) -> list[list[str]]:
+    """Extract every tadpoled character's illithid power set as a list of
+    power-ID lists (one per tadpoled entity).
+
+    Each character's unlocked powers are stored as a packed array of 16-byte
+    {string pointer, length} records (active spell IDs like
+    Shout_TAD_PsionicOverload and passive IDs like TAD_PeaceBreaker), and the
+    arrays sit back-to-back in the heap. Every array begins with the root power
+    TAD_IllithidPersuasion (the first node every tadpoled creature has), so the
+    arrays are delimited by that record: read forward from each
+    TAD_IllithidPersuasion record until the next one or a non-power record.
+
+    These persist for all characters (not just the recently-viewed one). They
+    carry no entity id, so callers attribute them to characters by content
+    (matching the active subset to a character's source-22 spells).
     """
-    idx = lsmf_component_index(blob)
-    pc = idx.get('game.tadpole_tree.v0.PowerContainerComponent')
-    if not pc:
-        return {}
-    elem, rows, off, owners = pc
-    if elem != 16:
-        return {}
     L = len(blob)
-    out: dict[int, list[str]] = {}
-    for k, ent in enumerate(owners):
-        if k >= rows:
+
+    def rec_name(p: int) -> str | None:
+        if not (0 <= p <= L - 16):
+            return None
+        sptr, ln = struct.unpack_from('<QQ', blob, p)
+        p0 = sptr + LSMF_HEAP_BASE
+        if not (0 < ln <= 128 and 0 < p0 <= L - ln):
+            return None
+        raw = blob[p0 : p0 + ln]
+        return raw.decode('ascii') if all(0x20 <= ch < 0x7F for ch in raw) else None
+
+    def is_power(name: str | None) -> bool:
+        return name is not None and ('TAD' in name or 'ForceTunnel' in name or 'Levitate' in name)
+
+    # Locate the {ptr, len} records that name the root power: each starts an array.
+    starts: set[int] = set()
+    root = TADPOLE_ROOT_POWER.encode('ascii')
+    s = 0
+    while True:
+        i = blob.find(root, s)
+        if i < 0:
             break
-        begin, end = struct.unpack_from('<QQ', blob, off + k * elem)
-        size = end - begin
-        if not (0 <= begin < end <= L and size % 16 == 0 and size <= 16 * 256):
-            continue
-        powers: list[str] = []
-        for ptr in range(begin + LSMF_HEAP_BASE, end + LSMF_HEAP_BASE, 16):
-            sptr, ln = struct.unpack_from('<QQ', blob, ptr)
-            p0 = sptr + LSMF_HEAP_BASE
-            if not (0 < ln <= 128 and 0 < p0 <= L - ln):
-                continue
-            raw = blob[p0 : p0 + ln]
-            if all(0x20 <= ch < 0x7F for ch in raw):
-                powers.append(raw.decode('ascii'))
-        if powers:
-            out[ent] = powers
-    return out
+        record = struct.pack('<QQ', i - LSMF_HEAP_BASE, len(root))
+        q = 0
+        while True:
+            r = blob.find(record, q)
+            if r < 0:
+                break
+            if r % 8 == 0:
+                starts.add(r)
+            q = r + 1
+        s = i + 1
+
+    arrays: list[list[str]] = []
+    for st in sorted(starts):
+        powers = [TADPOLE_ROOT_POWER]
+        p = st + 16
+        while True:
+            name = rec_name(p)
+            if name is None or name == TADPOLE_ROOT_POWER or not is_power(name):
+                break
+            powers.append(name)
+            p += 16
+        arrays.append(powers)
+    return arrays
 
 
 def parse_lsmf_container_positions(blob: bytes) -> dict[int, int]:
