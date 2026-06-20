@@ -21,6 +21,25 @@ import {
   foldSpells,
 } from './textReport.ts';
 
+// SpellSourceType for Astral-Touched Tadpole (illithid) powers.
+const ILLITHID_SOURCE = 22;
+
+/** The character's illithid powers: the full set (actives + passives) from the
+ *  PowerContainer when the model resolved it, else the actives from the spell
+ *  book (source 22). Mirrors renderIllithid in main.ts. */
+function illithidPowers(char: CharacterReport): string[] {
+  if (char.illithid_powers !== null) return char.illithid_powers;
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const s of char.spells ?? []) {
+    if (s.source === ILLITHID_SOURCE && s.name && !seen.has(s.name)) {
+      seen.add(s.name);
+      out.push(s.name);
+    }
+  }
+  return out.sort();
+}
+
 // Scrolls share the 'book' category with lore books; pick them out by name so
 // combat-ready consumables stay visible while the library stays out.
 const isScroll = (it: ItemRef): boolean => /scroll/i.test(it.name ?? it.stats);
@@ -75,6 +94,11 @@ function characterBlock(char: CharacterReport): string[] {
     ].filter(Boolean);
     const suffix = extras.length ? `; ${extras.join(', ')} not listed` : '';
     out.push(`- Spells & abilities (${shown.length}${suffix}): ${shown.join(', ')}`);
+  }
+
+  const illithid = illithidPowers(char);
+  if (illithid.length) {
+    out.push(`- Illithid powers (${illithid.length}): ${illithid.join(', ')}`);
   }
 
   if (char.equipment_note) {

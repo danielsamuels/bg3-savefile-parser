@@ -34,6 +34,8 @@ describe('AI briefing', () => {
     expect(briefing).toContain('- Equipped: ');
     expect(briefing).toContain('- Spells & abilities (');
     expect(briefing).toContain('- Abilities: STR ');
+    // Tadpoled characters surface their illithid powers alongside spells.
+    expect(briefing).toMatch(/- Illithid powers \(\d+\): .*Illithid Persuasion/);
   });
 
   it('lists spare gear carried, including bag contents', () => {
