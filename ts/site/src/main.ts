@@ -109,6 +109,36 @@ fileInput.addEventListener('change', () => {
   if (fileInput.files?.[0]) parse(fileInput.files[0]);
 });
 
+/* A pre-parsed real save (the parser's own JSON output, committed under
+ * public/), loaded exactly like a stored history entry so a visitor with no
+ * file of their own can see a full party report. Fetched, never uploaded. */
+const exampleBtn = document.querySelector('#example') as HTMLButtonElement;
+exampleBtn.addEventListener('click', () => {
+  exampleBtn.disabled = true;
+  setStatus('Loading an example save…');
+  Promise.all([
+    fetch('/example-report.json').then((r) => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.json() as Promise<SaveReport>;
+    }),
+    effectsReady,
+  ])
+    .then(([report]) => {
+      setPortraits([], null);
+      showReport(
+        report,
+        'Example report: a real save parsed earlier. Drop your own .lsv to read yours — nothing is uploaded.',
+      );
+      window.scrollTo({ top: 0 });
+    })
+    .catch(() =>
+      setStatus('Could not load the example save. Check your connection and retry.', true),
+    )
+    .finally(() => {
+      exampleBtn.disabled = false;
+    });
+});
+
 const esc = (s: string): string =>
   s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
 
