@@ -38,7 +38,9 @@ in `tests/test_coverage_gaps.py`, so when one is closed CI forces the marker off
 | Concentration | Portrait | done | |
 | Exhaustion level | Status | missing | |
 | Inspiration points | Top bar | unsurfaced | it is the standalone resource `a9c98304` "Inspiration Point" (value read, not surfaced); walk the standalone collection to expose it |
-| Background + background-goal progress | Character sheet | missing | |
+| Deity / god | Character sheet (cleric/paladin) | unsurfaced | `game.god.v0.GodComponent` present, not read |
+| Background | Character sheet | unsurfaced | `game.character_creation.v0.BackgroundComponent` present, not read |
+| Background-goal progress | Character sheet | unsurfaced | `game.background.v0.GoalRecord` / `GoalsComponent` present, not read |
 | Passive features (class/racial) | Character sheet > Passives | missing | distinct from feats; we surface feats only |
 | Feats taken | Level-up history | done | |
 | Prepared / known spells, cantrips | Spellbook | done | with source and level |
@@ -69,7 +71,8 @@ diagnostic you run by hand against a fresh save.
 |---|---|---|
 | Active party roster | done | |
 | Camp companions | done | |
-| Hirelings (Withers) | unsurfaced | touched in code; not a clean report field |
+| Hirelings (Withers) | unsurfaced | `game.recruit.v0.RecruitedByComponent` / `RecruiterComponent` identify them; not a report field |
+| Active summons | unsurfaced | `game.summons.v0/v1/v2.*` present, not read |
 | Camp chest contents | done | |
 | Gold (party) | done | summed |
 | Camp supplies | done | |
@@ -100,7 +103,8 @@ diagnostic you run by hand against a fresh save.
 | Key story decisions / global flags | unlabeled | raw `global_flags` collected; not interpreted into readable decisions |
 | Discovered areas / fog-of-war % | unsurfaced | shroud buffer decoded byte-exact; not summarised |
 | Waypoints unlocked | done | |
-| Day / long rests taken | done | |
+| Long rests taken | done | |
+| Days passed / in-game date | unsurfaced | `game.calendar.v0.DaysPassedComponent` / `StartingDateComponent` present, not read |
 
 ## Save metadata
 
@@ -122,7 +126,14 @@ Three mechanisms, in order of strength:
    registry does not list. Generalises the tadpole miss: the "we decoded the
    type so we have them all" error is caught at the instance level, not by
    anyone remembering to look.
-3. Live ground-truth validation. The only check that catches unknown unknowns is
+3. Component registry (`tests/test_component_registry.py`, tool
+   `tests/audit_components.py`). The structural analogue of the resource
+   registry, aimed at the tadpole pool's real failure mode: a whole component
+   the player sees that nothing reads. It lists every player-facing component a
+   save contains that no view consumes, split into GAPS (worth surfacing) and
+   INTERNAL; the guard fails if a save has one in neither, so a new component
+   from a patch or an unexercised build gets triaged.
+4. Live ground-truth validation. The only check that catches unknown unknowns is
    comparing the report to what the game actually shows. See below.
 
 ## In-game validation checklist

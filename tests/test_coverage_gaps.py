@@ -76,6 +76,11 @@ def test_background(avatar):
     assert getattr(avatar, 'background', None)
 
 
+@pytest.mark.xfail(strict=True, reason='deity/god not extracted (game.god.v0.GodComponent)')
+def test_deity(avatar):
+    assert getattr(avatar, 'deity', None)
+
+
 @pytest.mark.xfail(strict=True, reason='passive class/racial features not extracted (feats only)')
 def test_passive_features(view):
     assert view.get('passives')
@@ -104,6 +109,18 @@ def test_global_flags_interpreted():
     report = parser.gather_report(SAVE, opts=Namespace(quests=True))
     decisions = (report.story or {}).get('decisions')
     assert decisions  # human-readable key story choices, not raw GLO_* flags
+
+
+@pytest.mark.xfail(
+    strict=True, reason='days passed / in-game date not extracted (calendar component)'
+)
+def test_days_passed(report):
+    assert report.save_info.get('days_passed') is not None
+
+
+@pytest.mark.xfail(strict=True, reason='active summons not extracted (game.summons.*)')
+def test_summons(report):
+    assert getattr(report, 'summons', None)
 
 
 # --- Inventory ---
