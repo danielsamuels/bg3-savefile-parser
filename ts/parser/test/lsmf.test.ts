@@ -8,6 +8,7 @@ import {
   parseLsmfAllContainerPositions,
   parseLsmfMembership,
   parseLsmfStackAmounts,
+  parseLsmfTadpoleAvailable,
 } from '../src/lsmf.js';
 import { decompFrame, extractFrames } from '../src/lspk.js';
 
@@ -56,5 +57,10 @@ describe('LSMF scanner (parity with bg3parser.lsmf)', () => {
     expect(values).toContain(766); // Maia's gold
     expect(values).toContain(2017); // Wyll's gold
     for (const v of values) expect(v).toBeGreaterThan(0);
+  });
+
+  it('reads the illithid tadpole pool (8 in QuickSave_419, none pre-tadpole)', () => {
+    expect(parseLsmfTadpoleAvailable(lsmfBlob('quicksave_419.lsv'))).toBe(8);
+    expect(parseLsmfTadpoleAvailable(lsmfBlob('autosave_shadowheart_tutorial.lsv'))).toBeNull();
   });
 });

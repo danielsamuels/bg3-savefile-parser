@@ -32,6 +32,9 @@ QUEST & STORY STATE  (Osiris / StorySave.bin)
 {% if tadpole_summary %}
     Tadpoles carried   : {{ tadpole_summary }}
 {% endif %}
+{% if report.save_info.tadpoles_available is not none %}
+    Tadpoles to spend  : {{ report.save_info.tadpoles_available }}
+{% endif %}
 {% if approval_lines %}
 
   Companion approval (of the player):

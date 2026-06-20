@@ -44,6 +44,11 @@ describe('AI briefing', () => {
     expect(briefing).toMatch(/- Spare gear carried[^\n]*Phalar Aluve/);
   });
 
+  it('reports the illithid tadpole pool', () => {
+    // QuickSave_294 has 1 tadpole available to spend.
+    expect(briefing).toMatch(/- Illithid tadpoles available to spend: \d+/);
+  });
+
   it('uses friendly labels, not internal identifiers', () => {
     expect(briefing).toContain('- Region: Shadow-Cursed Lands (Act 2)');
     expect(briefing).toContain('- Difficulty: Balanced');

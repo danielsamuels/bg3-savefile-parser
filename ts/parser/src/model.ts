@@ -28,6 +28,7 @@ import {
   parseLsmfStackAmounts,
   parseLsmfStackGroups,
   parseLsmfStatsEntities,
+  parseLsmfTadpoleAvailable,
   WIELDED_COMP,
 } from './lsmf.js';
 import { decompFrame, extractFrames, parseInfoJson } from './lspk.js';
@@ -148,6 +149,7 @@ export interface ResourceEntry {
 export interface SaveInfo {
   save_name: string;
   camp_supplies: number | null;
+  tadpoles_available: number | null;
   recipes: string[];
   save_id: number | null;
   saved_at: string;
@@ -319,6 +321,7 @@ export function gatherReport(
   const saveInfo: SaveInfo = {
     save_name: info['Save Name'] ?? '?',
     camp_supplies: null,
+    tadpoles_available: null,
     recipes: [],
     save_id: (metaAttrs.SaveGameID as number | undefined) ?? null,
     saved_at: savedAt,
@@ -368,6 +371,7 @@ export function gatherReport(
   const powerLists = lsmfBlob ? parseLsmfPowerLists(lsmfBlob) : [];
   const supplies = lsmfBlob ? parseLsmfCampSupplies(lsmfBlob) : null;
   saveInfo.camp_supplies = supplies || null;
+  saveInfo.tadpoles_available = lsmfBlob ? parseLsmfTadpoleAvailable(lsmfBlob) : null;
   saveInfo.recipes = lsmfBlob ? parseLsmfRecipes(lsmfBlob) : [];
   const wantedTemplates = new Map<string, string>(
     Object.entries(PARTY_ORIGINS).map(([g, n]) => [g.toLowerCase(), n]),

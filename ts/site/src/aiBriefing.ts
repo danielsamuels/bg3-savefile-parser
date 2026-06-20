@@ -148,6 +148,9 @@ export function renderAiBriefing(report: SaveReport): string {
   lines.push(`- Active party: ${party.map((c) => c.name).join(', ')}`);
   if (campChars.length) lines.push(`- At camp: ${campChars.map((c) => c.name).join(', ')}`);
   if (si.camp_supplies != null) lines.push(`- Camp supplies: ${si.camp_supplies}`);
+  if (si.tadpoles_available != null) {
+    lines.push(`- Illithid tadpoles available to spend: ${si.tadpoles_available}`);
+  }
   if (si.mods.length) lines.push(`- Mods in use: ${si.mods.join(', ')}`);
   if (!report.names_resolved) {
     lines.push(

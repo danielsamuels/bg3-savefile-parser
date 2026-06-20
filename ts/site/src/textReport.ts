@@ -229,6 +229,7 @@ export function renderTextReport(report: SaveReport): string {
     `Leader     : ${si.leader}`,
   ];
   if (si.camp_supplies) lines.push(`Supplies   : ${si.camp_supplies}`);
+  if (si.tadpoles_available != null) lines.push(`Tadpoles   : ${si.tadpoles_available} to spend`);
   if (si.recipes?.length) lines.push(`Recipes    : ${si.recipes.length} known`);
   if (si.mods.length) {
     lines.push(

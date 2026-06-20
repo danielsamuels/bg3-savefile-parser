@@ -98,6 +98,7 @@ QUEST & STORY STATE  (Osiris / StorySave.bin)
     Waypoints unlocked : 18
     Traders met        : 15
     Tadpoles carried   : Player x5, Gale x1, Shadowheart x1
+    Tadpoles to spend  : 1
 
   Companion approval (of the player):
     Shadowheart  100   (dating)

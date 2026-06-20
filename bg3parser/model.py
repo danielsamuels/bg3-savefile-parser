@@ -36,6 +36,7 @@ from .lsmf import (
     parse_lsmf_stack_amounts,
     parse_lsmf_stack_groups,
     parse_lsmf_stats_entities,
+    parse_lsmf_tadpole_available,
 )
 from .lspk import extract_frames, parse_info_json, parse_metadata
 from .osiris import parse_osiris
@@ -402,6 +403,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         health = parse_lsmf_health(lsmf_blob, ability_scores, CLASS_UUID_NAMES)
         report.save_info['camp_supplies'] = supplies if supplies else None
         report.save_info['recipes'] = parse_lsmf_recipes(lsmf_blob)
+        report.save_info['tadpoles_available'] = parse_lsmf_tadpole_available(lsmf_blob)
         wanted = {g.lower(): n for g, n in PARTY_ORIGINS.items()}
         for t in PLAYER_CHAR_TEMPLATES:
             wanted[t.lower()] = '__player__'

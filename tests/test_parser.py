@@ -1085,6 +1085,29 @@ def test_power_lists_decode_every_character():
     assert 'TAD_LuckOfTheFarRealms' in deepest  # passive
 
 
+def test_tadpole_available_pool():
+    """The "tadpoles available to spend" pool is a standalone action-resource
+    AmountEntry keyed by a fixed type GUID (found via live-memory scan). It reads
+    8 in QuickSave_419, is absent (None) in the pre-tadpole tutorial, and surfaces
+    on the report's save_info."""
+    frames = parser.extract_frames(QUICKSAVE_419)
+    nodes0 = lsf.parse_lsof(lsf.decomp_frame(frames['Globals.lsf']))
+    blob = next(
+        nd['attrs']['NewAge'] for nd in nodes0 if nd['name'] == 'NewAge' and nd['parent'] == -1
+    )
+    assert lsmf.parse_lsmf_tadpole_available(blob) == 8
+
+    tut = parser.extract_frames(SHADOWHEART_TUTORIAL)
+    tnodes = lsf.parse_lsof(lsf.decomp_frame(tut['Globals.lsf']))
+    tblob = next(
+        nd['attrs']['NewAge'] for nd in tnodes if nd['name'] == 'NewAge' and nd['parent'] == -1
+    )
+    assert lsmf.parse_lsmf_tadpole_available(tblob) is None
+
+    model = parser.gather_report(QUICKSAVE_419)
+    assert model.save_info['tadpoles_available'] == 8
+
+
 def test_power_name_resolves_passive_codenames():
     """Passive codenames differ from display names and resolve via Passive.txt."""
     dn = gamedata.DisplayNames.load()

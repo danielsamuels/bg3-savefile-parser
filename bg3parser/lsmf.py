@@ -887,6 +887,44 @@ def parse_lsmf_recipes(blob: bytes) -> list[str]:
     return sorted(out)
 
 
+# Action-resource type GUID for the illithid tadpole pool — the "tadpoles
+# available to spend" counter shown atop the Illithid Powers screen. Stored as
+# a 64-byte AmountEntry {16B GUID, i32 level, i32 pad, f64 amount, f64 max, ...},
+# but in a standalone resource collection rather than the per-character
+# action_resources component, so parse_lsmf_action_resources never reached it.
+# Found by a live-memory differential scan of the running game (the value tracks
+# as a double); the type GUID below is a game constant, validated 4/4 against
+# in-game ground truth (saves at 8/7/6/8 available).
+TADPOLE_POOL_RESOURCE_GUID = bytes.fromhex('9c7f048b68ed004ee087edc76ded09cf')
+
+
+def parse_lsmf_tadpole_available(blob: bytes) -> int | None:
+    """Illithid tadpoles available to spend (the Illithid Powers pool), or None.
+
+    Scans for the tadpole-pool resource's type GUID and reads its AmountEntry.
+    The amount equals the max and equals the displayed pool size. None when the
+    save has no tadpole pool yet (pre-tadpole, e.g. the tutorial).
+    """
+    s = 0
+    while True:
+        i = blob.find(TADPOLE_POOL_RESOURCE_GUID, s)
+        if i < 0:
+            return None
+        s = i + 1
+        if i + 40 > len(blob):
+            continue
+        level, pad = struct.unpack_from('<ii', blob, i + 16)
+        amount, max_amount = struct.unpack_from('<dd', blob, i + 24)
+        if (
+            level == 0
+            and pad == 0
+            and amount == max_amount
+            and 0 <= amount <= 999
+            and amount == int(amount)
+        ):
+            return int(amount)
+
+
 def parse_lsmf_camp_supplies(blob: bytes) -> int | None:
     """The camp-supply total shown next to the Long Rest button, or None.
 

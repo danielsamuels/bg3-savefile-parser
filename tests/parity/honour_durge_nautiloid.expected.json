@@ -497,7 +497,8 @@
   ],
   "save_id": -1,
   "save_name": "HonourMode",
-  "saved_at": "2026-06-11 14:49:49 UTC"
+  "saved_at": "2026-06-11 14:49:49 UTC",
+  "tadpoles_available": null
  },
  "source": "honour_durge_nautiloid.lsv",
  "story": {

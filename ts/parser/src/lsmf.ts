@@ -869,6 +869,49 @@ export function parseLsmfCampSupplies(blob: Uint8Array): number | null {
   return dv.getUint32(ts.dataOffset + 48, true);
 }
 
+// Action-resource type GUID for the illithid tadpole pool — the "tadpoles
+// available to spend" counter on the Illithid Powers screen. Stored as a
+// 64-byte AmountEntry {16B GUID, i32 level, i32 pad, f64 amount, f64 max, ...}
+// in a standalone resource collection (not the per-character action_resources
+// component). Found via a live-memory differential scan of the running game;
+// the type GUID is a game constant, validated 4/4 against in-game ground truth.
+const TADPOLE_POOL_RESOURCE_GUID = Uint8Array.from([
+  0x9c, 0x7f, 0x04, 0x8b, 0x68, 0xed, 0x00, 0x4e, 0xe0, 0x87, 0xed, 0xc7, 0x6d, 0xed, 0x09, 0xcf,
+]);
+
+/** Illithid tadpoles available to spend (the Illithid Powers pool), or null
+ *  when the save has no pool yet (pre-tadpole, e.g. the tutorial). */
+export function parseLsmfTadpoleAvailable(blob: Uint8Array): number | null {
+  const { bytes, dv } = align(blob);
+  const g = TADPOLE_POOL_RESOURCE_GUID;
+  for (let i = 0; i + 40 <= bytes.length; i++) {
+    if (bytes[i] !== g[0]) continue;
+    let match = true;
+    for (let j = 1; j < 16; j++) {
+      if (bytes[i + j] !== g[j]) {
+        match = false;
+        break;
+      }
+    }
+    if (!match) continue;
+    const level = dv.getInt32(i + 16, true);
+    const pad = dv.getInt32(i + 20, true);
+    const amount = dv.getFloat64(i + 24, true);
+    const maxAmount = dv.getFloat64(i + 32, true);
+    if (
+      level === 0 &&
+      pad === 0 &&
+      amount === maxAmount &&
+      amount >= 0 &&
+      amount <= 999 &&
+      Number.isInteger(amount)
+    ) {
+      return amount;
+    }
+  }
+  return null;
+}
+
 export function parseLsmfPreparedSpells(blob: Uint8Array): Map<number, [string, number, string][]> {
   const idx = lsmfComponentIndex(blob);
   const sp = idx.get('game.spell.v0.SpellBookPrepares');
