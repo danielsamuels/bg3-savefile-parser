@@ -1,0 +1,44 @@
+{
+  "_README": "Top-down validation: read these values off the in-game UI for ONE save, fill them in, save as tests/ground_truth/<label>.json (not TEMPLATE), then run `pytest -k live_parity`. The harness asserts the fields the report already produces (a regression guard) and lists the rest as pending targets. CI skips this file because save_path won't exist there. Leave any field null if you didn't read it.",
+  "save_path": "/home/dan/.local/share/Larian Studios/Baldur's Gate 3/PlayerProfiles/Public/Savegames/Story/<DIR>/<NAME>.lsv",
+  "save_label": "QuickSave_XXX",
+
+  "party": {
+    "gold": null,
+    "camp_supplies": null,
+    "tadpoles_available": null,
+    "inspiration": null,
+    "short_rests_remaining": null
+  },
+
+  "characters": {
+    "<Character Name>": {
+      "hp_current": null,
+      "hp_max": null,
+      "armour_class": null,
+      "exhaustion": null,
+      "resistances": [],
+      "conditions": [],
+      "resources": {
+        "<Resource as shown on hotbar>": { "current": null, "max": null }
+      }
+    }
+  },
+
+  "_verified_now": [
+    "party.camp_supplies",
+    "party.tadpoles_available",
+    "characters.*.hp_current",
+    "characters.*.hp_max",
+    "characters.*.resources.* (per-character hotbar pools, by name)"
+  ],
+  "_pending_targets": [
+    "party.gold",
+    "party.inspiration",
+    "party.short_rests_remaining",
+    "characters.*.armour_class",
+    "characters.*.exhaustion",
+    "characters.*.resistances",
+    "characters.*.conditions"
+  ]
+}
