@@ -208,6 +208,41 @@ body.has-report .drop-hint {
   display: none;
 }
 
+/* ---- Try-an-example bar ------------------------------------------------- */
+
+.trybar {
+  text-align: center;
+  margin: var(--space-sm) 0 0;
+  color: var(--mute);
+  font-size: 0.875rem;
+}
+
+#example {
+  background: none;
+  border: none;
+  color: var(--gold);
+  cursor: pointer;
+  font: 400 0.875rem var(--sans);
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.18s var(--ease-out);
+}
+
+#example:hover {
+  color: var(--gold-hi);
+}
+
+#example:disabled {
+  color: var(--mute);
+  cursor: default;
+}
+
+/* Once a report is on screen the invitation has done its job. */
+body.has-report .trybar {
+  display: none;
+}
+
 /* ---- Watch bar ---------------------------------------------------------- */
 
 .watchbar {
