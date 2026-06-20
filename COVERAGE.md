@@ -56,9 +56,12 @@ in `tests/test_coverage_gaps.py`, so when one is closed CI forces the marker off
 | The standalone resource collection generally | various | unsurfaced | `parse_lsmf_action_resources` walks only the per-character component; the collection holding the three above (and others) is not walked. One implementation surfaces all of them. |
 | Resource name resolution | gamedata | unlabeled | a few present GUIDs have no gamedata name (e.g. `78236f5a`); harmless but blocks labelling |
 
-`tests/audit_resources.py` enumerates every resource GUID in a save and flags
-any that are unnamed or sit outside the per-character component, so a new
-collection or resource can't slip in unseen again.
+Every resource GUID and its handling status lives in one table,
+`tests/test_resource_registry.py` (handled / handled-unnamed / gap). A guard
+test fails if any named resource present in a save is missing from that table,
+so a new resource (new class build, patch, or an unwalked collection) cannot
+appear without being given a status. `tests/audit_resources.py` is the matching
+diagnostic you run by hand against a fresh save.
 
 ## Party and camp
 
@@ -114,10 +117,11 @@ Three mechanisms, in order of strength:
    state and is marked `xfail(strict=True)`. Implement the feature and the test
    goes from xfail to a hard failure demanding the marker be removed. The
    backlog cannot silently rot.
-2. Resource audit (`tests/audit_resources.py`). Generalises the tadpole miss:
-   enumerate all resources, fail if any present GUID is unnamed or lives outside
-   the walked component. Stops the "we decoded the type so we have them all"
-   error at the instance level.
+2. Resource registry (`tests/test_resource_registry.py`). Every resource GUID
+   carries a status; a guard fails if a save contains a named resource the
+   registry does not list. Generalises the tadpole miss: the "we decoded the
+   type so we have them all" error is caught at the instance level, not by
+   anyone remembering to look.
 3. Live ground-truth validation. The only check that catches unknown unknowns is
    comparing the report to what the game actually shows. See below.
 

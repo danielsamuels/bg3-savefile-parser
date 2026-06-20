@@ -86,29 +86,8 @@ def test_encumbrance(avatar):
     assert getattr(avatar, 'weight', None) is not None
 
 
-@pytest.mark.xfail(strict=True, reason='inspiration points not surfaced as a field')
-def test_inspiration(report):
-    assert report.save_info.get('inspiration') is not None
-
-
-# --- Resources: collected but not surfaced / not labelled ---
-
-
-@pytest.mark.xfail(strict=True, reason='standalone resource collection not walked (only per-char)')
-def test_standalone_party_resources_surfaced(report):
-    # a9c98304 = 4 and a24ca5e2 = 2 are real resources in the save, surfaced nowhere.
-    surfaced = report.save_info.get('party_resources')
-    assert surfaced and any(r.get('guid', '').startswith('a9c98304') for r in surfaced)
-
-
-@pytest.mark.xfail(strict=True, reason='gamedata action-resource name table is incomplete')
-def test_present_resource_has_name():
-    dn = gamedata.DisplayNames.load()
-    if not dn.available:
-        pytest.skip('no game data available')
-    # 78236f5a is present in saves with value 1 but has no name in gamedata.
-    name = dn.resource_name_for('78236f5a-94d5-4f8b-bb54-16f5508723e6')
-    assert name
+# Resource gaps (Inspiration, short rests, unnamed pools) live in their own
+# registry: see tests/test_resource_registry.py.
 
 
 # --- Story / world: decoded or collected, not surfaced ---
