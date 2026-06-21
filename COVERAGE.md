@@ -133,22 +133,67 @@ Three mechanisms, in order of strength:
    save contains that no view consumes, split into GAPS (worth surfacing) and
    INTERNAL; the guard fails if a save has one in neither, so a new component
    from a patch or an unexercised build gets triaged.
-4. Live ground-truth validation. The only check that catches unknown unknowns is
+4. Name-resolution guard (`tests/test_name_resolution.py`). Asserts every
+   base-game spell, quest, and item name still resolves through gamedata in each
+   fixture, so a gamedata rebuild cannot silently degrade the report to raw ids.
+   Mod content is excluded by design (see below).
+5. Live ground-truth validation. The only check that catches unknown unknowns is
    comparing the report to what the game actually shows. See below.
+
+## Allow-lists and filters
+
+Every place we hardcode an exclusion, with provenance. The principle: a denylist
+fails safe (a new thing is visible until excluded), an allowlist fails silent (a
+new thing is invisible until added), so filters here are denylists wherever
+possible. Each entry is also a small parked bug: prefer fixing it to growing the
+list.
+
+| What | Where | Kind | Why / exposure |
+|---|---|---|---|
+| `KNOWN_UNRESOLVED_ITEMS` (FOR_SchoolOgres_Horn) | test_name_resolution | masking | a real game item absent from our gamedata stats map; allow-listed so a *new* unresolved item still fails. Reduce by getting its name into gamedata (needs a game-data rebuild). |
+| `MOD_MARKERS` (`_Mods_`, `Macro_`) | test_name_resolution | denylist | excludes mod-added names (unbounded scope); base-game names stay asserted. A mod name not matching these would surface as a failure, not hide silently. |
+| `DENY_NAMESPACES` + `DENY_PATTERN` | audit_components | denylist | engine-internal components (visual/AI/UI/ownership/...). Fail-safe: a new player-facing namespace is a candidate by default. Validated across 83 real saves. |
+| `COVERED_ELSEWHERE` | audit_components | classification | components surfaced via byte-scan/Osiris/info.json that no name literal catches. Stale risk: if such a consumer is removed, the component stays hidden. |
+| `GAPS` / `INTERNAL` | test_component_registry | classification | reviewed disposition per candidate component. Risk: a component misjudged INTERNAL is hidden; the lists were triaged against all 83 real saves to limit that. |
+| `handled-unnamed` rows | test_resource_registry | masking | two resources we surface without a gamedata name. |
+| `is_real_guid` | audit_resources | denylist | rejects float-fragment byte runs in the census diagnostic. The resource *guard* does not depend on it (it uses the per-character component + named census), so a real resource cannot hide behind it. |
+| `BASE_MODULES` | lspk.py | denylist | base-game modules, to detect user mods. Patch-fragile: a renamed/added base module misclassifies. |
+| `skipif(not GAME_DATA_AVAILABLE)` | test_parser | env skip | ~8 tests need a local game install, so they do not run in CI. Coverage gap, not masking. |
+
+## Genuinely unreachable (live-only)
+
+These are known unknowns that are not gaps to fix: the engine never writes them
+to disk, proven per item (see the format-completeness work and LIMITS.md). They
+are reachable only from the running game (`memscan.py`), not from a save:
+
+- Live EntityHandle targets, including exact equipped item slot in the ambiguous
+  dual-wield cases
+- The "new item" UI flag (session-only)
+- Mid-shuffle / fresh-split stack counts (settled saves are exact)
+- A handful of live-pointer component fields and DeathData causes
+- ComponentDesc hash preimages (need the game binary's RTTI)
 
 ## In-game validation checklist
 
 Fill `tests/ground_truth/<save>.json` from the in-game UI for one save, then run
 `pytest -k live_parity`. The template lists exactly what to read; values we
 already produce are asserted (regression guard), and the rest document the
-target for when each gap is closed. Read, per the chosen save:
+target for when each gap is closed.
 
-- Party gold; camp supplies; long rests taken
-- Illithid tadpoles available to spend
-- Inspiration points
-- For each party character: HP current/max, AC, exhaustion level, active
-  statuses/conditions, damage resistances/immunities, skill proficiencies, and
-  every resource pool shown on their hotbar (name + current/max)
+Two-minute priority (these unblock the cheapest wins, the standalone resources
+that are already named and read, just not surfaced):
+
+- **Inspiration points** (expected to match resource `a9c98304`, value seen 4)
+- **Short rests remaining** (resource `a24ca5e2`, value seen 2) and confirm
+  whether the number shown is remaining, the allowance, or rests taken
+- **Illithid tadpoles available to spend** (regression check, already shipped)
+
+Then, per the chosen save, for the broader gaps:
+
+- Party gold; camp supplies; long rests taken; days passed / in-game date
+- Per party character: HP current/max, AC, exhaustion, active statuses/conditions,
+  resistances/immunities, skill proficiencies, deity (cleric/paladin), background,
+  and every hotbar resource pool (name + current/max)
 
 The same loop that cracked the tadpole pool (read a number in-game, find it in
 the report) is now cheap: `memscan.py` can locate any displayed value in the

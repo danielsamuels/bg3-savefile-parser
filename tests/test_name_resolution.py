@@ -25,7 +25,9 @@ from tests.test_parser import FIXTURE_DIR
 
 # Substrings that mark mod-added content; excluded from the guard.
 MOD_MARKERS = re.compile(r'_Mods_|Macro_', re.IGNORECASE)
-# Real base-game objects gamedata has no display name for yet (allow-listed).
+# Real base-game item absent from our gamedata stats map (a parked name gap; see
+# COVERAGE.md "Allow-lists and filters"). Allow-listed so a NEW unresolved item
+# still fails. Reduce by getting its name into gamedata, not by growing this set.
 KNOWN_UNRESOLVED_ITEMS = {'FOR_SchoolOgres_Horn'}
 
 FIXTURES = sorted(glob.glob(str(FIXTURE_DIR / '*.lsv')))
