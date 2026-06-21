@@ -844,6 +844,10 @@ if (watchSupported()) {
     void startWatching({
       onSave: parse,
       onStatus: (text) => setStatus(text),
+      onStop: () => {
+        watchBtn.textContent = 'Watch the save folder for quicksaves';
+        watchBtn.classList.remove('watching');
+      },
     }).then((started) => {
       if (started) {
         watchBtn.textContent = 'Watching for quicksaves (click to stop)';

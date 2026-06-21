@@ -19,9 +19,27 @@ declare global {
 export interface WatchCallbacks {
   onSave(file: File): void;
   onStatus(text: string): void;
+  /** The watch terminated itself (revocation, or repeated read failures). */
+  onStop(): void;
 }
 
 const POLL_MS = 3000;
+
+/** Consecutive failed polls tolerated before giving up. The game churns the
+ *  folder while writing a save, so a lone NotFound/NotReadable between polls is
+ *  expected; only a sustained run of them means access is really gone. */
+export const MAX_CONSECUTIVE_FAILURES = 3;
+
+/** A revoked permission is terminal; transient read errors are not. */
+export function isPermissionError(err: unknown): boolean {
+  return (
+    err instanceof DOMException && (err.name === 'NotAllowedError' || err.name === 'SecurityError')
+  );
+}
+
+export function shouldStopWatching(err: unknown, consecutiveFailures: number): boolean {
+  return isPermissionError(err) || consecutiveFailures >= MAX_CONSECUTIVE_FAILURES;
+}
 
 let timer: ReturnType<typeof setInterval> | null = null;
 
@@ -35,8 +53,11 @@ export function stopWatching(): void {
 }
 
 /** All .lsv files at depth ≤2 (Story/<SaveName>/<SaveName>.lsv, or a single
- *  save folder picked directly). */
-async function findSaves(
+ *  save folder picked directly). A subfolder being created or deleted mid-write
+ *  throws a transient error when enumerated; skip it and pick it up next poll
+ *  rather than abandoning the whole walk. A real permission revocation still
+ *  propagates so the poller can stop. */
+export async function findSaves(
   dir: FileSystemDirectoryHandle,
   depth = 0,
 ): Promise<[string, FileSystemFileHandle][]> {
@@ -45,8 +66,13 @@ async function findSaves(
     if (handle.kind === 'file' && name.toLowerCase().endsWith('.lsv')) {
       out.push([name, handle as FileSystemFileHandle]);
     } else if (handle.kind === 'directory' && depth < 2) {
-      for (const [sub, h] of await findSaves(handle as FileSystemDirectoryHandle, depth + 1)) {
-        out.push([`${name}/${sub}`, h]);
+      try {
+        for (const [sub, h] of await findSaves(handle as FileSystemDirectoryHandle, depth + 1)) {
+          out.push([`${name}/${sub}`, h]);
+        }
+      } catch (e) {
+        if (isPermissionError(e)) throw e;
+        // Transient (save folder mid-write/delete): skip, retry next poll.
       }
     }
   }
@@ -90,12 +116,23 @@ export async function startWatching(cb: WatchCallbacks): Promise<boolean> {
     }
   };
 
+  let failures = 0;
   timer = setInterval(() => {
-    void poll().catch(() => {
-      // Folder went away or permission revoked; stop quietly.
-      stopWatching();
-      cb.onStatus('Stopped watching: the folder is no longer readable.');
-    });
+    void poll()
+      .then(() => {
+        failures = 0;
+      })
+      .catch((err) => {
+        failures += 1;
+        if (!shouldStopWatching(err, failures)) return; // transient blip; keep watching
+        stopWatching();
+        cb.onStop();
+        cb.onStatus(
+          isPermissionError(err)
+            ? 'Stopped watching: access to the folder was revoked.'
+            : 'Stopped watching: the folder is no longer readable.',
+        );
+      });
   }, POLL_MS);
   return true;
 }
