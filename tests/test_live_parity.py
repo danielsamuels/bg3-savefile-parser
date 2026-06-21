@@ -29,9 +29,13 @@ UNSUPPORTED = object()
 
 def party_value(report, key):
     si = report.save_info
-    if key in ('camp_supplies', 'tadpoles_available'):
+    if key in ('camp_supplies', 'tadpoles_available', 'inspiration'):
         return si.get(key)
-    return UNSUPPORTED  # gold / inspiration / short_rests_remaining: not surfaced yet
+    if key == 'short_rests_remaining':
+        return (si.get('short_rests') or {}).get('remaining')
+    if key == 'short_rests_max':
+        return (si.get('short_rests') or {}).get('max')
+    return UNSUPPORTED  # gold: not surfaced yet
 
 
 def char_value(char, key):
@@ -39,6 +43,8 @@ def char_value(char, key):
         return (char.hp or {}).get('current')
     if key == 'hp_max':
         return (char.hp or {}).get('max')
+    if key == 'abilities':
+        return char.abilities
     if key == 'resources':
         return {
             r['name']: {'current': r['current'], 'max': r['max']} for r in (char.resources or [])

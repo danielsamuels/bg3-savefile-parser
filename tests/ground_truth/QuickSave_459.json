@@ -1,0 +1,44 @@
+{
+  "_README": "Ground truth read from the in-game UI for QuickSave_459 (Dan, 2026-06-21). Fields the report produces are asserted by test_live_parity; the rest are recorded with real values as targets for when each gap is closed. Skips in CI (save_path absent there).",
+  "save_path": "/home/dan/.local/share/Larian Studios/Baldur's Gate 3/PlayerProfiles/Public/Savegames/Story/Maia-202012618548__QuickSave_459/QuickSave_459.lsv",
+  "save_label": "QuickSave_459",
+
+  "party": {
+    "tadpoles_available": 6,
+    "inspiration": 4,
+    "short_rests_remaining": 1,
+    "short_rests_max": 2,
+    "gold": null,
+    "camp_supplies": null
+  },
+
+  "characters": {
+    "Karlach": {
+      "hp_current": 104,
+      "hp_max": 104,
+      "abilities": { "str": 18, "dex": 14, "con": 18, "int": 8, "wis": 10, "cha": 10 },
+
+      "armour_class": 16,
+      "initiative": 5,
+      "proficiency_bonus": 4,
+      "movement_speed_m": 12,
+      "darkvision_range_m": 12,
+      "weight_kg": 90,
+      "carrying_capacity_kg": 220,
+      "exhaustion": null,
+      "conditions": ["Steeped in Bliss"],
+      "resistances": ["Fire Resistance", "Psychic Vulnerability"],
+      "notable_features": [
+        "Partial Ceremorphosis", "Ability Drain", "Brutal Critical", "Darkvision",
+        "Haroldish Doom", "Ruintamer Heart"
+      ],
+      "saving_throws": { "str": 9, "dex": 2, "con": 8, "int": -1, "wis": 0, "cha": 0 },
+      "skills": {
+        "Athletics": 8, "Acrobatics": 2, "Sleight of Hand": 2, "Stealth": 2,
+        "Arcana": -1, "History": -1, "Investigation": -1, "Nature": -1, "Religion": -1,
+        "Animal Handling": 0, "Insight": 0, "Medicine": 0, "Perception": 4, "Survival": 4,
+        "Deception": 0, "Performance": 0, "Persuasion": 0, "Intimidation": 4
+      }
+    }
+  }
+}
