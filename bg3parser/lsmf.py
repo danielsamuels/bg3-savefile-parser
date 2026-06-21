@@ -887,27 +887,27 @@ def parse_lsmf_recipes(blob: bytes) -> list[str]:
     return sorted(out)
 
 
-# Action-resource type GUID for the illithid tadpole pool — the "tadpoles
-# available to spend" counter shown atop the Illithid Powers screen. Stored as
-# a 64-byte AmountEntry {16B GUID, i32 level, i32 pad, f64 amount, f64 max, ...},
-# but in a standalone resource collection rather than the per-character
-# action_resources component, so parse_lsmf_action_resources never reached it.
-# Found by a live-memory differential scan of the running game (the value tracks
-# as a double); the type GUID below is a game constant, validated 4/4 against
-# in-game ground truth (saves at 8/7/6/8 available).
-TADPOLE_POOL_RESOURCE_GUID = bytes.fromhex('9c7f048b68ed004ee087edc76ded09cf')
+# Standalone party action-resource type GUIDs. These resources live in a separate
+# collection from the per-character action_resources component, so
+# parse_lsmf_action_resources never reaches them. Each is a 64-byte AmountEntry
+# {16B GUID, i32 level, i32 pad, f64 amount, f64 max, ...}. Located by a live-memory
+# differential scan of the running game (the values track as doubles); the GUIDs are
+# game constants validated against in-game ground truth.
+TADPOLE_POOL_RESOURCE_GUID = bytes.fromhex('9c7f048b68ed004ee087edc76ded09cf')  # 8/7/6/8 verified
+INSPIRATION_RESOURCE_GUID = bytes.fromhex('0483c9a9e708b544f9aa2edaa5f57206')  # save 459: 4
+SHORT_REST_RESOURCE_GUID = bytes.fromhex('e2a54ca2e101fd48c8a4b8797f81180a')  # save 459: 1 of 2
 
 
-def parse_lsmf_tadpole_available(blob: bytes) -> int | None:
-    """Illithid tadpoles available to spend (the Illithid Powers pool), or None.
+def parse_lsmf_standalone_resource(blob: bytes, guid: bytes) -> tuple[int, int] | None:
+    """(amount, max) for a standalone party resource by its type GUID, or None.
 
-    Scans for the tadpole-pool resource's type GUID and reads its AmountEntry.
-    The amount equals the max and equals the displayed pool size. None when the
-    save has no tadpole pool yet (pre-tadpole, e.g. the tutorial).
+    amount is the current value (inspiration held, short rests remaining, tadpoles
+    available); max is the cap. The AmountEntry shape is validated to reject
+    coincidental GUID-byte matches. None when the resource is absent.
     """
     s = 0
     while True:
-        i = blob.find(TADPOLE_POOL_RESOURCE_GUID, s)
+        i = blob.find(guid, s)
         if i < 0:
             return None
         s = i + 1
@@ -918,11 +918,28 @@ def parse_lsmf_tadpole_available(blob: bytes) -> int | None:
         if (
             level == 0
             and pad == 0
-            and amount == max_amount
-            and 0 <= amount <= 999
+            and 0 <= amount <= max_amount <= 999
             and amount == int(amount)
+            and max_amount == int(max_amount)
         ):
-            return int(amount)
+            return int(amount), int(max_amount)
+
+
+def parse_lsmf_tadpole_available(blob: bytes) -> int | None:
+    """Illithid tadpoles available to spend (the Illithid Powers pool), or None."""
+    r = parse_lsmf_standalone_resource(blob, TADPOLE_POOL_RESOURCE_GUID)
+    return r[0] if r else None
+
+
+def parse_lsmf_inspiration(blob: bytes) -> int | None:
+    """Inspiration points held (Heroic Inspiration, cap 4), or None."""
+    r = parse_lsmf_standalone_resource(blob, INSPIRATION_RESOURCE_GUID)
+    return r[0] if r else None
+
+
+def parse_lsmf_short_rests(blob: bytes) -> tuple[int, int] | None:
+    """(remaining, max) short rests, or None. Shown as e.g. "1 of 2" in the rest UI."""
+    return parse_lsmf_standalone_resource(blob, SHORT_REST_RESOURCE_GUID)
 
 
 def parse_lsmf_camp_supplies(blob: bytes) -> int | None:

@@ -35,6 +35,12 @@ QUEST & STORY STATE  (Osiris / StorySave.bin)
 {% if report.save_info.tadpoles_available is not none %}
     Tadpoles to spend  : {{ report.save_info.tadpoles_available }}
 {% endif %}
+{% if report.save_info.inspiration is not none %}
+    Inspiration        : {{ report.save_info.inspiration }}
+{% endif %}
+{% if report.save_info.short_rests is not none %}
+    Short rests        : {{ report.save_info.short_rests.remaining }} of {{ report.save_info.short_rests.max }}
+{% endif %}
 {% if approval_lines %}
 
   Companion approval (of the player):

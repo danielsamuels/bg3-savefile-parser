@@ -11410,6 +11410,7 @@
   "game_id": "844b4659-b96a-3468-35a3-82abf6af8444",
   "game_version": "4.1.1.7209685",
   "has_unofficial_mods": false,
+  "inspiration": 4,
   "leader": "Maia",
   "level": "INT_Main_A",
   "mods": [
@@ -11468,6 +11469,10 @@
   "save_id": 419,
   "save_name": "QuickSave_419",
   "saved_at": "2026-06-15 16:05:00 UTC",
+  "short_rests": {
+   "max": 2,
+   "remaining": 2
+  },
   "tadpoles_available": 8
  },
  "source": "quicksave_419.lsv",

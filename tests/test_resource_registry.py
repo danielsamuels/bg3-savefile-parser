@@ -66,8 +66,11 @@ RESOURCES: dict[str, tuple[str | None, str]] = {
     '78236f5a-94d5-4f8b-bb54-16f5508723e6': (None, HANDLED_UNNAMED),
     # Standalone collection (outside game.action_resources.v1.Component).
     '8b047f9c-ed68-4e00-87e0-c7eded6dcf09': ('Tadpole Power Point', HANDLED),
-    'a9c98304-08e7-44b5-aaf9-da2ef5a50672': ('Inspiration Point', GAP),
-    'a24ca5e2-01e1-48fd-a4c8-79b8817f0a18': ('Number of Short Rests', GAP),
+    'a9c98304-08e7-44b5-aaf9-da2ef5a50672': ('Inspiration Point', HANDLED),  # save_info.inspiration
+    'a24ca5e2-01e1-48fd-a4c8-79b8817f0a18': (
+        'Number of Short Rests',
+        HANDLED,
+    ),  # save_info.short_rests
 }
 
 FIXTURES = sorted(glob.glob(str(FIXTURE_DIR / '*.lsv')))

@@ -151,6 +151,10 @@ export function renderAiBriefing(report: SaveReport): string {
   if (si.tadpoles_available != null) {
     lines.push(`- Illithid tadpoles available to spend: ${si.tadpoles_available}`);
   }
+  if (si.inspiration != null) lines.push(`- Inspiration points: ${si.inspiration}`);
+  if (si.short_rests != null) {
+    lines.push(`- Short rests: ${si.short_rests.remaining} of ${si.short_rests.max} remaining`);
+  }
   if (si.mods.length) lines.push(`- Mods in use: ${si.mods.join(', ')}`);
   if (!report.names_resolved) {
     lines.push(

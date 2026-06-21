@@ -9851,6 +9851,7 @@
   "game_id": "2b2e482e-ef86-7a32-2aa3-2fc79f71192c",
   "game_version": "4.1.1.7209685",
   "has_unofficial_mods": false,
+  "inspiration": 4,
   "leader": "Maia",
   "level": "SCL_Main_A",
   "mods": [
@@ -9907,6 +9908,10 @@
   "save_id": 291,
   "save_name": "QuickSave_291",
   "saved_at": "2026-06-09 21:58:27 UTC",
+  "short_rests": {
+   "max": 2,
+   "remaining": 2
+  },
   "tadpoles_available": 1
  },
  "source": "quicksave_291.lsv",

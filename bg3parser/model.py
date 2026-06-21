@@ -27,11 +27,13 @@ from .lsmf import (
     parse_lsmf_container_positions,
     parse_lsmf_feats,
     parse_lsmf_health,
+    parse_lsmf_inspiration,
     parse_lsmf_inventory_owners,
     parse_lsmf_membership,
     parse_lsmf_power_lists,
     parse_lsmf_prepared_spells,
     parse_lsmf_recipes,
+    parse_lsmf_short_rests,
     parse_lsmf_spellbooks,
     parse_lsmf_stack_amounts,
     parse_lsmf_stack_groups,
@@ -404,6 +406,11 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         report.save_info['camp_supplies'] = supplies if supplies else None
         report.save_info['recipes'] = parse_lsmf_recipes(lsmf_blob)
         report.save_info['tadpoles_available'] = parse_lsmf_tadpole_available(lsmf_blob)
+        report.save_info['inspiration'] = parse_lsmf_inspiration(lsmf_blob)
+        short_rests = parse_lsmf_short_rests(lsmf_blob)
+        report.save_info['short_rests'] = (
+            {'remaining': short_rests[0], 'max': short_rests[1]} if short_rests else None
+        )
         wanted = {g.lower(): n for g, n in PARTY_ORIGINS.items()}
         for t in PLAYER_CHAR_TEMPLATES:
             wanted[t.lower()] = '__player__'

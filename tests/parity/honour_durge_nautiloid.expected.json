@@ -483,6 +483,7 @@
   "game_id": "ae425374-2ac1-f2ce-b08c-957d9f57621e",
   "game_version": "4.1.1.7209685",
   "has_unofficial_mods": false,
+  "inspiration": null,
   "leader": "The Dark Urge",
   "level": "TUT_Avernus_C",
   "mods": [
@@ -498,6 +499,10 @@
   "save_id": -1,
   "save_name": "HonourMode",
   "saved_at": "2026-06-11 14:49:49 UTC",
+  "short_rests": {
+   "max": 2,
+   "remaining": 2
+  },
   "tadpoles_available": null
  },
  "source": "honour_durge_nautiloid.lsv",

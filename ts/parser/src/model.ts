@@ -19,11 +19,13 @@ import {
   parseLsmfContainerPositions,
   parseLsmfFeats,
   parseLsmfHealth,
+  parseLsmfInspiration,
   parseLsmfInventoryOwners,
   parseLsmfMembership,
   parseLsmfPowerLists,
   parseLsmfPreparedSpells,
   parseLsmfRecipes,
+  parseLsmfShortRests,
   parseLsmfSpellbooks,
   parseLsmfStackAmounts,
   parseLsmfStackGroups,
@@ -150,6 +152,8 @@ export interface SaveInfo {
   save_name: string;
   camp_supplies: number | null;
   tadpoles_available: number | null;
+  inspiration: number | null;
+  short_rests: { remaining: number; max: number } | null;
   recipes: string[];
   save_id: number | null;
   saved_at: string;
@@ -322,6 +326,8 @@ export function gatherReport(
     save_name: info['Save Name'] ?? '?',
     camp_supplies: null,
     tadpoles_available: null,
+    inspiration: null,
+    short_rests: null,
     recipes: [],
     save_id: (metaAttrs.SaveGameID as number | undefined) ?? null,
     saved_at: savedAt,
@@ -372,6 +378,8 @@ export function gatherReport(
   const supplies = lsmfBlob ? parseLsmfCampSupplies(lsmfBlob) : null;
   saveInfo.camp_supplies = supplies || null;
   saveInfo.tadpoles_available = lsmfBlob ? parseLsmfTadpoleAvailable(lsmfBlob) : null;
+  saveInfo.inspiration = lsmfBlob ? parseLsmfInspiration(lsmfBlob) : null;
+  saveInfo.short_rests = lsmfBlob ? parseLsmfShortRests(lsmfBlob) : null;
   saveInfo.recipes = lsmfBlob ? parseLsmfRecipes(lsmfBlob) : [];
   const wantedTemplates = new Map<string, string>(
     Object.entries(PARTY_ORIGINS).map(([g, n]) => [g.toLowerCase(), n]),

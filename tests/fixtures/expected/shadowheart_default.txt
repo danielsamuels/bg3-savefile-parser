@@ -20,6 +20,7 @@ QUEST & STORY STATE  (Osiris / StorySave.bin)
     Long rests taken   : 0
     Waypoints unlocked : 0
     Traders met        : 0
+    Short rests        : 2 of 2
 
   Companion approval (of the player):
     Lae'zel        0

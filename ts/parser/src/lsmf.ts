@@ -869,21 +869,25 @@ export function parseLsmfCampSupplies(blob: Uint8Array): number | null {
   return dv.getUint32(ts.dataOffset + 48, true);
 }
 
-// Action-resource type GUID for the illithid tadpole pool — the "tadpoles
-// available to spend" counter on the Illithid Powers screen. Stored as a
-// 64-byte AmountEntry {16B GUID, i32 level, i32 pad, f64 amount, f64 max, ...}
-// in a standalone resource collection (not the per-character action_resources
-// component). Found via a live-memory differential scan of the running game;
-// the type GUID is a game constant, validated 4/4 against in-game ground truth.
+// Standalone party action-resource type GUIDs. These resources live in a separate
+// collection from the per-character action_resources component. Each is a 64-byte
+// AmountEntry {16B GUID, i32 level, i32 pad, f64 amount, f64 max, ...}. Located via a
+// live-memory differential scan of the running game; the GUIDs are game constants
+// validated against in-game ground truth.
 const TADPOLE_POOL_RESOURCE_GUID = Uint8Array.from([
   0x9c, 0x7f, 0x04, 0x8b, 0x68, 0xed, 0x00, 0x4e, 0xe0, 0x87, 0xed, 0xc7, 0x6d, 0xed, 0x09, 0xcf,
 ]);
+const INSPIRATION_RESOURCE_GUID = Uint8Array.from([
+  0x04, 0x83, 0xc9, 0xa9, 0xe7, 0x08, 0xb5, 0x44, 0xf9, 0xaa, 0x2e, 0xda, 0xa5, 0xf5, 0x72, 0x06,
+]);
+const SHORT_REST_RESOURCE_GUID = Uint8Array.from([
+  0xe2, 0xa5, 0x4c, 0xa2, 0xe1, 0x01, 0xfd, 0x48, 0xc8, 0xa4, 0xb8, 0x79, 0x7f, 0x81, 0x18, 0x0a,
+]);
 
-/** Illithid tadpoles available to spend (the Illithid Powers pool), or null
- *  when the save has no pool yet (pre-tadpole, e.g. the tutorial). */
-export function parseLsmfTadpoleAvailable(blob: Uint8Array): number | null {
+/** (amount, max) for a standalone party resource by its type GUID, or null. The
+ *  AmountEntry shape is validated to reject coincidental GUID-byte matches. */
+function parseLsmfStandaloneResource(blob: Uint8Array, g: Uint8Array): [number, number] | null {
   const { bytes, dv } = align(blob);
-  const g = TADPOLE_POOL_RESOURCE_GUID;
   for (let i = 0; i + 40 <= bytes.length; i++) {
     if (bytes[i] !== g[0]) continue;
     let match = true;
@@ -901,15 +905,34 @@ export function parseLsmfTadpoleAvailable(blob: Uint8Array): number | null {
     if (
       level === 0 &&
       pad === 0 &&
-      amount === maxAmount &&
       amount >= 0 &&
-      amount <= 999 &&
-      Number.isInteger(amount)
+      amount <= maxAmount &&
+      maxAmount <= 999 &&
+      Number.isInteger(amount) &&
+      Number.isInteger(maxAmount)
     ) {
-      return amount;
+      return [amount, maxAmount];
     }
   }
   return null;
+}
+
+/** Illithid tadpoles available to spend (the Illithid Powers pool), or null. */
+export function parseLsmfTadpoleAvailable(blob: Uint8Array): number | null {
+  const r = parseLsmfStandaloneResource(blob, TADPOLE_POOL_RESOURCE_GUID);
+  return r ? r[0] : null;
+}
+
+/** Inspiration points held (Heroic Inspiration, cap 4), or null. */
+export function parseLsmfInspiration(blob: Uint8Array): number | null {
+  const r = parseLsmfStandaloneResource(blob, INSPIRATION_RESOURCE_GUID);
+  return r ? r[0] : null;
+}
+
+/** Short rests as { remaining, max } (shown as e.g. "1 of 2"), or null. */
+export function parseLsmfShortRests(blob: Uint8Array): { remaining: number; max: number } | null {
+  const r = parseLsmfStandaloneResource(blob, SHORT_REST_RESOURCE_GUID);
+  return r ? { remaining: r[0], max: r[1] } : null;
 }
 
 export function parseLsmfPreparedSpells(blob: Uint8Array): Map<number, [string, number, string][]> {

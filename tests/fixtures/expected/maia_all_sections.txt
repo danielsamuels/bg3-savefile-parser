@@ -99,6 +99,8 @@ QUEST & STORY STATE  (Osiris / StorySave.bin)
     Traders met        : 15
     Tadpoles carried   : Player x5, Gale x1, Shadowheart x1
     Tadpoles to spend  : 1
+    Inspiration        : 4
+    Short rests        : 1 of 2
 
   Companion approval (of the player):
     Shadowheart  100   (dating)

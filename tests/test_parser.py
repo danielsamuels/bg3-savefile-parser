@@ -1108,6 +1108,15 @@ def test_tadpole_available_pool():
     assert model.save_info['tadpoles_available'] == 8
 
 
+def test_standalone_party_resources():
+    """Inspiration and short rests are standalone action resources read the same
+    way as the tadpole pool. QuickSave_419: 4 inspiration, short rests 2 of 2.
+    Validated in-game against QuickSave_459 (4 inspiration, short rests 1 of 2)."""
+    model = parser.gather_report(QUICKSAVE_419)
+    assert model.save_info['inspiration'] == 4
+    assert model.save_info['short_rests'] == {'remaining': 2, 'max': 2}
+
+
 def test_power_name_resolves_passive_codenames():
     """Passive codenames differ from display names and resolve via Passive.txt."""
     dn = gamedata.DisplayNames.load()
