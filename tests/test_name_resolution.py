@@ -25,9 +25,12 @@ from tests.test_parser import FIXTURE_DIR
 
 # Substrings that mark mod-added content; excluded from the guard.
 MOD_MARKERS = re.compile(r'_Mods_|Macro_', re.IGNORECASE)
-# Real base-game item absent from our gamedata stats map (a parked name gap; see
-# COVERAGE.md "Allow-lists and filters"). Allow-listed so a NEW unresolved item
-# still fails. Reduce by getting its name into gamedata, not by growing this set.
+# FOR_SchoolOgres_Horn is "Lump's War Horn" (the base-game item Lump the ogre
+# gives you to summon the School Ogres). It is absent from our gamedata stats map
+# because its display name lives on the root template, not the stats entry our
+# extraction keys by, a known item-naming gap (see COVERAGE.md "Allow-lists and
+# filters"). Allow-listed so a NEW unresolved item still fails. The durable fix is
+# in gamedata extraction, not a hand-edit of the generated gamedata.json.
 KNOWN_UNRESOLVED_ITEMS = {'FOR_SchoolOgres_Horn'}
 
 FIXTURES = sorted(glob.glob(str(FIXTURE_DIR / '*.lsv')))

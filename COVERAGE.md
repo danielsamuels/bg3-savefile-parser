@@ -159,7 +159,7 @@ list.
 
 | What | Where | Kind | Why / exposure |
 |---|---|---|---|
-| `KNOWN_UNRESOLVED_ITEMS` (FOR_SchoolOgres_Horn) | test_name_resolution | masking | a real game item absent from our gamedata stats map; allow-listed so a *new* unresolved item still fails. Reduce by getting its name into gamedata (needs a game-data rebuild). |
+| `KNOWN_UNRESOLVED_ITEMS` (FOR_SchoolOgres_Horn = "Lump's War Horn") | test_name_resolution | masking | base-game quest item whose display name lives on the root template, not the stats entry our extraction keys by; absent from our gamedata stats map. Allow-listed so a *new* unresolved item still fails. Durable fix: capture template display names in gamedata extraction (needs a game install). |
 | `MOD_MARKERS` (`_Mods_`, `Macro_`) | test_name_resolution | denylist | excludes mod-added names (unbounded scope); base-game names stay asserted. A mod name not matching these would surface as a failure, not hide silently. |
 | `DENY_NAMESPACES` + `DENY_PATTERN` | audit_components | denylist | engine-internal components (visual/AI/UI/ownership/...). Fail-safe: a new player-facing namespace is a candidate by default. Validated across 83 real saves. |
 | `COVERED_ELSEWHERE` | audit_components | classification | components surfaced via byte-scan/Osiris/info.json that no name literal catches. Stale risk: if such a consumer is removed, the component stays hidden. |
