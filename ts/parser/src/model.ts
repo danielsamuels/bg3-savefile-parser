@@ -970,7 +970,7 @@ export function gatherReport(
       const linkedCamp = statsEntByNorm.get(normName(name)) ?? null;
       let ent = linkedCamp !== null && spellbooks.has(linkedCamp) ? linkedCamp : null;
       if (ent === null) ent = baseClass && sameClass === 1 ? campSpellEntity(baseClass) : null;
-      if (ent !== null) {
+      if (ent !== null && entityClasses.has(ent)) {
         const classes = entityClasses.get(ent)!;
         char.classes = classes.map(([cg, sg]: [string, string, number]) =>
           sg !== NULL_UUID
