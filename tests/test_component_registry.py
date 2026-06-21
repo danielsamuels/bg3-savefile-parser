@@ -18,10 +18,12 @@ candidate set; delete it from GAPS then.
 """
 
 import glob
+from argparse import Namespace
 from pathlib import Path
 
 import pytest
 
+import bg3parser as parser
 from tests.audit_components import candidate_components, lsmf_blob
 from tests.test_parser import FIXTURE_DIR
 
@@ -71,3 +73,24 @@ def test_no_unreviewed_component(fixture):
         f'{Path(fixture).name}: unreviewed player-facing components {sorted(new)}. '
         'Triage each: add to GAPS (worth surfacing, note in COVERAGE.md) or INTERNAL.'
     )
+
+
+def test_covered_elsewhere_still_surfaced():
+    """audit_components.COVERED_ELSEWHERE marks components consumed via byte-scan /
+    Osiris / info.json so they are not flagged as gaps. That classification goes
+    stale silently if such a consumer is removed. Verify the concepts still reach
+    the report, so a regression fails here instead of hiding a real gap."""
+    report = parser.gather_report(
+        str(FIXTURE_DIR / 'quicksave_419.lsv'), opts=Namespace(quests=True)
+    )
+    chars = report.characters
+    # tadpole_tree -> illithid powers / pool
+    assert (
+        any(getattr(c, 'illithid_powers', None) for c in chars)
+        or report.save_info.get('tadpoles_available') is not None
+    )
+    assert report.story and report.story.get('approval') is not None  # approval.v0.Ratings
+    assert any(c.race for c in chars)  # race.v0.RaceComponent
+    assert any(c.xp is not None for c in chars)  # experience.v0.ExperienceComponent
+    assert 'waypoints' in report.story  # party.v0.WaypointsComponent (may be empty early)
+    assert any(c.feats for c in chars)  # progression LevelUp (feats)
