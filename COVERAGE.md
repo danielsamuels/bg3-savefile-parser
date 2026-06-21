@@ -140,6 +140,15 @@ Three mechanisms, in order of strength:
 5. Live ground-truth validation. The only check that catches unknown unknowns is
    comparing the report to what the game actually shows. See below.
 
+The Osiris database surface was reviewed (2026-06-21) and deliberately left
+without a guard: of ~180 player-facing-keyword DBs not consumed, effectively all
+are internal story-engine plumbing (background-goal chains, defeat counters,
+dialog bookkeeping). The player-facing story state (quests, approval, romance,
+flags) is already consumed or reasoned over by the quest-analysis engine, so an
+Osiris audit would be almost pure noise. Revisit if a specific story value is
+ever found missing; `DB_GLO_Backgrounds_*` is where background-goal progress
+lives, and `DB_RelationshipDialogsFinished` tracks romance depth beyond dating.
+
 ## Allow-lists and filters
 
 Every place we hardcode an exclusion, with provenance. The principle: a denylist
