@@ -75,6 +75,20 @@ def test_no_unreviewed_component(fixture):
     )
 
 
+def test_gaps_are_live_candidates():
+    """Every GAPS component must actually appear as a candidate in some fixture.
+    If the denylist (or a new consumer) silently removed one, it would vanish from
+    the audit with no failure; this catches that over-reach."""
+    seen: set[str] = set()
+    for fixture in FIXTURES:
+        seen |= set(candidate_components(lsmf_blob(fixture)))
+    missing = GAPS - seen
+    assert not missing, (
+        f'GAPS no longer surfaced by the audit (denied or consumed?): {sorted(missing)}. '
+        'If consumed, remove from GAPS; if wrongly denied, fix audit_components.'
+    )
+
+
 def test_covered_elsewhere_still_surfaced():
     """audit_components.COVERED_ELSEWHERE marks components consumed via byte-scan /
     Osiris / info.json so they are not flagged as gaps. That classification goes
