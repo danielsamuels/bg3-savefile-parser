@@ -28,6 +28,7 @@ from .lsmf import (
     parse_lsmf_feats,
     parse_lsmf_health,
     parse_lsmf_inspiration,
+    parse_lsmf_interrupt_preferences,
     parse_lsmf_inventory_owners,
     parse_lsmf_membership,
     parse_lsmf_power_lists,
@@ -77,6 +78,76 @@ from .party import (
 # SpellSourceType for Astral-Touched Tadpole (illithid) powers. Some of these
 # (Force Tunnel, Fly) live in PreparedSpells but not the standard spell book.
 ILLITHID_SOURCE = 22
+
+INTERRUPT_PREFIX = 'Interrupt_'
+# Item-granted reaction procs: volatile (they come and go with gear) and
+# already implied by the equipment list, so they are dropped from reactions.
+GEAR_INTERRUPT_PREFIX = 'MAG_'
+
+
+def reaction_norm(s: str) -> str:
+    """Fold a feat/resource/interrupt name to a comparison key: lowercase,
+    alphanumerics only. 'Polearm Master', 'Interrupt_PolearmMaster' and the
+    'Interrupt_PolearmMaster_Charge' resource all normalise to 'polearmmaster'."""
+    return re.sub(r'[^a-z0-9]', '', s.lower())
+
+
+def match_reactions(
+    characters: list['CharacterReport'],
+    interrupt_prefs: dict[int, list[str]],
+    dn: 'DisplayNames',
+) -> None:
+    """Attach each character's reaction abilities (the in-game Reactions panel)
+    from the decoded interrupt rows, in place. Names come from the game files
+    via `dn` (Interrupt_Riposte -> 'Riposte'); an unresolved ID keeps its
+    'Interrupt_'-stripped form.
+
+    game.interrupt.v0.PreferencesComponent rows cannot be keyed to the
+    spell-book entity space (see parse_lsmf_interrupt_preferences), so a row is
+    bound to a character by signature overlap: the character's feat names and
+    interrupt-charge resource IDs both normalise onto interrupt IDs (Polearm
+    Master -> Interrupt_PolearmMaster). Only a unique, non-empty best match is
+    taken; ties and misses attach nothing rather than guess. Origin-pool
+    stand-in rows carry just [Riposte, AttackOfOpportunity] and lose the match
+    to the live row. A row is claimed by the highest-scoring character so two
+    characters never share one.
+    """
+    if not interrupt_prefs:
+        return
+    row_keys = {
+        k: [reaction_norm(i[len(INTERRUPT_PREFIX) :]) for i in v]
+        for k, v in interrupt_prefs.items()
+    }
+    claims: list[tuple[int, int, CharacterReport]] = []
+    for char in characters:
+        sig = {reaction_norm(f.get('name') or '') for f in (char.feats or [])}
+        for r in char.resources or []:
+            nm = r.get('name') or ''
+            if nm.startswith(INTERRUPT_PREFIX):
+                sig.add(reaction_norm(nm[len(INTERRUPT_PREFIX) :].replace('_Charge', '')))
+        sig.discard('')
+        if not sig:
+            continue
+        scored = sorted(
+            ((sum(t in sig for t in toks), k) for k, toks in row_keys.items()), reverse=True
+        )
+        top_score, top_row = scored[0]
+        if top_score > 0 and (len(scored) == 1 or scored[1][0] < top_score):
+            claims.append((top_score, top_row, char))
+    claims.sort(key=lambda c: c[0], reverse=True)
+    taken: set[int] = set()
+    for _score, row, char in claims:
+        if row in taken:
+            continue
+        taken.add(row)
+        names = [
+            dn.interrupt_name_for(i) or i[len(INTERRUPT_PREFIX) :]
+            for i in interrupt_prefs[row]
+            if not i[len(INTERRUPT_PREFIX) :].startswith(GEAR_INTERRUPT_PREFIX)
+        ]
+        if names:
+            char.reactions = names
+
 
 # Basic actions present in every character's spell book; folded out of the
 # default spell list by the text view.
@@ -162,6 +233,10 @@ class CharacterReport:
     resources: list[dict] | None = None  # action resources (slots, rage, ki...)
     concentration: dict | None = None  # {id, name} of the concentration spell
     feats: list[dict] | None = None  # [{guid, name, level, picks}]
+    # Reaction abilities (the in-game Reactions panel: Riposte, Attack of
+    # Opportunity, Sentinel...), interrupt IDs with the 'Interrupt_' prefix
+    # stripped and item procs dropped. None when no row matched this character.
+    reactions: list[str] | None = None
 
 
 @dataclass
@@ -395,6 +470,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
     levelup_records: list[dict] = []
     cc_names: list[str] = []
     power_lists: list[list[str]] = []
+    interrupt_prefs: dict[int, list[str]] = {}
     if lsmf_blob:
         spellbooks = parse_lsmf_spellbooks(lsmf_blob)
         entity_classes = parse_lsmf_classes(lsmf_blob)
@@ -419,6 +495,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
         concentration = parse_lsmf_concentration(lsmf_blob)
         levelup_records = parse_lsmf_feats(lsmf_blob)
         cc_names = parse_lsmf_cc_names(lsmf_blob)
+        interrupt_prefs = parse_lsmf_interrupt_preferences(lsmf_blob)
 
     def build_key(char_info: dict) -> tuple | None:
         want = sorted((c.get('Main', ''), c.get('Sub', '')) for c in char_info.get('Classes', []))
@@ -1119,5 +1196,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
             cands = by_active.get(acts)
             if cands and len(cands) == 1:
                 char.illithid_powers = list(next(iter(cands)))
+
+    match_reactions(report.characters, interrupt_prefs, dn)
 
     return report

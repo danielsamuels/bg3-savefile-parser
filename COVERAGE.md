@@ -43,6 +43,7 @@ in `tests/test_coverage_gaps.py`, so when one is closed CI forces the marker off
 | Background-goal progress | Character sheet | unsurfaced | `game.background.v0.GoalRecord` / `GoalsComponent` present, not read |
 | Passive features (class/racial) | Character sheet > Passives | missing | distinct from feats; we surface feats only |
 | Feats taken | Level-up history | done | |
+| Reaction abilities | Reactions panel | done | Riposte, Opportunity Attack, Sentinel, etc.; decoded from interrupt preferences, bound to characters by feat/resource signature |
 | Prepared / known spells, cantrips | Spellbook | done | with source and level |
 | Illithid powers | Illithid Powers tree | done | per character |
 | Encumbrance / carry weight | Inventory | missing | |

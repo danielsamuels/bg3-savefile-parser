@@ -239,6 +239,8 @@ def character_view(
         out['hp'] = char.hp
     if char.feats:
         out['feats'] = [feat_label(f) for f in char.feats]
+    if char.reactions:
+        out['reactions'] = char.reactions
     out['equipped'] = equipped_view(char, dn, fx)
     if char.equipment_note:
         out['equipment_note'] = char.equipment_note

@@ -559,6 +559,64 @@ export function parseLsmfActionResources(blob: Uint8Array): Map<number, Resource
 }
 
 /**
+ * Reaction abilities per component row: the interrupts behind the in-game
+ * Reactions panel (Riposte, Opportunity Attack, Sentinel, Polearm Master,
+ * Indomitable, gear/status procs).
+ *
+ * game.interrupt.v0.PreferencesComponent rows are 32 bytes: two {begin, end}
+ * heap ranges. The second range is an array of 16-byte records {u64 name_ptr,
+ * u32 len, u32 pad} into the concatenated FixedString pool (length-paired, not
+ * NUL-terminated). The first range is a shorter side list and is skipped.
+ *
+ * Keyed by RAW row index, not entity: the ownerlist is scrambled and does not
+ * line up with the spell-book entity space, so the caller binds a row to a
+ * character by reaction-content signature (see model matchReactions). Mirrors
+ * parseLsmfInterruptPreferences in the Python parser.
+ */
+export function parseLsmfInterruptPreferences(blob: Uint8Array): Map<number, string[]> {
+  const idx = lsmfComponentIndex(blob);
+  const comp = idx.get('game.interrupt.v0.PreferencesComponent');
+  const out = new Map<number, string[]>();
+  if (comp?.elemSize !== 32) return out;
+  const { dv } = align(blob);
+  const L = blob.length;
+
+  const poolStr = (ptr: number, ln: number): string | null => {
+    const p = ptr + LSMF_HEAP_BASE;
+    if (!(ln > 0 && ln <= 64 && p > 0 && p <= L - ln)) return null;
+    let s = '';
+    for (let i = 0; i < ln; i++) {
+      const c = blob[p + i]!;
+      if (c < 0x20 || c >= 0x7f) return null;
+      s += String.fromCharCode(c);
+    }
+    return s;
+  };
+
+  for (let k = 0; k < comp.rowCount; k++) {
+    const base = comp.dataOffset + k * comp.elemSize;
+    // Two {begin, end} heap ranges; the records live in the second.
+    const b = u64(dv, base + 16);
+    const e = u64(dv, base + 24);
+    if (!(b > 0 && b <= e && e <= L) || (e - b) % 16 !== 0 || e - b > 16 * 64) continue;
+    const names: string[] = [];
+    const seen = new Set<string>();
+    for (let i = 0; i < (e - b) / 16; i++) {
+      const rec = b + LSMF_HEAP_BASE + i * 16;
+      const ptr = u64(dv, rec);
+      const ln = dv.getUint32(rec + 8, true);
+      const nm = poolStr(ptr, ln);
+      if (nm && nm.startsWith('Interrupt_') && !seen.has(nm)) {
+        seen.add(nm);
+        names.push(nm);
+      }
+    }
+    if (names.length) out.set(k, names);
+  }
+  return out;
+}
+
+/**
  * Active concentration per entity: entity -> spell ID. Rows are
  * {u64 caster ptr, u64 spell-name ptr (all-FF when idle), u32 len, u32 extra}.
  */

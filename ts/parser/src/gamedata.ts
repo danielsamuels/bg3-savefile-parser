@@ -7,6 +7,7 @@ export interface GamedataJson {
   spells?: Record<string, string>;
   spell_levels?: Record<string, number>;
   passive_names?: Record<string, string>;
+  interrupt_names?: Record<string, string>;
   object_types?: string[];
   stats_slots?: Record<string, string>;
   two_handed?: string[];
@@ -25,6 +26,7 @@ export class DisplayNames {
   readonly spells: Record<string, string>;
   readonly spellLevels: Record<string, number>;
   readonly passives: Record<string, string>;
+  readonly interrupts: Record<string, string>;
   readonly objectTypeStats: Set<string>;
   readonly statsToSlot: Record<string, string>;
   readonly twoHandedStats: Set<string>;
@@ -42,6 +44,7 @@ export class DisplayNames {
     this.spells = data?.spells ?? {};
     this.spellLevels = data?.spell_levels ?? {};
     this.passives = data?.passive_names ?? {};
+    this.interrupts = data?.interrupt_names ?? {};
     this.objectTypeStats = new Set(data?.object_types ?? []);
     this.statsToSlot = data?.stats_slots ?? {};
     this.twoHandedStats = new Set(data?.two_handed ?? []);
@@ -66,6 +69,12 @@ export class DisplayNames {
 
   spellNameFor(spellId: string): string | null {
     return this.spells[spellId] ?? null;
+  }
+
+  /** Display name for a reaction interrupt ('Interrupt_Riposte' -> 'Riposte'),
+   *  or null if unresolved. */
+  interruptNameFor(interruptId: string): string | null {
+    return this.interrupts[interruptId] ?? null;
   }
 
   /** Spell level (0 = cantrip), or null for non-spell abilities. Upcast

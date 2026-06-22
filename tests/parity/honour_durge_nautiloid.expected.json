@@ -153,6 +153,7 @@
    "location": "",
    "name": "The Dark Urge (player)",
    "race": "Dragonborn_White",
+   "reactions": null,
    "resources": [
     {
      "current": 1.0,

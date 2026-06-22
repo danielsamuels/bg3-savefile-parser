@@ -125,6 +125,9 @@ function characterLines(char: CharacterReport): string[] {
   if (char.feats?.length) {
     out.push(`  Feats     : ${char.feats.map(fmtFeat).join('; ')}`);
   }
+  if (char.reactions?.length) {
+    out.push(`  Reactions : ${char.reactions.join(', ')}`);
+  }
   if (char.concentration) {
     out.push(`  Concentrating : ${char.concentration.name ?? char.concentration.id}`);
   }

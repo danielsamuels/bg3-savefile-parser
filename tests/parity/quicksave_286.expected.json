@@ -3250,6 +3250,7 @@
    "location": "House of Healing",
    "name": "Maia (player)",
    "race": "Elf_HighElf",
+   "reactions": null,
    "resources": [
     {
      "current": 1.0,
@@ -3929,6 +3930,7 @@
    "location": "House of Healing",
    "name": "Karlach",
    "race": "Tiefling_Zariel",
+   "reactions": null,
    "resources": [
     {
      "current": 1.0,
@@ -4518,6 +4520,7 @@
    "location": "House of Healing",
    "name": "Shadowheart",
    "race": "HalfElf_High",
+   "reactions": null,
    "resources": [
     {
      "current": 1.0,
@@ -7215,6 +7218,7 @@
    "location": "House of Healing",
    "name": "Wyll",
    "race": "Human",
+   "reactions": null,
    "resources": [
     {
      "current": 1.0,
@@ -7633,6 +7637,7 @@
    "location": "House of Healing",
    "name": "Imp_Summon",
    "race": "Imp",
+   "reactions": null,
    "resources": null,
    "spells": null,
    "spells_note": "not-found",
@@ -7836,6 +7841,7 @@
    "location": "camp",
    "name": "Astarion",
    "race": "Elf_HighElf",
+   "reactions": null,
    "resources": [
     {
      "current": 1.0,
@@ -8183,6 +8189,7 @@
    "location": "camp",
    "name": "Gale",
    "race": "Human",
+   "reactions": null,
    "resources": [
     {
      "current": 1.0,
@@ -9138,6 +9145,7 @@
    "location": "camp",
    "name": "Halsin",
    "race": "Elf_WoodElf",
+   "reactions": null,
    "resources": [
     {
      "current": 1.0,

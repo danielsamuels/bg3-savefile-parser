@@ -5,6 +5,19 @@ All notable changes to this project will be documented here.
 ## Unreleased
 
 ### Added
+- Reaction abilities (the in-game Reactions panel: Riposte, Opportunity Attack,
+  Sentinel, Polearm Master, Indomitable...) now surface per character. They are
+  decoded from `game.interrupt.v0.PreferencesComponent` (two heap ranges of
+  16-byte `(name_ptr, len)` records into the FixedString pool). That component's
+  owners do not line up with the spell-book entity space, so a row is bound to a
+  character by feat/resource signature overlap rather than a fragile index:
+  origin-pool stand-in rows lose to the live row, and ambiguous matches attach
+  nothing. Names come from the game files (`Interrupt.txt` DisplayName handles),
+  so the report shows "Opportunity Attack", not a regex guess. This closes a gap
+  where the AI briefing recommended reaction maneuvers (e.g. Riposte) a Battle
+  Master already had, because reaction maneuvers are not in the spell book.
+  Surfaced in the text report, `--json`, the MCP report, and the site briefing;
+  Python and TypeScript parsers stay in parity.
 - `--vendors`: lists every merchant's for-sale stock — the items the game
   generated for them and the player has not yet bought. Each such item carries
   `UnsoldGenerated` on its Item node and, like carried gear, shares its seller's

@@ -281,6 +281,7 @@ def build_displayname_maps(
     dict[str, str],
     dict[str, int],
     dict[str, str],
+    dict[str, str],
 ]:
     """Build display-name and item-stat maps from installed game data.
 
@@ -315,6 +316,7 @@ def build_displayname_maps(
             data.get('rarity', {}),
             data.get('spell_levels', {}),
             data.get('passive_names', {}),
+            data.get('interrupt_names', {}),
         )
     except (OSError, ValueError, KeyError):
         pass
@@ -550,6 +552,56 @@ def build_displayname_maps(
                     if txt and '%%%' not in txt:
                         passive_names[entry_name] = txt
 
+    # Interrupt display names (the in-game Reactions panel: Riposte, Attack of
+    # Opportunity, Sentinel...). Reaction abilities are decoded from the save
+    # as Interrupt_* IDs; their in-game names live only here. Entries inherit
+    # DisplayName through a `using` chain, like items, so resolve it.
+    interrupt_handles: dict[str, tuple[str | None, str | None]] = {}
+    for pak_name in STAT_ITEM_PAKS:
+        pak_path = os.path.join(data_dir, pak_name)
+        try:
+            with open(pak_path, 'rb') as fh:
+                flist = lspk_filelist(fh)
+            interrupt_files = sorted(
+                k for k in flist if re.search(r'/Stats/Generated/Data/Interrupt.*\.txt$', k)
+            )
+        except (OSError, ValueError):
+            continue
+        for itf in interrupt_files:
+            try:
+                text = lspk_extract(pak_path, itf).decode('utf-8', errors='replace')
+            except (OSError, KeyError, ValueError):
+                continue
+            for bm in re.finditer(
+                r'^new entry "(Interrupt_[^"]+)"(.*?)(?=^new entry|\Z)',
+                text,
+                re.MULTILINE | re.DOTALL,
+            ):
+                entry_name, block = bm.group(1), bm.group(2)
+                dn_m = re.search(r'data "DisplayName" "([^";]+)', block)
+                using_m = re.search(r'^using "([^"]+)"', block, re.MULTILINE)
+                prev = interrupt_handles.get(entry_name, (None, None))
+                interrupt_handles[entry_name] = (
+                    dn_m.group(1) if dn_m else prev[0],
+                    using_m.group(1) if using_m else prev[1],
+                )
+
+    def interrupt_handle(name: str, depth: int = 0) -> str | None:
+        rec = interrupt_handles.get(name)
+        if not rec or depth > 8:
+            return None
+        if rec[0]:
+            return rec[0]
+        return interrupt_handle(rec[1], depth + 1) if rec[1] else None
+
+    interrupt_names: dict[str, str] = {}
+    for name in interrupt_handles:
+        handle = interrupt_handle(name)
+        if handle:
+            txt = handle_to_text.get(handle)
+            if txt and '%%%' not in txt:
+                interrupt_names[name] = txt
+
     # Item stat files: Armor.txt / Weapon.txt / Object.txt from item paks.
     # Used to (a) identify Object-type items that cannot be equipped, and
     # (b) resolve the equipment slot for each item (following the `using` chain).
@@ -663,6 +715,7 @@ def build_displayname_maps(
                     'spells': spell_name,
                     'spell_levels': spell_levels,
                     'passive_names': passive_names,
+                    'interrupt_names': interrupt_names,
                     'object_types': object_type_stats_list,
                     'stats_slots': stats_to_slot,
                     'two_handed': two_handed_stats_list,
@@ -694,6 +747,7 @@ def build_displayname_maps(
         stats_to_rarity,
         spell_levels,
         passive_names,
+        interrupt_names,
     )
 
 
@@ -717,12 +771,14 @@ class DisplayNames:
         stats_to_rarity: dict[str, str] | None = None,
         spell_levels: dict[str, int] | None = None,
         passive_names: dict[str, str] | None = None,
+        interrupt_names: dict[str, str] | None = None,
     ):
         self._guid = guid_name
         self._stats = stats_name
         self._spells = spell_name or {}
         self._spell_levels = spell_levels or {}
         self._passives = passive_names or {}
+        self._interrupts = interrupt_names or {}
         self.object_type_stats: frozenset[str] = object_type_stats or frozenset()
         self.stats_to_slot: dict[str, str] = stats_to_slot or {}
         self.two_handed_stats: frozenset[str] = two_handed_stats or frozenset()
@@ -788,6 +844,11 @@ class DisplayNames:
     def spell_name_for(self, spell_id: str) -> str | None:
         """Return the display name for a spell, or None if unresolved."""
         return self._spells.get(spell_id)
+
+    def interrupt_name_for(self, interrupt_id: str) -> str | None:
+        """Display name for a reaction interrupt ('Interrupt_Riposte' ->
+        'Riposte'), or None if unresolved."""
+        return self._interrupts.get(interrupt_id)
 
     def spell_level_for(self, spell_id: str) -> int | None:
         """Return the spell level (0 = cantrip), or None for non-spell abilities.

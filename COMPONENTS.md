@@ -157,7 +157,7 @@ game.identity.v0.IdentityComponent | 8 | 11 | Y | heap-ptr | [OTHER-AGENT] ~ eoc
 game.identity.v0.OriginalIdentityComponent | 8 | 7 | Y | heap-ptr | [OTHER-AGENT] ~ eoc::identity::OriginalIdentityComponent [uint8_t field_0]
 game.identity.v0.StateComponent | 8 | 13 | Y | heap-ptr | [OTHER-AGENT] ~ eoc::identity::StateComponent [[[bg3::legacy(field_0)]] bool Disguised]
 game.improvisedweapon.v0.CanBeWieldedComponent | 1 | 379 | Y | u8-varied PACKED? | ~ eoc::improvised_weapon::CanBeWieldedComponent (TAG: presence-only; bytes=junk) — e.g. 15 distinct, min=0 max=208
-game.interrupt.v0.PreferencesComponent | 32 | 238 | Y | heap-range | per-entity interrupt ask/auto preferences: heap ranges -> Interrupt_* name list
+game.interrupt.v0.PreferencesComponent | 32 | 238 | Y | heap-range | [DECODED] per-row reaction list: two {begin,end} ranges; the 2nd is 16-byte {u64 name_ptr, u32 len, u32 pad} records into the FixedString pool -> Interrupt_* ids. Owners are scrambled (no clean rotation), so rows bind to characters by feat/resource signature in model.match_reactions. parse_lsmf_interrupt_preferences
 game.inventory.v0.CanBeInComponent | 1 | 1396 | Y | u8-varied | ~ eoc::inventory::CanBeInComponent (TAG: presence-only; bytes=junk) — e.g. 58 distinct, min=0 max=216
 game.inventory.v0.CannotBeTakenOutComponent | 1 | 1 | Y | all-zero | ~ eoc::inventory::CannotBeTakenOutComponent (TAG: presence-only; bytes=junk)
 game.inventory.v0.ContainerSlotData | 16 | 1280 | N | heap-ptr +u32-small(197 distinct) | [DECODED] ~ ContainerSlotData [EntityHandle Item; uint32_t field_8}]

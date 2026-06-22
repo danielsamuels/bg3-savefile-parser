@@ -583,6 +583,61 @@ def parse_lsmf_action_resources(blob: bytes) -> dict[int, list[tuple]]:
     return out
 
 
+def parse_lsmf_interrupt_preferences(blob: bytes) -> dict[int, list[str]]:
+    """Reaction abilities per component row: the interrupts behind the in-game
+    Reactions panel — Riposte, Attack of Opportunity, Sentinel, Polearm
+    Master, Indomitable, plus gear- and status-granted procs.
+
+    game.interrupt.v0.PreferencesComponent rows are 32 bytes: two {begin, end}
+    heap ranges. The second range is an array of 16-byte records
+    {u64 name_ptr, u32 len, u32 pad}; name_ptr/len address the concatenated
+    FixedString pool (the same length-paired form the spell-ID pool uses, not
+    NUL-terminated). The first range is a shorter side list (changed-preference
+    entries) and is skipped. Interrupt IDs are always 'Interrupt_*'.
+
+    Rows are returned keyed by RAW row index, not entity: this component's
+    ownerlist is scrambled (the row→owner offset has no clean majority, unlike
+    action resources) and owners do not line up with the spell-book/stats
+    entity space, so positional remapping is unsafe. The caller matches a row
+    to a character by reaction-content signature (see model.match_reactions);
+    origin-pool stand-in rows carry only a token [Riposte, AttackOfOpportunity]
+    and lose that match to the live row.
+
+    Returns row index -> [Interrupt_* id, ...], in row order, deduplicated.
+    """
+    idx = lsmf_component_index(blob)
+    comp = idx.get('game.interrupt.v0.PreferencesComponent')
+    if not comp or comp[0] != 32:
+        return {}
+    elem, rows, off, _owners = comp
+    L = len(blob)
+
+    def pool_str(ptr: int, ln: int) -> str | None:
+        p = ptr + LSMF_HEAP_BASE
+        if not (0 < ln <= 64 and 0 < p <= L - ln):
+            return None
+        s = blob[p : p + ln]
+        return s.decode('ascii') if all(0x20 <= ch < 0x7F for ch in s) else None
+
+    out: dict[int, list[str]] = {}
+    for k in range(rows):
+        # Two {begin, end} heap ranges; the records live in the second.
+        _, _, b, e = struct.unpack_from('<QQQQ', blob, off + k * elem)
+        if not (0 < b <= e <= L) or (e - b) % 16 or (e - b) > 16 * 64:
+            continue
+        names: list[str] = []
+        seen: set[str] = set()
+        for i in range((e - b) // 16):
+            ptr, packed = struct.unpack_from('<QQ', blob, b + LSMF_HEAP_BASE + i * 16)
+            nm = pool_str(ptr, packed & 0xFFFFFFFF)
+            if nm and nm.startswith('Interrupt_') and nm not in seen:
+                seen.add(nm)
+                names.append(nm)
+        if names:
+            out[k] = names
+    return out
+
+
 def parse_lsmf_concentration(blob: bytes) -> dict[int, str]:
     """Active concentration per entity: entity -> spell ID.
 

@@ -3229,6 +3229,7 @@
    "location": "Wyrm's Lookout",
    "name": "Karlach",
    "race": "Tiefling_Zariel",
+   "reactions": null,
    "resources": [
     {
      "current": 1.0,
@@ -4185,6 +4186,14 @@
    "location": "Wyrm's Lookout",
    "name": "Maia (player)",
    "race": "Elf_HighElf",
+   "reactions": [
+    "Opportunity Attack",
+    "Riposte",
+    "Luck of the Far Realms",
+    "Tenacity",
+    "Polearm Master: Opportunity Attack",
+    "Indomitable"
+   ],
    "resources": [
     {
      "current": 1.0,
@@ -4877,6 +4886,14 @@
    "location": "Wyrm's Lookout",
    "name": "Shadowheart",
    "race": "HalfElf_High",
+   "reactions": [
+    "Opportunity Attack",
+    "Tenacity",
+    "Shield Blow",
+    "Warding Flare",
+    "War Caster: Opportunity Spell",
+    "Improved Warding Flare"
+   ],
    "resources": [
     {
      "current": 1.0,
@@ -8118,6 +8135,7 @@
    "location": "Wyrm's Lookout",
    "name": "Wyll",
    "race": "Human",
+   "reactions": null,
    "resources": [
     {
      "current": 1.0,
@@ -8846,6 +8864,7 @@
    "location": "camp",
    "name": "Astarion",
    "race": "Elf_HighElf",
+   "reactions": null,
    "resources": [
     {
      "current": 1.0,
@@ -9263,6 +9282,7 @@
    "location": "camp",
    "name": "Gale",
    "race": "Human",
+   "reactions": null,
    "resources": [
     {
      "current": 1.0,
@@ -10241,6 +10261,7 @@
    "location": "camp",
    "name": "Jaheira",
    "race": "HalfElf_High",
+   "reactions": null,
    "resources": [
     {
      "current": 1.0,
@@ -10573,6 +10594,7 @@
    "location": "camp",
    "name": "Minthara",
    "race": "Drow_LolthSworn",
+   "reactions": null,
    "resources": [
     {
      "current": 1.0,

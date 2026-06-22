@@ -3242,6 +3242,7 @@
    "location": "Campsite",
    "name": "Maia (player)",
    "race": "Elf_HighElf",
+   "reactions": null,
    "resources": [
     {
      "current": 1.0,
@@ -5768,6 +5769,7 @@
    "location": "Campsite",
    "name": "Karlach",
    "race": "Tiefling_Zariel",
+   "reactions": null,
    "resources": [
     {
      "current": 1.0,
@@ -6355,6 +6357,7 @@
    "location": "Campsite",
    "name": "Shadowheart",
    "race": "HalfElf_High",
+   "reactions": null,
    "resources": [
     {
      "current": 1.0,
@@ -8638,6 +8641,7 @@
    "location": "",
    "name": "Sir Fuzzalump (hireling)",
    "race": "Gnome_Rock",
+   "reactions": null,
    "resources": [
     {
      "current": 1.0,
@@ -9683,6 +9687,7 @@
    "location": "camp",
    "name": "Astarion",
    "race": "Elf_HighElf",
+   "reactions": null,
    "resources": [
     {
      "current": 1.0,
@@ -10022,6 +10027,7 @@
    "location": "camp",
    "name": "Gale",
    "race": "Human",
+   "reactions": null,
    "resources": [
     {
      "current": 1.0,
@@ -10977,6 +10983,7 @@
    "location": "camp",
    "name": "Halsin",
    "race": "Elf_WoodElf",
+   "reactions": null,
    "resources": [
     {
      "current": 1.0,
@@ -11337,6 +11344,7 @@
    "location": "camp",
    "name": "Hireling_Wizard",
    "race": "?",
+   "reactions": null,
    "resources": null,
    "spells": null,
    "spells_note": "not-found",
@@ -11639,6 +11647,7 @@
    "location": "camp",
    "name": "Wyll",
    "race": "Human",
+   "reactions": null,
    "resources": [
     {
      "current": 1.0,

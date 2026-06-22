@@ -82,6 +82,7 @@ function characterBlock(char: CharacterReport): string[] {
   const resources = buildResourcesLine(char.resources);
   if (resources) out.push(`- Resources: ${resources}`);
   if (char.feats?.length) out.push(`- Feats: ${char.feats.map(fmtFeat).join('; ')}`);
+  if (char.reactions?.length) out.push(`- Reactions: ${char.reactions.join(', ')}`);
   if (char.concentration) {
     out.push(`- Concentrating on: ${char.concentration.name ?? char.concentration.id}`);
   }

@@ -258,6 +258,7 @@
    "location": "",
    "name": "Shadowheart",
    "race": "HalfElf_High",
+   "reactions": null,
    "resources": [
     {
      "current": 1.0,
@@ -1065,6 +1066,7 @@
    "location": "",
    "name": "Laezel",
    "race": "Githyanki",
+   "reactions": null,
    "resources": [
     {
      "current": 1.0,

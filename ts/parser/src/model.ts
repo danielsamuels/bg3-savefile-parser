@@ -20,6 +20,7 @@ import {
   parseLsmfFeats,
   parseLsmfHealth,
   parseLsmfInspiration,
+  parseLsmfInterruptPreferences,
   parseLsmfInventoryOwners,
   parseLsmfMembership,
   parseLsmfPowerLists,
@@ -130,6 +131,9 @@ export interface CharacterReport {
   resources: ResourceEntry[] | null;
   concentration: { id: string; name: string | null } | null;
   feats: FeatEntry[] | null;
+  // Reaction abilities (the in-game Reactions panel), resolved to game-file
+  // names; null when no interrupt row matched this character.
+  reactions: string[] | null;
 }
 
 export interface FeatEntry {
@@ -232,6 +236,68 @@ const ITEM_GROUP_BY_PREFIX: Record<string, string> = {
   BOOK: 'book',
   SCR: 'book',
 };
+
+const INTERRUPT_PREFIX = 'Interrupt_';
+// Item-granted reaction procs: volatile and already implied by the equipment
+// list, so they are dropped from reactions.
+const GEAR_INTERRUPT_PREFIX = 'MAG_';
+
+/** Lowercase, alphanumerics only: 'Polearm Master' and 'Interrupt_PolearmMaster'
+ *  both fold to 'polearmmaster'. Mirror of model.reaction_norm. */
+const reactionNorm = (s: string): string => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+/** Attach each character's reaction abilities from the decoded interrupt rows,
+ *  binding a row to a character by feat/resource signature overlap. Only a
+ *  unique, non-empty best match is taken; a row is claimed by the
+ *  highest-scoring character. Mirror of model.match_reactions. */
+function matchReactions(
+  characters: CharacterReport[],
+  interruptPrefs: Map<number, string[]>,
+  dn: DisplayNames,
+): void {
+  if (interruptPrefs.size === 0) return;
+  const rowKeys = new Map<number, string[]>();
+  for (const [k, v] of interruptPrefs) {
+    rowKeys.set(
+      k,
+      v.map((i) => reactionNorm(i.slice(INTERRUPT_PREFIX.length))),
+    );
+  }
+  const claims: { score: number; row: number; char: CharacterReport }[] = [];
+  for (const char of characters) {
+    const sig = new Set<string>();
+    for (const f of char.feats ?? []) sig.add(reactionNorm(f.name ?? ''));
+    for (const r of char.resources ?? []) {
+      const nm = r.name ?? '';
+      if (nm.startsWith(INTERRUPT_PREFIX)) {
+        sig.add(reactionNorm(nm.slice(INTERRUPT_PREFIX.length).replace('_Charge', '')));
+      }
+    }
+    sig.delete('');
+    if (sig.size === 0) continue;
+    const scored = [...rowKeys.entries()]
+      .map(([row, toks]) => ({
+        score: toks.reduce((n, t) => n + (sig.has(t) ? 1 : 0), 0),
+        row,
+      }))
+      .sort((a, b) => b.score - a.score);
+    const top = scored[0]!;
+    if (top.score > 0 && (scored.length === 1 || scored[1]!.score < top.score)) {
+      claims.push({ score: top.score, row: top.row, char });
+    }
+  }
+  claims.sort((a, b) => b.score - a.score);
+  const taken = new Set<number>();
+  for (const { row, char } of claims) {
+    if (taken.has(row)) continue;
+    taken.add(row);
+    const names = interruptPrefs
+      .get(row)!
+      .filter((i) => !i.slice(INTERRUPT_PREFIX.length).startsWith(GEAR_INTERRUPT_PREFIX))
+      .map((i) => dn.interruptNameFor(i) ?? i.slice(INTERRUPT_PREFIX.length));
+    if (names.length) char.reactions = names;
+  }
+}
 
 export function itemCategory(stats: string, dn: DisplayNames): string {
   const slot = dn.statsToSlot[stats];
@@ -391,6 +457,9 @@ export function gatherReport(
   const actionResources = lsmfBlob ? parseLsmfActionResources(lsmfBlob) : new Map();
   const concentration = lsmfBlob ? parseLsmfConcentration(lsmfBlob) : new Map<number, string>();
   const levelupRecords = lsmfBlob ? parseLsmfFeats(lsmfBlob) : [];
+  const interruptPrefs = lsmfBlob
+    ? parseLsmfInterruptPreferences(lsmfBlob)
+    : new Map<number, string[]>();
   const ccNames = lsmfBlob ? parseLsmfCcNames(lsmfBlob) : [];
   const normName = (s: string): string => s.toLowerCase().replace(/[^a-z]/g, '');
 
@@ -879,6 +948,7 @@ export function gatherReport(
       resources: null,
       concentration: null,
       feats: null,
+      reactions: null,
     };
     report.characters.push(char);
 
@@ -963,6 +1033,7 @@ export function gatherReport(
         resources: null,
         concentration: null,
         feats: null,
+        reactions: null,
       };
       report.characters.push(char);
 
@@ -1120,6 +1191,8 @@ export function gatherReport(
       }
     }
   }
+
+  matchReactions(report.characters, interruptPrefs, dn);
 
   return report;
 }

@@ -21,6 +21,9 @@
 {% if char_data.feats_line %}
   Feats     : {{ char_data.feats_line }}
 {% endif %}
+{% if char_data.reactions_line %}
+  Reactions : {{ char_data.reactions_line }}
+{% endif %}
 {% if char.concentration %}
   Concentrating : {{ char.concentration.name or char.concentration.id }}
 {% endif %}
