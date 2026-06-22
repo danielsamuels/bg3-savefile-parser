@@ -42,6 +42,18 @@ QUICKSAVE_292 = str(FIXTURE_DIR / 'quicksave_292.lsv')  # Karlach dual-wields
 QUICKSAVE_294 = str(FIXTURE_DIR / 'quicksave_294.lsv')  # Wyll: stale Phalar Aluve
 
 
+def section_opts(**flags):
+    """An argparse-like namespace with every group flag present (default False)."""
+    from bg3parser import sections
+
+    ns = Namespace(all=False, party=False, verbose=False, all_spells=False)
+    for g in sections.ALL_GROUPS:
+        setattr(ns, g, False)
+    for k, v in flags.items():
+        setattr(ns, k, v)
+    return ns
+
+
 def build_report(save_path, opts=None):
     """Test convenience: gather the model and render it as text."""
     return parser.render_text(parser.gather_report(save_path, opts=opts), opts)
@@ -108,7 +120,10 @@ def test_smoke_model():
 
 def test_smoke_text_output():
     """render_text() must produce a non-empty report containing character names."""
-    report = build_report(QUICKSAVE_MAIA)
+    # section_opts does not expand --party, so set the classic-report groups directly.
+    report = build_report(
+        QUICKSAVE_MAIA, opts=section_opts(characters=True, equipment=True, spells=True)
+    )
     assert isinstance(report, str)
     assert len(report) > 1000
     for name in ['Maia (player)', 'Wyll', 'Karlach', 'Shadowheart']:
@@ -925,23 +940,24 @@ class TestBuildInstanceEntityMap:
 
 def test_save_info():
     """--save-info section must appear and contain recognisable fields."""
-    report = build_report(QUICKSAVE_MAIA, opts=Namespace(save_info=True))
+    report = build_report(QUICKSAVE_MAIA, opts=section_opts(save_info=True))
     assert 'Save Name' in report
     assert 'Game Ver' in report
     assert 'Leader' in report
 
 
-def test_no_spells():
-    """--no-spells must omit the spells/abilities section; default keeps it."""
-    assert 'Spells/Abilities' in build_report(QUICKSAVE_MAIA)
-    report = build_report(QUICKSAVE_MAIA, opts=Namespace(no_spells=True))
-    assert 'Spells/Abilities' not in report
-    assert 'Equipped' in report  # the rest of the character section survives
+def test_spells_opt_in():
+    """Spells appear only with --spells; --equipment alone shows gear, not spells."""
+    no_spells = build_report(QUICKSAVE_MAIA, opts=section_opts(characters=True, equipment=True))
+    assert 'Spells/Abilities' not in no_spells
+    assert 'Equipped' in no_spells
+    with_spells = build_report(QUICKSAVE_MAIA, opts=section_opts(spells=True))
+    assert 'Spells/Abilities' in with_spells
 
 
 def test_quests():
     """--quests must parse the Osiris story state and emit a quests section."""
-    report = build_report(QUICKSAVE_MAIA, opts=Namespace(quests=True))
+    report = build_report(QUICKSAVE_MAIA, opts=section_opts(quests=True))
     assert 'QUEST & STORY STATE' in report
     # The Osiris version line proves the parser reached the binary format.
     assert 'Osiris version:' in report
@@ -965,7 +981,7 @@ def test_thumbnail(tmp_path):
 
 def test_carried():
     """--carried must emit a Carried / personal inventory section."""
-    report = build_report(QUICKSAVE_MAIA, opts=Namespace(carried=True))
+    report = build_report(QUICKSAVE_MAIA, opts=section_opts(carried=True))
     assert 'Carried / personal inventory' in report
 
 
@@ -979,14 +995,14 @@ def test_exact_spellbooks():
 
 def test_spells_folded_in_text():
     """Default text output must fold sub-spells and basic actions with a count."""
-    report = build_report(QUICKSAVE_MAIA)
+    report = build_report(QUICKSAVE_MAIA, opts=section_opts(spells=True))
     assert 'heuristic' not in report
     assert 'basic actions' in report
 
 
 def test_all_spells_flag():
     """--all-spells must list everything: no folded sub-spell/basic-action counts."""
-    report = build_report(QUICKSAVE_MAIA, opts=Namespace(all_spells=True))
+    report = build_report(QUICKSAVE_MAIA, opts=section_opts(spells=True, all_spells=True))
     assert 'Spells/Abilities (' in report
     assert 'sub-spells' not in report
     assert 'basic actions' not in report
@@ -1231,7 +1247,8 @@ def test_stats_entity_link():
 def test_honour_mode_dark_urge():
     """Honour-mode Dark Urge save: the Durge avatar is the player, fully attributed."""
     report = build_report(
-        str(FIXTURE_DIR / 'honour_durge_nautiloid.lsv'), opts=Namespace(save_info=True)
+        str(FIXTURE_DIR / 'honour_durge_nautiloid.lsv'),
+        opts=section_opts(save_info=True, characters=True, equipment=True),
     )
     assert 'RulesetHonour' in report
     assert 'The Dark Urge (player)' in report
@@ -1244,11 +1261,16 @@ def test_quicksave_328_identical_builds_and_hireling():
     """Save 328 ground truth: Maia and Shadowheart share an identical build
     (Cleric/LightDomain 7) yet get distinct sheets via the entity link, and
     the hireling resolves to his custom name with items attributed."""
-    report = build_report(str(FIXTURE_DIR / 'quicksave_328.lsv'), opts=Namespace(save_info=True))
+    report = build_report(
+        str(FIXTURE_DIR / 'quicksave_328.lsv'),
+        opts=section_opts(save_info=True, characters=True),
+    )
     assert 'Sir Fuzzalump (hireling)' in report
     assert 'ambiguous' not in report.split('CAMP COMPANIONS')[0]  # party section
-    maia = report.split('Maia (player)')[1].split('Karlach')[0]
-    sh = report.split('Shadowheart')[1].split('Sir Fuzzalump')[0]
+    # The new header emits "Party: Maia (player), ..." so each name appears once
+    # before the character body heading — use [2] to get past the Party: line.
+    maia = report.split('Maia (player)')[2].split('Karlach')[0]
+    sh = report.split('Shadowheart')[2].split('Sir Fuzzalump')[0]
     assert 'Cleric / LightDomain' in maia and 'Cleric / LightDomain' in sh
     assert 'WIS 18' in maia and 'DEX 18' in sh  # distinct sheets, same build
     assert '52/52' in maia and '59/59' in sh
@@ -1294,7 +1316,7 @@ def test_portraits_ground_truth():
 
 def test_all_items():
     """--all-items must emit the full level inventory section."""
-    report = build_report(QUICKSAVE_MAIA, opts=Namespace(all_items=True))
+    report = build_report(QUICKSAVE_MAIA, opts=section_opts(all_items=True))
     assert 'ALL ITEMS ON CURRENT LEVEL' in report
     assert 'items total' in report
 
@@ -1333,14 +1355,14 @@ def test_vendors_absent_by_default():
 
 def test_limits():
     """--limits must emit the known-limitations note."""
-    report = build_report(QUICKSAVE_MAIA, opts=Namespace(limits=True))
+    report = build_report(QUICKSAVE_MAIA, opts=section_opts(limits=True))
     assert 'LIMITS' in report
     assert 'Spell attribution' in report
 
 
 def test_main_stdout(capsys):
     """main() with a save path must print the report to stdout."""
-    with mock.patch('sys.argv', ['bg3save', QUICKSAVE_MAIA]):
+    with mock.patch('sys.argv', ['bg3save', QUICKSAVE_MAIA, '--party']):
         parser.main()
     captured = capsys.readouterr()
     assert 'BG3 Save File Report' in captured.out
@@ -1362,13 +1384,16 @@ def test_main_output_file(tmp_path):
 # ---------------------------------------------------------------------------
 
 
-ALL_SECTION_OPTS = Namespace(
-    save_info=True,
-    quests=True,
-    all_items=True,
-    carried=True,
-    limits=True,
-)
+def all_section_opts():
+    from bg3parser import sections
+
+    ns = Namespace(all=False, party=False, verbose=False, all_spells=False)
+    for g in sections.ALL_GROUPS:
+        setattr(ns, g, True)
+    return ns
+
+
+ALL_SECTION_OPTS = all_section_opts()
 
 
 class TestTextOutputFormat:
@@ -1400,7 +1425,7 @@ class TestTextOutputFormat:
     def test_shadowheart_default(self):
         assert_golden(
             'shadowheart_default.txt',
-            render_golden(SHADOWHEART_TUTORIAL, Namespace(quests=True)),
+            render_golden(SHADOWHEART_TUTORIAL, section_opts(quests=True)),
         )
 
 
@@ -1418,7 +1443,7 @@ class TestResolvedRender:
     """Exercises the rendering branches that only fire with resolved names."""
 
     def test_slot_annotations_present(self):
-        report = build_report(QUICKSAVE_MAIA, opts=Namespace(verbose=True))
+        report = build_report(QUICKSAVE_MAIA, opts=section_opts(equipment=True, verbose=True))
         assert re.search(
             r'\[(?:Breast|Helmet|Cloak|Gloves|Boots|Amulet|Ring|'
             r'Melee Main Weapon|Ranged Main Weapon)\]',
@@ -1427,16 +1452,16 @@ class TestResolvedRender:
 
     def test_friendly_names_replace_internal(self):
         # With a resolver, equipped lines should not be bare internal stats names.
-        report = build_report(QUICKSAVE_MAIA)
+        report = build_report(QUICKSAVE_MAIA, opts=section_opts(equipment=True))
         assert 'Phalar Aluve' in report
         assert 'WPN_Phalar_Aluve' not in report
 
     def test_spell_folding_in_header(self):
-        report = build_report(QUICKSAVE_MAIA)
+        report = build_report(QUICKSAVE_MAIA, opts=section_opts(spells=True))
         assert re.search(r'Spells/Abilities \(\d+;.*(?:sub-spells|basic actions)', report)
 
     def test_all_spells_disables_folding(self):
-        report = build_report(QUICKSAVE_MAIA, opts=Namespace(all_spells=True))
+        report = build_report(QUICKSAVE_MAIA, opts=section_opts(spells=True, all_spells=True))
         assert not re.search(r'\+\d+ (?:sub-spells|basic actions)', report)
 
 
@@ -1468,7 +1493,7 @@ def test_shadowheart_tutorial_report():
 
 def test_shadowheart_quests():
     """Osiris parsing must work on the tutorial save's StorySave.bin."""
-    report = build_report(SHADOWHEART_TUTORIAL, opts=Namespace(quests=True))
+    report = build_report(SHADOWHEART_TUTORIAL, opts=section_opts(quests=True))
     assert 'QUEST & STORY STATE' in report
     assert 'Osiris version:' in report
 

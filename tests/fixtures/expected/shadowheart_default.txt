@@ -1,6 +1,8 @@
 BG3 Save File Report
 Source: autosave_shadowheart_tutorial.lsv
 ========================================================================
+Save: AutoSave_2 (#2)   Region: TUT_Avernus_C   Saved: 2026-05-23 13:40:42 UTC
+Party: Shadowheart, Laezel
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 QUEST & STORY STATE  (Osiris / StorySave.bin)
@@ -25,112 +27,3 @@ QUEST & STORY STATE  (Osiris / StorySave.bin)
   Companion approval (of the player):
     Lae'zel        0
 
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-PARTY CHARACTERS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Shadowheart
-  Race      : HalfElf_High
-  Class     : Cleric / TrickeryDomain
-  Level     : 1
-  XP        : 70
-  Abilities : STR 13  DEX 13  CON 14  INT 10  WIS 17  CHA 8
-  HP        : 10/10
-  Spells/Abilities (57; +11 basic actions):
-    – Projectile_FireBolt
-    – Projectile_GuidingBolt
-    – Shout_DisguiseSelf
-    – Shout_DisguiseSelf_Dragonborn_Female
-    – Shout_DisguiseSelf_Dragonborn_Male
-    – Shout_DisguiseSelf_Drow_Female
-    – Shout_DisguiseSelf_Drow_Male
-    – Shout_DisguiseSelf_Drow_Strong_Female
-    – Shout_DisguiseSelf_Drow_Strong_Male
-    – Shout_DisguiseSelf_Dwarf_Female
-    – Shout_DisguiseSelf_Dwarf_Male
-    – Shout_DisguiseSelf_Elf_Female
-    – Shout_DisguiseSelf_Elf_Male
-    – Shout_DisguiseSelf_Elf_Strong_Female
-    – Shout_DisguiseSelf_Elf_Strong_Male
-    – Shout_DisguiseSelf_Githyanki_Female
-    – Shout_DisguiseSelf_Githyanki_Male
-    – Shout_DisguiseSelf_Gnome_Female
-    – Shout_DisguiseSelf_Gnome_Male
-    – Shout_DisguiseSelf_HalfElf_Female
-    – Shout_DisguiseSelf_HalfElf_Male
-    – Shout_DisguiseSelf_HalfElf_Strong_Female
-    – Shout_DisguiseSelf_HalfElf_Strong_Male
-    – Shout_DisguiseSelf_HalfOrc_Female
-    – Shout_DisguiseSelf_HalfOrc_Male
-    – Shout_DisguiseSelf_Halfling_Female
-    – Shout_DisguiseSelf_Halfling_Male
-    – Shout_DisguiseSelf_Human_Female
-    – Shout_DisguiseSelf_Human_Male
-    – Shout_DisguiseSelf_Human_Strong_Female
-    – Shout_DisguiseSelf_Human_Strong_Male
-    – Shout_DisguiseSelf_Tiefling_Female
-    – Shout_DisguiseSelf_Tiefling_Male
-    – Shout_DisguiseSelf_Tiefling_Strong_Female
-    – Shout_DisguiseSelf_Tiefling_Strong_Male
-    – Target_Bane
-    – Target_Bless
-    – Target_BlessingOfTheTrickster
-    – Target_CharmPerson
-    – Target_Command_Approach
-    – Target_Command_Container
-    – Target_Command_Drop
-    – Target_Command_Flee
-    – Target_Command_Grovel
-    – Target_Command_Halt
-    – Target_CreateDestroyWater
-    – Target_CreateWater
-    – Target_CureWounds
-    – Target_DestroyWater
-    – Target_Guidance
-    – Target_HealingWord
-    – Target_InflictWounds
-    – Target_ProtectionFromEvilAndGood
-    – Target_Resistance
-    – Target_SacredFlame
-    – Target_Sanctuary
-    – Target_ShieldOfFaith
-  Equipped (10):
-    – ARM_Boots_Leather
-    – ARM_ChainShirt_Body_Shar
-    – ARM_Ring_F
-    – ARM_Robe_Body
-    – UNI_CONT_DEVIL_PuzzleBox_A
-    – UNI_ShadowheartCirclet
-    – WPN_Handaxe
-    – WPN_LightCrossbow
-    – WPN_Mace
-    – WPN_Shortsword
-
-Laezel
-  Race      : Githyanki
-  Class     : Fighter
-  Level     : 1
-  XP        : 70
-  Abilities : STR 17  DEX 13  CON 15  INT 10  WIS 12  CHA 8
-  HP        : 12/12
-  Spells/Abilities (11; +11 basic actions):
-    – Projectile_PiercingShot
-    – Shout_AstralKnowledge
-    – Shout_AstralKnowledge_Charisma
-    – Shout_AstralKnowledge_Dexterity
-    – Shout_AstralKnowledge_Intelligence
-    – Shout_AstralKnowledge_Strength
-    – Shout_AstralKnowledge_Wisdom
-    – Shout_SecondWind
-    – Target_ConcussiveSmash
-    – Target_MageHand_GithyankiPsionics
-    – Target_Slash_New
-  Equipped (7):
-    – ARM_Boots_Metal_Githyanki
-    – ARM_HalfPlate_Body_Githyanki
-    – ARM_Shield
-    – WPN_LightCrossbow
-    – WPN_Longsword
-    – WPN_Scimitar
-    – WPN_Shortbow

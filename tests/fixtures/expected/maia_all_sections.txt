@@ -1,6 +1,8 @@
 BG3 Save File Report
 Source: quicksave_maia.lsv
 ========================================================================
+Save: QuickSave_242 (#242)   Region: SCL_Main_A   Saved: 2026-06-03 21:08:18 UTC
+Party: Maia (player), Wyll, Karlach, Shadowheart, Imp_Summon
 
 Save Name  : QuickSave_242
 Save #     : 242
@@ -115,7 +117,6 @@ QUEST & STORY STATE  (Osiris / StorySave.bin)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PARTY CHARACTERS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 Maia (player)
   Race      : Elf_HighElf
   Class     : Fighter / BattleMaster
@@ -182,7 +183,6 @@ Maia (player)
       – ARM_Camp_Body
       – ARM_Camp_Shoes
       – ARM_Underwear_Elves
-
 Wyll
   Race      : Human
   Class     : Warlock / Fiend
@@ -249,7 +249,6 @@ Wyll
       – OBJ_GoldPile x2102
       – OBJ_Keychain
       – PUZ_Key
-
 Karlach
   Race      : Tiefling_Zariel
   Class     : Barbarian / TotemWarriorPath
@@ -297,7 +296,6 @@ Karlach
     Everything else:
       – OBJ_Bag_AlchemyPouch
       – OBJ_Keychain
-
 Shadowheart
   Race      : HalfElf_High
   Class     : Cleric / TrickeryDomain
@@ -616,7 +614,6 @@ Shadowheart
       – OBJ_Keychain
       – OBJ_Kit_ThievesTools
       – OBJ_Rope
-
 Imp_Summon
   Race      : Imp
   Class     : ?
@@ -625,11 +622,11 @@ Imp_Summon
   Location  : HAV_IsobelRoom_SUB
   Spells/Abilities : (spell book not found)
   Equipment : no items attributed (character off current level?)
+  Carried / personal inventory (0):
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CAMP COMPANIONS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 Astarion
   Race      : Elf_HighElf
   Class     : Rogue / Thief
@@ -668,7 +665,6 @@ Astarion
       – OBJ_Keychain
       – OBJ_Tool_Shovel
       – PUZ_Key
-
 Gale
   Race      : Human
   Class     : Wizard / EvocationSchool
@@ -775,7 +771,6 @@ Gale
       – OBJ_Bag_AlchemyPouch
       – OBJ_InkPot
       – OBJ_Keychain
-
 Halsin
   Race      : Elf_WoodElf
   Class     : Druid
@@ -1919,6 +1914,299 @@ above, by shared world position. The list below is the full level pool
        WPN_Warhammer_1                                              [weapon/magic]
        WPN_WhippingCane                                             [weapon/magic]
        WPN_WoodWoad_Club                                            [weapon/magic]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VENDOR STOCK  (6 merchants)
+Each merchant's for-sale stock — items generated and not yet sold,
+attributed by shared world position, biggest shops first. Merchant names
+need the game data installed (otherwise internal template ids).
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Unknown merchant  (94 items):
+    Weapons & magic items:
+      – MAG_Druid_Late_Hide_Armor_1
+      – MAG_FlamingFist_BattleWizardGloves
+      – MAG_FlamingFist_StaffOfFire
+      – MAG_Harpers_ArmorOfShadows
+      – MAG_Heat_Fire_Robe
+      – MAG_Monk_Magic_Hat
+      – MAG_OfTheBalancedHands_Gloves
+      – MAG_PHB_Defender_Greataxe
+      – WPN_Dagger
+      – WPN_Greatclub_1
+      – WPN_Greatsword_1
+      – WPN_Handaxe_1
+      – WPN_LightCrossbow_1
+      – WPN_Scimitar_2
+      – WPN_Torch x2
+      – WPN_WarPick_1
+    Armour & accessories:
+      – ARM_Boots_Metal
+      – ARM_Breastplate_Body
+      – ARM_Gloves_Metal
+      – ARM_HalfPlate_Body
+      – ARM_Helmet_Metal
+      – ARM_Plate_Body
+      – ARM_Shield
+      – ARM_Splint_Body
+      – ARM_StuddedLeather_Body
+    Potions & consumables:
+      – ALCH_Solution_Elixir_Alertness
+      – ALCH_Solution_Elixir_Meditation
+      – ALCH_Solution_Elixir_Meditation_Greater
+      – ALCH_Solution_Elixir_SeeInvisible
+      – ALCH_Solution_Oil_Bane
+      – ALCH_Solution_Oil_DamageAttackBuff
+      – ALCH_Solution_Oil_Reduce
+      – ALCH_Solution_Oil_RemoveResistanceFire
+      – ALCH_Solution_Potion_DetectThoughts
+      – ALCH_Solution_Potion_Flying
+      – ALCH_Solution_Potion_Jump
+      – OBJ_Potion_Healing
+      – OBJ_Potion_Healing_Greater
+      – OBJ_Potion_Of_Animal_Speaking
+    Books & scrolls:
+      – OBJ_Scroll_Blindness
+      – OBJ_Scroll_Blur
+      – OBJ_Scroll_Cloudkill
+      – OBJ_Scroll_ConeOfCold
+      – OBJ_Scroll_ConjureMinorElemental
+      – OBJ_Scroll_Darkness
+      – OBJ_Scroll_Fireball
+      – OBJ_Scroll_Fly
+      – OBJ_Scroll_GlyphOfWarding
+      – OBJ_Scroll_HoldMonster
+      – OBJ_Scroll_IceStorm
+      – OBJ_Scroll_MagicMissile
+      – OBJ_Scroll_PhantasmalKiller
+      – OBJ_Scroll_PlanarBinding
+      – OBJ_Scroll_Revivify
+      – OBJ_Scroll_ShockingGrasp
+      – OBJ_Scroll_SpeakWithDead
+      – OBJ_Scroll_Stoneskin
+      – OBJ_Scroll_Telekinesis
+      – OBJ_Scroll_Thunderwave
+      – OBJ_Scroll_WallOfFire
+    Everything else:
+      – Food_Potato_Scones
+      – OBJ_AcidBottle
+      – OBJ_ArrowOfAcid
+      – OBJ_ArrowOfAntimagic
+      – OBJ_ArrowOfDarkness
+      – OBJ_ArrowOfDetonation
+      – OBJ_ArrowOfFire
+      – OBJ_ArrowOfHumanoidSlaying
+      – OBJ_ArrowOfIce
+      – OBJ_ArrowOfLightning
+      – OBJ_ArrowOfMonstrositySlaying
+      – OBJ_ArrowOfRicochet
+      – OBJ_ArrowOfTeleportation
+      – OBJ_ArrowOfWraithsEmbrace
+      – OBJ_Bomb
+      – OBJ_Camp_Pack
+      – OBJ_Dye_BlackRed
+      – OBJ_Dye_BlueYellow
+      – OBJ_Dye_Green
+      – OBJ_Dye_GreenSage
+      – OBJ_Dye_GreenSwamp
+      – OBJ_Dye_OrangeBlue
+      – OBJ_Dye_Purple_02
+      – OBJ_Dye_RedWhite
+      – OBJ_Dye_Remover
+      – OBJ_Dye_WhiteBlack
+      – OBJ_FireBottle
+      – OBJ_GoldPile
+      – OBJ_GreaseBottle
+      – OBJ_HolyWaterFlask
+      – OBJ_Kit_ThievesTools
+      – OBJ_Kit_TrapDisarm
+      – OBJ_Oil_Of_The_Basilisk
+
+  Unknown merchant  (58 items):
+    Weapons & magic items:
+      – MAG_Druid_Magic_Hide_Armor
+      – MAG_Fire_IncreaseSlashingDamageToBurning_Handaxe
+      – WPN_Torch x2
+    Armour & accessories:
+      – ARM_ChainMail_Body_1
+      – ARM_ChainShirt_Body_2
+      – ARM_Helmet_Leather
+      – ARM_Hide_Body_2
+      – ARM_Leather_Body
+      – ARM_Leather_Body_1
+      – ARM_Padded_Body_2
+      – ARM_RingMail_Body_2
+      – ARM_ScaleMail_Body_1
+      – UNI_StaffOfRain
+    Potions & consumables:
+      – ALCH_Solution_Elixir_Darkvision
+      – CONS_FOOD_Fish_Big
+      – CONS_FOOD_Soup_Onion
+      – CONS_FOOD_Soup_Vegetable
+      – CONS_Herbs_Balsam
+      – CONS_Herbs_Weavemoss
+      – CONS_Mushrooms_Bonecap
+      – CONS_Mushrooms_DragonEggMushroom
+      – CONS_Mushrooms_RoguesMorsel
+      – CONS_Mushrooms_SilvanTruffle
+      – OBJ_Potion_Healing
+      – OBJ_Potion_Healing_Greater
+    Books & scrolls:
+      – OBJ_Scroll_CharmPerson
+      – OBJ_Scroll_FeatherFall
+      – OBJ_Scroll_Fly
+      – OBJ_Scroll_PhantasmalKiller
+      – OBJ_Scroll_Revivify
+      – OBJ_Scroll_Slow
+      – OBJ_Scroll_VampiricTouch
+      – OBJ_Scroll_WallOfFire
+      – OBJ_Scroll_Web
+    Everything else:
+      – Food_Sweet_Potato
+      – OBJ_ArrowOfAcid
+      – OBJ_ArrowOfDarkness
+      – OBJ_ArrowOfDetonation
+      – OBJ_ArrowOfFire
+      – OBJ_ArrowOfIce
+      – OBJ_ArrowOfLightning
+      – OBJ_ArrowOfWraithsEmbrace
+      – OBJ_Camp_Pack
+      – OBJ_Dye_Blue
+      – OBJ_Dye_BlueGreen
+      – OBJ_Dye_Golden
+      – OBJ_Dye_Green
+      – OBJ_Dye_Purple_02
+      – OBJ_Dye_Red
+      – OBJ_Dye_Remover
+      – OBJ_Dye_Teal
+      – OBJ_FOOD_Meat
+      – OBJ_GoldPile
+      – OBJ_Kit_ThievesTools
+      – OBJ_Kit_TrapDisarm
+      – OBJ_Tool_Shovel
+      – SC_BagOfContainers
+
+  Unknown merchant  (54 items):
+    Weapons & magic items:
+      – MAG_CQCaster_CloseRangedSpellMastery_Gloves
+      – MAG_Finesse_Longsword
+      – MAG_Gish_TempHPWhileConcentrating_Boots
+      – MAG_Invisible_Pike
+      – MAG_Spellbreaker_Battleaxe
+      – WPN_Dagger_1
+      – WPN_Flail
+      – WPN_Greataxe
+      – WPN_HandCrossbow
+      – WPN_HeavyCrossbow
+      – WPN_Javelin
+      – WPN_LightCrossbow
+      – WPN_LightHammer_1
+      – WPN_Longbow
+      – WPN_Longbow_1
+      – WPN_Mace
+      – WPN_Rapier x2
+      – WPN_Shortbow
+      – WPN_Shortbow_1
+      – WPN_Sickle
+      – WPN_Trident_1
+      – WPN_Warhammer_1
+    Armour & accessories:
+      – ARM_Breastplate_Body
+      – ARM_ChainMail_Body
+      – ARM_Splint_Body
+      – ARM_StuddedLeather_Body
+    Potions & consumables:
+      – CONS_DRINK_Oil
+      – CONS_DRINK_Rum
+      – CONS_FOOD_Bread_Bun
+      – CONS_FOOD_Bread_Loaf
+      – CONS_FOOD_Sausage_B
+      – CONS_FOOD_Sausage_Piled_B
+      – OBJ_Potion_Healing_Greater
+      – OBJ_Potion_Healing_Superior
+      – OBJ_Potion_Healing_Supreme
+    Books & scrolls:
+      – OBJ_Scroll_Revivify
+    Everything else:
+      – Food_Neogi_Claws
+      – OBJ_ArrowOfAcid
+      – OBJ_ArrowOfAntimagic
+      – OBJ_ArrowOfDarkness
+      – OBJ_ArrowOfDetonation
+      – OBJ_ArrowOfDispelling
+      – OBJ_ArrowOfDragonSlaying
+      – OBJ_ArrowOfElementalSlaying
+      – OBJ_ArrowOfFiendSlaying
+      – OBJ_ArrowOfFire
+      – OBJ_ArrowOfIce
+      – OBJ_ArrowOfLightning
+      – OBJ_ArrowOfMonstrositySlaying
+      – OBJ_ArrowOfTeleportation
+      – OBJ_ArrowOfWraithsEmbrace
+      – OBJ_FOOD_Meat_Grilled_C
+      – OBJ_GoldPile
+
+  Unknown merchant  (33 items):
+    Weapons & magic items:
+      – MAG_ChargedLightning_Electrocute_Armor
+      – MAG_MeleeDebuff_AttackDebuff2_OnDamage_HeavyCrossbow
+      – MAG_OfRupture_Rapier
+      – WPN_Battleaxe_1
+      – WPN_Dagger_1
+      – WPN_Longbow_1
+      – WPN_Rapier_1
+    Armour & accessories:
+      – ARM_ChainMail_Body_1
+      – ARM_ChainShirt_Body_2
+      – ARM_Hide_Body_2
+      – ARM_Instrument_Drum
+      – ARM_Instrument_Lute x2
+      – ARM_Instrument_Lute_B
+      – ARM_Leather_Body_1
+      – ARM_Padded_Body_2
+      – ARM_RingMail_Body_2
+      – ARM_ScaleMail_Body_1
+    Potions & consumables:
+      – ALCH_Solution_Oil_Reduce
+      – OBJ_Potion_Of_Invisibility
+    Everything else:
+      – OBJ_Dye_BlackGreen
+      – OBJ_Dye_BlackTeal
+      – OBJ_Dye_BluePurple
+      – OBJ_Dye_BlueYellow_02
+      – OBJ_Dye_Remover
+      – OBJ_Dye_WhiteBlack
+      – OBJ_FireBottle
+      – OBJ_GoldPile
+      – OBJ_Kit_ThievesTools
+      – OBJ_Kit_TrapDisarm
+      – OBJ_Tool_Shovel
+      – PLA_ZhentCave_Gloves
+      – Solution_Toxin_Basic
+
+  Unknown merchant  (7 items):
+    Weapons & magic items:
+      – WPN_HandCrossbow
+      – WPN_Salami
+    Potions & consumables:
+      – CONS_FOOD_Sausage
+      – CONS_FOOD_Sausage_D
+      – CONS_FOOD_Sausage_Piled
+      – CONS_FOOD_Sausage_Piled_B
+    Everything else:
+      – OBJ_GoldPile
+
+  Unknown merchant  (5 items):
+    Weapons & magic items:
+      – MAG_ChargedLightning_LightningBlast_Amulet
+    Armour & accessories:
+      – ARM_Amulet_Necklace_B_Silver_A
+      – ARM_Ring_I_Silver_A
+    Everything else:
+      – OBJ_Camp_Pack
+      – OBJ_GoldPile
+
+  (+151 ambient NPCs with trivial stock (<5 items) omitted; use --json for the full set.)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 LIMITS
