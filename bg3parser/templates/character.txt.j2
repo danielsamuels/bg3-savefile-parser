@@ -1,5 +1,5 @@
-
 {{ char.name }}
+{% if show_characters %}
   Race      : {{ char.race }}
   Class     : {{ char.classes | map('fmt_class') | join('; ') if char.classes else '?' }}
   Level     : {{ char.level }}
@@ -27,12 +27,13 @@
 {% if char.concentration %}
   Concentrating : {{ char.concentration.name or char.concentration.id }}
 {% endif %}
-{% if not opts.no_spells and char.spells is not none %}
+{% endif %}
+{% if show_spells and char.spells is not none %}
   Spells/Abilities ({{ char_data.spells_shown | length }}{{ char_data.spells_header_suffix }}):
 {% for line in char_data.spells_shown %}
     – {{ line }}
 {% endfor %}
-{% elif not opts.no_spells %}
+{% elif show_spells %}
   Spells/Abilities : {{ spells_notes.get(char.spells_note or 'not-found') }}
 {% endif %}
 {% if char.inspect %}
@@ -46,6 +47,7 @@
 {% endfor %}
 {% endfor %}
 {% endif %}
+{% if show_equipment %}
 {% if char.equipment_note %}
   Equipment : {{ equipment_notes[char.equipment_note] }}
 {% else %}
@@ -59,7 +61,9 @@
     – {{ item | fmt_item(verbose) }}
 {% endfor %}
 {% endif %}
-{% if opts.carried %}
+{% endif %}
+{% endif %}
+{% if show_carried %}
   Carried / personal inventory ({{ char.carried | length }}):
 {% for label, lines in char_data.carried_groups %}
     {{ label }}:
@@ -67,5 +71,4 @@
       – {{ line }}
 {% endfor %}
 {% endfor %}
-{% endif %}
 {% endif %}

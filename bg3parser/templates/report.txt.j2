@@ -1,12 +1,22 @@
 BG3 Save File Report
 Source: {{ report.source }}
 ========================================================================
+Save: {{ report.save_info.save_name }} (#{{ report.save_info.save_id }})   Region: {{ report.save_info.level }}   Saved: {{ report.save_info.saved_at }}
+Party: {{ active_party_names }}
+{% if no_groups %}
+
+No sections selected. Try --party (the classic report) or --all (everything),
+or pick groups: --characters --equipment --spells --carried
+                --camp-characters --camp-equipment --camp-spells --camp-carried
+                --camp-chest --save-info --quests --vendors --all-items --limits
+{% endif %}
 {% if opts.save_info and report.save_info is not none %}
 {% include 'save_info.txt.j2' %}
 {% endif %}
 {% if report.quests is not none %}
 {% include 'quests.txt.j2' %}
 {% endif %}
+{% if any_party_group %}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PARTY CHARACTERS
@@ -14,10 +24,15 @@ PARTY CHARACTERS
 {% for char in report.characters %}
 {% set char_data = chars_data[loop.index0] %}
 {% if not char.at_camp %}
+{% set show_characters = opts.characters %}
+{% set show_equipment = opts.equipment %}
+{% set show_spells = opts.spells %}
+{% set show_carried = opts.carried %}
 {% include 'character.txt.j2' %}
 {% endif %}
 {% endfor %}
-{% if report.characters | selectattr('at_camp') | list %}
+{% endif %}
+{% if any_camp_companion_group and (report.characters | selectattr('at_camp') | list) %}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CAMP COMPANIONS
@@ -25,11 +40,15 @@ CAMP COMPANIONS
 {% for char in report.characters %}
 {% set char_data = chars_data[loop.index0] %}
 {% if char.at_camp %}
+{% set show_characters = opts.camp_characters %}
+{% set show_equipment = opts.camp_equipment %}
+{% set show_spells = opts.camp_spells %}
+{% set show_carried = opts.camp_carried %}
 {% include 'character.txt.j2' %}
 {% endif %}
 {% endfor %}
 {% endif %}
-{% if report.camp_chest is not none %}
+{% if opts.camp_chest and report.camp_chest is not none %}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CAMP CHEST  ({{ report.camp_chest | length }} item types)
@@ -42,10 +61,10 @@ CAMP CHEST  ({{ report.camp_chest | length }} item types)
 {% endfor %}
 {% endfor %}
 {% endif %}
-{% if report.level_items is not none %}
+{% if opts.all_items and report.level_items is not none %}
 {% include 'level_items.txt.j2' %}
 {% endif %}
-{% if report.vendors is not none %}
+{% if opts.vendors and report.vendors is not none %}
 {% include 'vendors.txt.j2' %}
 {% endif %}
 {% if opts.limits %}

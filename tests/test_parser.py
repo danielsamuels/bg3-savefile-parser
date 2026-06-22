@@ -1837,3 +1837,37 @@ def test_mcp_server_parse_cache():
         mcp_server.parse_save(QUICKSAVE_MAIA, quests=False)
         assert calls == [False, True]
     mcp_server.parse_cache.clear()
+
+
+def test_bare_report_is_header_and_hint():
+    """No flags: header (save summary + party) and the no-sections hint, no body."""
+    from argparse import Namespace
+
+    from bg3parser import sections
+
+    opts = Namespace(all=False, party=False, verbose=False, all_spells=False)
+    for g in sections.ALL_GROUPS:
+        setattr(opts, g, False)
+    report = build_report(QUICKSAVE_MAIA, opts=opts)
+    assert 'Party: ' in report
+    assert 'No sections selected.' in report
+    assert 'PARTY CHARACTERS' not in report  # body suppressed
+    assert 'Equipped' not in report
+
+
+def test_equipment_only_shows_gear_no_identity_no_spells():
+    from argparse import Namespace
+
+    from bg3parser import sections
+
+    opts = Namespace(all=False, party=False, verbose=False, all_spells=False)
+    for g in sections.ALL_GROUPS:
+        setattr(opts, g, False)
+    opts.equipment = True
+    report = build_report(QUICKSAVE_MAIA, opts=opts)
+    assert 'PARTY CHARACTERS' in report
+    assert 'Maia (player)' in report  # name frames the gear
+    assert 'Equipped' in report
+    assert 'Spells/Abilities' not in report  # spells off
+    assert 'No sections selected.' not in report  # a group is on
+    assert '  Race      :' not in report  # identity off
