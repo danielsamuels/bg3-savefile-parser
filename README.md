@@ -44,13 +44,23 @@ uv run bg3save /path/to/QuickSave_NNN.lsv [report.txt]
 uv run bg3save 286
 uv run bg3save
 
-# Extra sections and switches:
-uv run bg3save 286 --save-info --quests --carried --all-items --verbose
+# Bare run prints a header (save summary and active party) plus a flag hint:
+uv run bg3save 286
 
-# List every merchant's for-sale stock (items generated and not yet bought):
-uv run bg3save 286 --vendors
+# The classic report (active party identity, gear, and spells):
+uv run bg3save 286 --party
 
-# Machine-readable output for building on top of the parser:
+# Compose exactly what you want, for example characters and their gear only:
+uv run bg3save 286 --characters --equipment
+
+# Everything, including the slower quest/vendor parses:
+uv run bg3save 286 --all
+
+# Camp companions and the camp chest:
+uv run bg3save 286 --camp-characters --camp-equipment --camp-chest
+
+# Other sections: --save-info, --quests, --vendors, --all-items, --limits.
+# Machine-readable output:
 uv run bg3save 286 --json
 ```
 
