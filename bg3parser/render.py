@@ -206,13 +206,13 @@ def make_jinja_env() -> Environment:
 
 def render_text(report: SaveReport, opts=None) -> str:
     """Render the model as the classic plain-text report."""
+    from . import sections
 
     def opt(name: str) -> bool:
         return bool(getattr(opts, name.replace('-', '_'), False)) if opts is not None else False
 
     verbose = opt('verbose')
     all_spells = opt('all-spells')
-    carried = opt('carried')
 
     chars_data = [
         prepare_char_data(char, verbose=verbose, all_spells=all_spells)
@@ -233,14 +233,13 @@ def render_text(report: SaveReport, opts=None) -> str:
             if lines:
                 camp_chest_groups.append((label, lines))
 
-    opts_dict = {
-        'verbose': verbose,
-        'all_spells': all_spells,
-        'carried': carried,
-        'limits': opt('limits'),
-        'save_info': opt('save-info'),
-        'no_spells': opt('no-spells'),
-    }
+    # Per-group visibility. With no opts (e.g. legacy callers passing None) the
+    # report is treated as bare: header + hint only.
+    opts_dict = {'verbose': verbose, 'all_spells': all_spells}
+    for g in sections.ALL_GROUPS:
+        opts_dict[g] = opt(g)
+
+    active_party_names = ', '.join(c.name for c in report.characters if not c.at_camp)
 
     # Pre-compute values that require Python operators not available in Jinja2.
     quests_version = ''
@@ -264,6 +263,12 @@ def render_text(report: SaveReport, opts=None) -> str:
     output = template.render(
         report=report,
         opts=opts_dict,
+        any_party_group=sections.any_party_group(opts) if opts is not None else False,
+        any_camp_companion_group=(
+            sections.any_camp_companion_group(opts) if opts is not None else False
+        ),
+        no_groups=sections.no_groups_selected(opts) if opts is not None else True,
+        active_party_names=active_party_names,
         chars_data=chars_data,
         camp_chest_groups=camp_chest_groups,
         level_items_entries=level_items_entries,
