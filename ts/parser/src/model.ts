@@ -668,6 +668,13 @@ export function gatherReport(
   for (const [t, s] of templateToStats0) templateToStats.set(t, s); // frame 0 wins
   const itemsByChar = collectItemsByPosition([nodes0, ...allLcNodeLists], charPositions);
 
+  // Entity GUIDs each character is wearing, by ECS classification. A mod-driven
+  // gear swap can leave a worn item's container membership pointing at a bag in
+  // the camp chest; these are subtracted from the chest walk so worn gear is not
+  // double-listed there. The discriminator is the classification, not position
+  // (a chest item can carry a stale on-character transform).
+  const wornEntities = new Set<string>();
+
   /** Attribute and classify the items at a character's position. */
   function attachItems(char: CharacterReport, displayName: string): void {
     const charNi = partyNodes.get(displayName);
@@ -845,6 +852,11 @@ export function gatherReport(
       if (ringSlotNo.get(s) === 2) slot = 'Ring 2';
       char.equipped.push(itemRef(s, guid, { slot: slot || null, slot_rank: rank }));
     });
+    // Record the worn entity per equipped stats (the chest-dedup signal).
+    for (const [s] of entryRows) {
+      const eg = charStatsToEntity.get(s);
+      if (eg) wornEntities.add(eg);
+    }
     char.undetermined = undetermined.map(([s, g]) => itemRef(s, g));
 
     // Stack amounts: a carried ItemRef's count is its instance's stack total.
@@ -1093,10 +1105,15 @@ export function gatherReport(
             guidPositions,
             chestPos,
             parseLsmfStackGroups(lsmfBlob),
+            wornEntities,
           )
         : null;
 
-    if (containerGuids !== null) {
+    // Backstop: drop any worn entity the walk still pulled in (a mod gear swap
+    // leaves the worn item's membership lingering in a chest bag).
+    const chestGuids = containerGuids?.filter((g) => !wornEntities.has(g)) ?? null;
+
+    if (chestGuids !== null) {
       // The instance lists carry each entity's exact stats name; the template
       // map is the fallback (lossy where several stats share one template,
       // e.g. OBJ_GoldCoin vs OBJ_GoldPile).
@@ -1106,7 +1123,7 @@ export function gatherReport(
         for (const eg of ents) entityStats.set(eg, stats);
       }
       const perItem = new Map<string, number>();
-      for (const eg of containerGuids) {
+      for (const eg of chestGuids) {
         const tmpl = entityToTemplate0.get(eg) ?? '';
         const statsName = entityStats.get(eg) || (templateToStats.get(tmpl) ?? '');
         if (!statsName) continue; // entity outside the item maps (e.g. a stack twin)

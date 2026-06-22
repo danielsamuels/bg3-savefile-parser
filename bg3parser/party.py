@@ -93,6 +93,7 @@ def collect_container_contents(
     guid_positions: dict[str, tuple],
     chest_pos: tuple,
     stack_groups: dict[str, tuple[str, ...]] | None = None,
+    worn_entities: frozenset[str] | None = None,
     max_depth: int = 4,
 ) -> list[str] | None:
     """Item entity GUIDs in the camp chest, walked through the container maps.
@@ -118,9 +119,18 @@ def collect_container_contents(
        unclaimed by any container are unioned in (QuickSave_345: a single
        Rogue's Morsel dropped into a pouch mid-rummage).
 
+    Re-equipped exclusion: an item moved from a chest bag onto a character
+    keeps its bag container membership lingering while it is actually worn
+    (mod-driven camp gear swaps do this). `worn_entities` is the set the caller
+    already classified as equipped (ECS signals, not position — a chest item can
+    carry a stale on-character transform, so position cannot tell the two
+    apart); any such entity reached by the walk is worn, not stored, and is
+    skipped. The caller subtracts the same set again as a backstop.
+
     Returns None when no anchor appears in any container map; the caller
     falls back to pure position attribution.
     """
+    worn_entities = worn_entities or frozenset()
     guid_to_inv: dict[str, int] = {}
     for inv, guids in container_pages.items():
         for g in guids:
@@ -178,6 +188,8 @@ def collect_container_contents(
                 continue
             seen_inv.add(inv)
             for g in container_pages.get(inv, []):
+                if g in worn_entities:
+                    continue  # worn by a character; its bag membership is stale
                 add(g)
                 next_frontier.extend(owner_to_invs.get(g, []))
         if not next_frontier:
