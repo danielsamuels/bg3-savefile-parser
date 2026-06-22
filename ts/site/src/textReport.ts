@@ -218,10 +218,16 @@ function questsLines(q: NonNullable<SaveReport['quests']>, story: SaveReport['st
 
 export function renderTextReport(report: SaveReport): string {
   const si = report.save_info;
+  const activeParty = report.characters
+    .filter((c) => !c.at_camp)
+    .map((c) => c.name)
+    .join(', ');
   const lines: string[] = [
     'BG3 Save File Report',
     `Source: ${report.source}`,
     BAR_EQ,
+    `Save: ${si.save_name} (#${si.save_id ?? '?'})   Region: ${si.level}   Saved: ${si.saved_at}`,
+    `Party: ${activeParty}`,
     '',
     `Save Name  : ${si.save_name}`,
     `Save #     : ${si.save_id ?? '?'}`,
