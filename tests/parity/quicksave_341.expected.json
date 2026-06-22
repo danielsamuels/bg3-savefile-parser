@@ -973,15 +973,6 @@
    "template_guid": "5427c806-5565-421f-a00f-a8282a9f504f"
   },
   {
-   "category": "armour",
-   "count": 1,
-   "name": "Gloves of Heroism",
-   "slot": null,
-   "slot_rank": [],
-   "stats": "MAG_Paladin_LayOnHandsSupport_Gloves",
-   "template_guid": "110144ac-db1d-4db8-a907-92f642086d0d"
-  },
-  {
    "category": "weapon",
    "count": 1,
    "name": "Bonesaw",

@@ -725,6 +725,12 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
     template_to_stats = {**template_to_stats_lc, **template_to_stats0}
     items_by_char = collect_items_by_position([nodes0] + all_lc_node_lists, char_positions)
 
+    # Entity GUIDs each character is wearing, by ECS classification. A mod-driven
+    # gear swap can leave a worn item's container membership pointing at a bag in
+    # the camp chest; these entities are subtracted from the chest walk so worn
+    # gear is not double-listed there.
+    worn_entities: set[str] = set()
+
     def attach_items(char: CharacterReport, display_name: str) -> None:
         """Attribute and classify the items at a character's position."""
         # Items attributed by shared world position
@@ -905,6 +911,13 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
             if ring_slot_no.get(s, 0) == 2:
                 slot = 'Ring 2'
             char.equipped.append(item_ref(s, guid, slot=slot or None, slot_rank=rank))
+        # Record the worn entity per equipped stats (the chest-dedup signal); the
+        # discriminator is the classification, not position — a stale on-character
+        # transform must not pull a genuine chest item in here.
+        for s, _guid, _row in entry_rows:
+            eg = char_stats_to_entity.get(s)
+            if eg:
+                worn_entities.add(eg)
         char.undetermined = [item_ref(s, g) for s, g in undetermined]
         # Stack amounts: a carried ItemRef's count is its instance's stack
         # total (one gold pile of 766 = one ref, count 766).
@@ -1056,6 +1069,7 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
             eg: pos for (pos, _stats), ents in instance_entity_lists.items() for eg in ents
         }
         container_pages = parse_lsmf_container_pages(lsmf_blob) if lsmf_blob else {}
+        worn = frozenset(worn_entities)
         container_guids = (
             collect_container_contents(
                 anchor_guids,
@@ -1065,11 +1079,15 @@ def gather_report(save_path: str, frames: dict[str, bytes] | None = None, opts=N
                 guid_positions,
                 chest_pos,
                 parse_lsmf_stack_groups(lsmf_blob),
+                worn_entities=worn,
             )
             if lsmf_blob and anchor_guids
             else None
         )
         if container_guids is not None:
+            # Backstop: drop any worn entity the walk still pulled in (a mod gear
+            # swap leaves the worn item's membership lingering in a chest bag).
+            container_guids = [g for g in container_guids if g not in worn]
             # The instance lists carry each entity's exact stats name; the
             # template map is the fallback (and is lossy where several stats
             # share one template, e.g. OBJ_GoldCoin vs OBJ_GoldPile).

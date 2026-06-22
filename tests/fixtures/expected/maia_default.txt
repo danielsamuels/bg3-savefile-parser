@@ -614,7 +614,7 @@ Halsin
     – WPN_Quarterstaff_Druid
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CAMP CHEST  (271 item types)
+CAMP CHEST  (270 item types)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   Weapons & magic items:
@@ -627,7 +627,6 @@ CAMP CHEST  (271 item types)
     – MAG_ElementalGish_ElementalInfusion_Ring
     – MAG_Ketheric_Warhammer
     – MAG_MeleeDebuff_AttackDebuff1_OnDamage_ScaleMail
-    – MAG_PHB_CloakOfProtection_Cloak
     – MAG_Paladin_LayOnHandsSupport_Gloves
     – MAG_Thunder_ThunderClap_Quarterstaff
     – MAG_WYRM_Commander_Longsword

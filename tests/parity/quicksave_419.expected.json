@@ -1146,15 +1146,6 @@
   {
    "category": "armour",
    "count": 1,
-   "name": "Necklace of Elemental Augmentation",
-   "slot": null,
-   "slot_rank": [],
-   "stats": "MAG_ElementalGish_CantripBooster_Amulet",
-   "template_guid": "a92cec2f-3a86-4aa1-a7e9-1d6dc9e12957"
-  },
-  {
-   "category": "armour",
-   "count": 1,
    "name": "Thermoarcanic Gloves",
    "slot": null,
    "slot_rank": [],

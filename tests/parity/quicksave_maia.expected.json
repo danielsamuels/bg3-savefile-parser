@@ -1002,15 +1002,6 @@
   {
    "category": "armour",
    "count": 1,
-   "name": "Cloak of Protection",
-   "slot": null,
-   "slot_rank": [],
-   "stats": "MAG_PHB_CloakOfProtection_Cloak",
-   "template_guid": "602f62dd-0fba-4438-ad68-b846f17ac538"
-  },
-  {
-   "category": "armour",
-   "count": 1,
    "name": "Gloves of Heroism",
    "slot": null,
    "slot_rank": [],

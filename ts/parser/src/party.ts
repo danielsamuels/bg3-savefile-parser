@@ -662,6 +662,7 @@ export function collectContainerContents(
   guidPositions: Map<string, string>,
   chestPos: string,
   stackGroups: Map<string, string[]>,
+  wornEntities: Set<string> = new Set(),
   maxDepth = 4,
 ): string[] | null {
   const guidToInv = new Map<string, number>();
@@ -727,6 +728,7 @@ export function collectContainerContents(
       if (seenInv.has(inv)) continue;
       seenInv.add(inv);
       for (const g of containerPages.get(inv) ?? []) {
+        if (wornEntities.has(g)) continue; // worn by a character; bag membership is stale
         add(g);
         next.push(...(ownerToInvs.get(g) ?? []));
       }

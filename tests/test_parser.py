@@ -319,6 +319,48 @@ class TestIsEquipmentType:
 # ---------------------------------------------------------------------------
 
 
+class TestCollectContainerContents:
+    """Tests for collect_container_contents() worn-entity exclusion.
+
+    Mirrors QuickSave_511: the camp chest holds a loot bag whose sub-inventory
+    still lists items that have since been equipped onto a character (a
+    mod-driven gear swap leaves the membership stale). The walk descends into
+    the bag, so without the exclusion it double-lists the worn gear.
+    """
+
+    CHEST = 'CHEST'
+    # inv 1 = the chest's own inventory (a bag + a genuine loose item);
+    # inv 2 = the bag's sub-inventory (a worn item + a real spare).
+    CONTAINER_PAGES = {1: ['bag', 'genuine_item'], 2: ['worn_helm', 'spare_ring']}
+    INVENTORY_OWNERS = {1: 'chest_ent', 2: 'bag'}
+    WORLD_GUIDS = frozenset({'chest_ent', 'bag', 'genuine_item', 'worn_helm', 'spare_ring'})
+    ANCHORS = {'bag', 'genuine_item'}  # entities positioned at the chest
+    # worn_helm carries a stale on-character transform; the rest sit at the chest.
+    POSITIONS = {'bag': CHEST, 'genuine_item': CHEST, 'spare_ring': CHEST, 'worn_helm': 'CHAR'}
+
+    def call(self, **kw):
+        return party.collect_container_contents(
+            self.ANCHORS,
+            self.CONTAINER_PAGES,
+            self.INVENTORY_OWNERS,
+            self.WORLD_GUIDS,
+            self.POSITIONS,
+            self.CHEST,
+            {},
+            **kw,
+        )
+
+    def test_nested_bag_contents_included_by_default(self):
+        # The bug it guards against: the bag's stale members are swept in.
+        assert set(self.call()) == {'bag', 'genuine_item', 'worn_helm', 'spare_ring'}
+
+    def test_worn_entity_excluded(self):
+        out = self.call(worn_entities=frozenset({'worn_helm'}))
+        assert 'worn_helm' not in out
+        # The genuine loose item and the real spare in the bag are untouched.
+        assert set(out) == {'bag', 'genuine_item', 'spare_ring'}
+
+
 class TestSplitEquippedCarried:
     """Tests for split_equipped_carried()."""
 

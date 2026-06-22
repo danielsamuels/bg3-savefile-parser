@@ -416,7 +416,7 @@
   },
   {
    "category": "armour",
-   "count": 2,
+   "count": 1,
    "name": "Lute",
    "slot": null,
    "slot_rank": [],
@@ -876,15 +876,6 @@
   {
    "category": "armour",
    "count": 1,
-   "name": "Disintegrating Night Walkers",
-   "slot": null,
-   "slot_rank": [],
-   "stats": "FOR_NightWalkers",
-   "template_guid": "e7f24f6d-4d73-4f04-94ef-d8e7042ce6a2"
-  },
-  {
-   "category": "armour",
-   "count": 1,
    "name": "Warped Headband of Intellect",
    "slot": null,
    "slot_rank": [],
@@ -982,15 +973,6 @@
    "template_guid": "910ed403-38b3-4128-b07b-0de5d14da8f8"
   },
   {
-   "category": "armour",
-   "count": 1,
-   "name": "Caustic Band",
-   "slot": null,
-   "slot_rank": [],
-   "stats": "MAG_Acid_AcidDamageOnWeaponAttack_Ring",
-   "template_guid": "463b0a81-1fc3-4db1-bafe-a915f9a8e028"
-  },
-  {
    "category": "weapon",
    "count": 1,
    "name": "Defender Flail",
@@ -1056,24 +1038,6 @@
   {
    "category": "armour",
    "count": 1,
-   "name": "Amulet of the Harpers",
-   "slot": null,
-   "slot_rank": [],
-   "stats": "MAG_Harpers_HarpersAmulet",
-   "template_guid": "ddc9ac0b-8e68-422b-8d9d-c081629ab4ad"
-  },
-  {
-   "category": "armour",
-   "count": 1,
-   "name": "Grymskull Helm",
-   "slot": null,
-   "slot_rank": [],
-   "stats": "MAG_MeleeDebuff_AttackDebuff1_OnDamage_Helmet",
-   "template_guid": "6b1c4d55-e0d1-4b58-a26d-57d807bca488"
-  },
-  {
-   "category": "armour",
-   "count": 1,
    "name": "Adamantine Scale Mail",
    "slot": null,
    "slot_rank": [],
@@ -1083,38 +1047,11 @@
   {
    "category": "armour",
    "count": 1,
-   "name": "Adamantine Splint Armour",
-   "slot": null,
-   "slot_rank": [],
-   "stats": "MAG_MeleeDebuff_AttackDebuff2_OnDamage_SplintMail",
-   "template_guid": "ea3cf349-19ab-4104-9253-8e182bdbf538"
-  },
-  {
-   "category": "armour",
-   "count": 1,
    "name": "Gloves of Heroism",
    "slot": null,
    "slot_rank": [],
    "stats": "MAG_Paladin_LayOnHandsSupport_Gloves",
    "template_guid": "110144ac-db1d-4db8-a907-92f642086d0d"
-  },
-  {
-   "category": "weapon",
-   "count": 1,
-   "name": "Halberd of Vigilance",
-   "slot": null,
-   "slot_rank": [],
-   "stats": "MAG_PoR_OfVigilance_Halberd",
-   "template_guid": "187691ba-7027-49a8-ba74-d0dc5cafbe12"
-  },
-  {
-   "category": "weapon",
-   "count": 1,
-   "name": "Titanstring Bow",
-   "slot": null,
-   "slot_rank": [],
-   "stats": "MAG_StrongString_Longbow",
-   "template_guid": "13236988-83df-4bf2-8005-b4ac31f21ff4"
   },
   {
    "category": "weapon",
@@ -1133,15 +1070,6 @@
    "slot_rank": [],
    "stats": "MAG_WoodWoad_Nature_Shield",
    "template_guid": "90ba50bd-3e65-42ec-9f21-6e07d3ed89ab"
-  },
-  {
-   "category": "armour",
-   "count": 1,
-   "name": "Gloves of the Growling Underdog",
-   "slot": null,
-   "slot_rank": [],
-   "stats": "MAG_ZOC_AdvantageOnMeleeAttackWhileSurounded_Gloves",
-   "template_guid": "1001f28b-5ea3-4257-864c-f60c812aecf0"
   },
   {
    "category": "misc",
