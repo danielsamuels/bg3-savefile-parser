@@ -147,8 +147,9 @@ adds no parse cost.
   section/sub-section on its group flag; render the always-on header; render
   the section headers only when their group is active; replace the `no_spells`
   inversion with a positive `spells` check.
-- `bg3parser/model.py` — `gather_report`: ensure `--all` triggers the
-  gather-gated paths. The gather gates for quests/vendors/all-items stay as is.
+- `bg3parser/model.py` — no change. `--all` triggers the gather-gated paths
+  because `expand_shortcuts` (in `cli.py`) sets `quests`/`vendors`/`all_items`
+  to True before `gather_report` reads them; the existing gather gates stand.
 - `ts/site/src/textReport.ts` — add the two header lines to `renderTextReport`
   (see Parity).
 - Tests — update CLI/render tests that assume the old default; regenerate the

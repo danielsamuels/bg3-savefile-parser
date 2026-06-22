@@ -800,7 +800,7 @@ ALL_SECTION_OPTS = all_section_opts()
 - [ ] **Step 2: Run the suite to see the golden mismatches (expected)**
 
 Run: `uv run pytest tests/test_parser.py -q`
-Expected: the three `TestTextOutputFormat` golden tests FAIL (output legitimately changed: header added, default body removed, all-sections expanded). All other tests PASS.
+Expected: the three `TestTextOutputFormat` golden tests FAIL (output legitimately changed: header added, default body removed, all-sections expanded), plus any substring test edited in Step 1 that was not yet updated. Audit finding (verified during planning): only `tests/test_parser.py` renders text and asserts on it; every other test file asserts on the model object or on `render_json` output, both unaffected by display flags. If a later run surfaces a text-asserting test elsewhere, fix it the same way (add `section_opts(...)`); Task 5's full-suite run is the backstop.
 
 - [ ] **Step 3: Regenerate the goldens**
 
