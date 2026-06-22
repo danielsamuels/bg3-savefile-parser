@@ -4,24 +4,33 @@ import argparse
 import os
 import sys
 
+from . import sections
 from .discovery import find_latest_save, find_save_by_token
 from .lspk import extract_frames, extract_thumbnail
 from .model import gather_report
 from .render import render_json, render_text
 
 # ---------------------------------------------------------------------------
-# Entry point
+# Parser
 # ---------------------------------------------------------------------------
 
 
-def main():
+def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(
         description='Extract character info from a BG3 .lsv save file.',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
-            'By default only party characters are shown (race, class, level,\n'
-            'spells/abilities, and equipped gear).  Use the flags below to\n'
-            'include additional sections.'
+            'Every section is opt-in. With no group flag, a short header is\n'
+            'printed (save summary and active party) plus this hint.\n'
+            '\n'
+            'Shortcuts:\n'
+            '  --party   active party identity, gear, and spells (the classic report)\n'
+            '  --all     every section, including the slower ones\n'
+            '\n'
+            'Active party: --characters --equipment --spells --carried\n'
+            'Camp:         --camp-characters --camp-equipment --camp-spells\n'
+            '              --camp-carried --camp-chest\n'
+            'Top level:    --save-info --quests --vendors --all-items --limits\n'
         ),
     )
     ap.add_argument(
@@ -30,24 +39,40 @@ def main():
     ap.add_argument(
         'output', nargs='?', metavar='output.txt', help='write report to file (default: stdout)'
     )
+
+    # Shortcuts.
+    ap.add_argument('--party', action='store_true', help='= --characters --equipment --spells')
+    ap.add_argument('--all', action='store_true', help='turn on every section (slower)')
+
+    # Active party (per-character).
     ap.add_argument(
-        '--save-info', action='store_true', help='include save metadata (name, date, mods, …)'
+        '--characters', action='store_true', help='party identity (race, class, level, …)'
     )
+    ap.add_argument('--equipment', action='store_true', help='party worn gear')
+    ap.add_argument('--spells', action='store_true', help='party spell books')
+    ap.add_argument('--carried', action='store_true', help='party carried inventory')
+
+    # Camp.
+    ap.add_argument('--camp-characters', action='store_true', help='camp companion identity')
+    ap.add_argument('--camp-equipment', action='store_true', help='camp companion worn gear')
+    ap.add_argument('--camp-spells', action='store_true', help='camp companion spell books')
+    ap.add_argument('--camp-carried', action='store_true', help='camp companion carried inventory')
+    ap.add_argument('--camp-chest', action='store_true', help='camp chest contents')
+
+    # Top level.
+    ap.add_argument('--save-info', action='store_true', help='save metadata (name, date, mods, …)')
     ap.add_argument(
-        '--quests', action='store_true', help='include quest and story state (Osiris; adds ~1-2 s)'
-    )
-    ap.add_argument(
-        '--carried', action='store_true', help="include each character's carried inventory"
-    )
-    ap.add_argument(
-        '--all-items', action='store_true', help='include full item list for the current level'
+        '--quests', action='store_true', help='quest and story state (Osiris; adds ~1-2 s)'
     )
     ap.add_argument(
         '--vendors',
         action='store_true',
-        help="list every merchant's for-sale stock (items generated and not yet bought)",
+        help="every merchant's for-sale stock (items generated and not yet bought)",
     )
-    ap.add_argument('--limits', action='store_true', help='include known limitations note')
+    ap.add_argument('--all-items', action='store_true', help='full item list for the current level')
+    ap.add_argument('--limits', action='store_true', help='known limitations note')
+
+    # Modifiers (unchanged).
     ap.add_argument(
         '--verbose',
         '-v',
@@ -66,21 +91,25 @@ def main():
     ap.add_argument(
         '--all-spells',
         action='store_true',
-        help='list sub-spells (container variants like each Disguise Self '
-        'appearance) and basic actions instead of folding them away',
-    )
-    ap.add_argument(
-        '--no-spells',
-        action='store_true',
-        help='omit the spells/abilities section from the text report',
+        help='within --spells, list sub-spells and basic actions instead of folding them away',
     )
     ap.add_argument(
         '--json',
         action='store_true',
-        help='emit the report as JSON instead of text (machine-readable; '
-        'includes everything gathered, with no display folding)',
+        help='emit the report as JSON (machine-readable; includes everything gathered)',
     )
+    return ap
+
+
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
+
+
+def main():
+    ap = build_parser()
     opts = ap.parse_args()
+    sections.expand_shortcuts(opts)
 
     save_path = opts.save
     if not save_path:
