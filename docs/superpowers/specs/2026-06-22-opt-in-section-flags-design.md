@@ -27,20 +27,38 @@ flags rather than a fixed shape you subtract from.
 This changes the default output of the CLI. The website is unaffected in what
 it displays (see Parity).
 
-## The bare-command header
+## The header
 
-Always printed, on every invocation, from data available cheaply (the package
-header plus the active-party parse that already runs):
+Printed on every invocation, immediately after the existing banner, from
+`report.save_info` (always gathered) and the active-party list. Exact format,
+which both the Python and TS renderers must produce identically:
 
-- save name / number, slot, region, save date
-- active party members, named
-- when no group flag is given: a one-line pointer to the available flags
+```
+BG3 Save File Report
+Source: <path>
+========================================================================
+Save: <save_name> (#<save_id>)   Region: <level>   Saved: <saved_at>
+Party: <name>, <name>, ...
+```
 
-When at least one group flag is given, the header still prints but the
-"available flags" hint is dropped. The exact metadata fields are whatever is
-cheaply available without triggering the `--save-info` gather path; at minimum
-the save name/number and the active party names. In-game clock time is included
-only if already parsed; otherwise the save's real-world date stands in.
+`save_name`, `save_id`, `level` (the current region/act), and `saved_at` come
+from `report.save_info`; the `Party:` names are the active (not-at-camp)
+characters in model order. There is no in-game clock field, so `Saved:` is the
+save's real-world timestamp.
+
+When no group flag is given, a hint block follows the header:
+
+```
+
+No sections selected. Try --party (the classic report) or --all (everything),
+or pick groups: --characters --equipment --spells --carried
+                --camp-characters --camp-equipment --camp-spells --camp-carried
+                --camp-chest --save-info --quests --vendors --all-items --limits
+```
+
+The hint is suppressed when any group flag is active. The website always
+renders a full report, so it never emits the hint; the two header lines are the
+shared, byte-identical part (see Parity).
 
 ## The flags
 
@@ -114,8 +132,13 @@ adds no parse cost.
 
 ## Affected code
 
+- `bg3parser/sections.py` (new) — the canonical group-flag registry
+  (`PARTY_GROUPS`, `CAMP_COMPANION_GROUPS`, `TOPLEVEL_GROUPS`, `ALL_GROUPS`,
+  `PARTY_SHORTCUT`) plus `expand_shortcuts(opts)`, `any_party_group(opts)`,
+  `any_camp_companion_group(opts)`, `no_groups_selected(opts)`. Shared by the
+  CLI and the renderer so the flag list lives in exactly one place.
 - `bg3parser/cli.py` — argparse definitions: add the new flags, the `--party`
-  and `--all` shortcuts, expand the shortcuts after parsing, remove
+  and `--all` shortcuts, call `expand_shortcuts` after parsing, remove
   `--no-spells`, rewrite the epilog/help text.
 - `bg3parser/render.py` — `render_text`: build the `opts_dict` from the new
   flags; pass per-group booleans through to the template. Compute the
@@ -126,20 +149,28 @@ adds no parse cost.
   inversion with a positive `spells` check.
 - `bg3parser/model.py` — `gather_report`: ensure `--all` triggers the
   gather-gated paths. The gather gates for quests/vendors/all-items stay as is.
-- Tests — update CLI/render tests that assume the old default; add coverage for
-  the new flag combinations and the bare-command header.
+- `ts/site/src/textReport.ts` — add the two header lines to `renderTextReport`
+  (see Parity).
+- Tests — update CLI/render tests that assume the old default; regenerate the
+  golden fixtures; add coverage for the new flag combinations, the shortcuts,
+  and the header/hint.
 
 ## Parity with the website
 
-`render_text` is mirrored in the TypeScript site so the site's text download is
-byte-identical to the CLI. The website shows a full report and exposes no flags.
+`render_text` is mirrored by `ts/site/src/textReport.ts`
+(`renderTextReport(report)`), which takes no flags and always renders a full
+report (save metadata, quests, party, camp companions, camp chest, carried).
+There is no automated byte-identity test between the two; the mirror is
+maintained by hand, and byte-identity holds for the matching full CLI
+invocation, not the bare default (the TS side already always shows the full
+`save_info` block, which the Python default does not).
 
-To keep the download unchanged, the TS renderer passes a fixed group set
-equivalent to the report the site shows today (party identity + equipment +
-spells + camp companions + camp chest + quests + save metadata — confirm the
-exact set against the current site output during implementation). Any CLI-vs-TS
-byte-identity parity test is updated to compare against that fixed invocation
-rather than the bare default. The site's displayed output does not change.
+The only TS change required is to add the two header lines (`Save: ...` /
+`Party: ...`) immediately after the `BAR_EQ` separator, byte-for-byte identical
+to the Python header, so the matching CLI invocation and the website download
+stay consistent. The TS side never emits the no-sections hint (it always has
+sections). No other TS change is needed; the model and JSON parity oracle are
+untouched.
 
 ## Out of scope
 
