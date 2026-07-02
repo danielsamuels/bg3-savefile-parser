@@ -12,6 +12,7 @@ import type { StoryState } from '@bg3save/parser/src/osiris.ts';
 import './styles.css';
 import { renderAiBriefing } from './aiBriefing.ts';
 import { type EffectsTable, effectLines } from './effects.ts';
+import { stashSave } from './explain/handoff.ts';
 import {
   allSaves,
   clearSaves,
@@ -77,11 +78,16 @@ function setStatus(text: string, isError = false): void {
   statusEl.classList.toggle('error', isError);
 }
 
+/** The last dropped save, kept so the anatomy footnote can hand it over.
+ *  Read again only when that link is clicked — never in the parse hot path. */
+let lastFile: File | null = null;
+
 function parse(file: File): void {
   if (!file.name.toLowerCase().endsWith('.lsv')) {
     setStatus(`That doesn't look like a BG3 save: expected a .lsv file, got “${file.name}”.`, true);
     return;
   }
+  lastFile = file;
   setStatus(`Reading ${file.name}…`);
   (document.activeElement as HTMLElement | null)?.blur?.();
   document.body.classList.add('busy');
@@ -726,6 +732,23 @@ function updateSearchResults(): void {
   listEl.innerHTML = view.listHtml;
 }
 
+/* The anatomy link hands over the last dropped file via IndexedDB, so the
+ * explainer opens on the same save. Loaded-from-history and example reports
+ * have no file bytes; the link then just opens the page. */
+reportEl.addEventListener('click', (e) => {
+  const link = (e.target as HTMLElement).closest('#anatomy-link');
+  if (!link || !lastFile) return;
+  e.preventDefault();
+  const file = lastFile;
+  file
+    .arrayBuffer()
+    .then((bytes) => stashSave(file.name, bytes))
+    .catch(() => {}) // the file handle went stale; the page still offers upload
+    .finally(() => {
+      window.location.href = '/anatomy#last';
+    });
+});
+
 reportEl.addEventListener('input', (e) => {
   const input = e.target as HTMLInputElement;
   if (input.id !== 'item-search-input') return;
@@ -743,6 +766,13 @@ function showReport(r: SaveReport, statusText: string, thumbnail?: ArrayBuffer |
     ? ''
     : '<p class="names-note">Display names unavailable; items and spells are shown by their internal names.</p>';
 
+  // A footnote, not a feature of the report: the byte-level explainer lives
+  // at /anatomy and gets the file only if the reader clicks through.
+  const anatomyNote = `<p class="anatomy-note" style="--i:${r.characters.length + 5}">
+    Curious what the bytes behind this report actually are?
+    <a id="anatomy-link" href="/anatomy">Open the save anatomy explainer</a> —
+    the raw file in a hex view, with the parser’s reading of every region beside it.</p>`;
+
   itemIndex = buildItemIndex(r, SLOT_LABELS, GOLD_STATS);
   reportEl.innerHTML =
     renderSaveHead(r.save_info, r.source, thumbUrl) +
@@ -751,7 +781,8 @@ function showReport(r: SaveReport, statusText: string, thumbnail?: ArrayBuffer |
     r.characters.map((c, i) => renderCharacter(c, i + 2)).join('') +
     (r.camp_chest ? renderCampChest(r.camp_chest, r.characters.length + 2) : '') +
     (r.quests ? renderQuests(r.quests, r.characters.length + 3) : '') +
-    (r.story ? renderCampaign(r.story, r.characters.length + 4) : '');
+    (r.story ? renderCampaign(r.story, r.characters.length + 4) : '') +
+    anatomyNote;
   updateSearchResults();
 
   document.body.classList.add('has-report');

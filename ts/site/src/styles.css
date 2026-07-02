@@ -962,6 +962,16 @@ details.sub ul {
   color: var(--error);
 }
 
+/* ---- Anatomy footnote --------------------------------------------------- */
+
+.anatomy-note {
+  margin: var(--space-lg) 0 0;
+  color: var(--mute);
+  font-size: 0.875rem;
+  max-width: 70ch;
+  text-wrap: pretty;
+}
+
 /* ---- Footer ------------------------------------------------------------ */
 
 .colophon {

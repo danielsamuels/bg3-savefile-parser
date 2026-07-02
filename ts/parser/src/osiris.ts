@@ -449,6 +449,74 @@ function dbStrings(nameToFacts: Map<string, ReadValue[][]>, dbName: string): str
     .map((row) => String(row[0]!.value));
 }
 
+export interface OsirisSection {
+  name: string;
+  start: number;
+  end: number;
+  /** The section's leading u32 entry count. */
+  count: number;
+}
+
+export interface OsirisAnatomy {
+  version: number;
+  versionString: string;
+  headerEnd: number;
+  sections: OsirisSection[];
+  /** Total bytes consumed; equals data.length when the walk is complete. */
+  consumed: number;
+}
+
+/** Section byte spans of a decompressed StorySave.bin, for the anatomy page.
+ *  Same sequential walk as parseOsiris, with offsets recorded. */
+export function osirisAnatomy(data: Uint8Array): OsirisAnatomy | null {
+  try {
+    let pos = 0;
+    if (data[pos] !== 0) return null;
+    pos += 1;
+    const strStart = pos;
+    while (data[pos] !== 0) pos += 1;
+    const versionString = new TextDecoder().decode(data.subarray(strStart, pos));
+    pos += 1;
+    const major = data[pos]!;
+    const minor = data[pos + 1]!;
+    pos += 4;
+    const ver = (major << 8) | minor;
+    pos += 0x80;
+    pos += 4;
+
+    const rdr = new OsiReader(data, ver, ver >= OSI_VER_ENUMS);
+    rdr.pos = pos;
+    const sections: OsirisSection[] = [];
+    const record = (name: string, walk: () => void): void => {
+      const start = rdr.pos;
+      const count = rdr.dv.getUint32(rdr.pos, true);
+      walk();
+      sections.push({ name, start, end: rdr.pos, count });
+    };
+    record('Types', () => skipTypes(rdr));
+    if (ver >= OSI_VER_ENUMS) record('Enums', () => skipEnums(rdr));
+    record('DivObjects', () => skipDivObjects(rdr));
+    record('Functions', () => skipFunctions(rdr));
+    record('Nodes', () => {
+      readNodes(rdr);
+    });
+    record('Adapters', () => skipAdapters(rdr));
+    record('Databases', () => {
+      readDatabases(rdr);
+    });
+    record('Goals', () => {
+      readGoals(rdr);
+    });
+    record('GlobalActions', () => {
+      const n = rdr.u32();
+      for (let i = 0; i < n; i++) readCall(rdr);
+    });
+    return { version: ver, versionString, headerEnd: pos, sections, consumed: rdr.pos };
+  } catch {
+    return null;
+  }
+}
+
 /** Parse the Osiris story state; null on any failure (caller degrades). */
 export function parseOsiris(frames: Map<string, Uint8Array>): OsirisState | null {
   try {

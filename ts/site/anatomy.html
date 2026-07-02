@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Save anatomy: every byte of a BG3 save, explained</title>
+  <meta name="description" content="A hex-level explainer for Baldur's Gate 3 .lsv saves: what the parser understands each byte range to be — container, frames, node trees, the ECS blob. Parsed locally; nothing is uploaded." />
+  <meta name="theme-color" content="#120f0a" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 28 9v14L16 30 4 23V9z' fill='none' stroke='%23dbb970' stroke-width='2.5'/%3E%3Cpath d='M16 9.5 21.5 19h-11z' fill='%23dbb970'/%3E%3C/svg%3E" />
+  <link rel="preload" href="/fonts/ebgaramond-latin-var.woff2" as="font" type="font/woff2" crossorigin />
+</head>
+<body>
+  <main class="anatomy">
+    <header class="masthead">
+      <p class="backlink"><a href="/">← BG3 Save Parser</a></p>
+      <h1>Save anatomy</h1>
+      <p class="tagline">Every byte of a <code>.lsv</code> save, explained. This is the parser showing its
+        working: the bytes on the left, what it understands them to be on the right.</p>
+    </header>
+
+    <label id="drop" class="drop">
+      <input type="file" accept=".lsv" />
+      <span class="drop-label"><strong>Drop a <code>.lsv</code> save here</strong> <span class="drop-or">or click to browse</span></span>
+      <span class="drop-hint">Parsed locally, like the main report — nothing is uploaded.</span>
+    </label>
+
+    <p class="trybar">No save to hand? <button id="sample" type="button">Explain the sample save</button>
+      <span class="drop-or">(a real 7.9&nbsp;MB tutorial autosave, fetched from this site and parsed in your browser)</span></p>
+
+    <div class="statusbar"><p id="status" role="status" aria-live="polite"></p></div>
+
+    <section id="explorer" hidden>
+      <nav id="crumbs" class="crumbs" aria-label="Stream path"></nav>
+      <div class="stream-head">
+        <p id="stream-note" class="stream-note"></p>
+        <div class="stream-tools">
+          <p id="coverage" class="coverage"></p>
+          <div class="viewtoggle" role="group" aria-label="View">
+            <button id="view-bytes" type="button" aria-pressed="true">Bytes</button>
+            <button id="view-blocks" type="button" aria-pressed="false">Blocks</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="exp-body">
+        <div id="hex" class="hexview" tabindex="0" role="application"
+             aria-label="Hex view. Arrow keys move the cursor; the panel beside describes the region under it."></div>
+        <div id="blocks" class="blockmap" hidden></div>
+        <aside class="exp-side">
+          <div id="detail" class="detail-card" aria-live="polite"></div>
+          <section class="side-sect" id="outline-sect">
+            <h2>Structure</h2>
+            <ol id="outline" class="outline"></ol>
+          </section>
+          <section class="side-sect" id="children-sect">
+            <h2>Streams inside this one</h2>
+            <ul id="children" class="childlist"></ul>
+          </section>
+        </aside>
+      </div>
+    </section>
+
+    <footer class="colophon">
+      <p>
+        Your save is parsed locally — nothing is uploaded, and you can verify that in the network
+        tab. Grey “unaccounted” regions are exactly that: bytes the parser does not yet structurally
+        understand, stated rather than hidden.
+      </p>
+      <p>
+        <a href="https://github.com/danielsamuels/bg3-savefile-parser/blob/master/FORMAT.md">The full format documentation</a>
+        records how each layout was established.
+      </p>
+    </footer>
+  </main>
+  <script type="module" src="/src/explain/main.ts"></script>
+</body>
+</html>

@@ -79,7 +79,7 @@ function decodeStr(data: Uint8Array, off: number, len: number): string {
   return utf8.decode(data.subarray(off, end));
 }
 
-function readVal(
+export function readVal(
   val: Uint8Array,
   dv: DataView,
   off: number,

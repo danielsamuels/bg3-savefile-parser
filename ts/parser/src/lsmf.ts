@@ -22,6 +22,8 @@ export type OwnerRecord = [comp: number, start: number, entityCount: number];
 export interface ScannedBlob {
   compDescs: CompDesc[];
   records: OwnerRecord[];
+  /** Absolute blob offset of each 32-byte ownerlist record, aligned with records. */
+  recordOffsets: number[];
 }
 
 interface AlignedBlob {
@@ -159,6 +161,7 @@ function scanLsmfBlobUncached(blob: Uint8Array): ScannedBlob | null {
     }
 
     const records: OwnerRecord[] = [];
+    const recordOffsets: number[] = [];
     if (bestCount > 0) {
       let p = anchor;
       let misses = 0;
@@ -166,6 +169,7 @@ function scanLsmfBlobUncached(blob: Uint8Array): ScannedBlob | null {
         const rec = validRecord(p);
         if (rec !== null) {
           records.push(rec);
+          recordOffsets.push(p);
           misses = 0;
         } else {
           const compLo = dv.getUint32(p + 16, true);
@@ -175,7 +179,7 @@ function scanLsmfBlobUncached(blob: Uint8Array): ScannedBlob | null {
         p += 32;
       }
     }
-    return { compDescs, records };
+    return { compDescs, records, recordOffsets };
   } catch {
     return null;
   }

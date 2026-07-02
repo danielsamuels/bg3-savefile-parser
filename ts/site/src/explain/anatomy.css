@@ -1,0 +1,684 @@
+/* Save anatomy page: hex viewer, structure panel, block map.
+   Extends the main stylesheet's committed-dark, gold-led system. */
+
+:root {
+  /* Region tint palette: 8 muted hues at matched lightness/chroma, dark
+     enough that --ink text on top stays ≥ 7:1. gx = unaccounted bytes. */
+  --rg0: oklch(0.32 0.045 85);
+  --rg1: oklch(0.32 0.045 250);
+  --rg2: oklch(0.32 0.045 150);
+  --rg3: oklch(0.32 0.05 330);
+  --rg4: oklch(0.32 0.05 30);
+  --rg5: oklch(0.32 0.045 200);
+  --rg6: oklch(0.32 0.045 110);
+  --rg7: oklch(0.32 0.05 290);
+  --mono: ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas, monospace;
+}
+
+.anatomy .backlink {
+  margin: 0 0 var(--space-sm);
+  font-size: 0.9375rem;
+}
+
+.anatomy .backlink a {
+  color: var(--mute);
+  text-decoration: none;
+}
+
+.anatomy .backlink a:hover {
+  color: var(--gold);
+}
+
+/* ---- Stream header ---------------------------------------------------- */
+
+#explorer {
+  margin-top: var(--space-lg);
+}
+
+.crumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+  font: 600 1.125rem / 1.3 var(--serif);
+  color: var(--gold);
+  margin-bottom: var(--space-xs);
+}
+
+.crumbs button {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: var(--mute);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: oklch(0.72 0.035 83 / 0.5);
+}
+
+.crumbs button:hover {
+  color: var(--gold-hi);
+}
+
+.crumb-sep {
+  color: var(--mute);
+}
+
+.stream-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-sm) var(--space-lg);
+  margin-bottom: var(--space-md);
+}
+
+.stream-note {
+  margin: 0;
+  color: var(--mute);
+  max-width: 58ch;
+  text-wrap: pretty;
+}
+
+.stream-tools {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-left: auto;
+}
+
+.coverage {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--mute);
+  white-space: nowrap;
+}
+
+.cov-bar {
+  display: inline-block;
+  width: 7rem;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.cov-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--gold);
+}
+
+.viewtoggle {
+  display: flex;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.viewtoggle button {
+  background: none;
+  border: 0;
+  color: var(--mute);
+  font: 500 0.875rem / 1 var(--sans);
+  padding: 0.45rem 0.8rem;
+  cursor: pointer;
+}
+
+.viewtoggle button[aria-pressed="true"] {
+  background: var(--surface);
+  color: var(--gold);
+}
+
+/* ---- Layout ------------------------------------------------------------ */
+
+.exp-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 21rem;
+  gap: var(--space-lg);
+  align-items: start;
+}
+
+.exp-side {
+  position: sticky;
+  top: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+}
+
+.side-sect h2 {
+  font: 600 0.8125rem / 1.2 var(--sans);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--mute);
+  margin: 0 0 var(--space-sm);
+}
+
+/* ---- Hex viewer --------------------------------------------------------- */
+
+.hexview {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: oklch(0.15 0.01 80);
+  font: 0.8125rem / 1.5 var(--mono);
+}
+
+.hexview:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.hx-scroll {
+  position: relative;
+  overflow-y: auto;
+  height: min(72vh, 46rem);
+  border-radius: 10px;
+}
+
+.hx-rows {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  will-change: transform;
+}
+
+.hxr {
+  display: flex;
+  gap: 1rem;
+  padding: 0 0.75rem;
+  white-space: nowrap;
+}
+
+.hxo {
+  color: var(--mute);
+  opacity: 0.75;
+  user-select: none;
+}
+
+.hxb {
+  display: inline-flex;
+}
+
+.hxb .b {
+  display: inline-block;
+  padding: 0 0.22ch;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.hxb .b:nth-child(8n) {
+  margin-right: 0.7ch;
+}
+
+.hxb .b.g0 {
+  background: var(--rg0);
+}
+.hxb .b.g1 {
+  background: var(--rg1);
+}
+.hxb .b.g2 {
+  background: var(--rg2);
+}
+.hxb .b.g3 {
+  background: var(--rg3);
+}
+.hxb .b.g4 {
+  background: var(--rg4);
+}
+.hxb .b.g5 {
+  background: var(--rg5);
+}
+.hxb .b.g6 {
+  background: var(--rg6);
+}
+.hxb .b.g7 {
+  background: var(--rg7);
+}
+
+.hxb .b.b1 {
+  filter: brightness(0.82);
+}
+
+.hxb .b.gx {
+  background: none;
+  color: var(--mute);
+}
+
+.hxb .b.rs {
+  box-shadow: inset 2px 0 0 oklch(0.86 0.105 88 / 0.55);
+}
+
+.hxb .b.sel,
+.hxa .sel {
+  outline: 1px solid oklch(0.8 0.1 85 / 0.65);
+  outline-offset: -1px;
+}
+
+.hxb .b.cur {
+  outline: 2px solid var(--gold-hi);
+  outline-offset: -2px;
+}
+
+.hxa {
+  color: var(--mute);
+  letter-spacing: 0.05ch;
+}
+
+.hxa .sel {
+  color: var(--ink);
+}
+
+.hx-wait {
+  color: var(--mute);
+}
+
+/* ---- Detail card --------------------------------------------------------- */
+
+.detail-card {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  padding: var(--space-md);
+  min-height: 5.5rem;
+}
+
+.detail-hint,
+.detail-text {
+  color: var(--mute);
+  margin: 0;
+  font-size: 0.875rem;
+  text-wrap: pretty;
+}
+
+.detail-label {
+  margin: 0 0 0.2rem;
+  font-weight: 600;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.detail-range {
+  margin: 0 0 var(--space-sm);
+  color: var(--mute);
+  font: 0.8125rem / 1.4 var(--mono);
+}
+
+.swatch {
+  flex: none;
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 2px;
+  align-self: center;
+  background: var(--line);
+}
+
+.swatch.g0 {
+  background: oklch(0.55 0.09 85);
+}
+.swatch.g1 {
+  background: oklch(0.55 0.09 250);
+}
+.swatch.g2 {
+  background: oklch(0.55 0.09 150);
+}
+.swatch.g3 {
+  background: oklch(0.55 0.1 330);
+}
+.swatch.g4 {
+  background: oklch(0.55 0.1 30);
+}
+.swatch.g5 {
+  background: oklch(0.55 0.09 200);
+}
+.swatch.g6 {
+  background: oklch(0.55 0.09 110);
+}
+.swatch.g7 {
+  background: oklch(0.55 0.1 290);
+}
+
+.swatch.gx {
+  background: repeating-linear-gradient(45deg, var(--line) 0 2px, transparent 2px 4px);
+}
+
+button.linklike {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-size: 0.875rem;
+  color: var(--gold);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+button.linklike:hover {
+  color: var(--gold-hi);
+}
+
+/* ---- Structure outline ---------------------------------------------------- */
+
+.outline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.875rem;
+}
+
+.outline .outline {
+  margin-left: var(--space-md);
+  margin-top: 2px;
+}
+
+.ol-item,
+.outline summary {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  padding: 0.3rem 0.4rem;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.ol-item:hover,
+.outline summary:hover {
+  background: var(--surface);
+}
+
+.ol-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ol-item.is-gap .ol-label {
+  color: var(--mute);
+  font-style: italic;
+}
+
+.ol-size {
+  margin-left: auto;
+  flex: none;
+  color: var(--mute);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.ol-kid-head .ol-item {
+  font-size: 0.8125rem;
+  color: var(--mute);
+}
+
+.outline details > summary {
+  list-style: none;
+}
+
+.outline details > summary::before {
+  content: "▸";
+  color: var(--mute);
+  flex: none;
+  font-size: 0.7rem;
+  transition: transform 0.15s var(--ease-out);
+}
+
+.outline details[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .outline details > summary::before {
+    transition: none;
+  }
+}
+
+/* ---- Children (sub-stream) list ------------------------------------------- */
+
+.childlist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.child-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0 var(--space-sm);
+  width: 100%;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.5rem 0.7rem;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.child-item:hover {
+  border-color: var(--gold);
+}
+
+.child-title {
+  font-weight: 600;
+}
+
+.child-size {
+  color: var(--mute);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.child-note {
+  grid-column: 1 / -1;
+  color: var(--mute);
+  font-size: 0.8125rem;
+  text-wrap: pretty;
+}
+
+/* ---- Block map (mobile-first view) ----------------------------------------- */
+
+.blockmap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.blockmap[hidden] {
+  display: none;
+}
+
+.blk {
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.blk.g0 {
+  border-left-color: oklch(0.55 0.09 85);
+}
+.blk.g1 {
+  border-left-color: oklch(0.55 0.09 250);
+}
+.blk.g2 {
+  border-left-color: oklch(0.55 0.09 150);
+}
+.blk.g3 {
+  border-left-color: oklch(0.55 0.1 330);
+}
+.blk.g4 {
+  border-left-color: oklch(0.55 0.1 30);
+}
+.blk.g5 {
+  border-left-color: oklch(0.55 0.09 200);
+}
+.blk.g6 {
+  border-left-color: oklch(0.55 0.09 110);
+}
+.blk.g7 {
+  border-left-color: oklch(0.55 0.1 290);
+}
+
+.blk.gx {
+  border-left-style: dashed;
+}
+
+.blk > summary {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.15rem var(--space-sm);
+  padding: 0.6rem 0.8rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.blk > summary::-webkit-details-marker {
+  display: none;
+}
+
+.blk-label {
+  font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.blk.gx .blk-label {
+  color: var(--mute);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.blk-size {
+  color: var(--mute);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.blk-bar {
+  grid-column: 1 / -1;
+  height: 3px;
+  border-radius: 2px;
+  background: oklch(0.28 0.02 80);
+  position: relative;
+  overflow: hidden;
+}
+
+.blk-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--w, 2%);
+  background: var(--gold);
+  opacity: 0.8;
+  border-radius: 2px;
+}
+
+.blk-body {
+  padding: 0 0.8rem 0.8rem;
+  font-size: 0.875rem;
+}
+
+.blk-body > p {
+  margin: 0 0 var(--space-sm);
+  color: var(--mute);
+  text-wrap: pretty;
+}
+
+.blk-actions {
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.blk-kids {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-sm);
+}
+
+/* ---- Responsive ------------------------------------------------------------- */
+
+@media (max-width: 800px) {
+  .exp-body {
+    grid-template-columns: 1fr;
+  }
+
+  .stream-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .stream-tools {
+    margin-left: 0;
+    flex-wrap: wrap;
+    row-gap: var(--space-sm);
+  }
+
+  .exp-side {
+    position: static;
+    max-height: none;
+    order: -1;
+  }
+
+  /* In blocks view the map is the page; sub-streams follow it. */
+  .exp-body.view-blocks .exp-side {
+    order: 1;
+  }
+
+  /* On small screens the side panel slims down: in bytes view only the
+     detail card shows; in blocks view the block map carries the structure,
+     so only the sub-stream list is kept. */
+  .exp-body:not(.view-blocks) .side-sect {
+    display: none;
+  }
+
+  .exp-body.view-blocks #outline-sect {
+    display: none;
+  }
+
+  .exp-body.view-blocks .detail-card {
+    display: none;
+  }
+
+  .hx-scroll {
+    height: 60vh;
+  }
+
+  .hexview {
+    font-size: 0.6875rem;
+  }
+
+  .hxa {
+    display: none;
+  }
+}

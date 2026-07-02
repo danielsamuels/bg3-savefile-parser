@@ -5,6 +5,20 @@ All notable changes to this project will be documented here.
 ## Unreleased
 
 ### Added
+- Save anatomy explainer at `/anatomy`: every byte of a `.lsv`, explained. A
+  virtualized hex view shows the raw bytes with each parsed region tinted and
+  labelled; a structure panel gives the parser's reading (LSPK header fields,
+  frame table, LSOF sections, decoded node/attribute/value entries with live
+  previews like `ModuleShortDesc.Version64 = …`, the LSMF ECS blob's component
+  columns/ownerlists/directory, Osiris section spans). Streams nest — container
+  → frame → section → NewAge blob — with breadcrumbs, per-stream coverage
+  ("100% of 45.5 MB annotated"; unaccounted bytes are shown grey and say so),
+  and a tappable coloured-block view that carries the page on mobile. Powered
+  by a new `SaveAnatomy` annotator in the TS parser (`annotate.ts`, tested
+  against the fixtures); parsing stays local in a worker. The main report
+  links through via a footnote that hands the just-dropped save over through
+  IndexedDB — nothing anatomy-related runs in the report's hot path — and a
+  committed fixture doubles as the page's sample save.
 - Reaction abilities (the in-game Reactions panel: Riposte, Opportunity Attack,
   Sentinel, Polearm Master, Indomitable...) now surface per character. They are
   decoded from `game.interrupt.v0.PreferencesComponent` (two heap ranges of
