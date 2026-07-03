@@ -5,9 +5,10 @@
  * - Hashed /assets/ are cache-first (immutable by construction).
  * - gamedata.json and fonts are stale-while-revalidate.
  */
-const CACHE = 'bg3save-v3';
+const CACHE = 'bg3save-v4';
 const SHELL = [
   '/',
+  '/anatomy',
   '/manifest.webmanifest',
   '/gamedata.json',
   '/effects.json',
@@ -38,15 +39,19 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== location.origin) return;
 
+  // The sample save is large and only wanted on demand; never cache it.
+  if (url.pathname === '/sample.lsv') return;
+
   if (e.request.mode === 'navigate') {
+    const page = url.pathname === '/anatomy' ? '/anatomy' : '/';
     e.respondWith(
       fetch(e.request)
         .then((res) => {
           const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put('/', copy));
+          caches.open(CACHE).then((c) => c.put(page, copy));
           return res;
         })
-        .catch(() => caches.match('/')),
+        .catch(() => caches.match(page).then((hit) => hit ?? caches.match('/'))),
     );
     return;
   }
