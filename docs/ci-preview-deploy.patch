@@ -1,0 +1,83 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index b10f5f9..42749ef 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -70,6 +70,78 @@ jobs:
+       - name: Build (site)
+         run: bun run --filter '@bg3save/site' build
+ 
++  # PR previews: upload the build as a new *version* of the production worker
++  # (no deploy, routes untouched) and surface its workers.dev preview URL on
++  # the PR. Versions pile up harmlessly in the worker's history, so there is
++  # nothing to tear down when the PR closes. Fork PRs are skipped — they
++  # cannot see the Cloudflare token.
++  deploy-preview:
++    name: Deploy preview
++    needs: [python, typescript]
++    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
++    runs-on: ubuntu-latest
++    permissions:
++      contents: read
++      pull-requests: write
++    steps:
++      - uses: actions/checkout@v6.0.3
++
++      - name: Set up Bun
++        uses: oven-sh/setup-bun@v2
++
++      - name: Install dependencies
++        run: bun install --frozen-lockfile
++
++      - name: Build (site)
++        run: bun run --filter '@bg3save/site' build
++
++      - name: Upload preview version (wrangler)
++        id: preview
++        working-directory: ts/site
++        env:
++          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
++          CLOUDFLARE_ACCOUNT_ID: 53653d6594744b58c2d1414d40062f8c
++        run: |
++          bunx wrangler versions upload \
++            --message "PR #${{ github.event.pull_request.number }} @ ${{ github.event.pull_request.head.sha }}" \
++            | tee upload.log
++          url=$(grep -oE 'https://[a-z0-9-]+\.[a-z0-9-]+\.workers\.dev' upload.log | head -1)
++          echo "url=$url" >> "$GITHUB_OUTPUT"
++          if [ -n "$url" ]; then
++            echo "Preview: $url" >> "$GITHUB_STEP_SUMMARY"
++          else
++            echo "::warning::No preview URL in wrangler output (are Preview URLs enabled for the worker?)"
++          fi
++
++      - name: Comment preview URL on the PR
++        if: steps.preview.outputs.url != ''
++        uses: actions/github-script@v8
++        env:
++          PREVIEW_URL: ${{ steps.preview.outputs.url }}
++          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
++        with:
++          script: |
++            const marker = '<!-- bg3save-preview-url -->';
++            const body = [
++              marker,
++              `**Preview deployed**: ${process.env.PREVIEW_URL}`,
++              '',
++              `Anatomy page: ${process.env.PREVIEW_URL}/anatomy`,
++              '',
++              `Built from ${process.env.HEAD_SHA}. The URL is version-pinned; each push gets a fresh one.`,
++            ].join('\n');
++            const { owner, repo } = context.repo;
++            const issue_number = context.payload.pull_request.number;
++            const comments = await github.paginate(github.rest.issues.listComments, {
++              owner, repo, issue_number, per_page: 100,
++            });
++            const mine = comments.find((c) => c.body?.includes(marker));
++            if (mine) {
++              await github.rest.issues.updateComment({ owner, repo, comment_id: mine.id, body });
++            } else {
++              await github.rest.issues.createComment({ owner, repo, issue_number, body });
++            }
++
+   deploy:
+     name: Deploy
+     needs: [python, typescript]
