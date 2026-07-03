@@ -2,5 +2,8 @@
   "name": "bg3-save-parser",
   "compatibility_date": "2026-06-01",
   "assets": { "directory": "./dist" },
-  "routes": [{ "pattern": "bg3.danielfinch.co.uk", "custom_domain": true }]
+  "routes": [{ "pattern": "bg3.danielfinch.co.uk", "custom_domain": true }],
+  // Per-version workers.dev URLs for `wrangler versions upload` (PR previews).
+  // This does not put the production deployment on workers.dev.
+  "preview_urls": true
 }
