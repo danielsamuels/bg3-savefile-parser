@@ -9,6 +9,7 @@ from .discovery import find_latest_save, find_save_by_token
 from .lspk import extract_frames, extract_thumbnail
 from .model import gather_report
 from .render import render_json, render_text
+from .telemetry import render_telemetry_v1
 
 # ---------------------------------------------------------------------------
 # Parser
@@ -98,6 +99,13 @@ def build_parser() -> argparse.ArgumentParser:
         action='store_true',
         help='emit the report as JSON (machine-readable; includes everything gathered)',
     )
+    ap.add_argument(
+        '--telemetry-json',
+        nargs='?',
+        const='-',
+        metavar='PATH',
+        help='emit Telemetry Schema v1 JSON, or also write it to PATH while rendering the report',
+    )
     return ap
 
 
@@ -135,7 +143,17 @@ def main():
 
     print(f'Parsing {save_path} …', file=sys.stderr)
     model = gather_report(save_path, frames, opts)
-    report = render_json(model) if opts.json else render_text(model, opts)
+    telemetry = render_telemetry_v1(model) if opts.telemetry_json is not None else None
+    report = (
+        telemetry
+        if opts.telemetry_json == '-'
+        else (render_json(model) if opts.json else render_text(model, opts))
+    )
+
+    if telemetry is not None and opts.telemetry_json != '-':
+        with open(opts.telemetry_json, 'w', encoding='utf-8', newline='\n') as fh:
+            fh.write(telemetry)
+        print(f'Telemetry written to {opts.telemetry_json}', file=sys.stderr)
 
     if opts.output:
         with open(opts.output, 'w', encoding='utf-8') as fh:

@@ -22,6 +22,7 @@ from .gamedata import DisplayNames
 from .lspk import extract_frames
 from .model import CharacterReport, ItemRef, SaveReport, SpellRef, gather_report
 from .render import render_json, render_text
+from .telemetry import render_telemetry_v1, telemetry_v1
 
 __all__ = [
     'CharacterReport',
@@ -36,4 +37,6 @@ __all__ = [
     'main',
     'render_json',
     'render_text',
+    'render_telemetry_v1',
+    'telemetry_v1',
 ]
